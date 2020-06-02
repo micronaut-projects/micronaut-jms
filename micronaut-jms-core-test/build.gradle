@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    compile project(':micronaut-jms-core')
+
+    implementation platform('io.micronaut:micronaut-bom:2.0.0.M3')
+    annotationProcessor "io.micronaut:micronaut-inject-java:2.0.0.M3"
+    // needed because otherwise IntelliJ integration broken
+    compileOnly "io.micronaut:micronaut-inject-java"
+    compile "io.micronaut:micronaut-inject"
+    implementation "javax.jms:javax.jms-api:2.0.1"
+    implementation "io.micrometer:micrometer-core"
+
+    annotationProcessor "io.micronaut:micronaut-inject-java:2.0.0.M3"
+    compile "io.micronaut.test:micronaut-test-junit5:1.1.5"
+    compile "org.mockito:mockito-junit-jupiter:3.3.3"
+    runtime "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+}
