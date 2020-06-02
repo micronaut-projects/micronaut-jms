@@ -1,3 +1,5 @@
 rootProject.name = 'jms'
 
-include 'jms'
+include 'micronaut-jms-core'
+include 'micronaut-jms-core-test'
+include 'micronaut-jms-activemq'
