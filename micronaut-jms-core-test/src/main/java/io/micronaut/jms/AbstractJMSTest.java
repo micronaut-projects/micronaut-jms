@@ -134,7 +134,7 @@ public abstract class AbstractJMSTest {
                     new MessageHeader("X-Arbitrary-Header", "arbitrary-value"));
         }
 
-        QUEUE_LATCH.await(1L, TimeUnit.SECONDS);
+        QUEUE_LATCH.await(5L, TimeUnit.SECONDS);
 
         assertEquals(0, QUEUE_LATCH.getCount());
     }
@@ -162,7 +162,7 @@ public abstract class AbstractJMSTest {
                     new MessageHeader("X-Topic-Header", "arbitrary-value"));
         }
 
-        TOPIC_LATCH.await(1L, TimeUnit.SECONDS);
+        TOPIC_LATCH.await(5L, TimeUnit.SECONDS);
 
         assertEquals(0, TOPIC_LATCH.getCount());
     }
