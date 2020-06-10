@@ -1,6 +1,8 @@
 package io.micronaut.jms.templates;
 
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.pool.PooledConnection;
 import io.micronaut.jms.serdes.Deserializer;
 
 import javax.annotation.Nullable;
@@ -16,7 +18,7 @@ import java.util.Optional;
 
 public class JmsConsumer {
     @Nullable
-    private ConnectionFactory connectionFactory;
+    private JMSConnectionPool JMSConnectionPool;
     @Nullable
     private Deserializer deserializer;
     private boolean sessionTransacted = false;
@@ -28,10 +30,10 @@ public class JmsConsumer {
     }
 
     /***
-     * @return the {@link ConnectionFactory} configured for the consumer.
+     * @return the {@link JMSConnectionPool} configured for the consumer.
      */
-    public ConnectionFactory getConnectionFactory() {
-        return Optional.ofNullable(connectionFactory)
+    public JMSConnectionPool getConnectionPool() {
+        return Optional.ofNullable(JMSConnectionPool)
                 .orElseThrow(() -> new IllegalStateException("Connection Factory cannot be null"));
     }
 
@@ -39,10 +41,10 @@ public class JmsConsumer {
      *
      * Set the {@link ConnectionFactory} for the consumer.
      *
-     * @param connectionFactory
+     * @param JMSConnectionPool
      */
-    public void setConnectionFactory(@Nullable ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public void setConnectionPool(@Nullable JMSConnectionPool JMSConnectionPool) {
+        this.JMSConnectionPool = JMSConnectionPool;
     }
 
     /***
@@ -90,7 +92,7 @@ public class JmsConsumer {
      * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
      */
     public Object receive(@NotNull String destination) {
-        try (Connection connection = getConnectionFactory().createConnection();
+        try (Connection connection = getConnectionPool().createConnection();
              Session session = connection.createSession(sessionTransacted, sessionAcknowledged)) {
             connection.start();
             return getDeserializer().deserialize(receive(session, lookupDestination(destination)));
@@ -101,7 +103,7 @@ public class JmsConsumer {
     }
 
     private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionFactory().createConnection();
+        try (Connection connection = getConnectionPool().createConnection();
              Session session = connection.createSession(sessionTransacted, sessionAcknowledged)) {
             return type == JMSDestinationType.QUEUE ?
                     session.createQueue(destination) :

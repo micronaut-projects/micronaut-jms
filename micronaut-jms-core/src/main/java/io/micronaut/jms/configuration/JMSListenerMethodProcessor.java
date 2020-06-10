@@ -3,7 +3,6 @@ package io.micronaut.jms.configuration;
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanContext;
-import io.micronaut.context.BeanRegistration;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
@@ -12,17 +11,16 @@ import io.micronaut.core.type.Argument;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
-import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -107,14 +105,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             final JMSListenerContainerFactory listenerFactory = beanContext.findBean(JMSListenerContainerFactory.class).orElseThrow(
                     () -> new IllegalStateException("No JMSListenerFactory configured"));
 
-            final ConnectionFactory connectionFactory = beanContext.getBeanRegistrations(ConnectionFactory.class)
-                    .stream()
-                    .filter(bean -> bean.getBeanDefinition().hasAnnotation(JMSConnectionFactory.class))
-                    .filter(bean ->
-                            connectionFactoryName.equals(bean.getBeanDefinition().getAnnotation(JMSConnectionFactory.class).getRequiredValue(String.class)))
-                    .map(BeanRegistration::getBean)
-                    .findAny()
-                    .orElseThrow(() -> new IllegalStateException("No ConnectionFactory configured for " + connectionFactoryName));
+            final JMSConnectionPool JMSConnectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
 
             final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
 
@@ -135,7 +126,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             };
 
             listenerFactory.getJMSListener(
-                    connectionFactory,
+                    JMSConnectionPool,
                     destination,
                     listener,
                     targetClass,
@@ -171,14 +162,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             final JMSListenerContainerFactory listenerFactory = beanContext.findBean(JMSListenerContainerFactory.class).orElseThrow(
                     () -> new IllegalStateException("No JMSListenerFactory configured"));
 
-            final ConnectionFactory connectionFactory = beanContext.getBeanRegistrations(ConnectionFactory.class)
-                    .stream()
-                    .filter(bean -> bean.getBeanDefinition().hasAnnotation(JMSConnectionFactory.class))
-                    .filter(bean ->
-                            connectionFactoryName.equals(bean.getBeanDefinition().getAnnotation(JMSConnectionFactory.class).getRequiredValue(String.class)))
-                    .map(BeanRegistration::getBean)
-                    .findAny()
-                    .orElseThrow(() -> new IllegalStateException("No ConnectionFactory configured for " + connectionFactoryName));
+            final JMSConnectionPool JMSConnectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
 
             final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
 
@@ -199,7 +183,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             };
 
             listenerFactory.getJMSListener(
-                    connectionFactory,
+                    JMSConnectionPool,
                     destination,
                     listener,
                     targetClass,

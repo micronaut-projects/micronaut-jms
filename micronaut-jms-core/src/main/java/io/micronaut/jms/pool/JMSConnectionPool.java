@@ -1,0 +1,91 @@
+package io.micronaut.jms.pool;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import java.util.concurrent.CompletableFuture;
+
+/***
+ *
+ * Decorator of the provided {@link ConnectionFactory} to ensure maximum reuse of
+ *      {@link Connection} objects.
+ *
+ * @author elliott
+ */
+public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> implements ConnectionFactory {
+
+    private final ConnectionFactory connectionFactory;
+    private final SessionPoolFactory sessionPoolFactory;
+
+    public JMSConnectionPool(
+            ConnectionFactory connectionFactory,
+            SessionPoolFactory sessionPoolFactory,
+            Integer initialPoolSize,
+            Integer maxPoolSize) {
+        super(initialPoolSize, maxPoolSize);
+        this.connectionFactory = connectionFactory;
+        this.sessionPoolFactory = sessionPoolFactory;
+        for (int i = 0; i < initialPoolSize; i++) {
+            CompletableFuture.runAsync(() -> {
+                this.pool.add(this.create());
+            });
+        }
+    }
+
+    private PooledConnection doCreate() {
+        try {
+            Connection connection = connectionFactory.createConnection();
+            connection.start();
+            return new PooledConnection(connection, this, sessionPoolFactory.getSessionPool(connection));
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    protected PooledConnection create(Object... args) {
+        return doCreate();
+    }
+
+    private void doReset(PooledConnection pooledConnection) {
+
+    }
+
+    @Override
+    protected void reset(PooledObject<Connection> pooledObject) {
+        doReset(PooledConnection.of(pooledObject));
+    }
+
+    @Override
+    public Connection createConnection() throws JMSException {
+        return PooledConnection.of(request());
+    }
+
+    @Override
+    public Connection createConnection(String userName, String password) throws JMSException {
+        throw new UnsupportedOperationException("Cannot request a Connection with credentials. " +
+                "All credentials should be configured in the ConnectionFactory");
+    }
+
+    @Override
+    public JMSContext createContext() {
+        return connectionFactory.createContext();
+    }
+
+    @Override
+    public JMSContext createContext(String userName, String password) {
+        return connectionFactory.createContext(userName, password);
+    }
+
+    @Override
+    public JMSContext createContext(String userName, String password, int sessionMode) {
+        return connectionFactory.createContext(userName, password, sessionMode);
+    }
+
+    @Override
+    public JMSContext createContext(int sessionMode) {
+        return connectionFactory.createContext(sessionMode);
+    }
+}

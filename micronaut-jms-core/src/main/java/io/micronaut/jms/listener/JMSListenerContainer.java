@@ -2,17 +2,16 @@ package io.micronaut.jms.listener;
 
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
 
 import javax.annotation.PreDestroy;
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JMSListenerContainer<T> {
-    private ConnectionFactory connectionFactory;
+    private final JMSConnectionPool connectionPool;
 
     private final Set<Connection> openConnections = new HashSet<>();
     private boolean isRunning = true;
@@ -30,20 +29,10 @@ public class JMSListenerContainer<T> {
     private final JMSDestinationType type;
 
     public JMSListenerContainer(
-            ConnectionFactory connectionFactory,
+            JMSConnectionPool connectionPool,
             JMSDestinationType type) {
-        this.connectionFactory = connectionFactory;
+        this.connectionPool = connectionPool;
         this.type = type;
-    }
-
-    /***
-     *
-     *
-     * @return the {@link ConnectionFactory} for this listener.
-     */
-    public ConnectionFactory getConnectionFactory() {
-        return Optional.ofNullable(connectionFactory).orElseThrow(
-                () -> new IllegalStateException("No ConnectionFactory configured"));
     }
 
     /***
@@ -81,7 +70,7 @@ public class JMSListenerContainer<T> {
      */
     public void registerListener(String destination, MessageHandler<T> listener, Class<T> clazz) {
         try  {
-            final Connection connection = getConnectionFactory().createConnection();
+            final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             connection.start();
             openConnections.add(connection);
@@ -119,7 +108,7 @@ public class JMSListenerContainer<T> {
      */
     public void registerListener(String destination, MessageListener listener, Class<T> clazz, boolean transacted, int acknowledgment) {
         try  {
-            final Connection connection = getConnectionFactory().createConnection();
+            final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(transacted, acknowledgment);
             connection.start();
             openConnections.add(connection);

@@ -1,10 +1,10 @@
 package io.micronaut.jms.listener;
 
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
-import javax.jms.ConnectionFactory;
 import javax.jms.MessageListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,7 +32,7 @@ public class JMSListenerContainerFactory {
      *      however can be used to register them dynamically and allow for safe shutdown
      *      within the Bean Context.
      *
-     * @param connectionFactory
+     * @param JMSConnectionPool
      * @param destination
      * @param handler
      * @param clazz
@@ -40,13 +40,13 @@ public class JMSListenerContainerFactory {
      * @param <T>
      */
     public <T> void getJMSListener(
-            final ConnectionFactory connectionFactory,
+            final JMSConnectionPool JMSConnectionPool,
             final String destination,
             final MessageHandler<T> handler,
             final Class<T> clazz,
             final JMSDestinationType type) {
         final JMSListenerContainer<T> listener = new JMSListenerContainer<>(
-                connectionFactory,
+                JMSConnectionPool,
                 type);
         listener.setThreadPoolSize(1);
         listener.registerListener(destination, handler, clazz);
@@ -62,7 +62,7 @@ public class JMSListenerContainerFactory {
      *      however can be used to register them dynamically and allow for safe shutdown
      *      within the Bean Context.
      *
-     * @param connectionFactory
+     * @param JMSConnectionPool
      * @param destination
      * @param listener
      * @param clazz
@@ -72,7 +72,7 @@ public class JMSListenerContainerFactory {
      * @param <T>
      */
     public <T> void getJMSListener(
-            final ConnectionFactory connectionFactory,
+            final JMSConnectionPool JMSConnectionPool,
             final String destination,
             final MessageListener listener,
             final Class<T> clazz,
@@ -80,7 +80,7 @@ public class JMSListenerContainerFactory {
             final int acknowledgment,
             final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
-                connectionFactory,
+                JMSConnectionPool,
                 type);
         container.setThreadPoolSize(1);
         container.registerListener(destination, listener, clazz, transacted, acknowledgment);

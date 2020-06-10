@@ -2,11 +2,11 @@ package io.micronaut.jms.templates;
 
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Serializer;
 
 import javax.annotation.Nullable;
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 public class JmsProducer {
     @Nullable
-    private ConnectionFactory connectionFactory;
+    private JMSConnectionPool connectionPool;
     private Serializer<Object> serializer;
     private boolean sessionTransacted = false;
     private int sessionAcknowledged = Session.AUTO_ACKNOWLEDGE;
@@ -39,21 +39,21 @@ public class JmsProducer {
     }
 
     /***
-     * @return the {@link ConnectionFactory} configured for the producer.
+     * @return the {@link JMSConnectionPool} configured for the producer.
      */
-    public ConnectionFactory getConnectionFactory() {
-        return Optional.ofNullable(connectionFactory).orElseThrow(
-                () -> new IllegalStateException("Connection Factory cannot be null"));
+    public JMSConnectionPool getConnectionPool() {
+        return Optional.ofNullable(connectionPool).orElseThrow(
+                () -> new IllegalStateException("Connection Pool cannot be null"));
     }
 
     /***
      *
-     * Sets the {@link ConnectionFactory} to be used by the producer.
+     * Sets the {@link JMSConnectionPool} to be used by the producer.
      *
-     * @param connectionFactory
+     * @param JMSConnectionPool
      */
-    public void setConnectionFactory(@Nullable ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public void setConnectionPool(@Nullable JMSConnectionPool JMSConnectionPool) {
+        this.connectionPool = JMSConnectionPool;
     }
 
     /***
@@ -90,7 +90,7 @@ public class JmsProducer {
             @NotEmpty String destination,
             @NotNull Object message,
             MessageHeader... headers) {
-        try (Connection connection = getConnectionFactory().createConnection();
+        try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             send(destination, getSerializer().serialize(session, message), headers);
         } catch (JMSException e) {
@@ -116,7 +116,7 @@ public class JmsProducer {
     }
 
     private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionFactory().createConnection();
+        try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             return type == JMSDestinationType.QUEUE ?
                     session.createQueue(destination) :
@@ -140,7 +140,7 @@ public class JmsProducer {
             @NotNull Destination destination,
             @NotNull Message message,
             MessageHeader... headers) {
-        try (Connection connection = getConnectionFactory().createConnection();
+        try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             send(session, destination, message, headers);
         } catch (JMSException e) {

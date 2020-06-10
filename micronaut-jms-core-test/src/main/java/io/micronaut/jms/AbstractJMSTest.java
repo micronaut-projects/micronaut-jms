@@ -1,6 +1,7 @@
 package io.micronaut.jms;
 
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Header;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.annotations.JMSListener;
@@ -11,10 +12,10 @@ import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.JMSHeaders;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsConsumer;
 import io.micronaut.jms.templates.JmsProducer;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -33,17 +34,8 @@ public abstract class AbstractJMSTest {
     private static final CountDownLatch QUEUE_LATCH = new CountDownLatch(100);
     private static final CountDownLatch TOPIC_LATCH = new CountDownLatch(100);
 
-    private ConnectionFactory connectionFactory;
-
     @Inject
     private ApplicationContext context;
-
-    @BeforeEach
-    public void setup() {
-        if (connectionFactory == null) {
-            connectionFactory = getConnectionFactory();
-        }
-    }
 
     /***
      * @return a {@link ConnectionFactory} for the test broker.
@@ -55,14 +47,16 @@ public abstract class AbstractJMSTest {
      */
     @Test
     public void testSendMessage() {
+        JMSConnectionPool pool = context.getBean(JMSConnectionPool.class, Qualifiers.byName("activeMqConnectionFactory"));
+
         final JmsProducer producer = new JmsProducer(JMSDestinationType.QUEUE);
-        producer.setConnectionFactory(connectionFactory);
+        producer.setConnectionPool(pool);
         producer.setSerializer(new DefaultSerializerDeserializer());
 
         producer.send("test-queue", "test-message");
 
         final JmsConsumer consumer = new JmsConsumer(JMSDestinationType.QUEUE);
-        consumer.setConnectionFactory(connectionFactory);
+        consumer.setConnectionPool(pool);
         consumer.setDeserializer(new DefaultSerializerDeserializer());
 
         final String message = consumer.receive("test-queue", String.class);
@@ -80,8 +74,10 @@ public abstract class AbstractJMSTest {
      */
     @Test
     public void testListener() throws InterruptedException {
+        JMSConnectionPool pool = context.getBean(JMSConnectionPool.class, Qualifiers.byName("activeMqConnectionFactory"));
+
         final JmsProducer producer = new JmsProducer(JMSDestinationType.QUEUE);
-        producer.setConnectionFactory(connectionFactory);
+        producer.setConnectionPool(pool);
         producer.setSerializer(new DefaultSerializerDeserializer());
 
         for (int i = 2; i < 100; i++) {
@@ -91,7 +87,7 @@ public abstract class AbstractJMSTest {
         final CountDownLatch latch = new CountDownLatch(98);
 
         final JMSListenerContainer<String> listener = new JMSListenerContainer<>(
-                connectionFactory,
+                pool,
                 JMSDestinationType.QUEUE);
         listener.setThreadPoolSize(10);
         listener.setMaxThreadPoolSize(20);
@@ -120,12 +116,13 @@ public abstract class AbstractJMSTest {
      */
     @Test
     public void testJMSListenerAnnotationDriven() throws InterruptedException {
+        JMSConnectionPool pool = context.getBean(JMSConnectionPool.class, Qualifiers.byName("activeMqConnectionFactory"));
         final JMSListenerContainerFactory listenerFactory = context.getBean(JMSListenerContainerFactory.class);
 
         assertNotNull(listenerFactory.getRegisteredListener("test-queue-2"), "Listener is null");
 
         final JmsProducer producer = new JmsProducer(JMSDestinationType.QUEUE);
-        producer.setConnectionFactory(connectionFactory);
+        producer.setConnectionPool(pool);
         producer.setSerializer(new DefaultSerializerDeserializer());
 
         for (int i = 0; i < 100; i++) {
@@ -148,12 +145,13 @@ public abstract class AbstractJMSTest {
      */
     @Test
     public void testJMSListenerTopicAnnotationDriven() throws InterruptedException {
+        JMSConnectionPool pool = context.getBean(JMSConnectionPool.class, Qualifiers.byName("activeMqConnectionFactory"));
         final JMSListenerContainerFactory listenerFactory = context.getBean(JMSListenerContainerFactory.class);
 
         assertNotNull(listenerFactory.getRegisteredListener("my-topic"), "Listener is null");
 
         final JmsProducer producer = new JmsProducer(JMSDestinationType.TOPIC);
-        producer.setConnectionFactory(connectionFactory);
+        producer.setConnectionPool(pool);
         producer.setSerializer(new DefaultSerializerDeserializer());
 
         for (int i = 0; i < 100; i++) {
@@ -168,7 +166,7 @@ public abstract class AbstractJMSTest {
     }
 
     /***
-     * @return defines an {@link JMSConnectionFactory} in the {@link io.micronaut.context.BeanContext}
+     * @return Returns a {@link JMSConnectionFactory} in the {@link io.micronaut.context.BeanContext}
      *      to be used by a {@link JMSListener}.
      */
     @JMSConnectionFactory("activeMqConnectionFactory")
