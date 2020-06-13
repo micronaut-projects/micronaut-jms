@@ -1,6 +1,8 @@
 package io.micronaut.jms.annotations;
 
+import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.DefaultScope;
 
 import java.lang.annotation.*;
 
@@ -32,7 +34,8 @@ import java.lang.annotation.*;
         ElementType.METHOD,
         ElementType.TYPE
 })
-@Context
+@Bean
+@DefaultScope(Context.class)
 public @interface JMSConnectionFactory {
     String value();
 }

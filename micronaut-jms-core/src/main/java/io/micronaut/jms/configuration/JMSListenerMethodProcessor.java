@@ -3,6 +3,7 @@ package io.micronaut.jms.configuration;
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanContext;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
@@ -21,6 +22,7 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -45,6 +47,10 @@ import java.util.stream.Stream;
  * @author elliott
  */
 @Singleton
+@Requires(beans = {
+        ConnectionFactory.class,
+        JMSConnectionPool.class
+})
 public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMSListener> {
 
     @Inject

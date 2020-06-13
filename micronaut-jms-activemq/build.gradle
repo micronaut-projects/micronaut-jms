@@ -1,9 +1,27 @@
 plugins {
     id 'java'
+    id "io.freefair.lombok" version "5.1.0"
 }
 
 dependencies {
+    implementation project(':micronaut-jms-core')
+    implementation platform('io.micronaut:micronaut-bom:2.0.0.M3')
+
+    // lombok config must come before the Micronaut annotation processor config
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+
+    implementation "javax.jms:javax.jms-api:2.0.1"
+    implementation "org.apache.activemq:activemq-broker:5.15.13"
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    // needed because otherwise IntelliJ integration broken
+    compileOnly "io.micronaut:micronaut-inject-java"
+    compile "io.micronaut:micronaut-inject"
+
     testCompile project(':micronaut-jms-core-test')
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
     testCompileOnly "io.micronaut:micronaut-inject-java:2.0.0.M3"
 
@@ -12,7 +30,6 @@ dependencies {
     testCompile "org.mockito:mockito-junit-jupiter:3.3.3"
     testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.2"
     testImplementation "org.apache.activemq.tooling:activemq-junit:5.15.13"
-    testImplementation "org.apache.activemq:activemq-broker:5.15.13"
 }
 
 test {

@@ -2,12 +2,10 @@ package io.micronaut.jms.templates;
 
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.pool.PooledConnection;
 import io.micronaut.jms.serdes.Deserializer;
 
 import javax.annotation.Nullable;
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -18,7 +16,7 @@ import java.util.Optional;
 
 public class JmsConsumer {
     @Nullable
-    private JMSConnectionPool JMSConnectionPool;
+    private JMSConnectionPool connectionPool;
     @Nullable
     private Deserializer deserializer;
     private boolean sessionTransacted = false;
@@ -33,18 +31,18 @@ public class JmsConsumer {
      * @return the {@link JMSConnectionPool} configured for the consumer.
      */
     public JMSConnectionPool getConnectionPool() {
-        return Optional.ofNullable(JMSConnectionPool)
+        return Optional.ofNullable(connectionPool)
                 .orElseThrow(() -> new IllegalStateException("Connection Factory cannot be null"));
     }
 
     /***
      *
-     * Set the {@link ConnectionFactory} for the consumer.
+     * Set the {@link JMSConnectionPool} for the consumer.
      *
-     * @param JMSConnectionPool
+     * @param connectionPool
      */
-    public void setConnectionPool(@Nullable JMSConnectionPool JMSConnectionPool) {
-        this.JMSConnectionPool = JMSConnectionPool;
+    public void setConnectionPool(@Nullable JMSConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
     }
 
     /***

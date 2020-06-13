@@ -2,6 +2,7 @@ package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Context;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.processor.BeanDefinitionProcessor;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.qualifiers.Qualifiers;
@@ -20,6 +21,9 @@ import javax.jms.ConnectionFactory;
  * @author elliott
  */
 @Context
+@Requires(beans = {
+        ConnectionFactory.class
+})
 public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcessor<JMSConnectionFactory> {
     @Override
     public void process(BeanDefinition<?> beanDefinition, BeanContext context) {

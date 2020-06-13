@@ -152,51 +152,51 @@ public class PooledSession extends PooledObject<Session> implements Session {
 
     @Override
     public TopicSubscriber createDurableSubscriber(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
-        return null;
+        return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
     public MessageConsumer createDurableConsumer(Topic topic, String name) throws JMSException {
-        return null;
+        return object.createDurableSubscriber(topic, name);
     }
 
     @Override
     public MessageConsumer createDurableConsumer(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
-        return null;
+        return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
     public MessageConsumer createSharedDurableConsumer(Topic topic, String name) throws JMSException {
-        return null;
+        return object.createDurableSubscriber(topic, name);
     }
 
     @Override
     public MessageConsumer createSharedDurableConsumer(Topic topic, String name, String messageSelector) throws JMSException {
-        return null;
+        return object.createSharedDurableConsumer(topic, name, messageSelector);
     }
 
     @Override
     public QueueBrowser createBrowser(Queue queue) throws JMSException {
-        return null;
+        return object.createBrowser(queue);
     }
 
     @Override
     public QueueBrowser createBrowser(Queue queue, String messageSelector) throws JMSException {
-        return null;
+        return object.createBrowser(queue, messageSelector);
     }
 
     @Override
     public TemporaryQueue createTemporaryQueue() throws JMSException {
-        return null;
+        return object.createTemporaryQueue();
     }
 
     @Override
     public TemporaryTopic createTemporaryTopic() throws JMSException {
-        return null;
+        return object.createTemporaryTopic();
     }
 
     @Override
     public void unsubscribe(String name) throws JMSException {
-
+        object.unsubscribe(name);
     }
 }

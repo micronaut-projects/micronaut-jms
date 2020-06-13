@@ -50,10 +50,10 @@ public class JmsProducer {
      *
      * Sets the {@link JMSConnectionPool} to be used by the producer.
      *
-     * @param JMSConnectionPool
+     * @param connectionPool
      */
-    public void setConnectionPool(@Nullable JMSConnectionPool JMSConnectionPool) {
-        this.connectionPool = JMSConnectionPool;
+    public void setConnectionPool(@Nullable JMSConnectionPool connectionPool) {
+        this.connectionPool = connectionPool;
     }
 
     /***

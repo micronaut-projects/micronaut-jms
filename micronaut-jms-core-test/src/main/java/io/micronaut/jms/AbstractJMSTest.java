@@ -3,7 +3,6 @@ package io.micronaut.jms;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Header;
-import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
@@ -19,7 +18,6 @@ import io.micronaut.jms.templates.JmsProducer;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -36,11 +34,6 @@ public abstract class AbstractJMSTest {
 
     @Inject
     private ApplicationContext context;
-
-    /***
-     * @return a {@link ConnectionFactory} for the test broker.
-     */
-    protected abstract ConnectionFactory getConnectionFactory();
 
     /***
      * Tests sending a message to a test queue on a broker.
@@ -163,15 +156,6 @@ public abstract class AbstractJMSTest {
         TOPIC_LATCH.await(5L, TimeUnit.SECONDS);
 
         assertEquals(0, TOPIC_LATCH.getCount());
-    }
-
-    /***
-     * @return Returns a {@link JMSConnectionFactory} in the {@link io.micronaut.context.BeanContext}
-     *      to be used by a {@link JMSListener}.
-     */
-    @JMSConnectionFactory("activeMqConnectionFactory")
-    public ConnectionFactory activeMqConnectionFactory() {
-        return getConnectionFactory();
     }
 
     @JMSListener("activeMqConnectionFactory")

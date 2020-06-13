@@ -4,6 +4,14 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
+/***
+ * Pool for ensuring maximum reuse of {@link Session}s within an application.
+ *
+ * @see SessionPoolFactory
+ * @see PooledConnection
+ *
+ * @author elliott
+ */
 public class SessionPool extends AbstractPool<PooledObject<Session>> {
 
     private final Connection connection;

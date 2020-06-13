@@ -3,14 +3,13 @@ package io.micronaut.jms.pool;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractPool<T extends PooledObject<?>> {
 
     protected final List<T> pool;
-    private final List<T> active;
     protected final Integer initialSize;
     protected final Integer maxSize;
+    private final List<T> active;
 
     public AbstractPool(
             Integer initialSize,
@@ -21,6 +20,14 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
         this.maxSize = maxSize;
     }
 
+    /***
+     *
+     * Requests an object {@param <T>} from the pool. If the pool is empty then a new object is added to the pool.
+     *      If the number of active connections exceeds the configured size then an {@link RuntimeException} is thrown
+     *
+     * @param args - the arguments to pass to the create method, or to help select an object from the pool.
+     * @return a {@link PooledObject} from the pool.
+     */
     public T request(Object... args) {
         if (pool.isEmpty()) {
             if (active.size() < maxSize) {
@@ -34,13 +41,29 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
         return object;
     }
 
+    /***
+     * Release the provided object and return it to the pool.
+     *
+     * @param pooledObject - the object to return to the pool
+     */
     public void release(T pooledObject) {
-        System.err.println("Releasing object " + pooledObject + " from pool.");
         active.remove(pooledObject);
         reset(pooledObject);
         pool.add(pooledObject);
     }
 
+    /***
+     * Create an object for the pool.
+     *
+     * @param args - the arguments to be provided to the create method.
+     * @return a new object of type {@param <T>} for the pool.
+     */
     protected abstract T create(Object... args);
+
+    /***
+     * Reset the provided object so that it can be returned to the pool ready for reuse.
+     *
+     * @param pooledObject
+     */
     protected abstract void reset(T pooledObject);
 }
