@@ -14,7 +14,7 @@ public class DefaultArgumentBinder extends AbstractChainedArgumentBinder {
 
     @Override
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
-        return () -> Optional.of(deserializer.deserialize(source));
+        return () -> Optional.of(deserializer.deserialize(source, context.getArgument().getType()));
     }
 
     @Override

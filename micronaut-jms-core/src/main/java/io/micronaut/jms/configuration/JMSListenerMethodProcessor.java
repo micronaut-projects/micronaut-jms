@@ -117,19 +117,17 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
 
             final DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
 
-            final MessageListener listener = message -> {
-                executor.submit(() -> {
-                    BoundExecutable boundExecutable = binder.bind(method, new JMSArgumentBinderRegistry(), message);
-                    boundExecutable.invoke(bean);
-                    if (Session.CLIENT_ACKNOWLEDGE == acknowledgment.orElse(Session.AUTO_ACKNOWLEDGE)) {
-                        try {
-                            message.acknowledge();
-                        } catch (JMSException e) {
-                            e.printStackTrace();
-                        }
+            final MessageListener listener = message -> executor.submit(() -> {
+                BoundExecutable boundExecutable = binder.bind(method, new JMSArgumentBinderRegistry(), message);
+                boundExecutable.invoke(bean);
+                if (Session.CLIENT_ACKNOWLEDGE == acknowledgment.orElse(Session.AUTO_ACKNOWLEDGE)) {
+                    try {
+                        message.acknowledge();
+                    } catch (JMSException e) {
+                        e.printStackTrace();
                     }
-                });
-            };
+                }
+            });
 
             listenerFactory.getJMSListener(
                     JMSConnectionPool,

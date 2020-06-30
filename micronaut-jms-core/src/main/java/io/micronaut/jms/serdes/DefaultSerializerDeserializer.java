@@ -1,5 +1,7 @@
 package io.micronaut.jms.serdes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.jms.model.MessageType;
 
 import javax.jms.BytesMessage;
@@ -9,14 +11,16 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Override
-    public Object deserialize(Message message) {
+    public <T> T deserialize(Message message, Class<T> clazz) {
         if (message == null) {
             return null;
         }
@@ -30,22 +34,25 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                         final String key = keys.nextElement();
                         output.put(key, mapMessage.getObject(key));
                     }
-                    return output;
+                    return (T) output;
                 case TEXT:
                     final TextMessage textMessage = (TextMessage) message;
-                    return textMessage.getText();
+                    if (clazz.isAssignableFrom(String.class)) {
+                        return (T) textMessage.getText();
+                    }
+                    return OBJECT_MAPPER.readValue(textMessage.getText(), clazz);
                 case BYTES:
                     final BytesMessage bytesMessage = (BytesMessage) message;
                     byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
                     bytesMessage.readBytes(bytes);
-                    return bytes;
+                    return (T) bytes;
                 case OBJECT:
                     final ObjectMessage objectMessage = (ObjectMessage) message;
-                    return objectMessage.getObject();
+                    return (T) objectMessage.getObject();
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
-        } catch (JMSException e) {
+        } catch (JMSException | JsonProcessingException e) {
             e.printStackTrace();
         }
         throw new IllegalArgumentException("Failed to deserialize message " + message);
@@ -76,11 +83,11 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                     bytesMessage.readBytes((byte[]) input);
                     return bytesMessage;
                 case OBJECT:
-                    return session.createObjectMessage((Serializable) input);
+                    return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + input);
             }
-        } catch (JMSException e) {
+        } catch (JMSException | JsonProcessingException e) {
             e.printStackTrace();
         }
         throw new IllegalArgumentException("Failed to serialize input " + input);

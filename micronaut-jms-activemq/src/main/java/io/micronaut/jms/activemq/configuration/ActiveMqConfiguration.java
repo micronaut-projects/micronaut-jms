@@ -9,7 +9,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.ConnectionFactory;
 
 @Factory
-@Requires(property = "io.micronaut.configuration.jms.activemq.enabled", value = "true")
+@Requires(property = "micronaut.jms.activemq.enabled", value = "true")
 public class ActiveMqConfiguration {
 
     /***

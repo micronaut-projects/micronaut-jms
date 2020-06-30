@@ -4,6 +4,7 @@ import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Header;
 import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.listener.JMSListenerContainer;
@@ -15,11 +16,17 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsConsumer;
 import io.micronaut.jms.templates.JmsProducer;
+import lombok.Data;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.jms.Session;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -56,6 +63,33 @@ public abstract class AbstractJMSTest {
 
         assertNotNull(message, "Message should not be null");
         assertEquals("test-message", message);
+    }
+    /***
+     * Tests sending a message to a test queue on a broker.
+     */
+    @Test
+    public void testSendMessageAnnotationDriven() {
+        JMSConnectionPool pool = context.getBean(JMSConnectionPool.class, Qualifiers.byName("activeMqConnectionFactory"));
+        TestProducer producer = context.getBean(TestProducer.class);
+
+        assertNotNull(producer);
+
+        MessageObject message = new MessageObject();
+        message.setId(1);
+        message.setDescription("This is a test message.");
+        message.setFlag(true);
+        message.setTags(Collections.singleton("test"));
+        message.setMetadata(Collections.singletonMap("tag", "value"));
+
+        producer.send(message);
+
+        final JmsConsumer consumer = new JmsConsumer(JMSDestinationType.QUEUE);
+        consumer.setConnectionPool(pool);
+        consumer.setDeserializer(new DefaultSerializerDeserializer());
+
+        MessageObject received = consumer.receive("test-queue-3", MessageObject.class);
+
+        assertEquals(received.getId(), 1);
     }
 
     /***
@@ -168,9 +202,11 @@ public abstract class AbstractJMSTest {
         public void handle(
                 String message,
                 @Header(JMSHeaders.JMS_CORRELATION_ID) String correlationId,
-                @Header("X-Arbitrary-Header") String arbitraryHeader) {
+                @Header("X-Arbitrary-Header") String arbitraryHeader,
+                @Header("X-Null-Header") @Nullable Integer nullHeader) {
             if ("test-corr-id".equals(correlationId) &&
-                    "arbitrary-value".equals(arbitraryHeader)) {
+                    "arbitrary-value".equals(arbitraryHeader) &&
+                    nullHeader == null) {
                 QUEUE_LATCH.countDown();
             }
             System.err.println("CorrelationID: " + correlationId);
@@ -192,6 +228,24 @@ public abstract class AbstractJMSTest {
             System.err.println("X-Topic-Header: " + header);
             System.err.println("Message: " + message);
         }
+    }
+
+    @JMSProducer("activeMqConnectionFactory")
+    interface TestProducer {
+        @Queue(
+                destination = "test-queue-3",
+            transacted = true,
+            acknowledgement = Session.CLIENT_ACKNOWLEDGE)
+        void send(MessageObject object);
+    }
+
+    @Data
+    static class MessageObject implements Serializable {
+        private Integer id;
+        private String description;
+        private boolean flag;
+        private Collection<String> tags;
+        private Map<String, String> metadata;
     }
 
 }

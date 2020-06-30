@@ -66,34 +66,22 @@ public class JmsConsumer {
 
     /***
      *
-     * Receives a {@link Message} from the broker and converts it
+     * Receives a {@link Message} from the broker and and converts it
      *      to instance of type {@param <T>}.
      *
      * @param destination
      * @param clazz
      * @param <T>
+     *
      * @return the message from the broker as an object instance of type {@param <T>}.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T receive(@NotNull String destination, @NotNull Class<T> clazz) {
-        return (T) receive(destination);
-    }
-
-    /***
-     *
-     * Receives a {@link Message} from the broker and returns it as an
-     *      {@link Object}.
-     *
-     * @param destination
-     * @return the message from the broker with an inferred type.
      *
      * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
      */
-    public Object receive(@NotNull String destination) {
+    public <T> T receive(@NotNull String destination, Class<T> clazz) {
         try (Connection connection = getConnectionPool().createConnection();
              Session session = connection.createSession(sessionTransacted, sessionAcknowledged)) {
             connection.start();
-            return getDeserializer().deserialize(receive(session, lookupDestination(destination)));
+            return getDeserializer().deserialize(receive(session, lookupDestination(destination)), clazz);
         } catch (JMSException e) {
             e.printStackTrace();
         }

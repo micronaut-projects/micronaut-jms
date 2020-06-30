@@ -1,11 +1,20 @@
 package io.micronaut.jms.annotations;
 
+import io.micronaut.aop.Introduction;
+import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.DefaultScope;
-import io.micronaut.context.annotation.Executable;
+import io.micronaut.context.annotation.Type;
+import io.micronaut.jms.configuration.JMSProducerMethodInterceptor;
 
+import javax.inject.Scope;
 import javax.inject.Singleton;
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /***
  *
@@ -58,11 +67,17 @@ import java.lang.annotation.*;
  * @author elliott
  */
 @Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention(RUNTIME)
+@Target({ElementType.TYPE})
+@Scope
+@Introduction
+@Type(JMSProducerMethodInterceptor.class)
 @Bean
-@Executable(processOnStartup = true)
 @DefaultScope(Singleton.class)
 public @interface JMSProducer {
-    String connectionFactory();
+    @AliasFor(member = "connectionFactory")
+    String value() default "";
+
+    @AliasFor(member = "value")
+    String connectionFactory() default "";
 }

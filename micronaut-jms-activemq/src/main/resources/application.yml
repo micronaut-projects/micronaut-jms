@@ -1,6 +1,8 @@
-io.micronaut.configuration.jms.activemq:
-  enabled: true
-  connection-string: 'vm://localhost?broker.persistent=false'
+micronaut:
+  jms:
+    activemq:
+      enabled: true
+      connection-string: 'vm://localhost?broker.persistent=false'
 
 logger:
   levels:

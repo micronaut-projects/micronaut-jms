@@ -4,6 +4,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.stream.Stream;
 
 public final class JMSHeaders {
@@ -100,18 +101,29 @@ public final class JMSHeaders {
     }
 
     private static <T> T getClientProvidedHeader(String headerName, Message message, Class<T> clazz) throws JMSException {
+        Enumeration<String> properties = message.getPropertyNames();
+        while (properties.hasMoreElements()) {
+            if (headerName.equals(properties.nextElement())) {
+                return getHeaderValue(headerName, message, clazz);
+            }
+        }
+        return null;
+    }
+
+    private static <T> T getHeaderValue(String name, Message message, Class<T> clazz) throws JMSException {
+
         if (Boolean.class.isAssignableFrom(clazz)) {
-            return (T) Boolean.valueOf(message.getBooleanProperty(headerName));
+            return (T) Boolean.valueOf(message.getBooleanProperty(name));
         }
         if (String.class.isAssignableFrom(clazz)) {
-            return (T) message.getStringProperty(headerName);
+            return (T) message.getStringProperty(name);
         }
         if (Long.class.isAssignableFrom(clazz)) {
-            return (T) Long.valueOf(message.getLongProperty(headerName));
+            return (T) Long.valueOf(message.getLongProperty(name));
         }
         if (Integer.class.isAssignableFrom(clazz)) {
-            return (T) Integer.valueOf(message.getIntProperty(headerName));
+            return (T) Integer.valueOf(message.getIntProperty(name));
         }
-        return (T) message.getObjectProperty(headerName);
+        return (T) message.getObjectProperty(name);
     }
 }

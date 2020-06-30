@@ -1,1 +1,128 @@
-TODO
+= Getting Started
+
+To add support for JMS, introduce the following dependency to your project
+
+_Gradle:_
+
+[source]
+----
+compile 'io.microanut.configuration:micronaut-jms-core:1.0.0
+----
+_Maven:_
+
+[source]
+----
+<dependency>
+    <groupId>io.micronaut.configuration</groupId>
+    <artifactId>micronaut-jms-core</artifactId>
+    <version>1.0.0</version>
+</dependency>
+----
+
+Additionally, you must provide the `ConnectionFactory` to the
+`BeanContext` annotated with `@JMSConnectionFactory` i.e.
+
+[source]
+----
+@Configuration
+public class JMSConfig {
+    @JMSConnectionFactory("myConnectionFactory")
+    public ConnectionFactory connFactory() {
+        return new ActiveMqConnectionFactory("tcp://host:616161");
+    }
+}
+----
+
+Once you have these changes in place, you can start defining
+listeners and producers.
+
+== Defining a JMS Listener
+
+You can define a listener using any the following syntax
+
+[source]
+----
+@JMSListener("myConnectionFactory")
+public class MyListener {
+    @Queue("my-queue")
+    public void receive(String message) {
+        // do logic
+    }
+
+    @Topic("my-topic")
+    public void onMessage(MyTopicDto dto, @Header(JMSHeaders.JMS_CORRELATION_ID) String correlationId) {
+        // topic logic
+    }
+
+    @Queue(
+        destination = "my-other-queue",
+        concurrency = "1-5",
+        transacted = true,
+        acknowledgement = Session.CLIENT_ACKNOWLEDGE)
+    public void handle(String message, @Header("X-Arbitrary-Header") String myHeader) {
+        // other queue logic
+    }
+
+    @Queue(
+        destination = "another-queue",
+        executor = "my-executor-service")
+    public void do(String message) {
+        // logic
+    }
+}
+
+@Data
+class MyTopicDto {
+    private String id;
+    private Integer counter;
+    private Date date;
+    private Map<String, String> metadata;
+}
+----
+
+Some key notes here:
+
+1. Your class must be annotated with `@JMSListener`. This defines it
+as a bean and enables the post-processing logic
+2. The value of the `@JMSListener` must correspond with the value of exactly
+one `@JMSConnectionFactory` annotated bean in the `BeanContext`.
+If there is no `@JMSConnectionFactory` with the same value, or if there is more
+than one then you will receive an `IllegalStateException`
+3. There must be at least one method annotated with either `@Queue`
+or `@Topic` in an `@JMSListener` class. If there is not, an `IllegalStateException`
+will be thrown
+4. Any method annotated with `@Queue` or `@Topic` can have at most one un-annotated
+parameter which is assumed to be the target for the message body.
+All other parameters must have the `@Header` annotation.
+5. If you want to use a Micronaut managed executor service, you can specify
+it by name in the `executor` parameter of the `@Queue` or `@Topic` annotations.
+Or if you would like a dedicated `ExecutorService` you can specify the `concurrency`
+parameter (in the form `"x-y"`) which will manage a `ThreadPool` with an initial size of `x`
+and a maximum size of `y`.
+
+== Defining a JMS Producer
+A `JMSProducer` can be instantiated directly and requires minimal configuration to get
+up and running. The following snippet should suffice:
+
+[source]
+----
+@Singleton
+public JmsProducer producer(
+        ConnectionFactory connectionFactory) {
+    final JmsProducer producer = new JmsProducer();
+    producer.setConnectionFactory(connectionFactory);
+    producer.setSerializer(new DefaultSerializerDeserializer());
+    return producer;
+}
+
+@Inject
+private JmsProducer producer
+
+public void aMethod(String message) {
+    producer.send("my-queue", message, new MessageHeader(JMSHeaders.JMS_REPLY_TO, "my-reply-queue"));
+}
+
+public <T> void anotherMethod(T complexMessage) {
+    producer.send("my-queue", complexMessage, new MessageHeader("X-Arbitrary-Header", "my-reply-queue"));
+}
+----

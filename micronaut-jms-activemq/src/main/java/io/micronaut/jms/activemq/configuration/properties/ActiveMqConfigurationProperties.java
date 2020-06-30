@@ -6,9 +6,9 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
-@ConfigurationProperties("io.micronaut.configuration.jms.activemq")
+@ConfigurationProperties("micronaut.jms.activemq")
 @Data
-@Requires(property = "io.micronaut.configuration.jms.activemq.enabled", value = "true")
+@Requires(property = "micronaut.jms.activemq.enabled", value = "true")
 public class ActiveMqConfigurationProperties {
     private boolean enabled;
     @NotBlank
