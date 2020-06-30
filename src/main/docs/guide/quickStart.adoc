@@ -101,6 +101,17 @@ parameter (in the form `"x-y"`) which will manage a `ThreadPool` with an initial
 and a maximum size of `y`.
 
 == Defining a JMS Producer
+
+You can define a listener using any the following syntax
+
+```java
+@JMSProducer("myConnectionFactory")
+public interface MyProducer {
+    @Queue(destination = "my-queue")
+    public void send(MyObject message, @Header("X-Arbitrary-Header") String arbitraryHeader);
+}
+```
+
 A `JMSProducer` can be instantiated directly and requires minimal configuration to get
 up and running. The following snippet should suffice:
 
