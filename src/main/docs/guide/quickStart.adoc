@@ -8,9 +8,10 @@ _Gradle:_
 ----
 compile 'io.microanut.configuration:micronaut-jms-core:1.0.0
 ----
+
 _Maven:_
 
-[source]
+[source,xml]
 ----
 <dependency>
     <groupId>io.micronaut.configuration</groupId>
@@ -22,9 +23,9 @@ _Maven:_
 Additionally, you must provide the `ConnectionFactory` to the
 `BeanContext` annotated with `@JMSConnectionFactory` i.e.
 
-[source]
+[source,java]
 ----
-@Configuration
+@Factory
 public class JMSConfig {
     @JMSConnectionFactory("myConnectionFactory")
     public ConnectionFactory connFactory() {
@@ -33,14 +34,13 @@ public class JMSConfig {
 }
 ----
 
-Once you have these changes in place, you can start defining
-listeners and producers.
+Once you have these changes in place, you can start defining listeners and producers.
 
 == Defining a JMS Listener
 
 You can define a listener using any the following syntax
 
-[source]
+[source,java]
 ----
 @JMSListener("myConnectionFactory")
 public class MyListener {
@@ -66,7 +66,7 @@ public class MyListener {
     @Queue(
         destination = "another-queue",
         executor = "my-executor-service")
-    public void do(String message) {
+    public void go(String message) {
         // logic
     }
 }
@@ -82,20 +82,17 @@ class MyTopicDto {
 
 Some key notes here:
 
-1. Your class must be annotated with `@JMSListener`. This defines it
-as a bean and enables the post-processing logic
-2. The value of the `@JMSListener` must correspond with the value of exactly
-one `@JMSConnectionFactory` annotated bean in the `BeanContext`.
-If there is no `@JMSConnectionFactory` with the same value, or if there is more
-than one then you will receive an `IllegalStateException`
+1. Your class must be annotated with `@JMSListener`.
+This defines it as a bean and enables the post-processing logic
+2. The value of the `@JMSListener` must correspond with the value of exactly one `@JMSConnectionFactory` annotated bean in the `BeanContext`.
+If there is no `@JMSConnectionFactory` with the same value, or if there is more than one then you will receive an `IllegalStateException`
 3. There must be at least one method annotated with either `@Queue`
-or `@Topic` in an `@JMSListener` class. If there is not, an `IllegalStateException`
+or `@Topic` in an `@JMSListener` class.
+If there is not, an `IllegalStateException`
 will be thrown
-4. Any method annotated with `@Queue` or `@Topic` can have at most one un-annotated
-parameter which is assumed to be the target for the message body.
+4. Any method annotated with `@Queue` or `@Topic` can have at most one un-annotated parameter which is assumed to be the target for the message body.
 All other parameters must have the `@Header` annotation.
-5. If you want to use a Micronaut managed executor service, you can specify
-it by name in the `executor` parameter of the `@Queue` or `@Topic` annotations.
+5. If you want to use a Micronaut managed executor service, you can specify it by name in the `executor` parameter of the `@Queue` or `@Topic` annotations.
 Or if you would like a dedicated `ExecutorService` you can specify the `concurrency`
 parameter (in the form `"x-y"`) which will manage a `ThreadPool` with an initial size of `x`
 and a maximum size of `y`.
@@ -104,36 +101,44 @@ and a maximum size of `y`.
 
 You can define a listener using any the following syntax
 
-```java
+[source,java]
+----
 @JMSProducer("myConnectionFactory")
 public interface MyProducer {
     @Queue(destination = "my-queue")
-    public void send(MyObject message, @Header("X-Arbitrary-Header") String arbitraryHeader);
+    void send(MyObject message, @Header("X-Arbitrary-Header") String arbitraryHeader);
 }
-```
-
-A `JMSProducer` can be instantiated directly and requires minimal configuration to get
-up and running. The following snippet should suffice:
-
-[source]
 ----
+
+A `JMSProducer` can be instantiated directly and requires minimal configuration to get up and running.
+The following snippet should suffice:
+
+[source,java]
+----
+@Factory
+public class MyConfiguration {
+    @Singleton
+    public JmsProducer producer(
+        JMSConnectionPool pool) {
+        final JmsProducer producer = new JmsProducer();
+        producer.setConnectionFactory(pool);
+        producer.setSerializer(new DefaultSerializerDeserializer());
+        return producer;
+    }
+}
+
 @Singleton
-public JmsProducer producer(
-        ConnectionFactory connectionFactory) {
-    final JmsProducer producer = new JmsProducer();
-    producer.setConnectionFactory(connectionFactory);
-    producer.setSerializer(new DefaultSerializerDeserializer());
-    return producer;
-}
+public class MyBusinessLogic {
 
-@Inject
-private JmsProducer producer
+    @Inject
+    private JmsProducer producer;
 
-public void aMethod(String message) {
-    producer.send("my-queue", message, new MessageHeader(JMSHeaders.JMS_REPLY_TO, "my-reply-queue"));
-}
+    public void aMethod(String message) {
+        producer.send("my-queue", message, new MessageHeader(JMSHeaders.JMS_REPLY_TO, "my-reply-queue"));
+    }
 
-public <T> void anotherMethod(T complexMessage) {
-    producer.send("my-queue", complexMessage, new MessageHeader("X-Arbitrary-Header", "my-reply-queue"));
+    public <T> void anotherMethod(T complexMessage) {
+        producer.send("my-queue", complexMessage, new MessageHeader("X-Arbitrary-Header", "my-reply-queue"));
+    }
 }
 ----
