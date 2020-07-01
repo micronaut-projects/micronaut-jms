@@ -7,9 +7,11 @@ import io.micronaut.context.processor.BeanDefinitionProcessor;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.SessionPoolFactory;
 
+import javax.inject.Inject;
 import javax.jms.ConnectionFactory;
 
 /***
@@ -22,9 +24,14 @@ import javax.jms.ConnectionFactory;
  */
 @Context
 @Requires(beans = {
-        ConnectionFactory.class
+        ConnectionFactory.class,
+        JMSConfigurationProperties.class
 })
 public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcessor<JMSConnectionFactory> {
+
+    @Inject
+    private JMSConfigurationProperties properties;
+
     @Override
     public void process(BeanDefinition<?> beanDefinition, BeanContext context) {
         final Object candidate = context.getBean(beanDefinition);
@@ -41,8 +48,8 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
                 new JMSConnectionPool(
                         connectionFactory,
                         sessionPoolFactory,
-                        10,
-                        20),
+                        properties.getInitialPoolSize(),
+                        properties.getMaxPoolSize()),
                 Qualifiers.byName(name));
     }
 }

@@ -20,8 +20,21 @@ _Maven:_
 </dependency>
 ----
 
-Additionally, you must provide the `ConnectionFactory` to the
-`BeanContext` annotated with `@JMSConnectionFactory` i.e.
+If you are using a supported message broker (currently only ActiveMQ)
+then you will need to add the following to your `application.yml`
+
+[source,yaml]
+----
+micronaut:
+  jms:
+    activemq:
+      enabled: true
+      connection-string: 'tcp://host:61616'
+----
+
+If your message broker is not supported, then you must provide
+the `ConnectionFactory` manually to the `BeanContext`
+in the following manner:
 
 [source,java]
 ----
@@ -45,12 +58,12 @@ You can define a listener using any the following syntax
 @JMSListener("myConnectionFactory")
 public class MyListener {
     @Queue("my-queue")
-    public void receive(String message) {
+    public void receive(@Body String message) {
         // do logic
     }
 
     @Topic("my-topic")
-    public void onMessage(MyTopicDto dto, @Header(JMSHeaders.JMS_CORRELATION_ID) String correlationId) {
+    public void onMessage(@Body MyTopicDto dto, @Header(JMSHeaders.JMS_CORRELATION_ID) String correlationId) {
         // topic logic
     }
 
@@ -59,14 +72,14 @@ public class MyListener {
         concurrency = "1-5",
         transacted = true,
         acknowledgement = Session.CLIENT_ACKNOWLEDGE)
-    public void handle(String message, @Header("X-Arbitrary-Header") String myHeader) {
+    public void handle(@Body String message, @Header("X-Arbitrary-Header") String myHeader) {
         // other queue logic
     }
 
     @Queue(
         destination = "another-queue",
         executor = "my-executor-service")
-    public void go(String message) {
+    public void go(@Body String message) {
         // logic
     }
 }
@@ -90,7 +103,7 @@ If there is no `@JMSConnectionFactory` with the same value, or if there is more 
 or `@Topic` in an `@JMSListener` class.
 If there is not, an `IllegalStateException`
 will be thrown
-4. Any method annotated with `@Queue` or `@Topic` can have at most one un-annotated parameter which is assumed to be the target for the message body.
+4. Any method annotated with `@Queue` or `@Topic` must have one parameter which is annotated with `@Body`.
 All other parameters must have the `@Header` annotation.
 5. If you want to use a Micronaut managed executor service, you can specify it by name in the `executor` parameter of the `@Queue` or `@Topic` annotations.
 Or if you would like a dedicated `ExecutorService` you can specify the `concurrency`

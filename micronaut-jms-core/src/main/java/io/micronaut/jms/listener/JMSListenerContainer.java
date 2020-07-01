@@ -3,6 +3,8 @@ package io.micronaut.jms.listener;
 import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.jms.Connection;
@@ -19,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JMSListenerContainer<T> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
+
     private final JMSConnectionPool connectionPool;
 
     private final Set<Connection> openConnections = new HashSet<>();
@@ -72,7 +77,6 @@ public class JMSListenerContainer<T> {
         try  {
             final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            connection.start();
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(session.createQueue(destination));
             consumer.setMessageListener(
@@ -88,7 +92,7 @@ public class JMSListenerContainer<T> {
                                             new NamedThreadFactory(destination + "-pool-1-thread"))),
                             clazz));
         } catch (JMSException e) {
-            e.printStackTrace();
+            LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);
         }
     }
 
@@ -110,7 +114,6 @@ public class JMSListenerContainer<T> {
         try  {
             final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(transacted, acknowledgment);
-            connection.start();
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(
                     lookupDestination(destination, session));
@@ -125,13 +128,13 @@ public class JMSListenerContainer<T> {
                         try {
                             session.rollback();
                         } catch (JMSException jmsException) {
-                            jmsException.printStackTrace();
+                            LOGGER.error("Failed to rollback transaction due to an error.", jmsException);
                         }
                     }
                 }
             });
         } catch (JMSException e) {
-            e.printStackTrace();
+            LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);
         }
     }
 
@@ -150,7 +153,7 @@ public class JMSListenerContainer<T> {
                 connection.stop();
             } catch (JMSException e) {
                 success.set(false);
-                e.printStackTrace();
+                LOGGER.error("Failed to stop connection die to an error", e);
             }
         });
         this.isRunning = success.get();

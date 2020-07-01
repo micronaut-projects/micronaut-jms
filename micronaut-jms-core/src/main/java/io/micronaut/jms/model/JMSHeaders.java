@@ -1,5 +1,8 @@
 package io.micronaut.jms.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -17,6 +20,8 @@ public final class JMSHeaders {
     public static final String JMS_REDELIVERED = "JMSRedelivered";
     public static final String JMS_PRIORITY = "JMSPriority";
     public static final String JMS_REPLY_TO = "JMSReplyTo";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMSHeaders.class);
 
     private static final String[] VALUES = new String[] {
             JMS_DESTINATION, JMS_MESSAGE_ID, JMS_CORRELATION_ID, JMS_TYPE, JMS_DELIVERY_MODE,
@@ -39,7 +44,7 @@ public final class JMSHeaders {
             }
             return getClientProvidedHeader(headerName, message, clazz);
         } catch (JMSException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to extract the header: " + headerName, e);
         }
         return null;
     }

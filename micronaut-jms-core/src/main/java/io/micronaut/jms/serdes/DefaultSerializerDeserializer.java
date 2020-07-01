@@ -3,6 +3,8 @@ package io.micronaut.jms.serdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.jms.model.MessageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSerializerDeserializer.class);
 
     @Override
     public <T> T deserialize(Message message, Class<T> clazz) {
@@ -53,7 +56,7 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
         } catch (JMSException | JsonProcessingException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to deserialize message " + message + " due to an error.", e);
         }
         throw new IllegalArgumentException("Failed to deserialize message " + message);
     }
@@ -66,7 +69,6 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                     final MapMessage message = session.createMapMessage();
                     final Map<?, ?> inputMap = (Map<?, ?>) input;
                     for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
-
                         if (!(entry.getKey() instanceof String)) {
                             throw new IllegalArgumentException(
                                     String.format("Failed to convert input due to key %s with type %s",
@@ -88,7 +90,7 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                     throw new IllegalArgumentException("No known serialization of message " + input);
             }
         } catch (JMSException | JsonProcessingException e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to serialize input " + input + " due to an error.", e);
         }
         throw new IllegalArgumentException("Failed to serialize input " + input);
     }

@@ -4,11 +4,12 @@ import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.type.Argument;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
+import io.micronaut.messaging.annotation.Body;
 
 import javax.jms.Message;
 import java.util.Optional;
 
-public class DefaultArgumentBinder extends AbstractChainedArgumentBinder {
+public class BodyArgumentBinder extends AbstractChainedArgumentBinder {
 
     private final Deserializer deserializer = new DefaultSerializerDeserializer();
 
@@ -19,6 +20,6 @@ public class DefaultArgumentBinder extends AbstractChainedArgumentBinder {
 
     @Override
     public boolean canBind(Argument<?> argument) {
-        return true;
+        return argument.isDeclaredAnnotationPresent(Body.class);
     }
 }

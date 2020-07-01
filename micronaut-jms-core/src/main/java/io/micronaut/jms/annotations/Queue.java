@@ -1,5 +1,6 @@
 package io.micronaut.jms.annotations;
 
+import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
 
@@ -46,10 +47,19 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Queue {
-    String destination();
+    @AliasFor(member = "destination")
+    String value() default "";
+
+    @AliasFor(member = "value")
+    String destination() default "";
+
     Class<? extends Deserializer> deserializer() default DefaultSerializerDeserializer.class;
+
     String concurrency() default "1-1";
+
     String executor() default "";
+
     int acknowledgement() default Session.AUTO_ACKNOWLEDGE;
+
     boolean transacted() default false;
 }

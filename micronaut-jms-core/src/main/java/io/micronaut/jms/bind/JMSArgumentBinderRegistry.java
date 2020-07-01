@@ -2,6 +2,7 @@ package io.micronaut.jms.bind;
 
 import io.micronaut.core.bind.ArgumentBinder;
 import io.micronaut.core.bind.ArgumentBinderRegistry;
+import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.type.Argument;
 
 import javax.jms.Message;
@@ -12,16 +13,27 @@ import java.util.Optional;
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
     private final List<AbstractChainedArgumentBinder> argumentBinderChain = new LinkedList<>();
-    private final AbstractChainedArgumentBinder defaultArgumentBinder = new DefaultArgumentBinder();
+    private final AbstractChainedArgumentBinder defaultArgumentBinder = new AbstractChainedArgumentBinder() {
+        @Override
+        public boolean canBind(Argument<?> argument) {
+            return false;
+        }
+
+        @Override
+        public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
+            throw new IllegalArgumentException("Cannot bind argument " + context.getArgument().getName());
+        }
+    };
 
     public JMSArgumentBinderRegistry() {
         argumentBinderChain.add(new HeaderArgumentBinder());
+        argumentBinderChain.add(new BodyArgumentBinder());
     }
 
     /***
      *
      * Adds an {@link AbstractChainedArgumentBinder} to the chain. If no argument binder is found then the
-     *      default argument binder (an {@link DefaultArgumentBinder}) is used
+     *      default argument binder (an {@link BodyArgumentBinder}) is used
      *
      * @param argumentBinder
      */

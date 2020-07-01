@@ -2,7 +2,6 @@ package io.micronaut.jms;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
-import io.micronaut.jms.annotations.Header;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
@@ -16,6 +15,8 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsConsumer;
 import io.micronaut.jms.templates.JmsProducer;
+import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.Header;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
@@ -200,9 +201,9 @@ public abstract class AbstractJMSTest {
                 transacted = true,
                 acknowledgement = Session.CLIENT_ACKNOWLEDGE)
         public void handle(
-                String message,
+                @Body String message,
                 @Header(JMSHeaders.JMS_CORRELATION_ID) String correlationId,
-                @Header("X-Arbitrary-Header") String arbitraryHeader,
+                @Header("X-Arbitrary-Header") @Nullable String arbitraryHeader,
                 @Header("X-Null-Header") @Nullable Integer nullHeader) {
             if ("test-corr-id".equals(correlationId) &&
                     "arbitrary-value".equals(arbitraryHeader) &&
@@ -217,9 +218,9 @@ public abstract class AbstractJMSTest {
         @Topic(
                 destination = "my-topic")
         public void receive(
-                String message,
+                @Body String message,
                 @Header(JMSHeaders.JMS_PRIORITY) Integer priority,
-                @Header("X-Topic-Header") String header) {
+                @Header("X-Topic-Header") @Nullable String header) {
             if (priority.equals(2) &&
                     "arbitrary-value".equals(header)) {
                 TOPIC_LATCH.countDown();

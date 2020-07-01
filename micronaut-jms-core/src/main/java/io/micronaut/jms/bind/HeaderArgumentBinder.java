@@ -2,8 +2,8 @@ package io.micronaut.jms.bind;
 
 import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.type.Argument;
-import io.micronaut.jms.annotations.Header;
 import io.micronaut.jms.model.JMSHeaders;
+import io.micronaut.messaging.annotation.Header;
 
 import javax.jms.Message;
 import java.util.Optional;

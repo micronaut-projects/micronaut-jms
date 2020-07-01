@@ -7,7 +7,6 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.type.Argument;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
-import io.micronaut.jms.annotations.Header;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
@@ -16,6 +15,7 @@ import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsProducer;
+import io.micronaut.messaging.annotation.Header;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
