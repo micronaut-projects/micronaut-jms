@@ -65,6 +65,7 @@ public abstract class AbstractJMSTest {
         assertNotNull(message, "Message should not be null");
         assertEquals("test-message", message);
     }
+
     /***
      * Tests sending a message to a test queue on a broker.
      */
