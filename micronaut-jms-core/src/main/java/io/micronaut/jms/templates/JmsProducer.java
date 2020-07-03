@@ -4,6 +4,8 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.jms.Connection;
@@ -17,6 +19,9 @@ import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 public class JmsProducer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JmsProducer.class);
+
     @Nullable
     private JMSConnectionPool connectionPool;
     private Serializer<Object> serializer;
@@ -144,7 +149,7 @@ public class JmsProducer {
              Session session = getOrCreateSession(connection)) {
             send(session, destination, message, headers);
         } catch (JMSException e) {
-            System.err.println("Exception occurred while sending message " + e);
+            LOGGER.error("Exception occurred while sending message ", e);
         }
     }
 
@@ -167,7 +172,8 @@ public class JmsProducer {
                 session.commit();
             }
         } catch (JMSException e) {
-            e.printStackTrace();
+            session.rollback();
+            LOGGER.error("Error sending the message.", e);
         }
 
     }
@@ -180,8 +186,7 @@ public class JmsProducer {
     }
 
     private static void notNull(Object object, String failureMessage) {
-        Optional.ofNullable(object)
-                .orElseThrow(() -> new IllegalStateException(failureMessage));
+        Optional.ofNullable(object).orElseThrow(() -> new IllegalStateException(failureMessage));
     }
 
     private static void setJMSHeaders(@NotNull Message message, MessageHeader... headers) {

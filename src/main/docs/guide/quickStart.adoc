@@ -6,7 +6,7 @@ _Gradle:_
 
 [source]
 ----
-compile 'io.microanut.configuration:micronaut-jms-core:1.0.0
+compile 'io.microanut.configuration:micronaut-jms-core:1.0.0'
 ----
 
 _Maven:_
@@ -21,7 +21,7 @@ _Maven:_
 ----
 
 If you are using a supported message broker (currently only ActiveMQ)
-then you will need to add the following to your `application.yml`
+then you will need to add the following properties to your `application.yml`
 
 [source,yaml]
 ----
@@ -30,6 +30,24 @@ micronaut:
     activemq:
       enabled: true
       connection-string: 'tcp://host:61616'
+----
+
+and the following to your `build.gradle` or `pom.xml`
+
+[source]
+----
+implementation 'io.microanut.configuration:micronaut-jms-activemq:1.0.0'
+----
+
+or
+
+[source,xml]
+----
+<dependency>
+    <groupId>io.micronaut.configuration</groupId>
+    <artifactId>micronaut-jms-activemq</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ----
 
 If your message broker is not supported, then you must provide
@@ -112,7 +130,7 @@ and a maximum size of `y`.
 
 == Defining a JMS Producer
 
-You can define a listener using any the following syntax
+You can define a producer using the following syntax
 
 [source,java]
 ----
@@ -123,7 +141,7 @@ public interface MyProducer {
 }
 ----
 
-A `JMSProducer` can be instantiated directly and requires minimal configuration to get up and running.
+Additionally, a `JMSProducer` can be instantiated directly and requires minimal configuration to get up and running.
 The following snippet should suffice:
 
 [source,java]
@@ -155,3 +173,6 @@ public class MyBusinessLogic {
     }
 }
 ----
+
+_**NOTE**_: If you pass an object to the `send` method then by default
+it will be serialized to JSON and sent to the broker as a `javax.jms.TextMessage`
