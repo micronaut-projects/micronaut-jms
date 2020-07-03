@@ -2,6 +2,7 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.context.annotation.Context;
 
+import javax.inject.Inject;
 import javax.jms.Connection;
 
 /***
@@ -14,6 +15,10 @@ import javax.jms.Connection;
  */
 @Context
 public class SessionPoolFactory {
+
+    @Inject
+    private MessageProducerPoolFactory producerPoolFactory;
+
     /***
      * Returns a {@link SessionPool} from the provided {@param connection}.
      *
@@ -21,6 +26,6 @@ public class SessionPoolFactory {
      * @return a {@link SessionPool} from the provided {@param connection}.
      */
     public SessionPool getSessionPool(Connection connection) {
-        return new SessionPool(10, 20, connection);
+        return new SessionPool(1, 20, connection, producerPoolFactory);
     }
 }

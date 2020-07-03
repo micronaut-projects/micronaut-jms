@@ -21,8 +21,12 @@ import javax.jms.TopicSubscriber;
 import java.io.Serializable;
 
 public class PooledSession extends PooledObject<Session> implements Session {
-    public PooledSession(AbstractPool<PooledObject<Session>> pool, Session object) {
+
+    private final MessageProducerPool producerPool;
+
+    public PooledSession(AbstractPool<PooledObject<Session>> pool, Session object, MessageProducerPool producerPool) {
         super(pool, object);
+        this.producerPool = producerPool;
     }
 
     @Override
@@ -107,7 +111,7 @@ public class PooledSession extends PooledObject<Session> implements Session {
 
     @Override
     public MessageProducer createProducer(Destination destination) throws JMSException {
-        return object.createProducer(destination);
+        return PooledProducer.of(producerPool.request(destination));
     }
 
     @Override
