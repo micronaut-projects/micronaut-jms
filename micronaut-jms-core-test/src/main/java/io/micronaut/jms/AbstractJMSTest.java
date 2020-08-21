@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017-2020 original authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.micronaut.jms;
 
 import io.micronaut.context.ApplicationContext;
@@ -17,7 +32,6 @@ import io.micronaut.jms.templates.JmsConsumer;
 import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.Body;
 import io.micronaut.messaging.annotation.Header;
-import lombok.Data;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
@@ -241,13 +255,52 @@ public abstract class AbstractJMSTest {
         void send(MessageObject object);
     }
 
-    @Data
     static class MessageObject implements Serializable {
         private Integer id;
         private String description;
         private boolean flag;
         private Collection<String> tags;
         private Map<String, String> metadata;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public boolean isFlag() {
+            return flag;
+        }
+
+        public void setFlag(boolean flag) {
+            this.flag = flag;
+        }
+
+        public Collection<String> getTags() {
+            return tags;
+        }
+
+        public void setTags(Collection<String> tags) {
+            this.tags = tags;
+        }
+
+        public Map<String, String> getMetadata() {
+            return metadata;
+        }
+
+        public void setMetadata(Map<String, String> metadata) {
+            this.metadata = metadata;
+        }
     }
 
 }

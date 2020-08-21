@@ -7,7 +7,7 @@ dependencies {
     implementation platform('io.micronaut:micronaut-bom:2.0.0')
 
     implementation "javax.jms:javax.jms-api:2.0.1"
-    implementation "org.apache.activemq:activemq-broker:5.15.13"
+    implementation "org.apache.activemq:activemq-broker:5.16.0"
     annotationProcessor "io.micronaut:micronaut-inject-java"
     // needed because otherwise IntelliJ integration broken
     compileOnly "io.micronaut:micronaut-inject-java"
@@ -15,17 +15,13 @@ dependencies {
 
     testImplementation project(':micronaut-jms-core-test')
 
-    testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-
     testCompileOnly "io.micronaut:micronaut-inject-java"
 
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-    testCompile "io.micronaut.test:micronaut-test-junit5"
-    testCompile "io.micronaut.test:micronaut-test-spock:1.2.0"
-    testImplementation "org.mockito:mockito-junit-jupiter:3.3.3"
+    testCompile "io.micronaut.test:micronaut-test-junit5:1.2.2"
+    testImplementation "org.mockito:mockito-junit-jupiter:3.5.2"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
-    testImplementation "org.apache.activemq.tooling:activemq-junit:5.15.13"
+    testImplementation "org.apache.activemq.tooling:activemq-junit:5.16.0"
 }
 
 test {
