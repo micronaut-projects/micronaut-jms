@@ -1,6 +1,7 @@
 package io.micronaut.jms.annotations;
 
 import io.micronaut.context.annotation.AliasFor;
+import io.micronaut.context.annotation.Executable;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
 
@@ -46,20 +47,55 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Executable(processOnStartup = true)
 public @interface Queue {
+
+    /***
+     * @return the name of the queue to target.
+     */
     @AliasFor(member = "destination")
     String value() default "";
 
+    /***
+     * @return the name of the queue to target.
+     */
     @AliasFor(member = "value")
     String destination() default "";
 
+    /***
+     * @return the {@link Deserializer} to use to deserialize {@link javax.jms.Message} into an {@link Object}
+     */
     Class<? extends Deserializer> deserializer() default DefaultSerializerDeserializer.class;
 
+    /***
+     * @return the size of the thread pool to use when used in conjunction with {@link JMSListener}. The value
+     *      should be of the form x-y where x is the initial size of the thread pool and y is the maximum size of
+     *      the thread pool. If this option is specified, then a new thread pool will be created and destroyed with
+     *      the {@link io.micronaut.jms.listener.JMSListenerContainer}. This option cannot be used in conjunction
+     *      with {@link Queue#executor()} and if both are specified then the {@link Queue#executor()} value will be used.
+     */
     String concurrency() default "1-1";
 
+    /***
+     * @return the name of an {@link java.util.concurrent.ExecutorService} in the bean context to execute tasks on
+     *      receiving a {@link javax.jms.Message} as part of a {@link JMSListener}. The executor can be maintained by
+     *      Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
+     */
     String executor() default "";
 
+    /***
+     * @return the acknowledgement mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     *
+     * @see Session
+     */
     int acknowledgement() default Session.AUTO_ACKNOWLEDGE;
 
+    /***
+     * @return true if the message receipt is transacted, false otherwise. The broker must support transacted
+     *      sessions
+     *
+     *
+     * @see Session
+     */
     boolean transacted() default false;
 }

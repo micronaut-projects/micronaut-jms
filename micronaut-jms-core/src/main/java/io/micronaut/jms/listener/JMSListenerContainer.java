@@ -1,6 +1,5 @@
 package io.micronaut.jms.listener;
 
-import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import org.slf4j.Logger;
@@ -15,6 +14,7 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -89,7 +89,7 @@ public class JMSListenerContainer<T> {
                                             5L,
                                             TimeUnit.SECONDS,
                                             new LinkedBlockingQueue<>(10),
-                                            new NamedThreadFactory(destination + "-pool-1-thread"))),
+                                            Executors.defaultThreadFactory())),
                             clazz));
         } catch (JMSException e) {
             LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);

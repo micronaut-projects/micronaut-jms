@@ -1,6 +1,5 @@
 package io.micronaut.jms.configuration;
 
-import io.micrometer.core.instrument.util.NamedThreadFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.annotation.Requires;
@@ -20,6 +19,8 @@ import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.messaging.annotation.Body;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,9 +31,11 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -54,11 +57,19 @@ import java.util.stream.Stream;
 })
 public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMSListener> {
 
-    @Inject
-    private BeanContext beanContext;
+    private static final String CONCURRENCY_PATTERN = "([0-9]+)-([0-9]+)";
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerMethodProcessor.class);
 
-    @Inject
-    private ApplicationContext applicationContext;
+    private final BeanContext beanContext;
+    private final ApplicationContext applicationContext;
+    private final JMSArgumentBinderRegistry jmsArgumentBinderRegistry;
+    private final DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+
+    public JMSListenerMethodProcessor(BeanContext beanContext, ApplicationContext applicationContext, JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
+        this.beanContext = beanContext;
+        this.applicationContext = applicationContext;
+        this.jmsArgumentBinderRegistry = jmsArgumentBinderRegistry;
+    }
 
     @Override
     public void process(BeanDefinition<?> beanDefinition, ExecutableMethod<?, ?> method) {
@@ -66,10 +77,10 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
         AnnotationValue<JMSListener> listenerAnnotation = beanDefinition.getAnnotation(JMSListener.class);
 
         if (queueAnnotation != null) {
-            String destination = queueAnnotation.getValue(String.class)
+            String destination = queueAnnotation.stringValue()
                     .orElseThrow(() -> new IllegalStateException("@Queue annotation must specify a destination."));
-            final Optional<String> executorServiceName = queueAnnotation.get("executor", String.class);
-            final Optional<String> concurrency = queueAnnotation.get("concurrency", String.class);
+            final Optional<String> executorServiceName = queueAnnotation.stringValue("executor");
+            final Optional<String> concurrency = queueAnnotation.stringValue("concurrency");
 
             registerJMSListener(
                     method,
@@ -84,14 +95,14 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
         AnnotationValue<Topic> topicAnnotation = method.getAnnotation(Topic.class);
 
         if (topicAnnotation != null) {
-            String destination = topicAnnotation.getValue(String.class)
+            String destination = topicAnnotation.stringValue()
                     .orElseThrow(() -> new IllegalStateException("@Topic annotation must specify a destination."));
             registerJMSListener(
                     method,
                     listenerAnnotation,
                     beanDefinition,
                     topicAnnotation,
-                    Executors.newSingleThreadExecutor(new NamedThreadFactory(destination + "-pool-thread")),
+                    Executors.newSingleThreadExecutor(),
                     JMSDestinationType.TOPIC);
             return;
         }
@@ -114,7 +125,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                     .orElseThrow(() -> new IllegalStateException("There is no configured executor service for " + executorName.get()));
         } else {
-            final Pattern concurrencyPattern = Pattern.compile("([0-9]+)-([0-9]+)");
+            final Pattern concurrencyPattern = Pattern.compile(CONCURRENCY_PATTERN);
             final Matcher matcher = concurrencyPattern.matcher(
                     concurrency.orElseThrow(() -> new IllegalStateException("If executor is not specified then concurrency must be specified")));
             if (matcher.find() && matcher.groupCount() == 2) {
@@ -126,7 +137,7 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
                         500L,
                         TimeUnit.MILLISECONDS,
                         new LinkedBlockingQueue<>(numThreads),
-                        new NamedThreadFactory(destination + "-pool-thread"));
+                        Executors.defaultThreadFactory());
 
             } else {
                 throw new IllegalArgumentException("Concurrency must be of the form int-int (i.e. \"1-10\"). Concurrency provided was " + concurrency.get());
@@ -144,16 +155,17 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
             ExecutableMethod<?, ?> method,
             ExecutorService executor,
             boolean acknowledge) {
-        final DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
 
         return message -> executor.submit(() -> {
-            BoundExecutable boundExecutable = binder.bind(method, new JMSArgumentBinderRegistry(), message);
+            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
             boundExecutable.invoke(bean);
             if (acknowledge) {
                 try {
                     message.acknowledge();
                 } catch (JMSException e) {
-                    e.printStackTrace();
+                    LOGGER.error(
+                            "Failed to acknowledge receipt of message with the broker. This message may be falsely retried",
+                            e);
                 }
             }
         });
@@ -172,11 +184,11 @@ public class JMSListenerMethodProcessor implements ExecutableMethodProcessor<JMS
                 .findAny()
                 .map(Argument::getClass)
                 .get();
-        final String destination = destinationAnnotation.getValue(String.class).orElseThrow(
+        final String destination = destinationAnnotation.stringValue().orElseThrow(
                 () -> new IllegalStateException("@Queue or @Topic must specify a destination"));
 
-        final Optional<Integer> acknowledgment = destinationAnnotation.get("acknowledgement", Integer.class);
-        final Optional<Boolean> transacted = destinationAnnotation.get("transacted", Boolean.class);
+        final OptionalInt acknowledgment = destinationAnnotation.intValue("acknowledgement");
+        final Optional<Boolean> transacted = destinationAnnotation.booleanValue("transacted");
 
         final JMSListenerContainerFactory listenerFactory = beanContext.findBean(JMSListenerContainerFactory.class).orElseThrow(
                 () -> new IllegalStateException("No JMSListenerFactory configured"));

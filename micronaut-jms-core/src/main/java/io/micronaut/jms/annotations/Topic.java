@@ -1,6 +1,7 @@
 package io.micronaut.jms.annotations;
 
 import io.micronaut.context.annotation.AliasFor;
+import io.micronaut.context.annotation.Executable;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -35,10 +36,18 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Executable(processOnStartup = true)
 public @interface Topic {
+
+    /***
+     * @return the name of the topic to target.
+     */
     @AliasFor(member = "destination")
     String value() default "";
 
+    /***
+     * @return the name of the topic to target.
+     */
     @AliasFor(member = "value")
     String destination() default "";
 }

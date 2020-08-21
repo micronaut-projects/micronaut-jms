@@ -3,6 +3,7 @@ package io.micronaut.jms.configuration;
 import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.type.Argument;
 import io.micronaut.inject.ExecutableMethod;
@@ -20,32 +21,45 @@ import io.micronaut.messaging.annotation.Header;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.Map;
 
+/***
+ * A {@link MethodInterceptor} providing the implementation for sending messages to a broker.
+ *      Requires that the interface be annotated with {@link JMSProducer} and have at least one method
+ *      annotated with {@link Queue} or {@link Topic}.
+ *
+ * @author elliott
+ * @since 1.0
+ */
 @Singleton
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {
 
-    @Inject
-    private BeanContext beanContext;
+    private final BeanContext beanContext;
+
+    public JMSProducerMethodInterceptor(BeanContext beanContext) {
+        this.beanContext = beanContext;
+    }
 
     @Override
     public Object intercept(MethodInvocationContext<Object, Object> context) {
         if (context.hasAnnotation(JMSProducer.class)) {
             ExecutableMethod<?, ?> method = context.getExecutableMethod();
-            String connectionFactory = method.getAnnotation(JMSProducer.class).getValue(String.class)
-                    .orElseThrow(() -> new RuntimeException("@JMSProducer must specify a connection factory."));
+            String connectionFactory = method.stringValue(JMSProducer.class)
+                    .orElseThrow(() -> new ConfigurationException("@JMSProducer must specify a connection factory."));
 
             if (method.hasAnnotation(Queue.class)) {
-                AnnotationValue<Queue> queueAnnotation = method.getAnnotation(Queue.class);
-                String queueName = queueAnnotation.get("destination", String.class)
-                        .orElseThrow(() -> new RuntimeException("@Queue must specify a destination."));
+                String queueName = method.stringValue(Queue.class)
+                        .orElseThrow(() -> new ConfigurationException("@Queue must specify a destination."));
+
+                Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
                 MessageHeader[] headers = Arrays.stream(method.getArguments())
                         .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
                         .map(arg -> {
                             String headerName = arg.getAnnotation(Header.class)
-                                    .getValue(String.class)
+                                    .stringValue()
                                     .orElse(null);
-                            String headerValue = String.valueOf(context.getParameterValueMap().get(arg.getName()));
+                            String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
                             return new MessageHeader(headerName, headerValue);
                         }).toArray(MessageHeader[]::new);
 
@@ -53,7 +67,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                         .filter(arg -> arg.getAnnotationMetadata().isEmpty())
                         .map(Argument::getName)
                         .findFirst()
-                        .orElseThrow(() -> new RuntimeException("At least one argument must not have an annotation present"));
+                        .orElseThrow(() -> new ConfigurationException("At least one argument must not have an annotation present"));
 
                 JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
@@ -66,9 +80,10 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             }
 
             if (method.hasAnnotation(Topic.class)) {
-                AnnotationValue<Topic> queueAnnotation = method.getAnnotation(Topic.class);
-                String queueName = queueAnnotation.get("destination", String.class)
+                String queueName = method.stringValue(Topic.class)
                         .orElseThrow(() -> new RuntimeException("@Queue must specify a destination."));
+
+                Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
                 MessageHeader[] headers = Arrays.stream(method.getArguments())
                         .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
@@ -76,7 +91,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                             String headerName = arg.getAnnotation(Header.class)
                                     .getValue(String.class)
                                     .orElse(null);
-                            String headerValue = String.valueOf(context.getParameterValueMap().get(arg.getName()));
+                            String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
                             return new MessageHeader(headerName, headerValue);
                         }).toArray(MessageHeader[]::new);
 

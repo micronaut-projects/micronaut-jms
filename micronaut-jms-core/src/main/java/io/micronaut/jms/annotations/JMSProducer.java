@@ -24,8 +24,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * Additionally, the value specified by the {@link JMSProducer} must correspond to exactly one {@link JMSConnectionFactory}
  *  or else an {@link IllegalStateException} will be thrown.
  *
- * NOTE: This annotation does not currently work and is a place-holder for a future feature.
- *
  * Usage:
  * <pre>
  *     {@code
@@ -47,7 +45,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * }
  *
  * @JMSProducer("connectionFactoryOne")
- * public static class ProducerOne {
+ * public interface ProducerOne {
  *      @Queue("my-activemq-queue")
  *      public void send(String message) {
  *          // do logic
@@ -55,7 +53,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * }
  *
  * @JMSProducer("connectionFactoryTwo")
- * public static class ProducerTwo {
+ * public interface ProducerTwo {
  *      @Queue("my-rabbitmq-queue")
  *      public void notify(Integer message) {
  *          // do logic
@@ -65,6 +63,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * </pre>
  *
  * @author elliott
+ * @since 1.0
  */
 @Documented
 @Retention(RUNTIME)
@@ -75,9 +74,25 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Bean
 @DefaultScope(Singleton.class)
 public @interface JMSProducer {
+
+    /***
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
+     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
+     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+     *
+     * @return the name of the {@link JMSConnectionFactory} to use.
+     */
     @AliasFor(member = "connectionFactory")
     String value() default "";
 
+
+    /***
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
+     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
+     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+     *
+     * @return the name of the {@link JMSConnectionFactory} to use.
+     */
     @AliasFor(member = "value")
     String connectionFactory() default "";
 }

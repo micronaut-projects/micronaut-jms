@@ -60,12 +60,26 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Bean
-@Executable(processOnStartup = true)
 @DefaultScope(Singleton.class)
 public @interface JMSListener {
+
+    /***
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
+     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
+     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+     *
+     * @return the name of the {@link JMSConnectionFactory} to use.
+     */
     @AliasFor(member = "connectionFactory")
     String value() default "";
 
+    /***
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
+     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
+     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+     *
+     * @return the name of the {@link JMSConnectionFactory} to use.
+     */
     @AliasFor(member = "value")
     String connectionFactory() default "";
 }

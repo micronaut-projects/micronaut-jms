@@ -1,9 +1,11 @@
 package io.micronaut.jms.annotations;
 
+import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
 
+import javax.inject.Named;
 import java.lang.annotation.*;
 
 /***
@@ -37,5 +39,19 @@ import java.lang.annotation.*;
 @Bean
 @DefaultScope(Context.class)
 public @interface JMSConnectionFactory {
+
+    /***
+     * Name to identify the {@link javax.jms.ConnectionFactory} bean in the context by. This name will be used by the
+     *      {@link io.micronaut.jms.configuration.JMSListenerMethodProcessor} and the {@link JMSListener} to identify
+     *      which {@link javax.jms.ConnectionFactory} to use.
+     *
+     * @return the name of the bean.
+     *
+     * @see JMSListener
+     * @see io.micronaut.jms.configuration.JMSListenerMethodProcessor
+     *
+     * @since 1.0
+     */
+    @AliasFor(annotation = Named.class, member = "value")
     String value();
 }

@@ -5,11 +5,25 @@ import io.micronaut.core.bind.ArgumentBinderRegistry;
 import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.type.Argument;
 
+import javax.inject.Singleton;
 import javax.jms.Message;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+/***
+ * An {@link ArgumentBinderRegistry} for all implementations of {@link ArgumentBinder} capable of binding a
+ *      {@link Message}.
+ *
+ * @see HeaderArgumentBinder
+ * @see BodyArgumentBinder
+ * @see AbstractChainedArgumentBinder
+ * @see io.micronaut.jms.configuration.JMSListenerMethodProcessor
+ *
+ * @author elliott
+ * @since 1.0
+ */
+@Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
     private final List<AbstractChainedArgumentBinder> argumentBinderChain = new LinkedList<>();

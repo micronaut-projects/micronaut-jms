@@ -4,6 +4,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+/***
+ * A {@link MessageHandler} decorator that wraps a delegate implementation in an {@link ExecutorService}
+ *      so that many incoming messages can be handled concurrently on different threads. If no {@link ExecutorService}
+ *      is provided then a default single threaded executor is provided.
+ *
+ * @param <T> - the type of the object that the handler is expecting.
+ *
+ * @author elliott
+ * @since 1.0
+ */
 public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
 
     private MessageHandler<T> delegate;

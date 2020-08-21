@@ -8,6 +8,13 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.ConnectionFactory;
 
+/***
+ * Factory for generating the ActiveMQ {@link JMSConnectionFactory} based on the configuration properties
+ *      provided by {@link ActiveMqConfigurationProperties}.
+ *
+ * @since 1.0
+ * @author elliott
+ */
 @Factory
 @Requires(property = "micronaut.jms.activemq.enabled", value = "true")
 public class ActiveMqConfiguration {
