@@ -1,0 +1,15 @@
+dependencies {
+    implementation project(':jms-core')
+
+    api "org.apache.activemq:activemq-broker:5.16.0"
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    // needed because otherwise IntelliJ integration broken
+    compileOnly "io.micronaut:micronaut-inject-java"
+    api "io.micronaut:micronaut-inject"
+
+    testImplementation project(':jms-core-test')
+
+    testAnnotationProcessor 'io.micronaut:micronaut-inject-java'
+    testImplementation "io.micronaut.test:micronaut-test-junit5:1.2.2"
+    testImplementation "org.apache.activemq.tooling:activemq-junit:5.16.0"
+}
