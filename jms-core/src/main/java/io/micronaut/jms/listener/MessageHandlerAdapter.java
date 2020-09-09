@@ -26,12 +26,27 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Map;
 
+/***
+ * Decorator for converting between {@link MessageListener} and {@link MessageHandler}. The class will attempt to
+ *      deserialize the given {@link Message} to an object of type {@param <T>} and then provide that to the delegate
+ *      handler.
+ *
+ * @param <T> - the type that the underlying {@link MessageHandler} can handle
+ *
+ * @author elliottpope
+ * @since 1.0
+ */
 public class MessageHandlerAdapter<T> implements MessageListener {
 
     private MessageHandler<T> delegate;
     private Class<T> clazz;
     private final DefaultSerializerDeserializer serdes = new DefaultSerializerDeserializer();
 
+    /***
+     *
+     * @param delegate - the underlying handler to delegate to.
+     * @param clazz - the parameter class of the {@param delegate}.
+     */
     public MessageHandlerAdapter(MessageHandler<T> delegate, Class<T> clazz) {
         this.delegate = delegate;
         this.clazz = clazz;

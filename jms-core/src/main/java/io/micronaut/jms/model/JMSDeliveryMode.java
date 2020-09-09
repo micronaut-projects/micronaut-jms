@@ -15,8 +15,27 @@
  */
 package io.micronaut.jms.model;
 
+/***
+ * Enumeration of the different persistence modes of JMS Brokers.
+ *
+ * @author elliottpope
+ * @since 1.0
+ *
+ * @see javax.jms.DeliveryMode
+ */
 public enum JMSDeliveryMode {
+    /***
+     * This mode does not require the broker to log the message to stable storage.
+     *
+     * @see javax.jms.DeliveryMode#NON_PERSISTENT
+     */
     NON_PERSISTENT(1),
+
+    /***
+     * This mode does requires the broker to log the message to stable storage.
+     *
+     * @see javax.jms.DeliveryMode#PERSISTENT
+     */
     PERSISTENT(2);
 
     private Integer value;

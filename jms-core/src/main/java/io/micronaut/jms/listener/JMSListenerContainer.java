@@ -35,6 +35,20 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/***
+ * A container for setting up and managing {@link MessageListener}s created by the
+ *      {@link io.micronaut.jms.annotations.JMSListener} and
+ *      {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
+ *      processing. There is support for programmatically instantiating listeners
+ *      however this has not been fully incorporated into a coherent API yet and
+ *      has not been fully tested. It is recommended to instead just use the
+ *      {@link io.micronaut.jms.annotations.JMSListener} annotation on existing classes.
+ *
+ * @param <T> - the type of object that the incoming {@link javax.jms.Message} should be converted to before handling.
+ *
+ * @author elliottpope
+ * @since 1.0
+ */
 public class JMSListenerContainer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
@@ -48,6 +62,13 @@ public class JMSListenerContainer<T> {
 
     private final JMSDestinationType type;
 
+    /***
+     * Creates a {@link JMSListenerContainer} ready for listeners to be registered against.
+     *
+     * @param connectionPool - the {@link JMSConnectionPool} to pull {@link Connection}s from to create
+     *                       {@link MessageListener}s
+     * @param type - either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
+     */
     public JMSListenerContainer(
             JMSConnectionPool connectionPool,
             JMSDestinationType type) {

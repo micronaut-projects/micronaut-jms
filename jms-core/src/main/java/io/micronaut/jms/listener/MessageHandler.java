@@ -15,7 +15,23 @@
  */
 package io.micronaut.jms.listener;
 
+/***
+ * Interface to allow {@link javax.jms.Message}s to be handled and converted in a uniform abstract way.
+ *
+ * @param <T>
+ *
+ * @see ConcurrentMessageHandler
+ * @see MessageHandlerAdapter
+ *
+ * @author elliottpope
+ * @since 1.0
+ */
 @FunctionalInterface
 public interface MessageHandler<T> {
+    /***
+     * Perform some action in response to receiving a message.
+     *
+     * @param message - the message to respond to.
+     */
     void handle(T message);
 }
