@@ -23,6 +23,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+/***
+ * Container class to correspond to a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
+ *      and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
+ *
+ * @see io.micronaut.jms.templates.JmsProducer
+ * @see io.micronaut.jms.configuration.JMSProducerMethodInterceptor
+ *
+ * @author elliottpope
+ * @since 1.0
+ */
 public class MessageHeader {
     private static final Map<String, BiConsumer<Message, String>> JMS_HEADERS = new HashMap<>();
 
@@ -62,6 +72,12 @@ public class MessageHeader {
         });
     }
 
+    /***
+     * Creates a container for the message header.
+     *
+     * @param key - the name of the header.
+     * @param value - the value for the header.
+     */
     public MessageHeader(String key, String value) {
         this();
         this.key = key;
@@ -70,7 +86,6 @@ public class MessageHeader {
     }
 
     /***
-     *
      * @return true if the {@param key} is a JMS Header. Returns false if not.
      */
     public boolean isJMSHeader() {

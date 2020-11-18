@@ -18,6 +18,7 @@ package io.micronaut.jms.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -25,10 +26,41 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.stream.Stream;
 
+/***
+ * Utility class, allowing for access to the supported JMS Headers, and methods for extracting those values from
+ *      a given {@link Message}.
+ *
+ * @author elliottpope
+ * @since 1.0
+ */
 public final class JMSHeaders {
+    /***
+     * Name of the JMS Destination header. Specifying the destination of a {@link Message} or where it was received from.
+     *
+     * @see Message#getJMSDestination()
+     */
     public static final String JMS_DESTINATION = "JMSDestination";
+
+    /***
+     * Name of the JMS ID header. Specifies a unique ID for a {@link Message}.
+     *
+     * @see Message#getJMSMessageID()
+     */
     public static final String JMS_MESSAGE_ID = "JMSMessageID";
+
+    /***
+     * Name of the JMS Correlation ID header. Specifies an ID so that the {@link Message} can be linked to other
+     *      messages.
+     *
+     * @see Message#getJMSCorrelationID()
+     */
     public static final String JMS_CORRELATION_ID = "JMSCorrelationID";
+
+    /***
+     * Name of the JMS Type header.
+     *
+     * @see Message#getJMSType()
+     */
     public static final String JMS_TYPE = "JMSType";
     public static final String JMS_DELIVERY_MODE = "JMSDeliveryMode";
     public static final String JMS_EXPIRATION = "JMSExpiration";
@@ -43,6 +75,14 @@ public final class JMSHeaders {
             JMS_EXPIRATION, JMS_REDELIVERED, JMS_PRIORITY, JMS_REPLY_TO
     };
 
+    private JMSHeaders() {
+
+    }
+
+    /***
+     * @param headerName - the name of the header to test.
+     * @return true if the given {@param headerName} is a supported JMS Header name, false otherwise.
+     */
     public static boolean isJMSHeader(String headerName) {
         for (String header : VALUES) {
             if (header.equals(headerName)) {
@@ -52,7 +92,19 @@ public final class JMSHeaders {
         return false;
     }
 
-    public static <T> T getHeader(String headerName, Message message, Class<T> clazz) {
+    /***
+     *
+     * Attempts to retrieve the value of the header given by {@param headerName} from the given {@param message}.
+     *      If no value is present, or there is some error extracting the header, then the result will be null.
+     *
+     * @param headerName - the name of the header to be extracted.
+     * @param message - the {@link Message} to extract the header from.
+     * @param clazz - the expected class of the header value.
+     * @param <T> - the expected class of the header value.
+     * @return the value of the header on the given {@param message} specified by {@param headerName} as an object
+     *      of type {@param clazz}.
+     */
+    public static @Nullable <T> T getHeader(String headerName, Message message, Class<T> clazz) {
         try {
             if (isJMSHeader(headerName)) {
                 return getJMSHeader(headerName, message, clazz);
