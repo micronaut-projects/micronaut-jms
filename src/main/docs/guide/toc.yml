@@ -3,5 +3,12 @@ introduction:
   releaseHistory: Release History
 quickStart:
   title: Quick Start
+configuration:
+  title: Configuring Connections
+  activemq: ActiveMQ Connections
+listener:
+  title: Defining a JMS Listener
+producer:
+  title: Defining a JMS Producer
 
 

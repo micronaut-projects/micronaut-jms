@@ -1,1 +1,1 @@
-TODO
+This project integrates Micronaut with the established Java Messaging Service (JMS) API.
