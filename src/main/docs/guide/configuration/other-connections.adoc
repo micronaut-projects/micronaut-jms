@@ -1,0 +1,21 @@
+= Configuring Connections for Unsupported Brokers
+
+If your message broker is not supported, then you must provide
+the `ConnectionFactory` manually to the `BeanContext`
+in the following manner:
+
+[source,java]
+----
+@Factory
+public class JMSConfig {
+    @JMSConnectionFactory("myConnectionFactory")
+    public ConnectionFactory connFactory() {
+        return new ActiveMqConnectionFactory("tcp://host:616161");
+    }
+}
+----
+
+
+Once you have these changes in place, you can start defining listeners and producers.
+
+

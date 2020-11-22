@@ -13,6 +13,8 @@ dependencies {
     implementation "javax.jms:javax.jms-api:2.0.1"
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
+    api 'org.apache.commons:commons-pool2:2.8.1'
+
 }
 
 test {

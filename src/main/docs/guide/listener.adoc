@@ -1,4 +1,4 @@
-== Defining a JMS Listener
+= Defining a JMS Listener
 
 You can define a listener using any the following syntax
 

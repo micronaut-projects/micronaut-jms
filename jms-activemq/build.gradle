@@ -9,6 +9,8 @@ dependencies {
 
     testImplementation project(':jms-core-test')
 
+    testAnnotationProcessor 'io.micronaut:micronaut-inject-java'
+
     testImplementation "io.micronaut.test:micronaut-test-junit5:1.2.2"
     testImplementation "org.apache.activemq.tooling:activemq-junit:5.16.0"
 }

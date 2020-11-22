@@ -6,6 +6,7 @@ quickStart:
 configuration:
   title: Configuring Connections
   activemq: ActiveMQ Connections
+  other-connections: Configuring Connections for Unsupported Brokers
 listener:
   title: Defining a JMS Listener
 producer:
