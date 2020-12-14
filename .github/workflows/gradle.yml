@@ -40,7 +40,6 @@ jobs:
         env:
           TESTCONTAINERS_RYUK_DISABLED: true
       - name: Publish Test Report
-        if: failure()
         uses: scacap/action-surefire-report@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -64,6 +63,5 @@ jobs:
         env:
           TARGET_REPOSITORY: ${{ steps.docs_target.outputs.value }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          BASE_BRANCH: ${{ env.githubBranch }}
           BRANCH: gh-pages
           FOLDER: build/docs
