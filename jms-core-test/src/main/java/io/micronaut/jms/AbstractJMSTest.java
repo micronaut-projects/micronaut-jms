@@ -76,13 +76,13 @@ public abstract class AbstractJMSTest {
 
         final JmsProducer producer = new JmsProducer(QUEUE);
         producer.setConnectionPool(pool);
-        producer.setSerializer(new DefaultSerializerDeserializer());
+        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
         producer.send("test-queue", "test-message");
 
         final JmsConsumer consumer = new JmsConsumer(QUEUE);
         consumer.setConnectionPool(pool);
-        consumer.setDeserializer(new DefaultSerializerDeserializer());
+        consumer.setDeserializer(DefaultSerializerDeserializer.getInstance());
 
         final String message = consumer.receive("test-queue", String.class);
 
@@ -109,7 +109,7 @@ public abstract class AbstractJMSTest {
 
         final JmsConsumer consumer = new JmsConsumer(QUEUE);
         consumer.setConnectionPool(pool);
-        consumer.setDeserializer(new DefaultSerializerDeserializer());
+        consumer.setDeserializer(DefaultSerializerDeserializer.getInstance());
 
         MessageObject received = consumer.receive("test-queue-3", MessageObject.class);
 
@@ -128,7 +128,7 @@ public abstract class AbstractJMSTest {
 
         final JmsProducer producer = new JmsProducer(QUEUE);
         producer.setConnectionPool(pool);
-        producer.setSerializer(new DefaultSerializerDeserializer());
+        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
         for (int i = 2; i < 100; i++) {
             producer.send("test-queue-3", "test-message-" + i);
@@ -171,7 +171,7 @@ public abstract class AbstractJMSTest {
 
         final JmsProducer producer = new JmsProducer(QUEUE);
         producer.setConnectionPool(pool);
-        producer.setSerializer(new DefaultSerializerDeserializer());
+        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
         for (int i = 0; i < 100; i++) {
             producer.send("test-queue-2", "test-message-" + i,
@@ -201,7 +201,7 @@ public abstract class AbstractJMSTest {
 
         final JmsProducer producer = new JmsProducer(TOPIC);
         producer.setConnectionPool(pool);
-        producer.setSerializer(new DefaultSerializerDeserializer());
+        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
         for (int i = 0; i < 100; i++) {
             producer.send("my-topic", "test-message-" + i,

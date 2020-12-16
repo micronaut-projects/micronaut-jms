@@ -37,8 +37,15 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSerializerDeserializer.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
 
-    @SuppressWarnings("unchecked")
+    public static DefaultSerializerDeserializer getInstance() {
+        return INSTANCE;
+    }
+
+    private DefaultSerializerDeserializer() {
+    }
+
     @Override
     public <T> T deserialize(Message message,
                              Class<T> clazz) {
@@ -49,28 +56,13 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
         try {
             switch (MessageType.fromMessage(message)) {
                 case MAP:
-                    final MapMessage mapMessage = (MapMessage) message;
-                    final Enumeration<String> keys = mapMessage.getMapNames();
-                    final Map<String, Object> output = new HashMap<>();
-                    while (keys.hasMoreElements()) {
-                        final String key = keys.nextElement();
-                        output.put(key, mapMessage.getObject(key));
-                    }
-                    return (T) output;
+                    return deserializeMap((MapMessage) message);
                 case TEXT:
-                    final TextMessage textMessage = (TextMessage) message;
-                    if (clazz.isAssignableFrom(String.class)) {
-                        return (T) textMessage.getText();
-                    }
-                    return OBJECT_MAPPER.readValue(textMessage.getText(), clazz);
+                    return deserializeText((TextMessage) message, clazz);
                 case BYTES:
-                    final BytesMessage bytesMessage = (BytesMessage) message;
-                    byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
-                    bytesMessage.readBytes(bytes);
-                    return (T) bytes;
+                    return deserializeBytes((BytesMessage) message);
                 case OBJECT:
-                    final ObjectMessage objectMessage = (ObjectMessage) message;
-                    return (T) objectMessage.getObject();
+                    return deserializeObject((ObjectMessage) message);
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
@@ -80,33 +72,50 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
         throw new IllegalArgumentException("Failed to deserialize message " + message);
     }
 
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeMap(final MapMessage message) throws JMSException {
+        final Enumeration<String> keys = message.getMapNames();
+        final Map<String, Object> output = new HashMap<>();
+        while (keys.hasMoreElements()) {
+            final String key = keys.nextElement();
+            output.put(key, message.getObject(key));
+        }
+        return (T) output;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeText(final TextMessage message,
+                                  final Class<T> clazz) throws JMSException, JsonProcessingException {
+        if (clazz.isAssignableFrom(String.class)) {
+            return (T) message.getText();
+        }
+        return OBJECT_MAPPER.readValue(message.getText(), clazz);
+    }
+
+    private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
+        byte[] bytes = new byte[(int) message.getBodyLength()];
+        message.readBytes(bytes);
+        return (T) bytes;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeObject(final ObjectMessage message) throws JMSException {
+        return (T) message.getObject();
+    }
+
     @Override
     public Message serialize(Session session,
                              Object input) {
         try {
             switch (MessageType.fromObject(input)) {
                 case MAP:
-                    final MapMessage message = session.createMapMessage();
-                    final Map<?, ?> inputMap = (Map<?, ?>) input;
-                    for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
-                        if (!(entry.getKey() instanceof CharSequence)) {
-                            throw new IllegalArgumentException(
-                                "Invalid MapMessage key type " +
-                                    entry.getKey().getClass().getName() +
-                                    "; must be a String/CharSequence");
-                        }
-                        message.setObject(((CharSequence) entry.getKey()).toString(), entry.getValue());
-                    }
-                    return message;
+                    return serializeMap(session, (Map<?, ?>) input);
                 case TEXT:
-                    return session.createTextMessage((String) input);
+                    return serializeText(session, (String) input);
                 case BYTES:
-                    final BytesMessage bytesMessage = session.createBytesMessage();
-                    bytesMessage.readBytes((byte[]) input);
-                    return bytesMessage;
+                    return serializeBytes(session, (byte[]) input);
                 case OBJECT:
-                    // TODO should be ObjectMessage
-                    return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
+                    return serializeObject(session, input);
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + input);
             }
@@ -115,5 +124,37 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
         }
         throw new IllegalArgumentException("Failed to serialize input " + input);
     }
-}
 
+    private MapMessage serializeMap(final Session session,
+                                    final Map<?, ?> input) throws JMSException {
+        final MapMessage message = session.createMapMessage();
+        for (Map.Entry<?, ?> entry : input.entrySet()) {
+            if (!(entry.getKey() instanceof CharSequence)) {
+                throw new IllegalArgumentException(
+                    "Invalid MapMessage key type " +
+                        entry.getKey().getClass().getName() +
+                        "; must be a String/CharSequence");
+            }
+            message.setObject(((CharSequence) entry.getKey()).toString(), entry.getValue());
+        }
+        return message;
+    }
+
+    private TextMessage serializeText(final Session session,
+                                      final String input) throws JMSException {
+        return session.createTextMessage(input);
+    }
+
+    private BytesMessage serializeBytes(final Session session,
+                                        final byte[] input) throws JMSException {
+        final BytesMessage message = session.createBytesMessage();
+        message.readBytes(input);
+        return message;
+    }
+
+    private TextMessage serializeObject(final Session session,
+                                        final Object input) throws JMSException, JsonProcessingException {
+        // TODO should be ObjectMessage
+        return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
+    }
+}

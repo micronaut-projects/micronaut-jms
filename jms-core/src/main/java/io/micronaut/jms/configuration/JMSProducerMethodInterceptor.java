@@ -95,7 +95,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
             JmsProducer producer = new JmsProducer(QUEUE);
             producer.setConnectionPool(pool);
-            producer.setSerializer(new DefaultSerializerDeserializer());
+            producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
             producer.send(queueName, context.getParameterValueMap().get(messageArgumentName), headers);
             return null;
@@ -128,7 +128,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
             JmsProducer producer = new JmsProducer(TOPIC);
             producer.setConnectionPool(pool);
-            producer.setSerializer(new DefaultSerializerDeserializer());
+            producer.setSerializer(DefaultSerializerDeserializer.getInstance());
 
             producer.send(topicName, context.getParameterValueMap().get(messageArgumentName), headers);
             return null;

@@ -40,7 +40,6 @@ public class MessageHandlerAdapter<T> implements MessageListener {
 
     private final MessageHandler<T> delegate;
     private final Class<T> clazz;
-    private final DefaultSerializerDeserializer serdes = new DefaultSerializerDeserializer(); // TODO configurable deserializer
 
     /***
      *
@@ -57,7 +56,8 @@ public class MessageHandlerAdapter<T> implements MessageListener {
     @Override
     public void onMessage(Message message) {
         if (messageTypeMatchesHandler(message)) {
-            delegate.handle((T) serdes.deserialize(message));
+            // TODO configurable deserializer
+            delegate.handle((T) DefaultSerializerDeserializer.getInstance().deserialize(message));
         }
     }
 
