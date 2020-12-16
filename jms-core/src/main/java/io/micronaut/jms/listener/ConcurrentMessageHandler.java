@@ -17,7 +17,8 @@ package io.micronaut.jms.listener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /***
  * A {@link MessageHandler} decorator that wraps a delegate implementation in an {@link ExecutorService}
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
 
-    private MessageHandler<T> delegate;
+    private final MessageHandler<T> delegate;
     private ExecutorService executorService;
 
     /***
@@ -42,7 +43,8 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
      * @param delegate - the {@link MessageHandler} to actually handle the incoming messages
      * @param executorService - the {@link ExecutorService} to submit handling requests to.
      */
-    public ConcurrentMessageHandler(MessageHandler<T> delegate, ExecutorService executorService) {
+    public ConcurrentMessageHandler(MessageHandler<T> delegate,
+                                    ExecutorService executorService) {
         this.delegate = delegate;
         this.executorService = executorService;
     }
@@ -82,7 +84,7 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
      */
     public boolean shutdown() throws InterruptedException {
         executorService.shutdown();
-        executorService.awaitTermination(10L, TimeUnit.SECONDS);
+        executorService.awaitTermination(10L, SECONDS);
         return executorService.isShutdown();
     }
 }

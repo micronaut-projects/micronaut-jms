@@ -33,7 +33,8 @@ import javax.jms.MessageProducer;
  */
 public class PooledProducer extends PooledObject<MessageProducer> implements MessageProducer {
 
-    public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool, MessageProducer object) {
+    public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool,
+                          MessageProducer object) {
         super(pool, object);
     }
 
@@ -108,37 +109,57 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
     }
 
     @Override
-    public void send(Message message, int deliveryMode, int priority, long timeToLive) throws JMSException {
+    public void send(Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive) throws JMSException {
         object.send(message, deliveryMode, priority, timeToLive);
     }
 
     @Override
-    public void send(Destination destination, Message message) throws JMSException {
+    public void send(Destination destination,
+                     Message message) throws JMSException {
         object.send(destination, message);
     }
 
     @Override
-    public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive) throws JMSException {
+    public void send(Destination destination,
+                     Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive) throws JMSException {
         object.send(destination, message, deliveryMode, priority, timeToLive);
     }
 
     @Override
-    public void send(Message message, CompletionListener completionListener) throws JMSException {
+    public void send(Message message,
+                     CompletionListener completionListener) throws JMSException {
         object.send(message, completionListener);
     }
 
     @Override
-    public void send(Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException {
+    public void send(Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive,
+                     CompletionListener completionListener) throws JMSException {
         object.send(message, deliveryMode, priority, timeToLive, completionListener);
     }
 
     @Override
-    public void send(Destination destination, Message message, CompletionListener completionListener) throws JMSException {
+    public void send(Destination destination,
+                     Message message,
+                     CompletionListener completionListener) throws JMSException {
         object.send(destination, message, completionListener);
     }
 
     @Override
-    public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException {
+    public void send(Destination destination,
+                     Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive,
+                     CompletionListener completionListener) throws JMSException {
         object.send(destination, message, deliveryMode, priority, timeToLive, completionListener);
     }
 

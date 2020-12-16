@@ -54,15 +54,13 @@ public class JMSListenerContainerFactory {
      * @param type
      * @param <T>
      */
-    public <T> void getJMSListener(
-            final JMSConnectionPool connectionPool,
-            final String destination,
-            final MessageHandler<T> handler,
-            final Class<T> clazz,
-            final JMSDestinationType type) {
+    public <T> void getJMSListener(final JMSConnectionPool connectionPool,
+                                   final String destination,
+                                   final MessageHandler<T> handler,
+                                   final Class<T> clazz,
+                                   final JMSDestinationType type) {
         final JMSListenerContainer<T> listener = new JMSListenerContainer<>(
-                connectionPool,
-                type);
+            connectionPool, type);
         listener.setThreadPoolSize(1);
         listener.registerListener(destination, handler, clazz);
         listeners.put(destination, listener);
@@ -86,17 +84,15 @@ public class JMSListenerContainerFactory {
      * @param type
      * @param <T>
      */
-    public <T> void getJMSListener(
-            final JMSConnectionPool connectionPool,
-            final String destination,
-            final MessageListener listener,
-            final Class<T> clazz,
-            final boolean transacted,
-            final int acknowledgment,
-            final JMSDestinationType type) {
+    public <T> void getJMSListener(final JMSConnectionPool connectionPool,
+                                   final String destination,
+                                   final MessageListener listener,
+                                   final Class<T> clazz,
+                                   final boolean transacted,
+                                   final int acknowledgment,
+                                   final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
-                connectionPool,
-                type);
+            connectionPool, type);
         container.setThreadPoolSize(1);
         container.registerListener(destination, listener, clazz, transacted, acknowledgment);
         listeners.put(destination, container);
@@ -116,8 +112,8 @@ public class JMSListenerContainerFactory {
      */
     @PreDestroy
     public void shutdown() {
-        listeners.forEach((destination, listener) -> {
+        for (JMSListenerContainer<?> listener : listeners.values()) {
             listener.shutdown();
-        });
+        }
     }
 }

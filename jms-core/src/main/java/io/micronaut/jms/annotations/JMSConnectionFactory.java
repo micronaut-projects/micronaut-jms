@@ -21,7 +21,13 @@ import io.micronaut.context.annotation.DefaultScope;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /***
  *
@@ -43,11 +49,8 @@ import java.lang.annotation.*;
  * @author elliott
  */
 @Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-        ElementType.METHOD,
-        ElementType.TYPE
-})
+@Retention(RUNTIME)
+@Target({METHOD, TYPE})
 @Bean
 @DefaultScope(Singleton.class)
 public @interface JMSConnectionFactory {

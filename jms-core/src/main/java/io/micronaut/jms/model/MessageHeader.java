@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
+import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
+
 /***
  * Container class to correspond to a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
  *      and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
@@ -34,14 +37,11 @@ import java.util.function.BiConsumer;
  * @since 1.0
  */
 public class MessageHeader {
+
     private static final Map<String, BiConsumer<Message, String>> JMS_HEADERS = new HashMap<>();
 
-    private String key;
-    private String value;
-    private boolean isJMSHeader;
-
-    private MessageHeader() {
-        JMS_HEADERS.put("JMSCorrelationID", (message, value) -> {
+    static {
+        JMS_HEADERS.put(JMS_CORRELATION_ID, (message, value) -> {
             try {
                 message.setJMSCorrelationID(value);
             } catch (JMSException e) {
@@ -55,7 +55,7 @@ public class MessageHeader {
                 // log error
             }
         });
-        JMS_HEADERS.put("JMSType", (message, value) -> {
+        JMS_HEADERS.put(JMS_TYPE, (message, value) -> {
             try {
                 message.setJMSType(value);
             } catch (JMSException e) {
@@ -72,6 +72,10 @@ public class MessageHeader {
         });
     }
 
+    private final String key;
+    private final String value;
+    private final boolean isJMSHeader;
+
     /***
      * Creates a container for the message header.
      *
@@ -79,10 +83,9 @@ public class MessageHeader {
      * @param value - the value for the header.
      */
     public MessageHeader(String key, String value) {
-        this();
         this.key = key;
         this.value = value;
-        this.isJMSHeader = JMS_HEADERS.containsKey(key);
+        isJMSHeader = JMS_HEADERS.containsKey(key);
     }
 
     /***

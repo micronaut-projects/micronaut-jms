@@ -35,7 +35,8 @@ public class BodyArgumentBinder extends AbstractChainedArgumentBinder {
     private final Deserializer deserializer = new DefaultSerializerDeserializer();
 
     @Override
-    public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
+    public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
+                                      Message source) {
         return () -> Optional.of(deserializer.deserialize(source, context.getArgument().getType()));
     }
 

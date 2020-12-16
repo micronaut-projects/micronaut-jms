@@ -39,7 +39,9 @@ public class PooledSession extends PooledObject<Session> implements Session {
 
     private final MessageProducerPool producerPool;
 
-    public PooledSession(AbstractPool<PooledObject<Session>> pool, Session object, MessageProducerPool producerPool) {
+    public PooledSession(AbstractPool<PooledObject<Session>> pool,
+                         Session object,
+                         MessageProducerPool producerPool) {
         super(pool, object);
         this.producerPool = producerPool;
     }
@@ -135,22 +137,28 @@ public class PooledSession extends PooledObject<Session> implements Session {
     }
 
     @Override
-    public MessageConsumer createConsumer(Destination destination, String messageSelector) throws JMSException {
+    public MessageConsumer createConsumer(Destination destination,
+                                          String messageSelector) throws JMSException {
         return object.createConsumer(destination, messageSelector);
     }
 
     @Override
-    public MessageConsumer createConsumer(Destination destination, String messageSelector, boolean noLocal) throws JMSException {
+    public MessageConsumer createConsumer(Destination destination,
+                                          String messageSelector,
+                                          boolean noLocal) throws JMSException {
         return object.createConsumer(destination, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName) throws JMSException {
+    public MessageConsumer createSharedConsumer(Topic topic,
+                                                String sharedSubscriptionName) throws JMSException {
         return object.createSharedConsumer(topic, sharedSubscriptionName);
     }
 
     @Override
-    public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName, String messageSelector) throws JMSException {
+    public MessageConsumer createSharedConsumer(Topic topic,
+                                                String sharedSubscriptionName,
+                                                String messageSelector) throws JMSException {
         return object.createSharedConsumer(topic, sharedSubscriptionName, messageSelector);
     }
 
@@ -165,32 +173,43 @@ public class PooledSession extends PooledObject<Session> implements Session {
     }
 
     @Override
-    public TopicSubscriber createDurableSubscriber(Topic topic, String name) throws JMSException {
+    public TopicSubscriber createDurableSubscriber(Topic topic,
+                                                   String name) throws JMSException {
         return object.createDurableSubscriber(topic, name);
     }
 
     @Override
-    public TopicSubscriber createDurableSubscriber(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
+    public TopicSubscriber createDurableSubscriber(Topic topic,
+                                                   String name,
+                                                   String messageSelector,
+                                                   boolean noLocal) throws JMSException {
         return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createDurableConsumer(Topic topic, String name) throws JMSException {
+    public MessageConsumer createDurableConsumer(Topic topic,
+                                                 String name) throws JMSException {
         return object.createDurableSubscriber(topic, name);
     }
 
     @Override
-    public MessageConsumer createDurableConsumer(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
+    public MessageConsumer createDurableConsumer(Topic topic,
+                                                 String name,
+                                                 String messageSelector,
+                                                 boolean noLocal) throws JMSException {
         return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createSharedDurableConsumer(Topic topic, String name) throws JMSException {
+    public MessageConsumer createSharedDurableConsumer(Topic topic,
+                                                       String name) throws JMSException {
         return object.createDurableSubscriber(topic, name);
     }
 
     @Override
-    public MessageConsumer createSharedDurableConsumer(Topic topic, String name, String messageSelector) throws JMSException {
+    public MessageConsumer createSharedDurableConsumer(Topic topic,
+                                                       String name,
+                                                       String messageSelector) throws JMSException {
         return object.createSharedDurableConsumer(topic, name, messageSelector);
     }
 
@@ -200,7 +219,8 @@ public class PooledSession extends PooledObject<Session> implements Session {
     }
 
     @Override
-    public QueueBrowser createBrowser(Queue queue, String messageSelector) throws JMSException {
+    public QueueBrowser createBrowser(Queue queue,
+                                      String messageSelector) throws JMSException {
         return object.createBrowser(queue, messageSelector);
     }
 

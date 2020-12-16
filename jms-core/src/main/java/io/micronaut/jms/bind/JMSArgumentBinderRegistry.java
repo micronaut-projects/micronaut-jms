@@ -42,6 +42,7 @@ import java.util.Optional;
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
     private final List<AbstractChainedArgumentBinder> argumentBinderChain = new LinkedList<>();
+
     private final AbstractChainedArgumentBinder defaultArgumentBinder = new AbstractChainedArgumentBinder() {
         @Override
         public boolean canBind(Argument<?> argument) {
@@ -55,8 +56,8 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
     };
 
     public JMSArgumentBinderRegistry() {
-        argumentBinderChain.add(new HeaderArgumentBinder());
-        argumentBinderChain.add(new BodyArgumentBinder());
+        addArgumentBinder(new HeaderArgumentBinder());
+        addArgumentBinder(new BodyArgumentBinder());
     }
 
     /***
@@ -70,11 +71,12 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
         argumentBinderChain.add(argumentBinder);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument, Message source) {
         return Optional.of((ArgumentBinder<T, Message>) argumentBinderChain.stream()
-                .filter(binder -> binder.canBind(argument))
-                .findFirst()
-                .orElse(defaultArgumentBinder));
+            .filter(binder -> binder.canBind(argument))
+            .findFirst()
+            .orElse(defaultArgumentBinder));
     }
 }

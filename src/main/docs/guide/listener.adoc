@@ -6,6 +6,7 @@ You can define a listener using any the following syntax
 ----
 @JMSListener("myConnectionFactory")
 public class MyListener {
+
     @Queue("my-queue")
     public void receive(@Body String message) {
         // do logic
@@ -48,10 +49,8 @@ Some key notes here:
 This defines it as a bean and enables the post-processing logic
 2. The value of the `@JMSListener` must correspond with the value of exactly one `@JMSConnectionFactory` annotated bean in the `BeanContext`.
 If there is no `@JMSConnectionFactory` with the same value, or if there is more than one then you will receive an `IllegalStateException`
-3. There must be at least one method annotated with either `@Queue`
-or `@Topic` in an `@JMSListener` class.
-If there is not, an `IllegalStateException`
-will be thrown
+3. There must be at least one method annotated with either `@Queue` or `@Topic` in an `@JMSListener` class.
+If there is not, an `IllegalStateException` will be thrown
 4. Any method annotated with `@Queue` or `@Topic` must have one parameter which is annotated with `@Body`.
 All other parameters must have the `@Header` annotation.
 5. If you want to use a Micronaut managed executor service, you can specify it by name in the `executor` parameter of the `@Queue` or `@Topic` annotations.

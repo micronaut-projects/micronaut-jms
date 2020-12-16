@@ -1,8 +1,6 @@
 = Configuring Connections for Unsupported Brokers
 
-If your message broker is not supported, then you must provide
-the `ConnectionFactory` manually to the `BeanContext`
-in the following manner:
+If your message broker is not supported, then you must provide the `ConnectionFactory` manually to the `BeanContext` in the following manner:
 
 [source,java]
 ----
@@ -15,7 +13,4 @@ public class JMSConfig {
 }
 ----
 
-
 Once you have these changes in place, you can start defining listeners and producers.
-
-

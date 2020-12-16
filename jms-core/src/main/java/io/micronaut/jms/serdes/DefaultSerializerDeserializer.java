@@ -34,14 +34,18 @@ import java.util.Map;
 
 public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSerializerDeserializer.class);
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    @SuppressWarnings("unchecked")
     @Override
-    public <T> T deserialize(Message message, Class<T> clazz) {
+    public <T> T deserialize(Message message,
+                             Class<T> clazz) {
         if (message == null) {
             return null;
         }
+
         try {
             switch (MessageType.fromMessage(message)) {
                 case MAP:
@@ -77,20 +81,21 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
     }
 
     @Override
-    public Message serialize(Session session, Object input) {
+    public Message serialize(Session session,
+                             Object input) {
         try {
             switch (MessageType.fromObject(input)) {
                 case MAP:
                     final MapMessage message = session.createMapMessage();
                     final Map<?, ?> inputMap = (Map<?, ?>) input;
                     for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
-                        if (!(entry.getKey() instanceof String)) {
+                        if (!(entry.getKey() instanceof CharSequence)) {
                             throw new IllegalArgumentException(
-                                    String.format("Failed to convert input due to key %s with type %s",
-                                            entry.getKey(),
-                                            entry.getKey().getClass()));
+                                "Invalid MapMessage key type " +
+                                    entry.getKey().getClass().getName() +
+                                    "; must be a String/CharSequence");
                         }
-                        message.setObject((String) entry.getKey(), entry.getValue());
+                        message.setObject(((CharSequence) entry.getKey()).toString(), entry.getValue());
                     }
                     return message;
                 case TEXT:
@@ -100,6 +105,7 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                     bytesMessage.readBytes((byte[]) input);
                     return bytesMessage;
                 case OBJECT:
+                    // TODO should be ObjectMessage
                     return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + input);

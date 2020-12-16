@@ -47,7 +47,6 @@ public class ActiveMqConfiguration {
      */
     @JMSConnectionFactory("activeMqConnectionFactory")
     public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties configuration) {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(configuration.getConnectionString());
-        return connectionFactory;
+        return new ActiveMQConnectionFactory(configuration.getConnectionString());
     }
 }

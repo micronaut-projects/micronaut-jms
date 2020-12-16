@@ -39,7 +39,9 @@ public class MessageProducerPool extends AbstractPool<PooledObject<MessageProduc
 
     private final Session session;
 
-    public MessageProducerPool(Integer initialSize, Integer maxSize, Session session) {
+    public MessageProducerPool(int initialSize,
+                               int maxSize,
+                               Session session) {
         super(initialSize, maxSize);
         this.session = session;
     }
@@ -47,8 +49,6 @@ public class MessageProducerPool extends AbstractPool<PooledObject<MessageProduc
     @Override
     protected PooledObject<MessageProducer> create(Object... args) {
         try {
-            assert args.length == 1;
-            assert Destination.class.isAssignableFrom(args[0].getClass());
             return new PooledProducer(this, session.createProducer((Destination) args[0]));
         } catch (JMSException e) {
             LOGGER.error("failed to create Producer for pool.", e);

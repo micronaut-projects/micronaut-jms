@@ -38,20 +38,22 @@ import java.util.Map;
  */
 public class MessageHandlerAdapter<T> implements MessageListener {
 
-    private MessageHandler<T> delegate;
-    private Class<T> clazz;
-    private final DefaultSerializerDeserializer serdes = new DefaultSerializerDeserializer();
+    private final MessageHandler<T> delegate;
+    private final Class<T> clazz;
+    private final DefaultSerializerDeserializer serdes = new DefaultSerializerDeserializer(); // TODO configurable deserializer
 
     /***
      *
      * @param delegate - the underlying handler to delegate to.
      * @param clazz - the parameter class of the {@param delegate}.
      */
-    public MessageHandlerAdapter(MessageHandler<T> delegate, Class<T> clazz) {
+    public MessageHandlerAdapter(MessageHandler<T> delegate,
+                                 Class<T> clazz) {
         this.delegate = delegate;
         this.clazz = clazz;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onMessage(Message message) {
         if (messageTypeMatchesHandler(message)) {
@@ -69,9 +71,6 @@ public class MessageHandlerAdapter<T> implements MessageListener {
         if (message instanceof BytesMessage && clazz.isAssignableFrom(byte[].class)) {
             return true;
         }
-        if (message instanceof ObjectMessage && clazz.isAssignableFrom(Serializable.class)) {
-            return true;
-        }
-        return false;
+        return message instanceof ObjectMessage && clazz.isAssignableFrom(Serializable.class);
     }
 }

@@ -45,5 +45,4 @@ public interface ActiveMqConfigurationProperties {
      */
     @NotBlank
     String getConnectionString();
-
 }

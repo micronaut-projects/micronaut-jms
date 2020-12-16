@@ -39,16 +39,16 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
 
     private final SessionPool sessionPool;
 
-    public PooledConnection(
-            Connection connection,
-            AbstractPool<PooledObject<Connection>> connectionPool,
-            SessionPool sessionPool) {
+    public PooledConnection(Connection connection,
+                            AbstractPool<PooledObject<Connection>> connectionPool,
+                            SessionPool sessionPool) {
         super(connectionPool, connection);
         this.sessionPool = sessionPool;
     }
 
     @Override
-    public Session createSession(boolean transacted, int acknowledgeMode) throws JMSException {
+    public Session createSession(boolean transacted,
+                                 int acknowledgeMode) throws JMSException {
         return object.createSession(transacted, acknowledgeMode);
     }
 
@@ -96,27 +96,37 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
     }
 
     @Override
-    public void close() throws JMSException {
-        super.close();
-    }
-
-    @Override
-    public ConnectionConsumer createConnectionConsumer(Destination destination, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+    public ConnectionConsumer createConnectionConsumer(Destination destination,
+                                                       String messageSelector,
+                                                       ServerSessionPool sessionPool,
+                                                       int maxMessages) throws JMSException {
         return object.createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
-    public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+    public ConnectionConsumer createSharedConnectionConsumer(Topic topic,
+                                                             String subscriptionName,
+                                                             String messageSelector,
+                                                             ServerSessionPool sessionPool,
+                                                             int maxMessages) throws JMSException {
         return object.createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
-    public ConnectionConsumer createDurableConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+    public ConnectionConsumer createDurableConnectionConsumer(Topic topic,
+                                                              String subscriptionName,
+                                                              String messageSelector,
+                                                              ServerSessionPool sessionPool,
+                                                              int maxMessages) throws JMSException {
         return object.createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
-    public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+    public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic,
+                                                                    String subscriptionName,
+                                                                    String messageSelector,
+                                                                    ServerSessionPool sessionPool,
+                                                                    int maxMessages) throws JMSException {
         return object.createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 

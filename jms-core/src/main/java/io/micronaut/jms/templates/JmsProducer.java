@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.templates;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -29,9 +30,12 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
+
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
+import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
+import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
 public class JmsProducer {
 
@@ -41,18 +45,16 @@ public class JmsProducer {
     private JMSConnectionPool connectionPool;
     private Serializer<Object> serializer;
     private boolean sessionTransacted = false;
-    private int sessionAcknowledged = Session.AUTO_ACKNOWLEDGE;
+    private int sessionAcknowledged = AUTO_ACKNOWLEDGE;
     private final JMSDestinationType type;
-    private int defaultJMSPriority = 4;
 
     public JmsProducer(JMSDestinationType type) {
         this.type = type;
     }
 
-    public JmsProducer(
-            JMSDestinationType type,
-            boolean sessionTransacted,
-            int sessionAcknowledged) {
+    public JmsProducer(JMSDestinationType type,
+                       boolean sessionTransacted,
+                       int sessionAcknowledged) {
         this.type = type;
         this.sessionTransacted = sessionTransacted;
         this.sessionAcknowledged = sessionAcknowledged;
@@ -62,8 +64,8 @@ public class JmsProducer {
      * @return the {@link JMSConnectionPool} configured for the producer.
      */
     public JMSConnectionPool getConnectionPool() {
-        return Optional.ofNullable(connectionPool).orElseThrow(
-                () -> new IllegalStateException("Connection Pool cannot be null"));
+        return Optional.ofNullable(connectionPool)
+            .orElseThrow(() -> new IllegalStateException("Connection Pool cannot be null"));
     }
 
     /***
@@ -93,8 +95,8 @@ public class JmsProducer {
      * @return the {@link Serializer} to be used by the producer.
      */
     public Serializer<Object> getSerializer() {
-        return Optional.ofNullable(serializer).orElseThrow(
-                () -> new IllegalStateException("Serializer cannot be null"));
+        return Optional.ofNullable(serializer)
+            .orElseThrow(() -> new IllegalStateException("Serializer cannot be null"));
     }
 
     /***
@@ -106,17 +108,15 @@ public class JmsProducer {
      * @param message
      * @param headers
      */
-    public void send(
-            @NotEmpty String destination,
-            @NotNull Object message,
-            MessageHeader... headers) {
+    public void send(@NonNull String destination,
+                     @NonNull Object message,
+                     MessageHeader... headers) {
         try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             send(destination, getSerializer().serialize(session, message), headers);
         } catch (JMSException e) {
             e.printStackTrace();
         }
-
     }
 
     /***
@@ -128,25 +128,12 @@ public class JmsProducer {
      * @param message
      * @param headers
      */
-    public void send(
-            @NotEmpty String destination,
-            @NotNull Message message,
-            MessageHeader... headers) {
+    public void send(@NonNull String destination,
+                     @NonNull Message message,
+                     MessageHeader... headers) {
         send(lookupDestination(destination), message, headers);
     }
 
-    private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
-            return type == JMSDestinationType.QUEUE ?
-                    session.createQueue(destination) :
-                    session.createTopic(destination);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     /***
      *
      * Sends the given {@param message} to the {@param destination}
@@ -156,10 +143,9 @@ public class JmsProducer {
      * @param message
      * @param headers
      */
-    public void send(
-            @NotNull Destination destination,
-            @NotNull Message message,
-            MessageHeader... headers) {
+    public void send(@NonNull Destination destination,
+                     @NonNull Message message,
+                     MessageHeader... headers) {
         try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             send(session, destination, message, headers);
@@ -168,21 +154,26 @@ public class JmsProducer {
         }
     }
 
-    private Session getOrCreateSession(Connection connection) throws JMSException {
-        return connection.createSession(sessionTransacted, sessionAcknowledged);
-    }
-
-    private void send(
-            @NotNull Session session,
-            @NotNull Destination destination,
-            @NotNull Message message,
-            MessageHeader... headers) throws JMSException {
+    private void send(@NonNull Session session,
+                      @NonNull Destination destination,
+                      @NonNull Message message,
+                      MessageHeader... headers) throws JMSException {
         notNull(session, "Session cannot be null");
         notNull(destination, "Destination cannot be null");
         notNull(message, "Message cannot be null");
 
         try (MessageProducer producer = session.createProducer(destination)) {
-            send(producer, message, headers);
+
+            for (MessageHeader header : headers) {
+                if (header.isJMSHeader()) {
+                    header.setJMSHeader(message);
+                } else {
+                    header.setHeader(message);
+                }
+            }
+
+            producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), DEFAULT_TIME_TO_LIVE);
+
             if (sessionTransacted) {
                 session.commit();
             }
@@ -190,27 +181,25 @@ public class JmsProducer {
             session.rollback();
             LOGGER.error("Error sending the message.", e);
         }
-
     }
 
-    private void send(@NotNull MessageProducer producer, @NotNull Message message, MessageHeader... headers) throws JMSException {
-        notNull(producer, "MessageProducer cannot be null");
-        notNull(message, "Message cannot be null");
-        setJMSHeaders(message, headers);
-        producer.send(message, Message.DEFAULT_DELIVERY_MODE, message.getJMSPriority(), Message.DEFAULT_TIME_TO_LIVE);
+    private Destination lookupDestination(String destination) {
+        try (Connection connection = getConnectionPool().createConnection();
+             Session session = getOrCreateSession(connection)) {
+            return type == QUEUE ?
+                session.createQueue(destination) :
+                session.createTopic(destination);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Session getOrCreateSession(Connection connection) throws JMSException {
+        return connection.createSession(sessionTransacted, sessionAcknowledged);
     }
 
     private static void notNull(Object object, String failureMessage) {
         Optional.ofNullable(object).orElseThrow(() -> new IllegalStateException(failureMessage));
-    }
-
-    private static void setJMSHeaders(@NotNull Message message, MessageHeader... headers) {
-        for (MessageHeader header : headers) {
-            if (header.isJMSHeader()) {
-                header.setJMSHeader(message);
-            } else {
-                header.setHeader(message);
-            }
-        }
     }
 }

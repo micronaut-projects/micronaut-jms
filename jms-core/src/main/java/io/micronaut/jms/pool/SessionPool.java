@@ -37,11 +37,10 @@ public class SessionPool extends AbstractPool<PooledObject<Session>> {
     private final Connection connection;
     private final MessageProducerPoolFactory producerPoolFactory;
 
-    public SessionPool(
-            Integer initialSize,
-            Integer maxSize,
-            Connection connection,
-            MessageProducerPoolFactory producerPoolFactory) {
+    public SessionPool(int initialSize,
+                       int maxSize,
+                       Connection connection,
+                       MessageProducerPoolFactory producerPoolFactory) {
         super(initialSize, maxSize);
         this.connection = connection;
         this.producerPoolFactory = producerPoolFactory;
@@ -50,24 +49,19 @@ public class SessionPool extends AbstractPool<PooledObject<Session>> {
     @Override
     protected PooledObject<Session> create(Object... args) {
         try {
-            Session session = null;
+            Session session;
             if (args == null || args.length == 0) {
                 session = connection.createSession();
             } else if (args.length == 1) {
-                assert Integer.class.isAssignableFrom(args[0].getClass());
                 session = connection.createSession((Integer) args[0]);
             } else if (args.length == 2) {
-                assert Boolean.class.isAssignableFrom(args[0].getClass());
-                assert Integer.class.isAssignableFrom(args[1].getClass());
                 session = connection.createSession((Boolean) args[0], (Integer) args[1]);
+            } else {
+                throw new IllegalArgumentException(
+                    "Cannot create a Session from provided arguments.");
             }
-            if (session != null) {
-                return new PooledSession(
-                        this,
-                        session,
-                        producerPoolFactory.getProducerPool(session));
-            }
-            throw new IllegalArgumentException("Cannot create a Session from provided arguments.");
+
+            return new PooledSession(this, session, producerPoolFactory.getProducerPool(session));
         } catch (JMSException e) {
             LOGGER.error("Failed to create session for the pool.", e);
             return null;
@@ -76,6 +70,6 @@ public class SessionPool extends AbstractPool<PooledObject<Session>> {
 
     @Override
     protected void reset(PooledObject<Session> pooledObject) {
-        // TODO:  implement sensible actions to reset a javax.jms.Session so it can be reused.
+        // TODO:  implement sensible actions to reset a Session so it can be reused.
     }
 }

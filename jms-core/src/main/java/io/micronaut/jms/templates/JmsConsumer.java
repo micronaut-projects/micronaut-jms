@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.templates;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Deserializer;
@@ -26,17 +27,21 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static javax.jms.Session.AUTO_ACKNOWLEDGE;
+import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
+
 public class JmsConsumer {
+
+    private final JMSDestinationType type;
     @Nullable
     private JMSConnectionPool connectionPool;
     @Nullable
     private Deserializer deserializer;
     private boolean sessionTransacted = false;
-    private int sessionAcknowledged = Session.AUTO_ACKNOWLEDGE;
-    private final JMSDestinationType type;
+    private int sessionAcknowledged = AUTO_ACKNOWLEDGE;
 
     public JmsConsumer(JMSDestinationType type) {
         this.type = type;
@@ -47,7 +52,7 @@ public class JmsConsumer {
      */
     public JMSConnectionPool getConnectionPool() {
         return Optional.ofNullable(connectionPool)
-                .orElseThrow(() -> new IllegalStateException("Connection Factory cannot be null"));
+            .orElseThrow(() -> new IllegalStateException("Connection Factory cannot be null"));
     }
 
     /***
@@ -66,7 +71,7 @@ public class JmsConsumer {
      */
     public Deserializer getDeserializer() {
         return Optional.ofNullable(deserializer)
-                .orElseThrow(() -> new IllegalStateException("Deserializer cannot be null"));
+            .orElseThrow(() -> new IllegalStateException("Deserializer cannot be null"));
     }
 
     /***
@@ -92,9 +97,10 @@ public class JmsConsumer {
      *
      * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
      */
-    public <T> T receive(@NotNull String destination, Class<T> clazz) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = connection.createSession(sessionTransacted, sessionAcknowledged)) {
+    public <T> T receive(@NonNull String destination,
+                         Class<T> clazz) {
+        try (Connection connection = createConnection();
+             Session session = createSession(connection)) {
             connection.start();
             return getDeserializer().deserialize(receive(session, lookupDestination(destination)), clazz);
         } catch (JMSException e) {
@@ -103,29 +109,16 @@ public class JmsConsumer {
         return null;
     }
 
-    private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = connection.createSession(sessionTransacted, sessionAcknowledged)) {
-            return type == JMSDestinationType.QUEUE ?
-                    session.createQueue(destination) :
-                    session.createTopic(destination);
-        } catch (JMSException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @Nullable
-    private Message receive(@NotNull Session session, @NotNull Destination destination) {
+    private Message receive(@NonNull Session session,
+                            @NonNull Destination destination) {
         try (MessageConsumer consumer = session.createConsumer(destination)) {
-            Message message = receive(consumer);
+            Message message = consumer.receive();
             if (sessionTransacted) {
                 session.commit();
             }
-            if (session.getAcknowledgeMode() == Session.CLIENT_ACKNOWLEDGE) {
-                if (message != null) {
-                    message.acknowledge();
-                }
+            if (message != null && session.getAcknowledgeMode() == CLIENT_ACKNOWLEDGE) {
+                message.acknowledge();
             }
             return message;
         } catch (JMSException e) {
@@ -134,7 +127,23 @@ public class JmsConsumer {
         return null;
     }
 
-    private Message receive(@NotNull MessageConsumer consumer) throws JMSException {
-        return consumer.receive();
+    private Destination lookupDestination(String destination) {
+        try (Connection connection = createConnection();
+             Session session = createSession(connection)) {
+            return type == QUEUE ?
+                session.createQueue(destination) :
+                session.createTopic(destination);
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Session createSession(Connection connection) throws JMSException {
+        return connection.createSession(sessionTransacted, sessionAcknowledged);
+    }
+
+    private Connection createConnection() throws JMSException {
+        return getConnectionPool().createConnection();
     }
 }

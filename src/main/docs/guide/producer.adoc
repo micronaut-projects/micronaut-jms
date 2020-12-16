@@ -19,8 +19,7 @@ The following snippet should suffice:
 @Factory
 public class MyConfiguration {
     @Singleton
-    public JmsProducer producer(
-        JMSConnectionPool pool) {
+    public JmsProducer producer(JMSConnectionPool pool) {
         final JmsProducer producer = new JmsProducer();
         producer.setConnectionFactory(pool);
         producer.setSerializer(new DefaultSerializerDeserializer());
@@ -31,8 +30,11 @@ public class MyConfiguration {
 @Singleton
 public class MyBusinessLogic {
 
-    @Inject
-    private JmsProducer producer;
+    private final JmsProducer producer;
+
+    public MyBusinessLogic(JmsProducer producer) {
+        this.producer = producer;
+    }
 
     public void aMethod(String message) {
         producer.send("my-queue", message, new MessageHeader(JMSHeaders.JMS_REPLY_TO, "my-reply-queue"));
@@ -44,5 +46,4 @@ public class MyBusinessLogic {
 }
 ----
 
-_**NOTE**_: If you pass an object to the `send` method then by default
-it will be serialized to JSON and sent to the broker as a `javax.jms.TextMessage`
+_**NOTE**_: If you pass an object to the `send` method, by default it will be serialized to JSON and sent to the broker as a `javax.jms.TextMessage`

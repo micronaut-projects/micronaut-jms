@@ -3,4 +3,3 @@
 To add support for JMS, introduce the following dependency to your project
 
 dependency:io.micronaut.jms:micronaut-jms-core[]
-

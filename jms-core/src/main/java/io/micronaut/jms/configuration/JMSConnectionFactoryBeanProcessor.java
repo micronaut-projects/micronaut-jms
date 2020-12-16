@@ -43,9 +43,8 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
     private final JMSConfigurationProperties properties;
     private final SessionPoolFactory sessionPoolFactory;
 
-    public JMSConnectionFactoryBeanProcessor(
-            JMSConfigurationProperties properties,
-            SessionPoolFactory sessionPoolFactory) {
+    public JMSConnectionFactoryBeanProcessor(JMSConfigurationProperties properties,
+                                             SessionPoolFactory sessionPoolFactory) {
         this.properties = properties;
         this.sessionPoolFactory = sessionPoolFactory;
     }
@@ -55,18 +54,21 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
         final Object candidate = context.getBean(beanDefinition);
         if (!ConnectionFactory.class.isAssignableFrom(candidate.getClass())) {
             throw new IllegalStateException("@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
-                    "Provided class was " + candidate.getClass().getName());
+                "Provided class was " + candidate.getClass().getName());
         }
+
         final ConnectionFactory connectionFactory = (ConnectionFactory) candidate;
         final String name = beanDefinition.stringValue(JMSConnectionFactory.class)
-                .orElseThrow(() -> new ConfigurationException("@JMSConnectionFactory must specify a name for the bean."));
+            .orElseThrow(() -> new ConfigurationException(
+                "@JMSConnectionFactory must specify a name for the bean."));
+
         context.registerSingleton(
-                JMSConnectionPool.class,
-                new JMSConnectionPool(
-                        connectionFactory,
-                        sessionPoolFactory,
-                        properties.getInitialPoolSize(),
-                        properties.getMaxPoolSize()),
-                Qualifiers.byName(name));
+            JMSConnectionPool.class,
+            new JMSConnectionPool(
+                connectionFactory,
+                sessionPoolFactory,
+                properties.getInitialPoolSize(),
+                properties.getMaxPoolSize()),
+            Qualifiers.byName(name));
     }
 }

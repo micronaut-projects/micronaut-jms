@@ -25,10 +25,13 @@ import javax.inject.Singleton;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
+
 @Singleton
 public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
 
-    public JMSTopicListenerMethodProcessor(BeanContext beanContext, JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
+    public JMSTopicListenerMethodProcessor(BeanContext beanContext,
+                                           JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
         super(beanContext, jmsArgumentBinderRegistry, Topic.class);
     }
 
@@ -39,6 +42,6 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
 
     @Override
     protected JMSDestinationType getDestinationType() {
-        return JMSDestinationType.TOPIC;
+        return TOPIC;
     }
 }

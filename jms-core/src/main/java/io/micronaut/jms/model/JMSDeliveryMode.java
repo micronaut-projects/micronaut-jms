@@ -38,15 +38,15 @@ public enum JMSDeliveryMode {
      */
     PERSISTENT(2);
 
-    private Integer value;
+    private final int value;
 
-    JMSDeliveryMode(Integer value) {
+    JMSDeliveryMode(int value) {
         this.value = value;
     }
 
-    public static JMSDeliveryMode from(Integer value) {
+    public static JMSDeliveryMode from(int value) {
         for (JMSDeliveryMode mode : values()) {
-            if (mode.value.equals(value)) {
+            if (mode.value == value) {
                 return mode;
             }
         }

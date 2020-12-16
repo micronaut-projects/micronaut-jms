@@ -32,8 +32,11 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
 /***
  * A container for setting up and managing {@link MessageListener}s created by the
@@ -56,7 +59,6 @@ public class JMSListenerContainer<T> {
     private final JMSConnectionPool connectionPool;
 
     private final Set<Connection> openConnections = new HashSet<>();
-    private boolean isRunning = true;
     private int threadPoolSize;
     private int maxThreadPoolSize;
 
@@ -69,9 +71,8 @@ public class JMSListenerContainer<T> {
      *                       {@link MessageListener}s
      * @param type - either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
      */
-    public JMSListenerContainer(
-            JMSConnectionPool connectionPool,
-            JMSDestinationType type) {
+    public JMSListenerContainer(JMSConnectionPool connectionPool,
+                                JMSDestinationType type) {
         this.connectionPool = connectionPool;
         this.type = type;
     }
@@ -109,24 +110,27 @@ public class JMSListenerContainer<T> {
      * @param listener
      * @param clazz
      */
-    public void registerListener(String destination, MessageHandler<T> listener, Class<T> clazz) {
-        try  {
+    public void registerListener(String destination,
+                                 MessageHandler<T> listener,
+                                 Class<T> clazz) {
+        try {
             final Connection connection = connectionPool.createConnection();
-            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Session session = connection.createSession(false, AUTO_ACKNOWLEDGE);
             openConnections.add(connection);
-            final MessageConsumer consumer = session.createConsumer(session.createQueue(destination));
+            final MessageConsumer consumer = session.createConsumer(
+                session.createQueue(destination));
             consumer.setMessageListener(
-                    new MessageHandlerAdapter<>(
-                            new ConcurrentMessageHandler<>(
-                                    listener,
-                                    new ThreadPoolExecutor(
-                                            threadPoolSize,
-                                            maxThreadPoolSize,
-                                            5L,
-                                            TimeUnit.SECONDS,
-                                            new LinkedBlockingQueue<>(10),
-                                            Executors.defaultThreadFactory())),
-                            clazz));
+                new MessageHandlerAdapter<>(
+                    new ConcurrentMessageHandler<>(
+                        listener,
+                        new ThreadPoolExecutor(
+                            threadPoolSize,
+                            maxThreadPoolSize,
+                            5L,
+                            SECONDS,
+                            new LinkedBlockingQueue<>(10),
+                            Executors.defaultThreadFactory())),
+                    clazz));
         } catch (JMSException e) {
             LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);
         }
@@ -146,13 +150,17 @@ public class JMSListenerContainer<T> {
      * @param transacted
      * @param acknowledgment
      */
-    public void registerListener(String destination, MessageListener listener, Class<T> clazz, boolean transacted, int acknowledgment) {
-        try  {
+    public void registerListener(String destination,
+                                 MessageListener listener,
+                                 Class<T> clazz, // TODO unused
+                                 boolean transacted,
+                                 int acknowledgment) {
+        try {
             final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(transacted, acknowledgment);
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(
-                    lookupDestination(destination, session));
+                lookupDestination(destination, session));
             consumer.setMessageListener((message) -> {
                 try {
                     listener.onMessage(message);
@@ -184,23 +192,21 @@ public class JMSListenerContainer<T> {
     @PreDestroy
     public boolean shutdown() {
         final AtomicBoolean success = new AtomicBoolean(true);
-        openConnections.forEach(connection -> {
+        for (Connection connection : openConnections) {
             try {
                 connection.stop();
             } catch (JMSException e) {
                 success.set(false);
                 LOGGER.error("Failed to stop connection die to an error", e);
             }
-        });
-        this.isRunning = success.get();
-        return isRunning;
+        }
+        return success.get();
     }
 
-    private Destination lookupDestination(
-            String destination,
-            Session session) throws JMSException {
-        return type == JMSDestinationType.QUEUE ?
-                session.createQueue(destination) :
-                session.createTopic(destination);
+    private Destination lookupDestination(String destination,
+                                          Session session) throws JMSException {
+        return type == QUEUE ?
+            session.createQueue(destination) :
+            session.createTopic(destination);
     }
 }

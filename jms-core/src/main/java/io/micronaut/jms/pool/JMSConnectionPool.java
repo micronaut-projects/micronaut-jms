@@ -33,18 +33,15 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     private final ConnectionFactory connectionFactory;
     private final SessionPoolFactory sessionPoolFactory;
 
-    public JMSConnectionPool(
-            ConnectionFactory connectionFactory,
-            SessionPoolFactory sessionPoolFactory,
-            Integer initialPoolSize,
-            Integer maxPoolSize) {
+    public JMSConnectionPool(ConnectionFactory connectionFactory,
+                             SessionPoolFactory sessionPoolFactory,
+                             int initialPoolSize,
+                             int maxPoolSize) {
         super(initialPoolSize, maxPoolSize);
         this.connectionFactory = connectionFactory;
         this.sessionPoolFactory = sessionPoolFactory;
         for (int i = 0; i < initialPoolSize; i++) {
-            CompletableFuture.runAsync(() -> {
-                this.pool.add(this.create());
-            });
+            CompletableFuture.runAsync(() -> pool.add(create()));
         }
     }
 
@@ -65,7 +62,7 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     }
 
     private void doReset(PooledConnection pooledConnection) {
-
+        // TODO
     }
 
     @Override
@@ -79,9 +76,10 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     }
 
     @Override
-    public Connection createConnection(String userName, String password) throws JMSException {
+    public Connection createConnection(String userName,
+                                       String password) throws JMSException {
         throw new UnsupportedOperationException("Cannot request a Connection with credentials. " +
-                "All credentials should be configured in the ConnectionFactory");
+            "All credentials should be configured in the ConnectionFactory");
     }
 
     @Override
@@ -90,12 +88,15 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     }
 
     @Override
-    public JMSContext createContext(String userName, String password) {
+    public JMSContext createContext(String userName,
+                                    String password) {
         return connectionFactory.createContext(userName, password);
     }
 
     @Override
-    public JMSContext createContext(String userName, String password, int sessionMode) {
+    public JMSContext createContext(String userName,
+                                    String password,
+                                    int sessionMode) {
         return connectionFactory.createContext(userName, password, sessionMode);
     }
 

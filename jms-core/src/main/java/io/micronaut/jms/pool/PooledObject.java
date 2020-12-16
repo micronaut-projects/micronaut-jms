@@ -20,9 +20,11 @@ import javax.jms.JMSException;
 public abstract class PooledObject<T> implements AutoCloseable {
 
     protected final T object;
+
     private final AbstractPool<PooledObject<T>> pool;
 
-    public PooledObject(AbstractPool<PooledObject<T>> pool, T object) {
+    protected PooledObject(AbstractPool<PooledObject<T>> pool,
+                           T object) {
         this.pool = pool;
         this.object = object;
     }

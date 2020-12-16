@@ -11,5 +11,3 @@ listener:
   title: Defining a JMS Listener
 producer:
   title: Defining a JMS Producer
-
-

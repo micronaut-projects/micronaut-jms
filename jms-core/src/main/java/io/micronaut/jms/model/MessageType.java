@@ -15,13 +15,14 @@
  */
 package io.micronaut.jms.model;
 
-import javax.annotation.Nullable;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -61,10 +62,11 @@ public enum MessageType {
      */
     UNKNOWN(null, null);
 
-    private Class<? extends Message> toClazz;
-    private Class<?> fromClazz;
+    private final Class<? extends Message> toClazz;
+    private final Class<?> fromClazz;
 
-    MessageType(Class<? extends Message> toClazz, Class<?> fromClazz) {
+    MessageType(Class<? extends Message> toClazz,
+                Class<?> fromClazz) {
         this.toClazz = toClazz;
         this.fromClazz = fromClazz;
     }
@@ -74,13 +76,12 @@ public enum MessageType {
      * @return the {@link MessageType} that corresponds to the given {@param message}. If the {@param message}
      *      is null or the type is not supported, then {@link MessageType#UNKNOWN} will be returned.
      */
-    public static @NotNull MessageType fromMessage(@Nullable Message message) {
-        if (message == null) {
-            return UNKNOWN;
-        }
-        for (MessageType type : MessageType.values()) {
-            if (type.toClazz.isAssignableFrom(message.getClass())) {
-                return type;
+    public static @NonNull MessageType fromMessage(@Nullable Message message) {
+        if (message != null) {
+            for (MessageType type : MessageType.values()) {
+                if (type.toClazz.isAssignableFrom(message.getClass())) {
+                    return type;
+                }
             }
         }
         return UNKNOWN;
@@ -91,10 +92,12 @@ public enum MessageType {
      * @return the {@link MessageType} that corresponds to the given {@param message}. If the {@param message}
      *      is null or the type is not supported, then {@link MessageType#UNKNOWN} will be returned.
      */
-    public static <T> MessageType fromObject(T message) {
-        for (MessageType type : MessageType.values()) {
-            if (type.fromClazz.isAssignableFrom(message.getClass())) {
-                return type;
+    public static MessageType fromObject(Object message) {
+        if (message != null) {
+            for (MessageType type : MessageType.values()) {
+                if (type.fromClazz.isAssignableFrom(message.getClass())) {
+                    return type;
+                }
             }
         }
         return UNKNOWN;

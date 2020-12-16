@@ -32,7 +32,8 @@ import java.util.Optional;
 public class HeaderArgumentBinder extends AbstractChainedArgumentBinder {
 
     @Override
-    public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
+    public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
+                                      Message source) {
         if (context.isAnnotationPresent(Header.class)) {
             final String headerName = context.getAnnotation(Header.class).stringValue()
                     .orElseThrow(() -> new IllegalStateException("@Header must specify a headerName."));

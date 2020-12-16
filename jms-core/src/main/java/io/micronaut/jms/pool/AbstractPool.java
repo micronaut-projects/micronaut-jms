@@ -15,22 +15,20 @@
  */
 package io.micronaut.jms.pool;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractPool<T extends PooledObject<?>> {
 
-    protected final List<T> pool;
-    protected final Integer initialSize;
-    protected final Integer maxSize;
-    private final List<T> active;
+    protected final List<T> pool = Collections.synchronizedList(new LinkedList<>());
+    protected final int initialSize;
+    protected final int maxSize;
 
-    public AbstractPool(
-            Integer initialSize,
-            Integer maxSize) {
-        this.pool = Collections.synchronizedList(new ArrayList<>(maxSize));
-        this.active = Collections.synchronizedList(new ArrayList<>(maxSize));
+    private final List<T> active = Collections.synchronizedList(new LinkedList<>());
+
+    protected AbstractPool(int initialSize,
+                           int maxSize) {
         this.initialSize = initialSize;
         this.maxSize = maxSize;
     }
@@ -45,11 +43,10 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
      */
     public T request(Object... args) {
         if (pool.isEmpty()) {
-            if (active.size() < maxSize) {
-                pool.add(create(args));
-            } else {
+            if (active.size() >= maxSize) {
                 throw new RuntimeException("Max Pool size reached.");
             }
+            pool.add(create(args));
         }
         T object = pool.remove(0);
         active.add(object);

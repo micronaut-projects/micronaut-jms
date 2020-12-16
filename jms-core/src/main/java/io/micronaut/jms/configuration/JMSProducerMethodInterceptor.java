@@ -25,7 +25,6 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
-import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
@@ -35,6 +34,9 @@ import io.micronaut.messaging.annotation.Header;
 import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.Map;
+
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
 
 /***
  * A {@link MethodInterceptor} providing the implementation for sending messages to a broker.
@@ -55,74 +57,81 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
     @Override
     public Object intercept(MethodInvocationContext<Object, Object> context) {
-        if (context.hasAnnotation(JMSProducer.class)) {
-            ExecutableMethod<?, ?> method = context.getExecutableMethod();
-            String connectionFactory = method.stringValue(JMSProducer.class)
-                    .orElseThrow(() -> new ConfigurationException("@JMSProducer must specify a connection factory."));
 
-            if (method.hasAnnotation(Queue.class)) {
-                String queueName = method.stringValue(Queue.class)
-                        .orElseThrow(() -> new ConfigurationException("@Queue must specify a destination."));
+        if (!context.hasAnnotation(JMSProducer.class)) {
+            return context.proceed();
+        }
 
-                Map<String, Object> parameterValueMap = context.getParameterValueMap();
+        ExecutableMethod<?, ?> method = context.getExecutableMethod();
+        String connectionFactory = method.stringValue(JMSProducer.class)
+            .orElseThrow(() -> new ConfigurationException(
+                "@JMSProducer must specify a connection factory."));
 
-                MessageHeader[] headers = Arrays.stream(method.getArguments())
-                        .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
-                        .map(arg -> {
-                            String headerName = arg.getAnnotation(Header.class)
-                                    .stringValue()
-                                    .orElse(null);
-                            String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
-                            return new MessageHeader(headerName, headerValue);
-                        }).toArray(MessageHeader[]::new);
+        if (method.hasAnnotation(Queue.class)) {
+            String queueName = method.stringValue(Queue.class)
+                .orElseThrow(() -> new ConfigurationException(
+                    "@Queue must specify a destination."));
 
-                String messageArgumentName = Arrays.stream(method.getArguments())
-                        .filter(arg -> arg.getAnnotationMetadata().isEmpty())
-                        .map(Argument::getName)
-                        .findFirst()
-                        .orElseThrow(() -> new ConfigurationException("At least one argument must not have an annotation present"));
+            String messageArgumentName = Arrays.stream(method.getArguments())
+                .filter(arg -> arg.getAnnotationMetadata().isEmpty())
+                .map(Argument::getName)
+                .findFirst()
+                .orElseThrow(() -> new ConfigurationException(
+                    "At least one argument must not have an annotation present"));
 
-                JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
+            Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
-                JmsProducer producer = new JmsProducer(JMSDestinationType.QUEUE);
-                producer.setConnectionPool(pool);
-                producer.setSerializer(new DefaultSerializerDeserializer());
+            MessageHeader[] headers = Arrays.stream(method.getArguments())
+                .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
+                .map(arg -> {
+                    String headerName = arg.getAnnotation(Header.class)
+                        .stringValue()
+                        .orElse(null);
+                    String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
+                    return new MessageHeader(headerName, headerValue);
+                }).toArray(MessageHeader[]::new);
 
-                producer.send(queueName, context.getParameterValueMap().get(messageArgumentName), headers);
-                return null;
-            }
+            JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
-            if (method.hasAnnotation(Topic.class)) {
-                String topicName = method.stringValue(Topic.class)
-                        .orElseThrow(() -> new RuntimeException("@Queue must specify a destination."));
+            JmsProducer producer = new JmsProducer(QUEUE);
+            producer.setConnectionPool(pool);
+            producer.setSerializer(new DefaultSerializerDeserializer());
 
-                Map<String, Object> parameterValueMap = context.getParameterValueMap();
+            producer.send(queueName, context.getParameterValueMap().get(messageArgumentName), headers);
+            return null;
+        }
 
-                MessageHeader[] headers = Arrays.stream(method.getArguments())
-                        .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
-                        .map(arg -> {
-                            String headerName = arg.getAnnotation(Header.class)
-                                    .stringValue()
-                                    .orElse(null);
-                            String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
-                            return new MessageHeader(headerName, headerValue);
-                        }).toArray(MessageHeader[]::new);
+        if (method.hasAnnotation(Topic.class)) {
+            String topicName = method.stringValue(Topic.class)
+                .orElseThrow(() -> new RuntimeException("@Queue must specify a destination."));
 
-                String messageArgumentName = Arrays.stream(method.getArguments())
-                        .filter(arg -> arg.getAnnotationMetadata().isEmpty())
-                        .map(Argument::getName)
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("At least one argument must not have an annotation present"));
+            String messageArgumentName = Arrays.stream(method.getArguments())
+                .filter(arg -> arg.getAnnotationMetadata().isEmpty())
+                .map(Argument::getName)
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException(
+                    "At least one argument must not have an annotation present"));
 
-                JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
+            Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
-                JmsProducer producer = new JmsProducer(JMSDestinationType.TOPIC);
-                producer.setConnectionPool(pool);
-                producer.setSerializer(new DefaultSerializerDeserializer());
+            MessageHeader[] headers = Arrays.stream(method.getArguments())
+                .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
+                .map(arg -> {
+                    String headerName = arg.getAnnotation(Header.class)
+                        .stringValue()
+                        .orElse(null);
+                    String headerValue = String.valueOf(parameterValueMap.get(arg.getName()));
+                    return new MessageHeader(headerName, headerValue);
+                }).toArray(MessageHeader[]::new);
 
-                producer.send(topicName, context.getParameterValueMap().get(messageArgumentName), headers);
-                return null;
-            }
+            JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
+
+            JmsProducer producer = new JmsProducer(TOPIC);
+            producer.setConnectionPool(pool);
+            producer.setSerializer(new DefaultSerializerDeserializer());
+
+            producer.send(topicName, context.getParameterValueMap().get(messageArgumentName), headers);
+            return null;
         }
         return context.proceed();
     }
