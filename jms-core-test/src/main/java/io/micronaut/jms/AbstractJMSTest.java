@@ -73,7 +73,7 @@ public abstract class AbstractJMSTest {
     @Test
     public void testSendMessage() {
 
-        final JmsProducer producer = new JmsProducer(QUEUE, pool);
+        final JmsProducer<String> producer = new JmsProducer<>(QUEUE, pool);
         producer.send("test-queue", "test-message");
 
         final JmsConsumer consumer = new JmsConsumer(QUEUE, pool);
@@ -116,7 +116,7 @@ public abstract class AbstractJMSTest {
     @Test
     public void testListener() throws InterruptedException {
 
-        final JmsProducer producer = new JmsProducer(QUEUE, pool);
+        final JmsProducer<String> producer = new JmsProducer<>(QUEUE, pool);
         for (int i = 2; i < 100; i++) {
             producer.send("test-queue-3", "test-message-" + i);
         }
@@ -154,7 +154,7 @@ public abstract class AbstractJMSTest {
             listenerFactory.getRegisteredListener("test-queue-2"),
             "Listener is null");
 
-        final JmsProducer producer = new JmsProducer(QUEUE, pool);
+        final JmsProducer<String> producer = new JmsProducer<>(QUEUE, pool);
         for (int i = 0; i < 100; i++) {
             producer.send("test-queue-2", "test-message-" + i,
                 new MessageHeader(JMS_CORRELATION_ID, "test-corr-id"),
@@ -181,7 +181,7 @@ public abstract class AbstractJMSTest {
             listenerFactory.getRegisteredListener("my-topic"),
             "Listener is null");
 
-        final JmsProducer producer = new JmsProducer(TOPIC, pool);
+        final JmsProducer<String> producer = new JmsProducer<>(TOPIC, pool);
         for (int i = 0; i < 100; i++) {
             producer.send("my-topic", "test-message-" + i,
                 new MessageHeader(JMS_PRIORITY, Integer.toString(2)),

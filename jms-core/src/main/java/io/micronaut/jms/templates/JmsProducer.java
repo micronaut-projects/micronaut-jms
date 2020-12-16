@@ -37,30 +37,31 @@ import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
 import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
-public class JmsProducer {
+public class JmsProducer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JmsProducer.class);
 
     private final JMSDestinationType type;
     private final JMSConnectionPool connectionPool;
-    private final Serializer<Object> serializer;
+    private final Serializer<T> serializer;
     private final boolean sessionTransacted;
     private final int sessionAcknowledgeMode;
 
+    @SuppressWarnings("unchecked")
     public JmsProducer(JMSDestinationType type,
                        JMSConnectionPool connectionPool) {
-        this(type, connectionPool, DefaultSerializerDeserializer.getInstance());
+        this(type, connectionPool, (Serializer<T>) DefaultSerializerDeserializer.getInstance());
     }
 
     public JmsProducer(JMSDestinationType type,
                        JMSConnectionPool connectionPool,
-                       Serializer<Object> serializer) {
+                       Serializer<T> serializer) {
         this(type, connectionPool, serializer, false, AUTO_ACKNOWLEDGE);
     }
 
     public JmsProducer(JMSDestinationType type,
                        JMSConnectionPool connectionPool,
-                       Serializer<Object> serializer,
+                       Serializer<T> serializer,
                        boolean sessionTransacted,
                        int sessionAcknowledgeMode) {
         this.type = type;
@@ -80,7 +81,7 @@ public class JmsProducer {
      * @param headers
      */
     public void send(@NonNull String destination,
-                     @NonNull Object body,
+                     @NonNull T body,
                      MessageHeader... headers) {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {

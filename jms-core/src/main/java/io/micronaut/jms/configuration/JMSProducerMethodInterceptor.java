@@ -95,7 +95,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                 "At least one argument must not have an annotation present"));
 
         String serializerName = method.stringValue(annotationType, "serializer").orElse(null);
-        Serializer<Object> serializer = serializerName == null
+        Serializer<?> serializer = serializerName == null
             ? DefaultSerializerDeserializer.getInstance()
             : beanContext.getBean(Serializer.class, Qualifiers.byName(serializerName));
 
