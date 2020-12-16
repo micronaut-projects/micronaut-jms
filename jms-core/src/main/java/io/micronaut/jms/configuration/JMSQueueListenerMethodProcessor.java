@@ -21,6 +21,7 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.util.Assert;
 
 import javax.inject.Singleton;
 import java.util.Optional;
@@ -58,9 +59,9 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency
             .orElseThrow(() -> new IllegalStateException(
                 "If executor is not specified then concurrency must be specified")));
-        if (!matcher.find() || matcher.groupCount() != 2) {
-            throw new IllegalArgumentException("Concurrency must be of the form int-int (i.e. \"1-10\"). Concurrency provided was " + concurrency.get());
-        }
+        Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
+            () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
+                "Concurrency provided was " + concurrency.get());
 
         int numThreads = Integer.parseInt(matcher.group(1));
         int maxThreads = Integer.parseInt(matcher.group(2));

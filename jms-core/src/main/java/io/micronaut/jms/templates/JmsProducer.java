@@ -20,6 +20,7 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Serializer;
+import io.micronaut.jms.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +147,9 @@ public class JmsProducer {
     public void send(@NonNull Destination destination,
                      @NonNull Message message,
                      MessageHeader... headers) {
+        Assert.notNull(destination, "Destination cannot be null");
+        Assert.notNull(message, "Message cannot be null");
+
         try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
             send(session, destination, message, headers);
@@ -158,9 +162,7 @@ public class JmsProducer {
                       @NonNull Destination destination,
                       @NonNull Message message,
                       MessageHeader... headers) throws JMSException {
-        notNull(session, "Session cannot be null");
-        notNull(destination, "Destination cannot be null");
-        notNull(message, "Message cannot be null");
+        Assert.notNull(session, "Session cannot be null");
 
         try (MessageProducer producer = session.createProducer(destination)) {
 
@@ -197,9 +199,5 @@ public class JmsProducer {
 
     private Session getOrCreateSession(Connection connection) throws JMSException {
         return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
-    }
-
-    private static void notNull(Object object, String failureMessage) {
-        Optional.ofNullable(object).orElseThrow(() -> new IllegalStateException(failureMessage));
     }
 }

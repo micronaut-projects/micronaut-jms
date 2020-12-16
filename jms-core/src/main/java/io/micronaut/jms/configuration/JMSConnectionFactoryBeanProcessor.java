@@ -26,6 +26,7 @@ import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.SessionPoolFactory;
+import io.micronaut.jms.util.Assert;
 
 import javax.jms.ConnectionFactory;
 
@@ -52,10 +53,9 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
     @Override
     public void process(BeanDefinition<?> beanDefinition, BeanContext context) {
         final Object candidate = context.getBean(beanDefinition);
-        if (!ConnectionFactory.class.isAssignableFrom(candidate.getClass())) {
-            throw new IllegalStateException("@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
+        Assert.isTrue(candidate instanceof ConnectionFactory,
+            () -> "@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
                 "Provided class was " + candidate.getClass().getName());
-        }
 
         final ConnectionFactory connectionFactory = (ConnectionFactory) candidate;
         final String name = beanDefinition.stringValue(JMSConnectionFactory.class)
