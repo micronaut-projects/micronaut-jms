@@ -25,7 +25,6 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.pool.SessionPoolFactory;
 import io.micronaut.jms.util.Assert;
 
 import javax.jms.ConnectionFactory;
@@ -42,12 +41,9 @@ import javax.jms.ConnectionFactory;
 public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcessor<JMSConnectionFactory> {
 
     private final JMSConfigurationProperties properties;
-    private final SessionPoolFactory sessionPoolFactory;
 
-    public JMSConnectionFactoryBeanProcessor(JMSConfigurationProperties properties,
-                                             SessionPoolFactory sessionPoolFactory) {
+    public JMSConnectionFactoryBeanProcessor(JMSConfigurationProperties properties) {
         this.properties = properties;
-        this.sessionPoolFactory = sessionPoolFactory;
     }
 
     @Override
@@ -66,7 +62,6 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
             JMSConnectionPool.class,
             new JMSConnectionPool(
                 connectionFactory,
-                sessionPoolFactory,
                 properties.getInitialPoolSize(),
                 properties.getMaxPoolSize()),
             Qualifiers.byName(name));

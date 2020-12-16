@@ -31,15 +31,12 @@ import java.util.concurrent.CompletableFuture;
 public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> implements ConnectionFactory {
 
     private final ConnectionFactory connectionFactory;
-    private final SessionPoolFactory sessionPoolFactory;
 
     public JMSConnectionPool(ConnectionFactory connectionFactory,
-                             SessionPoolFactory sessionPoolFactory,
                              int initialPoolSize,
                              int maxPoolSize) {
         super(initialPoolSize, maxPoolSize);
         this.connectionFactory = connectionFactory;
-        this.sessionPoolFactory = sessionPoolFactory;
         for (int i = 0; i < initialPoolSize; i++) {
             CompletableFuture.runAsync(() -> pool.add(create()));
         }
@@ -49,7 +46,7 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
         try {
             Connection connection = connectionFactory.createConnection();
             connection.start();
-            return new PooledConnection(connection, this, sessionPoolFactory.getSessionPool(connection));
+            return new PooledConnection(connection, this);
         } catch (JMSException e) {
             e.printStackTrace();
         }

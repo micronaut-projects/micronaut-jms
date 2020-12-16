@@ -40,72 +40,72 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
 
     @Override
     public void setDisableMessageID(boolean value) throws JMSException {
-        object.setDisableMessageID(value);
+        get().setDisableMessageID(value);
     }
 
     @Override
     public boolean getDisableMessageID() throws JMSException {
-        return object.getDisableMessageID();
+        return get().getDisableMessageID();
     }
 
     @Override
     public void setDisableMessageTimestamp(boolean value) throws JMSException {
-        object.setDisableMessageTimestamp(value);
+        get().setDisableMessageTimestamp(value);
     }
 
     @Override
     public boolean getDisableMessageTimestamp() throws JMSException {
-        return object.getDisableMessageTimestamp();
+        return get().getDisableMessageTimestamp();
     }
 
     @Override
     public void setDeliveryMode(int deliveryMode) throws JMSException {
-        object.setDeliveryMode(deliveryMode);
+        get().setDeliveryMode(deliveryMode);
     }
 
     @Override
     public int getDeliveryMode() throws JMSException {
-        return object.getDeliveryMode();
+        return get().getDeliveryMode();
     }
 
     @Override
     public void setPriority(int defaultPriority) throws JMSException {
-        object.setPriority(defaultPriority);
+        get().setPriority(defaultPriority);
     }
 
     @Override
     public int getPriority() throws JMSException {
-        return object.getPriority();
+        return get().getPriority();
     }
 
     @Override
     public void setTimeToLive(long timeToLive) throws JMSException {
-        object.setTimeToLive(timeToLive);
+        get().setTimeToLive(timeToLive);
     }
 
     @Override
     public long getTimeToLive() throws JMSException {
-        return object.getTimeToLive();
+        return get().getTimeToLive();
     }
 
     @Override
     public void setDeliveryDelay(long deliveryDelay) throws JMSException {
-        object.setDeliveryDelay(deliveryDelay);
+        get().setDeliveryDelay(deliveryDelay);
     }
 
     @Override
     public long getDeliveryDelay() throws JMSException {
-        return object.getDeliveryDelay();
+        return get().getDeliveryDelay();
     }
 
     @Override
     public Destination getDestination() throws JMSException {
-        return object.getDestination();
+        return get().getDestination();
     }
 
     @Override
     public void send(Message message) throws JMSException {
-        object.send(message);
+        get().send(message);
     }
 
     @Override
@@ -113,13 +113,13 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
                      int deliveryMode,
                      int priority,
                      long timeToLive) throws JMSException {
-        object.send(message, deliveryMode, priority, timeToLive);
+        get().send(message, deliveryMode, priority, timeToLive);
     }
 
     @Override
     public void send(Destination destination,
                      Message message) throws JMSException {
-        object.send(destination, message);
+        get().send(destination, message);
     }
 
     @Override
@@ -128,13 +128,13 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
                      int deliveryMode,
                      int priority,
                      long timeToLive) throws JMSException {
-        object.send(destination, message, deliveryMode, priority, timeToLive);
+        get().send(destination, message, deliveryMode, priority, timeToLive);
     }
 
     @Override
     public void send(Message message,
                      CompletionListener completionListener) throws JMSException {
-        object.send(message, completionListener);
+        get().send(message, completionListener);
     }
 
     @Override
@@ -143,14 +143,14 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
                      int priority,
                      long timeToLive,
                      CompletionListener completionListener) throws JMSException {
-        object.send(message, deliveryMode, priority, timeToLive, completionListener);
+        get().send(message, deliveryMode, priority, timeToLive, completionListener);
     }
 
     @Override
     public void send(Destination destination,
                      Message message,
                      CompletionListener completionListener) throws JMSException {
-        object.send(destination, message, completionListener);
+        get().send(destination, message, completionListener);
     }
 
     @Override
@@ -160,7 +160,7 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
                      int priority,
                      long timeToLive,
                      CompletionListener completionListener) throws JMSException {
-        object.send(destination, message, deliveryMode, priority, timeToLive, completionListener);
+        get().send(destination, message, deliveryMode, priority, timeToLive, completionListener);
     }
 
     public static PooledProducer of(PooledObject<MessageProducer> object) {

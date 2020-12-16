@@ -37,54 +37,50 @@ import javax.jms.Topic;
  */
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 
-    private final SessionPool sessionPool;
-
     public PooledConnection(Connection connection,
-                            AbstractPool<PooledObject<Connection>> connectionPool,
-                            SessionPool sessionPool) {
+                            AbstractPool<PooledObject<Connection>> connectionPool) {
         super(connectionPool, connection);
-        this.sessionPool = sessionPool;
     }
 
     @Override
     public Session createSession(boolean transacted,
                                  int acknowledgeMode) throws JMSException {
-        return object.createSession(transacted, acknowledgeMode);
+        return get().createSession(transacted, acknowledgeMode);
     }
 
     @Override
     public Session createSession(int sessionMode) throws JMSException {
-        return object.createSession(sessionMode);
+        return get().createSession(sessionMode);
     }
 
     @Override
     public Session createSession() throws JMSException {
-        return object.createSession();
+        return get().createSession();
     }
 
     @Override
     public String getClientID() throws JMSException {
-        return object.getClientID();
+        return get().getClientID();
     }
 
     @Override
     public void setClientID(String clientID) throws JMSException {
-        object.setClientID(clientID);
+        get().setClientID(clientID);
     }
 
     @Override
     public ConnectionMetaData getMetaData() throws JMSException {
-        return object.getMetaData();
+        return get().getMetaData();
     }
 
     @Override
     public ExceptionListener getExceptionListener() throws JMSException {
-        return object.getExceptionListener();
+        return get().getExceptionListener();
     }
 
     @Override
     public void setExceptionListener(ExceptionListener listener) throws JMSException {
-        object.setExceptionListener(listener);
+        get().setExceptionListener(listener);
     }
 
     @Override
@@ -100,7 +96,7 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
                                                        String messageSelector,
                                                        ServerSessionPool sessionPool,
                                                        int maxMessages) throws JMSException {
-        return object.createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
+        return get().createConnectionConsumer(destination, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
@@ -109,7 +105,7 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
                                                              String messageSelector,
                                                              ServerSessionPool sessionPool,
                                                              int maxMessages) throws JMSException {
-        return object.createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
+        return get().createSharedConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
@@ -118,7 +114,7 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
                                                               String messageSelector,
                                                               ServerSessionPool sessionPool,
                                                               int maxMessages) throws JMSException {
-        return object.createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
+        return get().createDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 
     @Override
@@ -127,7 +123,7 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
                                                                     String messageSelector,
                                                                     ServerSessionPool sessionPool,
                                                                     int maxMessages) throws JMSException {
-        return object.createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
+        return get().createSharedDurableConnectionConsumer(topic, subscriptionName, messageSelector, sessionPool, maxMessages);
     }
 
     public static PooledConnection of(PooledObject<Connection> pooledObject) {
