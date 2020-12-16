@@ -30,14 +30,14 @@ import java.util.Optional;
  * @author Elliott Pope
  * @since 1.0.0
  */
-public class HeaderArgumentBinder extends AbstractChainedArgumentBinder<Header> {
+public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<Header> {
 
     /**
      * Constructor.
      *
      * @param conversionService conversionService
      */
-    public HeaderArgumentBinder(ConversionService<?> conversionService) {
+    public DefaultHeaderArgumentBinder(ConversionService<?> conversionService) {
         super(conversionService);
     }
 

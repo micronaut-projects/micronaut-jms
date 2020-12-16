@@ -27,7 +27,7 @@ import java.util.Optional;
  * @author Burt Beckwith
  * @since 1.0.0
  */
-public class DefaultMessageArgumentBinder extends AbstractChainedArgumentBinder<Message> {
+public class DefaultMessageArgumentBinder extends AbstractJmsArgumentBinder<Message> {
 
     /**
      * Constructor.

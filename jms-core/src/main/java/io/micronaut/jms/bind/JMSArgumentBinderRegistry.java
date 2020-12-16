@@ -35,8 +35,8 @@ import java.util.Optional;
  * {@link ArgumentBinder} capable of binding a {@link Message}.
  *
  * @author Elliott Pope
- * @see HeaderArgumentBinder
- * @see BodyArgumentBinder
+ * @see DefaultHeaderArgumentBinder
+ * @see DefaultBodyArgumentBinder
  * @see io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor
  * @since 1.0.0
  */
@@ -46,8 +46,8 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
     private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
 
     public JMSArgumentBinderRegistry(ConversionService<?> conversionService) {
-        registerArgumentBinder(new BodyArgumentBinder(conversionService));
-        registerArgumentBinder(new HeaderArgumentBinder(conversionService));
+        registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService));
+        registerArgumentBinder(new DefaultHeaderArgumentBinder(conversionService));
         registerArgumentBinder(new DefaultMessageArgumentBinder(conversionService));
     }
 

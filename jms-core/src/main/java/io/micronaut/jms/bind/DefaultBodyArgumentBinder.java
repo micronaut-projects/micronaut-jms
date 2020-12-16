@@ -15,34 +15,40 @@
  */
 package io.micronaut.jms.bind;
 
-import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
+import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.convert.ConversionService;
-import io.micronaut.core.order.Ordered;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
+import io.micronaut.messaging.annotation.Body;
 
 import javax.jms.Message;
-import java.lang.annotation.Annotation;
+import java.util.Optional;
 
 /**
- * Base class for annotated argument binders.
+ * Binds a {@link Message} to a method argument annotated with {@link Body}.
  *
  * @author Elliott Pope
  * @since 1.0.0
  */
-public abstract class AbstractChainedArgumentBinder<A extends Annotation>
-    extends AbstractAnnotatedArgumentBinder<A, Object, Message>
-    implements Ordered {
+public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Body> {
 
     /**
      * Constructor.
      *
      * @param conversionService conversionService
      */
-    protected AbstractChainedArgumentBinder(ConversionService<?> conversionService) {
+    public DefaultBodyArgumentBinder(ConversionService<?> conversionService) {
         super(conversionService);
     }
 
     @Override
-    public int getOrder() {
-        return 0;
+    public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
+                                      Message source) {
+        return () -> Optional.of(DefaultSerializerDeserializer.getInstance().deserialize(
+            source, context.getArgument().getType()));
+    }
+
+    @Override
+    public Class<Body> getAnnotationType() {
+        return Body.class;
     }
 }
