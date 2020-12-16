@@ -220,7 +220,7 @@ public abstract class AbstractJMSTest {
             destination = "test-queue-2",
             concurrency = "1-5",
             transacted = true,
-            acknowledgement = CLIENT_ACKNOWLEDGE)
+            acknowledgeMode = CLIENT_ACKNOWLEDGE)
         public void handle(@Body String message,
                            @Header(JMS_CORRELATION_ID) String correlationId,
                            @Header("X-Arbitrary-Header") @Nullable String arbitraryHeader,
@@ -253,7 +253,7 @@ public abstract class AbstractJMSTest {
         @Queue(
             destination = "test-queue-3",
             transacted = true,
-            acknowledgement = CLIENT_ACKNOWLEDGE)
+            acknowledgeMode = CLIENT_ACKNOWLEDGE)
         void send(MessageObject object);
     }
 

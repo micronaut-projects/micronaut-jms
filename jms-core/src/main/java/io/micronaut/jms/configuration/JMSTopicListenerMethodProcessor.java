@@ -31,8 +31,8 @@ import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
 public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
 
     public JMSTopicListenerMethodProcessor(BeanContext beanContext,
-                                           JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
-        super(beanContext, jmsArgumentBinderRegistry, Topic.class);
+                                           JMSArgumentBinderRegistry registry) {
+        super(beanContext, registry, Topic.class);
     }
 
     @Override

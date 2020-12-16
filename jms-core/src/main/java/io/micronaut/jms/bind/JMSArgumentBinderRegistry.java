@@ -41,7 +41,7 @@ import java.util.Optional;
 @Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
-    private final List<AbstractChainedArgumentBinder> argumentBinderChain = new LinkedList<>();
+    private final List<AbstractChainedArgumentBinder> binders = new LinkedList<>();
 
     private final AbstractChainedArgumentBinder defaultArgumentBinder = new AbstractChainedArgumentBinder() {
         @Override
@@ -56,8 +56,8 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
     };
 
     public JMSArgumentBinderRegistry() {
-        addArgumentBinder(new HeaderArgumentBinder());
-        addArgumentBinder(new BodyArgumentBinder());
+        registerArgumentBinder(new HeaderArgumentBinder());
+        registerArgumentBinder(new BodyArgumentBinder());
     }
 
     /***
@@ -67,14 +67,14 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      *
      * @param argumentBinder
      */
-    public void addArgumentBinder(AbstractChainedArgumentBinder argumentBinder) {
-        argumentBinderChain.add(argumentBinder);
+    public void registerArgumentBinder(AbstractChainedArgumentBinder argumentBinder) {
+        binders.add(argumentBinder);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument, Message source) {
-        return Optional.of((ArgumentBinder<T, Message>) argumentBinderChain.stream()
+        return Optional.of((ArgumentBinder<T, Message>) binders.stream()
             .filter(binder -> binder.canBind(argument))
             .findFirst()
             .orElse(defaultArgumentBinder));

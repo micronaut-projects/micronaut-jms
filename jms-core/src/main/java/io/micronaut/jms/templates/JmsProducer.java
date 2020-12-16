@@ -45,7 +45,7 @@ public class JmsProducer {
     private JMSConnectionPool connectionPool;
     private Serializer<Object> serializer;
     private boolean sessionTransacted = false;
-    private int sessionAcknowledged = AUTO_ACKNOWLEDGE;
+    private int sessionAcknowledgeMode = AUTO_ACKNOWLEDGE;
     private final JMSDestinationType type;
 
     public JmsProducer(JMSDestinationType type) {
@@ -54,10 +54,10 @@ public class JmsProducer {
 
     public JmsProducer(JMSDestinationType type,
                        boolean sessionTransacted,
-                       int sessionAcknowledged) {
+                       int sessionAcknowledgeMode) {
         this.type = type;
         this.sessionTransacted = sessionTransacted;
-        this.sessionAcknowledged = sessionAcknowledged;
+        this.sessionAcknowledgeMode = sessionAcknowledgeMode;
     }
 
     /***
@@ -101,19 +101,19 @@ public class JmsProducer {
 
     /***
      *
-     * Sends the given {@param message} to the {@param destination}
+     * Sends the given {@param body} to the {@param destination}
      *      with the given {@param headers}.
      *
      * @param destination
-     * @param message
+     * @param body
      * @param headers
      */
     public void send(@NonNull String destination,
-                     @NonNull Object message,
+                     @NonNull Object body,
                      MessageHeader... headers) {
         try (Connection connection = getConnectionPool().createConnection();
              Session session = getOrCreateSession(connection)) {
-            send(destination, getSerializer().serialize(session, message), headers);
+            send(destination, getSerializer().serialize(session, body), headers);
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -196,7 +196,7 @@ public class JmsProducer {
     }
 
     private Session getOrCreateSession(Connection connection) throws JMSException {
-        return connection.createSession(sessionTransacted, sessionAcknowledged);
+        return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
     }
 
     private static void notNull(Object object, String failureMessage) {

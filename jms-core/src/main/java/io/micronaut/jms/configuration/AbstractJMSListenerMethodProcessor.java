@@ -64,10 +64,10 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
     private final Class<T> clazz;
 
     protected AbstractJMSListenerMethodProcessor(BeanContext beanContext,
-                                                 JMSArgumentBinderRegistry jmsArgumentBinderRegistry,
+                                                 JMSArgumentBinderRegistry registry,
                                                  Class<T> clazz) {
         this.beanContext = beanContext;
-        this.jmsArgumentBinderRegistry = jmsArgumentBinderRegistry;
+        this.jmsArgumentBinderRegistry = registry;
         this.clazz = clazz;
     }
 
@@ -80,14 +80,14 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
             return;
         }
 
-        AnnotationValue<T> annotation = method.getAnnotation(clazz);
-        if (annotation == null) {
+        AnnotationValue<T> destinationAnnotation = method.getAnnotation(clazz);
+        if (destinationAnnotation == null) {
             throw new IllegalStateException("Annotation not found on method " + method.getName() + ". " +
                 "Expecting annotation of type " + clazz);
         }
 
-        registerJMSListener(method, listenerAnnotation, beanDefinition, annotation,
-            getExecutorService(annotation), getDestinationType());
+        registerListener(method, listenerAnnotation, beanDefinition, destinationAnnotation,
+            getExecutorService(destinationAnnotation), getDestinationType());
     }
 
     protected abstract ExecutorService getExecutorService(AnnotationValue<T> value);
@@ -127,12 +127,12 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
         });
     }
 
-    private void registerJMSListener(ExecutableMethod<?, ?> method,
-                                     AnnotationValue<JMSListener> listenerAnnotation,
-                                     BeanDefinition<?> beanDefinition,
-                                     AnnotationValue<?> destinationAnnotation,
-                                     ExecutorService executor,
-                                     JMSDestinationType type) {
+    private void registerListener(ExecutableMethod<?, ?> method,
+                                  AnnotationValue<JMSListener> listenerAnnotation,
+                                  BeanDefinition<?> beanDefinition,
+                                  AnnotationValue<?> destinationAnnotation,
+                                  ExecutorService executor,
+                                  JMSDestinationType type) {
 
         validateArguments(method);
 
@@ -145,26 +145,26 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
         final String destination = destinationAnnotation.stringValue().orElseThrow(
             () -> new IllegalStateException("@Queue or @Topic must specify a destination"));
 
-        final int acknowledgment = destinationAnnotation.intValue("acknowledgement").orElse(AUTO_ACKNOWLEDGE);
+        final int acknowledgeMode = destinationAnnotation.intValue("acknowledgeMode").orElse(AUTO_ACKNOWLEDGE);
         final boolean transacted = destinationAnnotation.booleanValue("transacted").orElse(false);
 
         final JMSListenerContainerFactory listenerFactory = beanContext.findBean(JMSListenerContainerFactory.class)
             .orElseThrow(() -> new IllegalStateException("No JMSListenerFactory configured"));
 
-        final JMSConnectionPool JMSConnectionPool = generateConnectionPool(listenerAnnotation);
+        final JMSConnectionPool connectionPool = generateConnectionPool(listenerAnnotation);
 
         final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
 
         MessageListener listener = generateAndBindListener(bean, method, executor,
-            CLIENT_ACKNOWLEDGE == acknowledgment);
+            CLIENT_ACKNOWLEDGE == acknowledgeMode);
 
-        listenerFactory.getJMSListener(
-            JMSConnectionPool,
+        listenerFactory.registerListener(
+            connectionPool,
             destination,
             listener,
             targetClass,
             transacted,
-            acknowledgment,
+            acknowledgeMode,
             type);
     }
 }

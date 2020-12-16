@@ -80,7 +80,7 @@ public final class JMSHeaders {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSHeaders.class);
 
-    private static final Set<String> VALUES = new HashSet<>(Arrays.asList(
+    private static final Set<String> ALL_HEADER_NAMES = new HashSet<>(Arrays.asList(
         JMS_CORRELATION_ID, JMS_DELIVERY_MODE, JMS_DESTINATION,
         JMS_EXPIRATION, JMS_MESSAGE_ID, JMS_PRIORITY,
         JMS_REDELIVERED, JMS_REPLY_TO, JMS_TYPE
@@ -94,7 +94,7 @@ public final class JMSHeaders {
      * @return true if the given {@param headerName} is a supported JMS Header name, false otherwise.
      */
     public static boolean isJMSHeader(String headerName) {
-        return VALUES.contains(headerName);
+        return ALL_HEADER_NAMES.contains(headerName);
     }
 
     /***

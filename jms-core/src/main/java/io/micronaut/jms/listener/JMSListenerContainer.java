@@ -148,16 +148,16 @@ public class JMSListenerContainer<T> {
      * @param listener
      * @param clazz
      * @param transacted
-     * @param acknowledgment
+     * @param acknowledgeMode
      */
     public void registerListener(String destination,
                                  MessageListener listener,
                                  Class<T> clazz, // TODO unused
                                  boolean transacted,
-                                 int acknowledgment) {
+                                 int acknowledgeMode) {
         try {
             final Connection connection = connectionPool.createConnection();
-            final Session session = connection.createSession(transacted, acknowledgment);
+            final Session session = connection.createSession(transacted, acknowledgeMode);
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(
                 lookupDestination(destination, session));

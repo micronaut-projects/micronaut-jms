@@ -50,7 +50,7 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  *          destination = "my-queue-2",
  *          concurrency = "1-5",
  *          transacted = true,
- *          acknowledgement = Session.CLIENT_ACKNOWLEDGE
+ *          acknowledgeMode = Session.CLIENT_ACKNOWLEDGE
  *      )
  *      public <T> void handle(T body, @Header("X-Arbitrary-Header") String arbitraryHeader) {
  *          // do some logic with body and arbitraryHeader
@@ -105,7 +105,7 @@ public @interface Queue {
      *
      * @see Session
      */
-    int acknowledgement() default AUTO_ACKNOWLEDGE;
+    int acknowledgeMode() default AUTO_ACKNOWLEDGE;
 
     /***
      * @return true if the message receipt is transacted, false otherwise. The broker must support transacted

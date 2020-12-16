@@ -41,7 +41,7 @@ public class JmsConsumer {
     @Nullable
     private Deserializer deserializer;
     private boolean sessionTransacted = false;
-    private int sessionAcknowledged = AUTO_ACKNOWLEDGE;
+    private int sessionAcknowledgeMode = AUTO_ACKNOWLEDGE;
 
     public JmsConsumer(JMSDestinationType type) {
         this.type = type;
@@ -140,7 +140,7 @@ public class JmsConsumer {
     }
 
     private Session createSession(Connection connection) throws JMSException {
-        return connection.createSession(sessionTransacted, sessionAcknowledged);
+        return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
     }
 
     private Connection createConnection() throws JMSException {

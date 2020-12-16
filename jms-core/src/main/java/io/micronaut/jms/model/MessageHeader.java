@@ -38,31 +38,31 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
  */
 public class MessageHeader {
 
-    private static final Map<String, BiConsumer<Message, String>> JMS_HEADERS = new HashMap<>();
+    private static final Map<String, BiConsumer<Message, String>> JMS_HEADER_OPERATIONS = new HashMap<>();
 
     static {
-        JMS_HEADERS.put(JMS_CORRELATION_ID, (message, value) -> {
+        JMS_HEADER_OPERATIONS.put(JMS_CORRELATION_ID, (message, value) -> {
             try {
                 message.setJMSCorrelationID(value);
             } catch (JMSException e) {
                 // log error
             }
         });
-        JMS_HEADERS.put("JMSMessageID", (message, value) -> {
+        JMS_HEADER_OPERATIONS.put("JMSMessageID", (message, value) -> {
             try {
                 message.setJMSMessageID(value);
             } catch (JMSException e) {
                 // log error
             }
         });
-        JMS_HEADERS.put(JMS_TYPE, (message, value) -> {
+        JMS_HEADER_OPERATIONS.put(JMS_TYPE, (message, value) -> {
             try {
                 message.setJMSType(value);
             } catch (JMSException e) {
                 // log error
             }
         });
-        JMS_HEADERS.put("JMSDeliveryTime", (message, value) -> {
+        JMS_HEADER_OPERATIONS.put("JMSDeliveryTime", (message, value) -> {
             try {
                 message.setJMSDeliveryTime(LocalDateTime.parse(value)
                         .toEpochSecond(ZoneOffset.UTC));
@@ -74,7 +74,7 @@ public class MessageHeader {
 
     private final String key;
     private final String value;
-    private final boolean isJMSHeader;
+    private final boolean isJmsHeader;
 
     /***
      * Creates a container for the message header.
@@ -85,14 +85,14 @@ public class MessageHeader {
     public MessageHeader(String key, String value) {
         this.key = key;
         this.value = value;
-        isJMSHeader = JMS_HEADERS.containsKey(key);
+        isJmsHeader = JMS_HEADER_OPERATIONS.containsKey(key);
     }
 
     /***
      * @return true if the {@param key} is a JMS Header. Returns false if not.
      */
     public boolean isJMSHeader() {
-        return isJMSHeader;
+        return isJmsHeader;
     }
 
     /***
@@ -105,7 +105,7 @@ public class MessageHeader {
      * @param message
      */
     public void setJMSHeader(Message message) {
-        JMS_HEADERS.get(key).accept(message, value);
+        JMS_HEADER_OPERATIONS.get(key).accept(message, value);
     }
 
     /***

@@ -54,11 +54,11 @@ public class JMSListenerContainerFactory {
      * @param type
      * @param <T>
      */
-    public <T> void getJMSListener(final JMSConnectionPool connectionPool,
-                                   final String destination,
-                                   final MessageHandler<T> handler,
-                                   final Class<T> clazz,
-                                   final JMSDestinationType type) {
+    public <T> void registerListener(final JMSConnectionPool connectionPool,
+                                     final String destination,
+                                     final MessageHandler<T> handler,
+                                     final Class<T> clazz,
+                                     final JMSDestinationType type) {
         final JMSListenerContainer<T> listener = new JMSListenerContainer<>(
             connectionPool, type);
         listener.setThreadPoolSize(1);
@@ -80,21 +80,21 @@ public class JMSListenerContainerFactory {
      * @param listener
      * @param clazz
      * @param transacted
-     * @param acknowledgment
+     * @param acknowledgeMode
      * @param type
      * @param <T>
      */
-    public <T> void getJMSListener(final JMSConnectionPool connectionPool,
-                                   final String destination,
-                                   final MessageListener listener,
-                                   final Class<T> clazz,
-                                   final boolean transacted,
-                                   final int acknowledgment,
-                                   final JMSDestinationType type) {
+    public <T> void registerListener(final JMSConnectionPool connectionPool,
+                                     final String destination,
+                                     final MessageListener listener,
+                                     final Class<T> clazz,
+                                     final boolean transacted,
+                                     final int acknowledgeMode,
+                                     final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
             connectionPool, type);
         container.setThreadPoolSize(1);
-        container.registerListener(destination, listener, clazz, transacted, acknowledgment);
+        container.registerListener(destination, listener, clazz, transacted, acknowledgeMode);
         listeners.put(destination, container);
     }
 

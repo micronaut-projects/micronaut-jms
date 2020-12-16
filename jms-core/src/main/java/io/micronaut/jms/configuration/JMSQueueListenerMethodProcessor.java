@@ -40,8 +40,8 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
     private static final Pattern CONCURRENCY_PATTERN = Pattern.compile("([0-9]+)-([0-9]+)");
 
     public JMSQueueListenerMethodProcessor(BeanContext beanContext,
-                                           JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
-        super(beanContext, jmsArgumentBinderRegistry, Queue.class);
+                                           JMSArgumentBinderRegistry registry) {
+        super(beanContext, registry, Queue.class);
     }
 
     @Override

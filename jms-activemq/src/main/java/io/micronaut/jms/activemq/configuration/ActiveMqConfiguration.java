@@ -43,12 +43,12 @@ public class ActiveMqConfiguration {
      * The bean is a simply configured {@link ActiveMQConnectionFactory} configured with properties
      *      from {@link ActiveMqConfigurationProperties}
      *
-     * @param configuration
+     * @param config
      *
-     * @return the {@link ActiveMQConnectionFactory} defined by the {@param configuration}
+     * @return the {@link ActiveMQConnectionFactory} defined by the {@param config}
      */
     @JMSConnectionFactory("activeMqConnectionFactory")
-    public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties configuration) {
-        return new ActiveMQConnectionFactory(configuration.getConnectionString());
+    public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties config) {
+        return new ActiveMQConnectionFactory(config.getConnectionString());
     }
 }
