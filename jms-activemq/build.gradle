@@ -1,20 +1,16 @@
 dependencies {
-    implementation project(':jms-core')
-
-    api "org.apache.activemq:activemq-broker:5.16.0"
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    // needed because otherwise IntelliJ integration broken
-    compileOnly "io.micronaut:micronaut-inject-java"
-    api "io.micronaut:micronaut-inject"
-
-    testImplementation project(':jms-core-test')
-
+    api project(':jms-core')
+    annotationProcessor 'io.micronaut:micronaut-inject-java'
+    api 'io.micronaut:micronaut-inject'
+    api 'io.micronaut:micronaut-messaging'
+    api 'org.apache.activemq:activemq-broker:5.16.0'
     testAnnotationProcessor 'io.micronaut:micronaut-inject-java'
-
-    testImplementation "io.micronaut.test:micronaut-test-junit5:1.2.2"
-    testImplementation "org.apache.activemq.tooling:activemq-junit:5.16.0"
+    testImplementation project(':jms-core-test')
+    testImplementation 'io.micronaut.test:micronaut-test-junit5:1.2.2'
+    testImplementation 'io.micronaut:micronaut-inject-java'
+    testImplementation 'org.apache.activemq.tooling:activemq-junit:5.16.0'
 }
 
-tasks.withType(Test) {
+test {
     useJUnitPlatform()
 }

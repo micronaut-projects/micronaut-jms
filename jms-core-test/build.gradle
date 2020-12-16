@@ -3,18 +3,12 @@ plugins {
 }
 
 dependencies {
+    annotationProcessor 'io.micronaut:micronaut-inject-java'
+    api 'io.micronaut.test:micronaut-test-junit5:1.2.2'
+    api 'io.micronaut:micronaut-inject'
+    api 'org.mockito:mockito-junit-jupiter:3.3.3'
     api project(':jms-core')
-
-    implementation platform('io.micronaut:micronaut-bom:2.0.0')
-    annotationProcessor "io.micronaut:micronaut-inject-java:2.0.0"
-    // needed because otherwise IntelliJ integration broken
-    compileOnly "io.micronaut:micronaut-inject-java"
-    api "io.micronaut:micronaut-inject"
-    implementation "javax.jms:javax.jms-api:2.0.1"
-    implementation "io.micrometer:micrometer-core"
-
-    annotationProcessor "io.micronaut:micronaut-inject-java:2.0.0"
-    api "io.micronaut.test:micronaut-test-junit5:1.2.2"
-    api "org.mockito:mockito-junit-jupiter:3.3.3"
-    runtimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+    implementation 'io.micrometer:micrometer-core'
+    implementation platform('io.micronaut:micronaut-bom')
+    runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 }
