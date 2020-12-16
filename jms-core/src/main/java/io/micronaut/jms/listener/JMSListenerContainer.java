@@ -56,6 +56,8 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 public class JMSListenerContainer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
+    private static final long DEFAULT_KEEP_ALIVE_TIME = 5; // TODO configurable
+    private static final int DEFAULT_EXECUTOR_QUEUE_SIZE = 10; // TODO configurable
 
     private final Set<Connection> openConnections = new HashSet<>();
     private final JMSConnectionPool connectionPool;
@@ -116,9 +118,9 @@ public class JMSListenerContainer<T> {
                         new ThreadPoolExecutor(
                             threadPoolSize,
                             maxThreadPoolSize,
-                            5L,
+                            DEFAULT_KEEP_ALIVE_TIME,
                             SECONDS,
-                            new LinkedBlockingQueue<>(10),
+                            new LinkedBlockingQueue<>(DEFAULT_EXECUTOR_QUEUE_SIZE),
                             Executors.defaultThreadFactory())),
                     clazz));
         } catch (JMSException e) {

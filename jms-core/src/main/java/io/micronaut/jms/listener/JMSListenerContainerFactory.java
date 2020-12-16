@@ -36,6 +36,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class JMSListenerContainerFactory {
 
+    private static final int THREAD_POOL_SIZE = 1; // TODO configurable?
+
     private final Map<String, JMSListenerContainer<?>> listeners = new ConcurrentHashMap<>();
 
     /***
@@ -91,7 +93,7 @@ public class JMSListenerContainerFactory {
                                      final int acknowledgeMode,
                                      final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
-            connectionPool, type, 1);
+            connectionPool, type, THREAD_POOL_SIZE);
         container.registerListener(destination, listener, clazz, transacted, acknowledgeMode);
         listeners.put(destination, container);
     }

@@ -39,6 +39,9 @@ import static javax.jms.Message.DEFAULT_PRIORITY;
  */
 public final class JMSHeaders {
 
+    private static final int MIN_PRIORITY = 0;
+    private static final int MAX_PRIORITY = 9;
+
     /***
      * Name of the JMS Correlation ID header. Specifies an ID so that the {@link Message} can be linked to other
      *      messages.
@@ -154,7 +157,7 @@ public final class JMSHeaders {
             case JMS_PRIORITY:
                 checkArgumentType(JMS_PRIORITY, clazz, Integer.class, String.class);
                 Integer priority = message.getJMSPriority();
-                if (priority < 1 || priority > 9) {
+                if (priority < MIN_PRIORITY || priority > MAX_PRIORITY) {
                     priority = DEFAULT_PRIORITY;
                 }
                 return (T) (Integer.class.isAssignableFrom(clazz) ? priority :

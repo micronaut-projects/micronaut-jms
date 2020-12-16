@@ -39,6 +39,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Queue> {
 
     private static final Pattern CONCURRENCY_PATTERN = Pattern.compile("([0-9]+)-([0-9]+)");
+    private static final long DEFAULT_KEEP_ALIVE_TIME = 500; // TODO BB
 
     public JMSQueueListenerMethodProcessor(BeanContext beanContext,
                                            JMSArgumentBinderRegistry registry) {
@@ -68,7 +69,7 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         return new ThreadPoolExecutor(
             numThreads,
             maxThreads,
-            500L,
+            DEFAULT_KEEP_ALIVE_TIME,
             MILLISECONDS,
             new LinkedBlockingQueue<>(numThreads),
             Executors.defaultThreadFactory());

@@ -32,6 +32,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
 
+    private static final long DEFAULT_AWAIT_TIMEOUT = 10; // TODO configurable
+
     private final MessageHandler<T> delegate;
     private ExecutorService executorService;
 
@@ -84,7 +86,7 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
      */
     public boolean shutdown() throws InterruptedException {
         executorService.shutdown();
-        executorService.awaitTermination(10L, SECONDS);
+        executorService.awaitTermination(DEFAULT_AWAIT_TIMEOUT, SECONDS);
         return executorService.isShutdown();
     }
 }

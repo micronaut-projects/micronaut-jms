@@ -30,6 +30,9 @@ import javax.jms.Connection;
 @Context
 public class SessionPoolFactory {
 
+    private static final int DEFAULT_POOL_INITIAL_SIZE = 1; // TODO configurable
+    private static final int DEFAULT_POOL_MAX_SIZE = 20; // TODO configurable
+
     private final MessageProducerPoolFactory producerPoolFactory;
 
     public SessionPoolFactory(MessageProducerPoolFactory producerPoolFactory) {
@@ -43,6 +46,6 @@ public class SessionPoolFactory {
      * @return a {@link SessionPool} from the provided {@param connection}.
      */
     public SessionPool getSessionPool(Connection connection) {
-        return new SessionPool(1, 20, connection, producerPoolFactory);
+        return new SessionPool(DEFAULT_POOL_INITIAL_SIZE, DEFAULT_POOL_MAX_SIZE, connection, producerPoolFactory);
     }
 }

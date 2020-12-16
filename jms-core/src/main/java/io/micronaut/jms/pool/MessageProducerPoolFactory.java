@@ -31,13 +31,17 @@ import javax.jms.Session;
  */
 @Context
 public class MessageProducerPoolFactory {
-    /***
+
+    private static final int DEFAULT_POOL_INITIAL_SIZE = 1; // TODO configurable
+    private static final int DEFAULT_POOL_MAX_SIZE = 20; // TODO configurable
+
+    /**
      * Generates and configures a {@link MessageProducerPool} given a {@link Session}.
      *
      * @param session
      * @return a {@link MessageProducerPool} from the provided {@param session}
      */
     public MessageProducerPool getProducerPool(Session session) {
-        return new MessageProducerPool(1, 20, session);
+        return new MessageProducerPool(DEFAULT_POOL_INITIAL_SIZE, DEFAULT_POOL_MAX_SIZE, session);
     }
 }
