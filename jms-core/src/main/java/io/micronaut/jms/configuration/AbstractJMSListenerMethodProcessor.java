@@ -95,11 +95,16 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
 
     protected abstract JMSDestinationType getDestinationType();
 
-    private static void validateArguments(ExecutableMethod<?, ?> method) {
+    private void validateArguments(ExecutableMethod<?, ?> method) {
         Stream.of(method.getArguments())
-            .filter(arg -> arg.isDeclaredAnnotationPresent(Body.class))
+            .filter(arg ->
+                arg.isDeclaredAnnotationPresent(Body.class) ||
+                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
             .findAny()
-            .orElseThrow(() -> new IllegalStateException("A method annotated with @Queue must have exactly one argument annotated with @Body"));
+            .orElseThrow(() -> new IllegalStateException(
+                "Methods annotated with @" + clazz.getSimpleName() +
+                    " must have exactly one argument annotated with @Body" +
+                    " or @Message"));
     }
 
     @SuppressWarnings("unchecked")
@@ -132,7 +137,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
         validateArguments(method);
 
         final Class<?> targetClass = Stream.of(method.getArguments())
-            .filter(arg -> arg.isDeclaredAnnotationPresent(Body.class))
+            .filter(arg ->
+                arg.isDeclaredAnnotationPresent(Body.class) ||
+                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
             .findAny()
             .map(Argument::getClass)
             .get();

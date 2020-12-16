@@ -17,11 +17,15 @@ package io.micronaut.jms.bind;
 
 import io.micronaut.core.bind.ArgumentBinder;
 import io.micronaut.core.bind.ArgumentBinderRegistry;
-import io.micronaut.core.convert.ArgumentConversionContext;
+import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
+import io.micronaut.core.bind.annotation.Bindable;
+import io.micronaut.core.convert.ConversionService;
+import io.micronaut.core.order.OrderUtil;
 import io.micronaut.core.type.Argument;
 
 import javax.inject.Singleton;
 import javax.jms.Message;
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -41,42 +45,47 @@ import java.util.Optional;
 @Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
-    private final List<AbstractChainedArgumentBinder> binders = new LinkedList<>();
+    private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
 
-    private final AbstractChainedArgumentBinder defaultArgumentBinder = new AbstractChainedArgumentBinder() {
-        @Override
-        public boolean canBind(Argument<?> argument) {
-            return false;
-        }
-
-        @Override
-        public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
-            throw new IllegalArgumentException("Cannot bind argument " + context.getArgument().getName());
-        }
-    };
-
-    public JMSArgumentBinderRegistry() {
-        registerArgumentBinder(new HeaderArgumentBinder());
-        registerArgumentBinder(new BodyArgumentBinder());
+    public JMSArgumentBinderRegistry(ConversionService<?> conversionService) {
+        registerArgumentBinder(new BodyArgumentBinder(conversionService));
+        registerArgumentBinder(new HeaderArgumentBinder(conversionService));
+        registerArgumentBinder(new DefaultMessageArgumentBinder(conversionService));
     }
 
-    /***
+    /**
+     * Registers an {@link ArgumentBinder}. Implement {@link io.micronaut.core.order.Ordered}
+     * to override the default binder for the parameter annotation type.
      *
-     * Adds an {@link AbstractChainedArgumentBinder} to the chain. If no argument binder is found then the
-     *      default argument binder (an {@link BodyArgumentBinder}) is used
-     *
-     * @param argumentBinder
+     * @param binder the binder
      */
-    public void registerArgumentBinder(AbstractChainedArgumentBinder argumentBinder) {
-        binders.add(argumentBinder);
+    public void registerArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
+        binders.add(binder);
+    }
+
+    /**
+     * Remove a registered binder. Primarily for testing.
+     *
+     * @param binder the binder to remove
+     */
+    public void unregisterArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
+        binders.remove(binder);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument, Message source) {
+    public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument,
+                                                                       Message source) {
+        Optional<Class<? extends Annotation>> opt =
+            argument.getAnnotationMetadata().getAnnotationTypeByStereotype(Bindable.class);
+        if (!opt.isPresent()) {
+            return Optional.empty();
+        }
+
+        Class<? extends Annotation> annotationType = opt.get();
         return Optional.of((ArgumentBinder<T, Message>) binders.stream()
-            .filter(binder -> binder.canBind(argument))
-            .findFirst()
-            .orElse(defaultArgumentBinder));
+            .filter(binder -> binder.getAnnotationType().equals(annotationType))
+            .max(OrderUtil.COMPARATOR)
+            .orElseThrow(() -> new IllegalArgumentException("Cannot bind argument " + argument.getName())));
     }
 }

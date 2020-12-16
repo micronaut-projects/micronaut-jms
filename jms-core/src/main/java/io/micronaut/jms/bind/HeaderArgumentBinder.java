@@ -16,7 +16,7 @@
 package io.micronaut.jms.bind;
 
 import io.micronaut.core.convert.ArgumentConversionContext;
-import io.micronaut.core.type.Argument;
+import io.micronaut.core.convert.ConversionService;
 import io.micronaut.jms.model.JMSHeaders;
 import io.micronaut.messaging.annotation.Header;
 
@@ -29,21 +29,30 @@ import java.util.Optional;
  * @author elliott
  * @since 1.0
  */
-public class HeaderArgumentBinder extends AbstractChainedArgumentBinder {
+public class HeaderArgumentBinder extends AbstractChainedArgumentBinder<Header> {
+
+    /**
+     * Constructor.
+     *
+     * @param conversionService conversionService
+     */
+    public HeaderArgumentBinder(ConversionService<?> conversionService) {
+        super(conversionService);
+    }
 
     @Override
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
                                       Message source) {
-        if (context.isAnnotationPresent(Header.class)) {
-            final String headerName = context.getAnnotation(Header.class).stringValue()
-                    .orElseThrow(() -> new IllegalStateException("@Header must specify a headerName."));
-            return () -> Optional.ofNullable(JMSHeaders.getHeader(headerName, source, context.getArgument().getType()));
-        }
-        return Optional::empty;
+
+        final String headerName = context.getAnnotation(Header.class).stringValue()
+            .orElseThrow(() -> new IllegalStateException("@Header must specify a headerName."));
+
+        return () -> Optional.ofNullable(
+            JMSHeaders.getHeader(headerName, source, context.getArgument().getType()));
     }
 
     @Override
-    public boolean canBind(Argument<?> argument) {
-        return argument.isAnnotationPresent(Header.class);
+    public Class<Header> getAnnotationType() {
+        return Header.class;
     }
 }

@@ -15,10 +15,12 @@
  */
 package io.micronaut.jms.bind;
 
-import io.micronaut.core.bind.ArgumentBinder;
-import io.micronaut.core.type.Argument;
+import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
+import io.micronaut.core.convert.ConversionService;
+import io.micronaut.core.order.Ordered;
 
 import javax.jms.Message;
+import java.lang.annotation.Annotation;
 
 /***
  * Abstract method for adding having multiple registered {@link ArgumentBinder}s to handle a {@link Message}.
@@ -29,11 +31,21 @@ import javax.jms.Message;
  * @author elliott
  * @since 1.0
  */
-public abstract class AbstractChainedArgumentBinder implements ArgumentBinder<Object, Message> {
+public abstract class AbstractChainedArgumentBinder<A extends Annotation>
+    extends AbstractAnnotatedArgumentBinder<A, Object, Message>
+    implements Ordered {
 
-    /***
-     * @param argument - the method argument to be bound to.
-     * @return true if the binder is capable of binding the {@link Message} to the {@param argument}, false otherwise.
+    /**
+     * Constructor.
+     *
+     * @param conversionService conversionService
      */
-    public abstract boolean canBind(Argument<?> argument);
+    protected AbstractChainedArgumentBinder(ConversionService<?> conversionService) {
+        super(conversionService);
+    }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
 }

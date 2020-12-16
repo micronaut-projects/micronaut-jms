@@ -89,6 +89,22 @@ public class JmsConsumer {
         return null;
     }
 
+    /**
+     * Receives a {@link Message} from the broker.
+     *
+     * @param destination the queue or topic name
+     * @return the message
+     */
+    public Message receive(@NonNull String destination) {
+        try (Connection connection = createConnection();
+             Session session = createSession(connection)) {
+            connection.start();
+            return receive(session, lookupDestination(destination));
+        } catch (JMSException | RuntimeException e) {
+            throw new MessageListenerException("Problem receiving message", e);
+        }
+    }
+
     @Nullable
     private Message receive(@NonNull Session session,
                             @NonNull Destination destination) {
