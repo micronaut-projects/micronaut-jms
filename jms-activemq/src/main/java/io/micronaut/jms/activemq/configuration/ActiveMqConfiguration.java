@@ -25,27 +25,25 @@ import javax.jms.ConnectionFactory;
 
 import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties.PREFIX;
 
-/***
- * Factory for generating the ActiveMQ {@link JMSConnectionFactory} based on the configuration properties
- *      provided by {@link ActiveMqConfigurationProperties}.
+/**
+ * Generates the ActiveMQ {@link JMSConnectionFactory} based on the properties
+ * provided by {@link ActiveMqConfigurationProperties}.
  *
- * @since 1.0
- * @author elliott
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Factory
 @Requires(property = PREFIX + ".enabled", value = "true")
 public class ActiveMqConfiguration {
 
-    /***
-     *
+    /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
+     * <p>
+     * The bean is a simply configured {@link ActiveMQConnectionFactory}
+     * configured with properties from {@link ActiveMqConfigurationProperties}.
      *
-     * The bean is a simply configured {@link ActiveMQConnectionFactory} configured with properties
-     *      from {@link ActiveMqConfigurationProperties}
-     *
-     * @param config
-     *
-     * @return the {@link ActiveMQConnectionFactory} defined by the {@param config}
+     * @param config config settings for ActiveMQ
+     * @return the {@link ActiveMQConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory("activeMqConnectionFactory")
     public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties config) {

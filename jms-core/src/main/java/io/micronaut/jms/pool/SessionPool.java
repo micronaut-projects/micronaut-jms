@@ -22,13 +22,13 @@ import javax.jms.JMSException;
 import javax.jms.Session;
 import java.util.Arrays;
 
-/***
+/**
  * Pool for ensuring maximum reuse of {@link Session}s within an application.
  *
+ * @author Elliott Pope
  * @see SessionPoolFactory
  * @see PooledConnection
- *
- * @author elliott
+ * @since 1.0.0
  */
 public class SessionPool extends AbstractPool<PooledObject<Session>> {
 

@@ -35,6 +35,13 @@ import java.util.regex.Pattern;
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
+/**
+ * Registers a {@link io.micronaut.jms.listener.JMSListenerContainer} for
+ * methods annotated with {@link Queue}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 @Singleton
 public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Queue> {
 

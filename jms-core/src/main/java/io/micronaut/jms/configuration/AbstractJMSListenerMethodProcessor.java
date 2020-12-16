@@ -44,14 +44,14 @@ import java.util.stream.Stream;
 
 import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
-/***
+/**
+ * Abstract {@link ExecutableMethodProcessor} for annotations related to
+ * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListenerContainer}
+ * if the method annotated with {@code <T>} is part of a bean annotated with {@link JMSListener}.
  *
- * Abstract {@link ExecutableMethodProcessor} for annotations related to {@link JMSListener}. If the method annotated
- *      with {@param <T>} is not part of a bean annotated with {@link JMSListener} then the processor will take
- *      no action. If the method is part of a {@link JMSListener} then the processor will register a
- *      {@link io.micronaut.jms.listener.JMSListenerContainer}
- *
- * @param <T>
+ * @param <T> the destination type annotation
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     implements ExecutableMethodProcessor<T> {

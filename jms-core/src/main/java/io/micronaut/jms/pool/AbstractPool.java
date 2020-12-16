@@ -19,6 +19,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Base class for object pool implementations.
+ *
+ * @param <T> the {@link PooledObject} type
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public abstract class AbstractPool<T extends PooledObject<?>> {
 
     protected final List<T> pool = Collections.synchronizedList(new LinkedList<>());
@@ -33,13 +40,15 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
         this.maxSize = maxSize;
     }
 
-    /***
+    /**
+     * Requests an object {@code <T>} from the pool. Adds a new instance to
+     * the pool if the pool is empty.
      *
-     * Requests an object {@param <T>} from the pool. If the pool is empty then a new object is added to the pool.
-     *      If the number of active connections exceeds the configured size then an {@link RuntimeException} is thrown
-     *
-     * @param args - the arguments to pass to the create method, or to help select an object from the pool.
+     * @param args the arguments to pass to the create method, or to help
+     *             select an object from the pool.
      * @return a {@link PooledObject} from the pool.
+     * @throws IllegalStateException if the number of active instances exceeds
+     *                               the configured size
      */
     public T request(Object... args) {
         if (pool.isEmpty()) {
@@ -53,10 +62,10 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
         return object;
     }
 
-    /***
+    /**
      * Release the provided object and return it to the pool.
      *
-     * @param pooledObject - the object to return to the pool
+     * @param pooledObject the object to return to the pool
      */
     public void release(T pooledObject) {
         active.remove(pooledObject);
@@ -64,18 +73,18 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
         pool.add(pooledObject);
     }
 
-    /***
+    /**
      * Create an object for the pool.
      *
-     * @param args - the arguments to be provided to the create method.
-     * @return a new object of type {@param <T>} for the pool.
+     * @param args the arguments to be provided to the create method.
+     * @return a new object of type {@code <T>} for the pool.
      */
     protected abstract T create(Object... args);
 
-    /***
-     * Reset the provided object so that it can be returned to the pool ready for reuse.
+    /**
+     * Reset the provided object so it can be returned to the pool for reuse.
      *
-     * @param pooledObject
+     * @param pooledObject the object
      */
     protected abstract void reset(T pooledObject);
 }

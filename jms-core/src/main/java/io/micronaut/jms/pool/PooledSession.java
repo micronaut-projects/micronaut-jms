@@ -35,6 +35,13 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import java.io.Serializable;
 
+/**
+ * Wrapper for {@link Session} that returns it to the pool with a call to
+ * {@link AutoCloseable#close()}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public class PooledSession extends PooledObject<Session> implements Session {
 
     private final MessageProducerPool producerPool;

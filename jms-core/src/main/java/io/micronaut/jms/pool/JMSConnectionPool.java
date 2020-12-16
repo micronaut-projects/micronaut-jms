@@ -23,12 +23,12 @@ import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import java.util.concurrent.CompletableFuture;
 
-/***
+/**
+ * Decorator of the provided {@link ConnectionFactory} to ensure maximum reuse
+ * of {@link Connection} instances.
  *
- * Decorator of the provided {@link ConnectionFactory} to ensure maximum reuse of
- *      {@link Connection} objects.
- *
- * @author elliott
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> implements ConnectionFactory {
 

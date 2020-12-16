@@ -22,14 +22,11 @@ import io.micronaut.core.order.Ordered;
 import javax.jms.Message;
 import java.lang.annotation.Annotation;
 
-/***
- * Abstract method for adding having multiple registered {@link ArgumentBinder}s to handle a {@link Message}.
+/**
+ * Base class for annotated argument binders.
  *
- * @see HeaderArgumentBinder
- * @see BodyArgumentBinder
- *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public abstract class AbstractChainedArgumentBinder<A extends Annotation>
     extends AbstractAnnotatedArgumentBinder<A, Object, Message>

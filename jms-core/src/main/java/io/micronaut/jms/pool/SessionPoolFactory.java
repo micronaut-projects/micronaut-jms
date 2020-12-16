@@ -19,13 +19,13 @@ import io.micronaut.context.annotation.Context;
 
 import javax.jms.Connection;
 
-/***
+/**
  * Factory for generating a {@link SessionPool} from a {@link Connection}.
  *
+ * @author Elliott Pope
  * @see JMSConnectionPool
  * @see PooledConnection
- *
- * @author elliott
+ * @since 1.0.0
  */
 @Context
 public class SessionPoolFactory {
@@ -39,11 +39,11 @@ public class SessionPoolFactory {
         this.producerPoolFactory = producerPoolFactory;
     }
 
-    /***
-     * Returns a {@link SessionPool} from the provided {@param connection}.
+    /**
+     * Returns a {@link SessionPool} from the provided {@code connection}.
      *
-     * @param connection
-     * @return a {@link SessionPool} from the provided {@param connection}.
+     * @param connection the connection
+     * @return a {@link SessionPool} from the provided {@code connection}.
      */
     public SessionPool getSessionPool(Connection connection) {
         return new SessionPool(DEFAULT_POOL_INITIAL_SIZE, DEFAULT_POOL_MAX_SIZE, connection, producerPoolFactory);

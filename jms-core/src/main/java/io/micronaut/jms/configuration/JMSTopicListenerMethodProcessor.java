@@ -29,6 +29,13 @@ import java.util.concurrent.Executors;
 
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
 
+/**
+ * Registers a {@link io.micronaut.jms.listener.JMSListenerContainer} for
+ * methods annotated with {@link Topic}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 @Singleton
 public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
 

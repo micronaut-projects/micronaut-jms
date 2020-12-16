@@ -40,19 +40,18 @@ import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
-/***
- * A container for setting up and managing {@link MessageListener}s created by the
- *      {@link io.micronaut.jms.annotations.JMSListener} and
- *      {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
- *      processing. There is support for programmatically instantiating listeners
- *      however this has not been fully incorporated into a coherent API yet and
- *      has not been fully tested. It is recommended to instead just use the
- *      {@link io.micronaut.jms.annotations.JMSListener} annotation on existing classes.
+/**
+ * Sets up and manages {@link MessageListener}s created by the
+ * {@link io.micronaut.jms.annotations.JMSListener} and
+ * {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
+ * processing. There is support for programmatically instantiating listeners
+ * however this has not been fully incorporated into a coherent API yet and has
+ * not been fully tested. It is recommended to instead use the
+ * {@link io.micronaut.jms.annotations.JMSListener} annotation on existing classes.
  *
- * @param <T> - the type of object that the incoming {@link javax.jms.Message} should be converted to before handling.
- *
- * @author elliottpope
- * @since 1.0
+ * @param <T> the {@link javax.jms.Message} object type to convert to before handling
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public class JMSListenerContainer<T> {
 
@@ -66,12 +65,11 @@ public class JMSListenerContainer<T> {
     private final int maxThreadPoolSize;
     private final JMSDestinationType type;
 
-    /***
-     * Creates a {@link JMSListenerContainer} ready for listeners to be registered against.
-     *
-     * @param connectionPool - the {@link JMSConnectionPool} to pull {@link Connection}s from to create
-     *                       {@link MessageListener}s
-     * @param type - either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
+    /**
+     * @param connectionPool the {@link JMSConnectionPool} to pull
+     *                       {@link Connection}s from to create {@link MessageListener}s
+     * @param type           either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
+     * @param threadPoolSize the pool size
      */
     public JMSListenerContainer(JMSConnectionPool connectionPool,
                                 JMSDestinationType type,
@@ -79,6 +77,13 @@ public class JMSListenerContainer<T> {
         this(connectionPool, type, threadPoolSize, threadPoolSize);
     }
 
+    /**
+     * @param connectionPool    the {@link JMSConnectionPool} to pull
+     *                          {@link Connection}s from to create {@link MessageListener}s
+     * @param type              either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
+     * @param threadPoolSize    the minimum core thread pool size
+     * @param maxThreadPoolSize the maximum number of threads to use handling incoming requests
+     */
     public JMSListenerContainer(JMSConnectionPool connectionPool,
                                 JMSDestinationType type,
                                 int threadPoolSize,
@@ -93,15 +98,15 @@ public class JMSListenerContainer<T> {
         this.maxThreadPoolSize = maxThreadPoolSize;
     }
 
-    /***
-     * Registers an {@link JMSListenerContainer} with default concurrency.
+    /**
+     * Registers a {@link JMSListenerContainer} with default concurrency.
+     * <p>
+     * NOTE: this method is not recommended; instead use the annotation driven
+     * {@link io.micronaut.jms.annotations.JMSListener}
      *
-     * NOTE: this method is not recommended and the annotation driven {@link io.micronaut.jms.annotations.JMSListener}
-     *      is recommended
-     *
-     * @param destination
-     * @param listener
-     * @param clazz
+     * @param destination the queue or topic name
+     * @param listener    the message handler
+     * @param clazz       the message type
      */
     public void registerListener(String destination,
                                  MessageHandler<T> listener,
@@ -130,19 +135,24 @@ public class JMSListenerContainer<T> {
         }
     }
 
-    /***
+    /**
+     * Internal method used by the {@link JMSListenerContainerFactory} for
+     * registering new listeners.
+     * <p>
+     * NOTE: this method is used internally by the
+     * {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
+     * and is not recommended for use. Instead the annotation driven
+     * {@link io.micronaut.jms.annotations.JMSListener} is preferred.
      *
-     * Internal method used by the {@link JMSListenerContainerFactory} for registering new listeners.
-     *
-     * NOTE: this method is used internally by the {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
-     *      and is not recommended for use. Instead the annotation driven {@link io.micronaut.jms.annotations.JMSListener}
-     *      is preferred.
-     *
-     * @param destination
-     * @param listener
-     * @param clazz
-     * @param transacted
-     * @param acknowledgeMode
+     * @param destination     the queue or topic name
+     * @param listener        the message handler
+     * @param clazz           the message type
+     * @param transacted      indicates whether the session will use a local transaction
+     * @param acknowledgeMode when transacted is false, indicates how messages
+     *                        received by the session will be acknowledged
+     * @see Session#AUTO_ACKNOWLEDGE
+     * @see Session#CLIENT_ACKNOWLEDGE
+     * @see Session#DUPS_OK_ACKNOWLEDGE
      */
     public void registerListener(String destination,
                                  MessageListener listener,
@@ -179,12 +189,11 @@ public class JMSListenerContainer<T> {
         }
     }
 
-    /***
+    /**
+     * Safely shuts down all open connections linked to the listener container.
+     * To be executed when the bean is destroyed.
      *
-     * Safely shuts down all open connections that are linked to the listener
-     *      container. To be executed when the bean is destroyed.
-     *
-     * @return true if all open connections are successfully closed, false otherwise.
+     * @return true if all open connections are successfully closed
      */
     @PreDestroy
     public boolean shutdown() {

@@ -23,13 +23,13 @@ import javax.validation.constraints.NotBlank;
 
 import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties.PREFIX;
 
-/***
- * Configuration properties for creating the {@link io.micronaut.jms.annotations.JMSConnectionFactory}.
+/**
+ * Configuration properties for creating the
+ * {@link io.micronaut.jms.annotations.JMSConnectionFactory}.
  *
+ * @author Elliott Pope
  * @see io.micronaut.jms.activemq.configuration.ActiveMqConfiguration
- *
- * @author elliott
- * @since 1.0
+ * @since 1.0.0
  */
 @ConfigurationProperties(PREFIX)
 @Requires(property = PREFIX + ".enabled", value = "true")
@@ -40,16 +40,18 @@ public interface ActiveMqConfigurationProperties {
      */
     String PREFIX = JMSConfigurationProperties.PREFIX + ".activemq";
 
-    /***
-     * @return true if the Micronaut JMS ActiveMQ implementation should be activated.
-     *      This will allow you to inject a {@link javax.jms.ConnectionFactory} bean
-     *      with name "activeMqConnectionFactory" into your {@link io.micronaut.jms.annotations.JMSListener}
-     *      and {@link io.micronaut.jms.annotations.JMSProducer} implementations.
+    /**
+     * Whether ActiveMQ is active.
+     *
+     * @return true to activate the JMS ActiveMQ implementation
      */
     boolean isEnabled();
 
-    /***
-     * @return connection string to identify the broker URL i.e. vm://localhost, or tcp://my-activemq-cluster:61616
+    /**
+     * The connection string to identify the broker URL,
+     * e.g. vm://localhost or tcp://my-activemq-cluster:61616.
+     *
+     * @return the connection string
      */
     @NotBlank
     String getConnectionString();

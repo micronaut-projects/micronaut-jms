@@ -38,6 +38,16 @@ import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
 import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
+/**
+ * Helper class that sends messages, configuring JMS connections, sessions,
+ * etc. for you.
+ * <p>
+ * TODO rename, too similar to JMSProducer
+ *
+ * @param <T> the message type
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public class JmsProducer<T> {
 
     private final JMSDestinationType type;
@@ -70,14 +80,13 @@ public class JmsProducer<T> {
         this.sessionAcknowledgeMode = sessionAcknowledgeMode;
     }
 
-    /***
+    /**
+     * Creates a {@link Message} from the {@code body} and sends it to the
+     * {@code destination} with the {@code headers}.
      *
-     * Sends the given {@param body} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param body
-     * @param headers
+     * @param destination the queue or topic name
+     * @param body        the body
+     * @param headers     optional headers
      */
     public void send(@NonNull String destination,
                      @NonNull T body,
@@ -90,14 +99,13 @@ public class JmsProducer<T> {
         }
     }
 
-    /***
+    /**
+     * Sends the given {@code message} to the {@code destination} with the
+     * given {@code headers}.
      *
-     * Sends the given {@param message} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param message
-     * @param headers
+     * @param destination the queue or topic name
+     * @param message     the message
+     * @param headers     optional headers
      */
     public void send(@NonNull String destination,
                      @NonNull Message message,
@@ -105,14 +113,13 @@ public class JmsProducer<T> {
         send(lookupDestination(destination), message, headers);
     }
 
-    /***
+    /**
+     * Sends the given {@code message} to the {@code destination}
+     * with the given {@code headers}.
      *
-     * Sends the given {@param message} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param message
-     * @param headers
+     * @param destination the queue or topic name
+     * @param message     the message
+     * @param headers     optional headers
      */
     public void send(@NonNull Destination destination,
                      @NonNull Message message,
@@ -140,6 +147,7 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
+            // TODO support specifying delivery mode, TTL, priority
             producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), DEFAULT_TIME_TO_LIVE);
 
             if (sessionTransacted) {

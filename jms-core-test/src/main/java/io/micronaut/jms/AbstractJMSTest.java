@@ -67,7 +67,7 @@ public abstract class AbstractJMSTest {
             Qualifiers.byName("activeMqConnectionFactory"));
     }
 
-    /***
+    /**
      * Tests sending a message to a test queue on a broker.
      */
     @Test
@@ -83,7 +83,7 @@ public abstract class AbstractJMSTest {
         assertEquals("test-message", message);
     }
 
-    /***
+    /**
      * Tests sending a message to a test queue on a broker.
      */
     @Test
@@ -106,12 +106,12 @@ public abstract class AbstractJMSTest {
         assertEquals(1, received.getId());
     }
 
-    /***
+    /**
+     * Tests setting up a {@link JMSListenerContainer} manually and sending a
+     * large number of messages to it.
      *
-     * Tests setting up a {@link JMSListenerContainer} manually and
-     *      sending a large number of messages to it.
-     *
-     * @throws InterruptedException
+     * @throws InterruptedException if the current thread is interrupted while
+     * waiting for messages
      */
     @Test
     public void testListener() throws InterruptedException {
@@ -139,12 +139,12 @@ public abstract class AbstractJMSTest {
             "Failed to shutdown JMS listener. There are still open connections.");
     }
 
-    /***
-     *
+    /**
      * Tests setting up a {@link JMSListenerContainer} for a {@link javax.jms.Queue}
-     *      using the {@link JMSListener} annotation.
+     * using the {@link JMSListener} annotation.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException if the current thread is interrupted while
+     * waiting for messages
      */
     @Test
     public void testJMSListenerAnnotationDriven() throws InterruptedException {
@@ -166,12 +166,12 @@ public abstract class AbstractJMSTest {
         assertEquals(0, QUEUE_LATCH.getCount());
     }
 
-    /***
-     *
+    /**
      * Tests setting up a {@link JMSListenerContainer} for a {@link javax.jms.Topic}
-     *      using the {@link JMSListener} annotation.
+     * using the {@link JMSListener} annotation.
      *
-     * @throws InterruptedException
+     * @throws InterruptedException if the current thread is interrupted while
+     * waiting for messages
      */
     @Test
     public void testJMSListenerTopicAnnotationDriven() throws InterruptedException {

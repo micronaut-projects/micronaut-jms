@@ -29,15 +29,14 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
 import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO;
 import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
 
-/***
- * Container class to correspond to a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
- *      and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
+/**
+ * Represents a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
+ * and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
  *
+ * @author Elliott Pope
  * @see io.micronaut.jms.templates.JmsProducer
  * @see io.micronaut.jms.configuration.JMSProducerMethodInterceptor
- *
- * @author elliottpope
- * @since 1.0
+ * @since 1.0.0
  */
 public class MessageHeader {
 
@@ -74,11 +73,11 @@ public class MessageHeader {
     private final Object value;
     private final boolean isJmsHeader;
 
-    /***
+    /**
      * Creates a container for the message header.
      *
-     * @param key - the name of the header.
-     * @param value - the value for the header.
+     * @param key   the header name
+     * @param value the header value
      */
     public MessageHeader(String key, Object value) {
         this.key = key;
@@ -86,14 +85,17 @@ public class MessageHeader {
         isJmsHeader = JMS_HEADER_OPERATIONS.containsKey(key);
     }
 
-    /***
+    /**
+     * If this is a supported JMS header, attempts to set the header given by
+     * the {@code key} with the value given with {@code value}, doing all
+     * required type conversions. Not all JMS headers are supported since most
+     * are set by the JMS provider (e.g. {@link JMSHeaders#JMS_PRIORITY}).
      *
-     * Attempts to set the JMS Header given by the {@param key}
-     *      with the value given with {@param value} doing all required
-     *      type conversions. Not all JMS Headers are supported since they
-     *      are not managed at the message level (i.e. {@link JMSHeaders#JMS_PRIORITY})
+     * If the header isn't a JMS header, sets an object property. This is only
+     * supported for Strings and objectified primitive object types (Boolean,
+     * Byte, Short, Integer, Long, Float, Double).
      *
-     * @param message
+     * @param message the message
      */
     public void apply(Message message) {
         if (isJmsHeader) {

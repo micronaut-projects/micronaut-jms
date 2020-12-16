@@ -26,38 +26,39 @@ import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Map;
 
-/***
- * Enumeration of the underlying types of a {@link Message} as well as a mapping to the corresponding Java class.
+/**
+ * The underlying type of a {@link Message} mapped to the corresponding class.
  *
- * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
+ * @author Elliott Pope
+ * @see io.micronaut.jms.serdes.Deserializer
+ * @see io.micronaut.jms.serdes.Serializer
  * @see Message
  * @see TextMessage
- *
- * @author elliottpope
- * @since 1.0
+ * @since 1.0.0
  */
 public enum MessageType {
-    /***
-     * Corresponds to a {@link TextMessage} to be deserialized to a {@link String}.
+
+    /**
+     * A {@link TextMessage} to be deserialized to a {@link String}.
      */
     TEXT(TextMessage.class, String.class),
 
-    /***
-     * Corresponds to a {@link MapMessage} to be deserialized to a {@link Map}.
+    /**
+     * A {@link MapMessage} to be deserialized to a {@link Map}.
      */
     MAP(MapMessage.class, Map.class),
 
-    /***
-     * Corresponds to a {@link ObjectMessage} to be deserialized to a {@link Serializable}.
+    /**
+     * An {@link ObjectMessage} to be deserialized to a {@link Serializable}.
      */
     OBJECT(ObjectMessage.class, Serializable.class),
 
-    /***
-     * Corresponds to a {@link BytesMessage} to be deserialized to a byte array.
+    /**
+     * A {@link BytesMessage} to be deserialized to a byte array.
      */
     BYTES(BytesMessage.class, byte[].class),
 
-    /***
+    /**
      * The default case if no known {@link Message} subtype is known for the incoming message.
      */
     UNKNOWN(null, null);
@@ -71,10 +72,13 @@ public enum MessageType {
         this.fromClazz = fromClazz;
     }
 
-    /***
-     * @param message - the {@link Message} whose type you would like to infer.
-     * @return the {@link MessageType} that corresponds to the given {@param message}. If the {@param message}
-     *      is null or the type is not supported, then {@link MessageType#UNKNOWN} will be returned.
+    /**
+     * Determine the {@link MessageType} corresponding to the given
+     * {@code message}. Returns {@link MessageType#UNKNOWN} if the
+     * {@code message} is null or the type is not supported.
+     *
+     * @param message the {@link Message} whose type you would like to infer.
+     * @return the {@link MessageType}
      */
     public static @NonNull MessageType fromMessage(@Nullable Message message) {
         if (message != null) {
@@ -87,10 +91,13 @@ public enum MessageType {
         return UNKNOWN;
     }
 
-    /***
-     * @param message - the {@link Message} whose type you would like to infer.
-     * @return the {@link MessageType} that corresponds to the given {@param message}. If the {@param message}
-     *      is null or the type is not supported, then {@link MessageType#UNKNOWN} will be returned.
+    /**
+     * Determine the {@link MessageType} corresponding to the given
+     * {@code message}. Returns {@link MessageType#UNKNOWN} if the
+     * {@code message} is null or the type is not supported
+     *
+     * @param message the {@link Message} whose type you would like to infer.
+     * @return the {@link MessageType}
      */
     public static MessageType fromObject(Object message) {
         if (message != null) {

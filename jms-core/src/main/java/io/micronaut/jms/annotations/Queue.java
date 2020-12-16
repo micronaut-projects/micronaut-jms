@@ -17,7 +17,6 @@ package io.micronaut.jms.annotations;
 
 import io.micronaut.context.annotation.Executable;
 
-import javax.jms.Session;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -26,37 +25,35 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
-/***
- *
- * Annotation required to bind a {@link javax.jms.Queue} to a method for receiving or sending a {@link javax.jms.Message}.
- *
+/**
+ * Binds a {@link javax.jms.Queue} to a method for receiving or sending a {@link javax.jms.Message}.
+ * <p>
  * Usage:
  * <pre>
- *      {@code
- * @JMSListener("myConnectionFactory")
+ * &#64;JMSListener("myConnectionFactory")
  * public class Listener {
- *      @Queue(
+ *      &#64;Queue(
  *          destination = "my-queue",
  *          executor = "micronaut-executor-service"
  *      )
- *      public <T> void handle(T body, @Header(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
+ *      public &lt;T&gt; void handle(T body, @Header(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
  *          // do some logic with body and messageID
  *      }
  *
- *      @Queue(
+ *      &#64;Queue(
  *          destination = "my-queue-2",
  *          concurrency = "1-5",
  *          transacted = true,
  *          acknowledgeMode = Session.CLIENT_ACKNOWLEDGE
  *      )
- *      public <T> void handle(T body, @Header("X-Arbitrary-Header") String arbitraryHeader) {
+ *      public &lt;T&gt; void handle(T body, @Header("X-Arbitrary-Header") String arbitraryHeader) {
  *          // do some logic with body and arbitraryHeader
  *      }
  * }
- *      }
  * </pre>
  *
- * @author elliott
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Documented
 @Retention(RUNTIME)
@@ -64,42 +61,57 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 @Executable(processOnStartup = true)
 public @interface Queue {
 
-    /***
-     * @return the name of the queue to target.
+    /**
+     * The name of the queue to target.
+     * @return the name
      */
     String value();
 
-    /***
-     * @return the size of the thread pool to use when used in conjunction with {@link JMSListener}. The value
-     *      should be of the form x-y where x is the initial size of the thread pool and y is the maximum size of
-     *      the thread pool. If this option is specified, then a new thread pool will be created and destroyed with
-     *      the {@link io.micronaut.jms.listener.JMSListenerContainer}. This option cannot be used in conjunction
-     *      with {@link Queue#executor()} and if both are specified then the {@link Queue#executor()} value will be used.
+    /**
+     * The size of the thread pool to use when used in conjunction with
+     * {@link JMSListener}. The value must be of the form x-y where x is the
+     * initial size of the thread pool and y is the maximum size. If this
+     * option is specified, a new thread pool will be created and destroyed
+     * with the {@link io.micronaut.jms.listener.JMSListenerContainer}. This
+     * option cannot be used in conjunction with {@link Queue#executor()}; if
+     * both are specified the {@link Queue#executor()} value will be used.
+     *
+     * @return the initial and max size of the thread pool
      */
     String concurrency() default "1-1";
 
+    /**
+     * The name of a {@link io.micronaut.jms.serdes.Serializer} in the bean
+     * context to use to serialize an object into a {@link javax.jms.Message}
+     * when sending. If not specified, defaults to
+     * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
+     *
+     * @return the serializer bean name
+     */
     String serializer() default "";
 
-    /***
-     * @return the name of an {@link java.util.concurrent.ExecutorService} in the bean context to execute tasks on
-     *      receiving a {@link javax.jms.Message} as part of a {@link JMSListener}. The executor can be maintained by
-     *      Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
+    /**
+     * The name of an {@link java.util.concurrent.ExecutorService} in the bean
+     * context to execute tasks on when receiving a {@link javax.jms.Message}
+     * as part of a {@link JMSListener}. The executor can be maintained by
+     * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
+     *
+     * @return the executor service bean name
      */
     String executor() default "";
 
-    /***
-     * @return the acknowledgement mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
-     *
-     * @see Session
+    /**
+     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * @see javax.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
 
-    /***
-     * @return true if the message receipt is transacted, false otherwise. The broker must support transacted
-     *      sessions.
+    /**
+     * Whether message receipt is transacted. The broker must support
+     * transacted sessions.
      *
-     *
-     * @see Session
+     * @return true if transacted
+     * @see javax.jms.Session
      */
     boolean transacted() default false;
 }

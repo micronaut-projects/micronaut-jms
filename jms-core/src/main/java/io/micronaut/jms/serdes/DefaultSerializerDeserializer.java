@@ -32,6 +32,12 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Default implementation of {@link Serializer} and {@link Deserializer}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

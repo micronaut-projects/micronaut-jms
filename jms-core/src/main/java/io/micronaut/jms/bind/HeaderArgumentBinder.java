@@ -23,11 +23,12 @@ import io.micronaut.messaging.annotation.Header;
 import javax.jms.Message;
 import java.util.Optional;
 
-/***
- * Argument binder for binding headers from a {@link Message} to a method argument annotated with {@link Header}.
+/**
+ * Binds headers from a {@link Message} to a method argument annotated with
+ * {@link Header}.
  *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public class HeaderArgumentBinder extends AbstractChainedArgumentBinder<Header> {
 

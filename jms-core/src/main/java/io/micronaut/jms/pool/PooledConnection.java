@@ -25,15 +25,14 @@ import javax.jms.ServerSessionPool;
 import javax.jms.Session;
 import javax.jms.Topic;
 
-/***
- * Wrapper for {@link Connection} that returns it to
- *      the {@link JMSConnectionPool} with a call to
- *      {@link AutoCloseable#close()}.
+/**
+ * Wrapper for {@link Connection} that returns it to the
+ * {@link JMSConnectionPool} with a call to {@link AutoCloseable#close()}.
  *
- * @author elliott
- *
- * @see java.lang.AutoCloseable
+ * @author Elliott Pope
+ * @see AutoCloseable
  * @see JMSConnectionPool
+ * @since 1.0.0
  */
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 

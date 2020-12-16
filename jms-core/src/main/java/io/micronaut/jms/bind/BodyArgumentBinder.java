@@ -23,11 +23,11 @@ import io.micronaut.messaging.annotation.Body;
 import javax.jms.Message;
 import java.util.Optional;
 
-/***
- * Argument binder for binding a {@link Message} to a method argument annotated with {@link Body}.
+/**
+ * Binds a {@link Message} to a method argument annotated with {@link Body}.
  *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public class BodyArgumentBinder extends AbstractChainedArgumentBinder<Body> {
 

@@ -41,13 +41,13 @@ import java.util.Map;
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
 
-/***
- * A {@link MethodInterceptor} providing the implementation for sending messages to a broker.
- *      Requires that the interface be annotated with {@link JMSProducer} and have at least one method
- *      annotated with {@link Queue} or {@link Topic}.
+/**
+ * Sends messages to a broker. Requires that the interface be annotated with
+ * {@link JMSProducer} and have at least one method annotated with
+ * {@link Queue} or {@link Topic}.
  *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Singleton
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {

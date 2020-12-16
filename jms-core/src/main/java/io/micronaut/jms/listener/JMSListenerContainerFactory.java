@@ -21,69 +21,71 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import javax.jms.MessageListener;
+import javax.jms.Session;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/***
+/**
+ * Generates and tracks {@link JMSListenerContainer} within the Bean Context.
  *
- * Factory for generating and tracking {@link JMSListenerContainer} within the
- *      Micronaut Bean Context.
- *
+ * @author Elliott Pope
  * @see JMSListenerContainer
- *
- * @author elliott
+ * @since 1.0.0
  */
 @Singleton
 public class JMSListenerContainerFactory {
 
     private static final int THREAD_POOL_SIZE = 1; // TODO configurable?
 
+    // TODO one listener per destination??? at least error/warn if replacing
     private final Map<String, JMSListenerContainer<?>> listeners = new ConcurrentHashMap<>();
 
-    /***
-     *
+    /**
      * Generates a new {@link JMSListenerContainer} and registers the
-     *      provided {@link MessageHandler} as the receiving executable method.
-     *
+     * provided {@link MessageHandler} as the receiving executable method.
+     * <p>
      * NOTE: this method is not recommended for registering new {@link JMSListenerContainer}s
-     *      however can be used to register them dynamically and allow for safe shutdown
-     *      within the Bean Context.
+     * however can be used to register them dynamically and allow for safe shutdown
+     * within the Bean Context.
      *
-     * @param connectionPool
-     * @param destination
-     * @param handler
-     * @param clazz
-     * @param type
-     * @param <T>
+     * @param connectionPool the pool
+     * @param destination    the queue or topic name
+     * @param handler        the message handler
+     * @param clazz          the message type
+     * @param type           the destination type
+     * @param <T>            the class type
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
                                      final String destination,
                                      final MessageHandler<T> handler,
                                      final Class<T> clazz,
                                      final JMSDestinationType type) {
-        final JMSListenerContainer<T> listener = new JMSListenerContainer<>(
-            connectionPool, type, 1);
-        listener.registerListener(destination, handler, clazz);
-        listeners.put(destination, listener);
+        final JMSListenerContainer<T> container = new JMSListenerContainer<>(
+            connectionPool, type, THREAD_POOL_SIZE);
+        container.registerListener(destination, handler, clazz);
+        listeners.put(destination, container);
     }
 
-    /***
-     *
+    /**
      * Generates a new {@link JMSListenerContainer} and registers the
-     *      provided {@link MessageListener} as the receiving executable method.
+     * provided {@link MessageListener} as the receiving executable method.
+     * <p>
+     * NOTE: this method is not recommended for registering new
+     * {@link JMSListenerContainer}s however it can be used to register them
+     * dynamically and allow for safe shutdown within the Bean Context.
      *
-     * NOTE: this method is not recommended for registering new {@link JMSListenerContainer}s
-     *      however can be used to register them dynamically and allow for safe shutdown
-     *      within the Bean Context.
-     *
-     * @param connectionPool
-     * @param destination
-     * @param listener
-     * @param clazz
-     * @param transacted
-     * @param acknowledgeMode
-     * @param type
-     * @param <T>
+     * @param connectionPool  the pool
+     * @param destination     the queue or topic name
+     * @param listener        the message listener
+     * @param clazz           the message type
+     * @param transacted      indicates whether the session will use a local transaction
+     * @param acknowledgeMode when transacted is false, indicates how messages
+     *                        received by the session will be acknowledged
+     * @param type            the destination type
+     * @param <T>             the class type
+     * @see Session#AUTO_ACKNOWLEDGE
+     * @see Session#CLIENT_ACKNOWLEDGE
+     * @see Session#DUPS_OK_ACKNOWLEDGE
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
                                      final String destination,
@@ -98,17 +100,18 @@ public class JMSListenerContainerFactory {
         listeners.put(destination, container);
     }
 
-    /***
+    /**
+     * The {@link JMSListenerContainer} that is listening to the given {@code destination}.
      *
-     * @param destination
-     * @return the {@link JMSListenerContainer} that is listening to the given {@param destination}
+     * @param destination the name of a queue or topic
+     * @return the container
      */
     public JMSListenerContainer<?> getRegisteredListener(String destination) {
         return listeners.get(destination);
     }
 
-    /***
-     * Shuts down all the listeners registered with this factory instance.
+    /**
+     * Shuts down the listeners registered with this factory.
      */
     @PreDestroy
     public void shutdown() {

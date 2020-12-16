@@ -19,15 +19,14 @@ import io.micronaut.context.annotation.Context;
 
 import javax.jms.Session;
 
-/***
+/**
+ * Factory for generating {@link MessageProducerPool} from a {@link Session}.
  *
- * Factory for generating {@link MessageProducerPool} from a {@link javax.jms.Session}.
- *
+ * @author Elliott Pope
  * @see MessageProducerPool
  * @see PooledSession
  * @see PooledProducer
- *
- * @author elliott
+ * @since 1.0.0
  */
 @Context
 public class MessageProducerPoolFactory {
@@ -38,8 +37,8 @@ public class MessageProducerPoolFactory {
     /**
      * Generates and configures a {@link MessageProducerPool} given a {@link Session}.
      *
-     * @param session
-     * @return a {@link MessageProducerPool} from the provided {@param session}
+     * @param session the session
+     * @return a {@link MessageProducerPool} from the provided {@code session}
      */
     public MessageProducerPool getProducerPool(Session session) {
         return new MessageProducerPool(DEFAULT_POOL_INITIAL_SIZE, DEFAULT_POOL_MAX_SIZE, session);

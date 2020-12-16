@@ -22,15 +22,14 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-/***
+/**
+ * Pool for ensuring maximum reuse of {@link MessageProducer}s.
  *
- * Pool for ensuring maximum reuse of {@link MessageProducer} objects.
- *
+ * @author Elliott Pope
  * @see PooledProducer
  * @see MessageProducerPoolFactory
  * @see SessionPool
- *
- * @author elliott
+ * @since 1.0.0
  */
 public class MessageProducerPool extends AbstractPool<PooledObject<MessageProducer>> {
 

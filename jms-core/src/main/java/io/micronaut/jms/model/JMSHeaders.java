@@ -29,56 +29,94 @@ import java.util.stream.Stream;
 
 import static javax.jms.Message.DEFAULT_PRIORITY;
 
-/***
- * Utility class, allowing for access to the supported JMS Headers, and methods for extracting those values from
- *      a given {@link Message}.
+/**
+ * Utility class for access to the supported JMS Headers, and methods to
+ * extract those values from a given {@link Message}.
  *
- * @author elliottpope
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public final class JMSHeaders {
 
     private static final int MIN_PRIORITY = 0;
     private static final int MAX_PRIORITY = 9;
 
-    /***
-     * Name of the JMS Correlation ID header. Specifies an ID so that the {@link Message} can be linked to other
-     *      messages.
+    /**
+     * Name of the Correlation ID header. Specifies an ID so the {@link Message}
+     * can be linked to other messages.
      *
      * @see Message#getJMSCorrelationID()
      */
     public static final String JMS_CORRELATION_ID = "JMSCorrelationID";
 
+    /**
+     * Name of the Delivery Mode header.
+     *
+     * @see Message#getJMSDeliveryMode()
+     */
     public static final String JMS_DELIVERY_MODE = "JMSDeliveryMode";
 
+    /**
+     * Name of the Delivery Time header.
+     *
+     * Note: Only available when using a JMS 2.0 provider.
+     *
+     * @see Message#getJMSDeliveryTime()
+     */
     public static final String JMS_DELIVERY_TIME = "JMSDeliveryTime";
 
-    /***
-     * Name of the JMS Destination header. Specifying the destination of a {@link Message} or where it was received from.
+    /**
+     * Name of the Destination header. Specifies the destination of a
+     * {@link Message} or where it was received from.
      *
      * @see Message#getJMSDestination()
      */
     public static final String JMS_DESTINATION = "JMSDestination";
 
+    /**
+     * Name of the Expiration header.
+     *
+     * @see Message#getJMSExpiration()
+     */
     public static final String JMS_EXPIRATION = "JMSExpiration";
 
-    /***
-     * Name of the JMS ID header. Specifies a unique ID for a {@link Message}.
+    /**
+     * Name of the ID header. Specifies a unique ID for a {@link Message}.
      *
      * @see Message#getJMSMessageID()
      */
     public static final String JMS_MESSAGE_ID = "JMSMessageID";
 
+    /**
+     * Name of the Priority header.
+     *
+     * @see Message#getJMSPriority()
+     */
     public static final String JMS_PRIORITY = "JMSPriority";
 
+    /**
+     * Name of the Redelivered header.
+     *
+     * @see Message#getJMSRedelivered()
+     */
     public static final String JMS_REDELIVERED = "JMSRedelivered";
 
+    /**
+     * Name of the Reply To header.
+     *
+     * @see Message#getJMSReplyTo()
+     */
     public static final String JMS_REPLY_TO = "JMSReplyTo";
 
+    /**
+     * Name of the Timestamp header.
+     *
+     * @see Message#getJMSTimestamp()
+     */
     public static final String JMS_TIMESTAMP = "JMSTimestamp";
 
-    /***
-     * Name of the JMS Type header.
+    /**
+     * Name of the Type header.
      *
      * @see Message#getJMSType()
      */
@@ -93,25 +131,25 @@ public final class JMSHeaders {
     private JMSHeaders() {
     }
 
-    /***
-     * @param headerName - the name of the header to test.
-     * @return true if the given {@param headerName} is a supported JMS Header name, false otherwise.
+    /**
+     * @param headerName the name of the header to test.
+     * @return true if the given {@code headerName} is a supported JMS Header name
      */
     public static boolean isJMSHeader(String headerName) {
         return ALL_HEADER_NAMES.contains(headerName);
     }
 
-    /***
+    /**
+     * Attempts to retrieve the value of the header given by {@code headerName}
+     * from the given {@code message}. Returns null if no value is present, or
+     * an exception occurs when extracting the header.
      *
-     * Attempts to retrieve the value of the header given by {@param headerName} from the given {@param message}.
-     *      If no value is present, or there is some error extracting the header, then the result will be null.
-     *
-     * @param headerName - the name of the header to be extracted.
-     * @param message - the {@link Message} to extract the header from.
-     * @param clazz - the expected class of the header value.
-     * @param <T> - the expected class of the header value.
-     * @return the value of the header on the given {@param message} specified by {@param headerName} as an object
-     *      of type {@param clazz}.
+     * @param headerName the name of the header to be extracted.
+     * @param message    the {@link Message} to extract the header from.
+     * @param clazz      the expected class of the header value.
+     * @param <T>        the expected class of the header value.
+     * @return the value of the header on the given {@code message} specified
+     * by {@code headerName} as an object of type {@code clazz}.
      */
     public static @Nullable <T> T getHeader(String headerName,
                                             Message message,

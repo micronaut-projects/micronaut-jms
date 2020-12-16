@@ -29,12 +29,12 @@ import io.micronaut.jms.util.Assert;
 
 import javax.jms.ConnectionFactory;
 
-/***
+/**
+ * Creates a {@link JMSConnectionPool} from each registered
+ * {@link ConnectionFactory} in the context.
  *
- * Factory for generating {@link JMSConnectionPool} from each registered {@link ConnectionFactory} in the context.
- *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Context
 @Factory
@@ -51,7 +51,7 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
         final Object candidate = context.getBean(beanDefinition);
         Assert.isTrue(candidate instanceof ConnectionFactory,
             () -> "@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
-                "Provided class was " + candidate.getClass().getName());
+            "Provided class was " + candidate.getClass().getName());
 
         final ConnectionFactory connectionFactory = (ConnectionFactory) candidate;
         final String name = beanDefinition.stringValue(JMSConnectionFactory.class)

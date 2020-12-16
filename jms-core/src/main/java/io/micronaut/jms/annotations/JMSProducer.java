@@ -30,24 +30,23 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/***
- *
- * Annotation for declaring a class for post-processing. Any class annotated with {@link JMSProducer} must contain at
- *  least one method annotated with {@link Queue} or {@link Topic} or else an {@link IllegalStateException} will be thrown.
- *
- * Additionally, the value specified by the {@link JMSProducer} must correspond to exactly one {@link JMSConnectionFactory}
- *  or else an {@link IllegalStateException} will be thrown.
- *
+/**
+ * Declares a class for post-processing. Annotated classes must contain at
+ * least one method annotated with {@link Queue} or {@link Topic}, otherwise an
+ * {@link IllegalStateException} will be thrown.
+ * <p>
+ * Additionally, the value specified by the {@link JMSProducer} must correspond
+ * to exactly one {@link JMSConnectionFactory} or an {@link IllegalStateException}
+ * will be thrown.
+ * <p>
  * Usage:
  * <pre>
- *     {@code
- * @JMSConnectionFactory("connectionFactoryOne")
+ * &#64;JMSConnectionFactory("connectionFactoryOne")
  * public ConnectionFactory connectionFactoryOne() {
  *     return new ActiveMqConnectionFactory("vm://localhost?broker.persist=false");
  * }
  *
- *
- * @JMSConnectionFactory("connectionFactoryTwo")
+ * &#64;JMSConnectionFactory("connectionFactoryTwo")
  * public ConnectionFactory connectionFactoryTwo() {
  *     RMQConnectionFactory connectionFactory = new RMQConnectionFactory();
  *     connectionFactory.setUsername("guest");
@@ -58,26 +57,25 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *     return connectionFactory;
  * }
  *
- * @JMSProducer("connectionFactoryOne")
+ * &#64;JMSProducer("connectionFactoryOne")
  * public interface ProducerOne {
- *      @Queue("my-activemq-queue")
+ *      &#64;Queue("my-activemq-queue")
  *      public void send(String message) {
  *          // do logic
  *      }
  * }
  *
- * @JMSProducer("connectionFactoryTwo")
+ * &#64;JMSProducer("connectionFactoryTwo")
  * public interface ProducerTwo {
- *      @Queue("my-rabbitmq-queue")
+ *      &#64;Queue("my-rabbitmq-queue")
  *      public void notify(Integer message) {
  *          // do logic
  *      }
  * }
- *     }
  * </pre>
  *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Documented
 @Retention(RUNTIME)
@@ -89,12 +87,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @DefaultScope(Singleton.class)
 public @interface JMSProducer {
 
-    /***
-     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
-     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
-     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+    /**
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to
+     * use to configure the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * The name must correspond to a bean annotated with {@link JMSConnectionFactory}
+     * and the values must be the same.
      *
-     * @return the name of the {@link JMSConnectionFactory} to use.
+     * @return the name of the {@link JMSConnectionFactory} to use
      */
     String value();
 }

@@ -17,10 +17,31 @@ package io.micronaut.jms.serdes;
 
 import javax.jms.Message;
 
+/**
+ * Extracts a {@link Message} body to an instance of the specified type.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public interface Deserializer {
+
+    /**
+     * Extract the body of the message into a sensible type.
+     *
+     * @param message the message
+     * @return the extracted message body as an instance of a sensible type
+     */
     default Object deserialize(Message message) {
         return deserialize(message, Object.class);
     }
 
+    /**
+     * Extract the body of the message into the specified type.
+     *
+     * @param message the message
+     * @param clazz the type
+     * @param <T> the type
+     * @return the extracted message body as an instance of the specified type
+     */
     <T> T deserialize(Message message, Class<T> clazz);
 }

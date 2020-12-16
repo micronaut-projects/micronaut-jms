@@ -13,26 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.jms.serdes;
-
-import javax.jms.Message;
-import javax.jms.Session;
-
 /**
- * Serializes an object into a {@link Message}.
+ * Configuration classes.
  *
- * @param <T> the object type
- * @author Elliott Pope
  * @since 1.0.0
  */
-public interface Serializer<T> {
-
-    /**
-     * Create a message from the input.
-     *
-     * @param session the JMS session
-     * @param input the message input
-     * @return the message
-     */
-    Message serialize(Session session, T input);
-}
+package io.micronaut.jms.configuration;

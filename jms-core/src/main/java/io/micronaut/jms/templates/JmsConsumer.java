@@ -35,6 +35,14 @@ import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
+/**
+ * Helper class that receives messages, configuring JMS connections, sessions,
+ * etc. for you.
+ *
+ * TODO rename with JmsProducer
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public class JmsConsumer {
 
     private final JMSDestinationType type;
@@ -66,18 +74,14 @@ public class JmsConsumer {
         this.sessionAcknowledgeMode = sessionAcknowledgeMode;
     }
 
-    /***
+    /**
+     * Receives a {@link Message} from the broker and and converts it to
+     * an instance of type {@code <T>}.
      *
-     * Receives a {@link Message} from the broker and and converts it
-     *      to instance of type {@param <T>}.
-     *
-     * @param destination
-     * @param clazz
-     * @param <T>
-     *
-     * @return the message from the broker as an object instance of type {@param <T>}.
-     *
-     * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
+     * @param destination the queue or topic name
+     * @param clazz       the class
+     * @param <T>         the class type
+     * @return the message from the broker as an object instance of type {@code <T>}.
      */
     public <T> T receive(@NonNull String destination,
                          Class<T> clazz) {

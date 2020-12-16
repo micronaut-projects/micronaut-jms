@@ -30,17 +30,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-/***
- * An {@link ArgumentBinderRegistry} for all implementations of {@link ArgumentBinder} capable of binding a
- *      {@link Message}.
+/**
+ * An {@link ArgumentBinderRegistry} for all implementations of
+ * {@link ArgumentBinder} capable of binding a {@link Message}.
  *
+ * @author Elliott Pope
  * @see HeaderArgumentBinder
  * @see BodyArgumentBinder
- * @see AbstractChainedArgumentBinder
  * @see io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor
- *
- * @author elliott
- * @since 1.0
+ * @since 1.0.0
  */
 @Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
