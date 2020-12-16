@@ -21,6 +21,8 @@ import io.micronaut.core.bind.annotation.Bindable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import static io.micronaut.jms.configuration.properties.JMSConfigurationProperties.PREFIX;
+
 /***
  * Generic configuration properties for global Micronaut JMS properties.
  *
@@ -33,8 +35,14 @@ import javax.validation.constraints.NotNull;
  * @author elliott
  * @since 1.0
  */
-@ConfigurationProperties("micronaut.jms")
+@ConfigurationProperties(PREFIX)
 public interface JMSConfigurationProperties {
+
+    /**
+     * Prefix for JMS settings.
+     */
+    String PREFIX = "micronaut.jms";
+
 
     /***
      * @return the initial size of the {@link io.micronaut.jms.pool.JMSConnectionPool},

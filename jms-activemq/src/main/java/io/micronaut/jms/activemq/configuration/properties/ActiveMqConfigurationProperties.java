@@ -17,8 +17,11 @@ package io.micronaut.jms.activemq.configuration.properties;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
+
+import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties.PREFIX;
 
 /***
  * Configuration properties for creating the {@link io.micronaut.jms.annotations.JMSConnectionFactory}.
@@ -28,9 +31,14 @@ import javax.validation.constraints.NotBlank;
  * @author elliott
  * @since 1.0
  */
-@ConfigurationProperties("micronaut.jms.activemq")
-@Requires(property = "micronaut.jms.activemq.enabled", value = "true")
+@ConfigurationProperties(PREFIX)
+@Requires(property = PREFIX + ".enabled", value = "true")
 public interface ActiveMqConfigurationProperties {
+
+    /**
+     * Prefix for ActiveMQ JMS settings.
+     */
+    String PREFIX = JMSConfigurationProperties.PREFIX + ".activemq";
 
     /***
      * @return true if the Micronaut JMS ActiveMQ implementation should be activated.
