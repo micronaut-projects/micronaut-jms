@@ -22,8 +22,9 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import io.micronaut.messaging.exceptions.MessagingClientException;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
@@ -38,8 +39,6 @@ import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
 public class JmsProducer<T> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JmsProducer.class);
 
     private final JMSDestinationType type;
     private final JMSConnectionPool connectionPool;
@@ -86,8 +85,8 @@ public class JmsProducer<T> {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(destination, serializer.serialize(session, body), headers);
-        } catch (JMSException e) {
-            e.printStackTrace();
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message to " + destination, e);
         }
     }
 
@@ -124,8 +123,8 @@ public class JmsProducer<T> {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, destination, message, headers);
-        } catch (JMSException e) {
-            LOGGER.error("Exception occurred while sending message ", e);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message ", e);
         }
     }
 
@@ -146,9 +145,16 @@ public class JmsProducer<T> {
             if (sessionTransacted) {
                 session.commit();
             }
-        } catch (JMSException e) {
-            session.rollback();
-            LOGGER.error("Error sending the message.", e);
+        } catch (JMSException | RuntimeException e) {
+            if (sessionTransacted) {
+                try {
+                    session.rollback();
+                } catch (JMSException | RuntimeException e2) {
+                    throw new MessageListenerException(
+                        "Problem rolling back transaction", e2);
+                }
+            }
+            throw new MessagingClientException("Problem sending the message", e);
         }
     }
 
@@ -158,10 +164,10 @@ public class JmsProducer<T> {
             return type == QUEUE ?
                 session.createQueue(destination) :
                 session.createTopic(destination);
-        } catch (JMSException e) {
-            e.printStackTrace();
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException("Problem creating " +
+                type.name().toLowerCase() + " '" + destination + "'", e);
         }
-        return null;
     }
 
     private Session createSession(Connection connection) throws JMSException {

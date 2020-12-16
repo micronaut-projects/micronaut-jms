@@ -92,7 +92,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .map(Argument::getName)
             .findFirst()
             .orElseThrow(() -> new ConfigurationException(
-                "At least one argument must not have an annotation present"));
+                "At least one argument (the message body) must not have an annotation present"));
 
         String serializerName = method.stringValue(annotationType, "serializer").orElse(null);
         Serializer<?> serializer = serializerName == null

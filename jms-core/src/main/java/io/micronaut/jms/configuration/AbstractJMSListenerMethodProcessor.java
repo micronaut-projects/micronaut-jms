@@ -16,7 +16,6 @@
 package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
-import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
@@ -32,6 +31,7 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,6 @@ import java.lang.annotation.Annotation;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
 /***
@@ -54,9 +53,10 @@ import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
  *
  * @param <T>
  */
-public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> implements ExecutableMethodProcessor<T> {
+public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
+    implements ExecutableMethodProcessor<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJMSListenerMethodProcessor.class);
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final BeanContext beanContext;
 
@@ -120,9 +120,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
                 try {
                     message.acknowledge();
                 } catch (JMSException e) {
-                    LOGGER.error(
-                        "Failed to acknowledge receipt of message with the broker. This message may be falsely retried.",
-                        e);
+                    logger.error("Failed to acknowledge receipt of message with the broker. " +
+                        "This message may be falsely retried.", e);
+                    throw new MessageAcknowledgementException(e.getMessage(), e);
                 }
             }
         });

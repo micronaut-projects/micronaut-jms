@@ -15,8 +15,7 @@
  */
 package io.micronaut.jms.pool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -35,8 +34,6 @@ import javax.jms.Session;
  */
 public class MessageProducerPool extends AbstractPool<PooledObject<MessageProducer>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducerPool.class);
-
     private final Session session;
 
     public MessageProducerPool(int initialSize,
@@ -50,9 +47,8 @@ public class MessageProducerPool extends AbstractPool<PooledObject<MessageProduc
     protected PooledObject<MessageProducer> create(Object... args) {
         try {
             return new PooledProducer(this, session.createProducer((Destination) args[0]));
-        } catch (JMSException e) {
-            LOGGER.error("failed to create Producer for pool.", e);
-            return null;
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem creating a MessageProducer", e);
         }
     }
 

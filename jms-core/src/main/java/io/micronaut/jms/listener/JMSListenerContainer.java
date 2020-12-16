@@ -18,6 +18,7 @@ package io.micronaut.jms.listener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
+import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,8 +124,9 @@ public class JMSListenerContainer<T> {
                             new LinkedBlockingQueue<>(DEFAULT_EXECUTOR_QUEUE_SIZE),
                             Executors.defaultThreadFactory())),
                     clazz));
-        } catch (JMSException e) {
-            LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessageListenerException(
+                "Problem registering a MessageConsumer for " + destination, e);
         }
     }
 
@@ -163,14 +165,17 @@ public class JMSListenerContainer<T> {
                     if (transacted) {
                         try {
                             session.rollback();
-                        } catch (JMSException jmsException) {
-                            LOGGER.error("Failed to rollback transaction due to an error.", jmsException);
+                        } catch (JMSException | RuntimeException e2) {
+                            throw new MessageListenerException(
+                                "Problem rolling back transaction", e2);
                         }
                     }
+                    throw new MessageListenerException(e.getMessage(), e);
                 }
             });
-        } catch (JMSException e) {
-            LOGGER.error("An error occurred while registering a MessageConsumer for " + destination, e);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessageListenerException(
+                "Problem registering a MessageConsumer for " + destination, e);
         }
     }
 
@@ -187,9 +192,9 @@ public class JMSListenerContainer<T> {
         for (Connection connection : openConnections) {
             try {
                 connection.stop();
-            } catch (JMSException e) {
+            } catch (JMSException | RuntimeException e) {
                 success.set(false);
-                LOGGER.error("Failed to stop connection die to an error", e);
+                LOGGER.error("Failed to stop connection", e);
             }
         }
         return success.get();

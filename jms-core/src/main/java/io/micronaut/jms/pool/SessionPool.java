@@ -15,12 +15,12 @@
  */
 package io.micronaut.jms.pool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import java.util.Arrays;
 
 /***
  * Pool for ensuring maximum reuse of {@link Session}s within an application.
@@ -31,8 +31,6 @@ import javax.jms.Session;
  * @author elliott
  */
 public class SessionPool extends AbstractPool<PooledObject<Session>> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionPool.class);
 
     private final Connection connection;
     private final MessageProducerPoolFactory producerPoolFactory;
@@ -58,13 +56,12 @@ public class SessionPool extends AbstractPool<PooledObject<Session>> {
                 session = connection.createSession((Boolean) args[0], (Integer) args[1]);
             } else {
                 throw new IllegalArgumentException(
-                    "Cannot create a Session from provided arguments.");
+                    "Unable to create a Session from arguments " + Arrays.toString(args));
             }
 
             return new PooledSession(this, session, producerPoolFactory.getProducerPool(session));
-        } catch (JMSException e) {
-            LOGGER.error("Failed to create session for the pool.", e);
-            return null;
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException("Problem creating a Session", e);
         }
     }
 

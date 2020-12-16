@@ -18,8 +18,8 @@ package io.micronaut.jms.serdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.jms.model.MessageType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -33,8 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSerializerDeserializer.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
@@ -66,10 +64,9 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
-        } catch (JMSException | JsonProcessingException e) {
-            LOGGER.error("Failed to deserialize message " + message + " due to an error.", e);
+        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+            throw new MessageListenerException("Problem deserializing message " + message, e);
         }
-        throw new IllegalArgumentException("Failed to deserialize message " + message);
     }
 
     @SuppressWarnings("unchecked")
@@ -119,10 +116,9 @@ public class DefaultSerializerDeserializer implements Serializer<Object>, Deseri
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + input);
             }
-        } catch (JMSException | JsonProcessingException e) {
-            LOGGER.error("Failed to serialize input " + input + " due to an error.", e);
+        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+            throw new MessagingClientException("Problem serializing input " + input, e);
         }
-        throw new IllegalArgumentException("Failed to serialize input " + input);
     }
 
     private MapMessage serializeMap(final Session session,

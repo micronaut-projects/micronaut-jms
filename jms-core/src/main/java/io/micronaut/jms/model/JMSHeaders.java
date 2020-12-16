@@ -15,8 +15,7 @@
  */
 package io.micronaut.jms.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import javax.annotation.Nullable;
 import javax.jms.Destination;
@@ -85,8 +84,6 @@ public final class JMSHeaders {
      */
     public static final String JMS_TYPE = "JMSType";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JMSHeaders.class);
-
     private static final Set<String> ALL_HEADER_NAMES = new HashSet<>(Arrays.asList(
         JMS_CORRELATION_ID, JMS_DELIVERY_MODE, JMS_DELIVERY_TIME,
         JMS_DESTINATION, JMS_EXPIRATION, JMS_MESSAGE_ID, JMS_PRIORITY,
@@ -124,13 +121,12 @@ public final class JMSHeaders {
                 return getJMSHeader(headerName, message, clazz);
             }
             return getClientProvidedHeader(headerName, message, clazz);
-        } catch (JMSException e) {
-            LOGGER.error("Failed to extract the header: " + headerName, e);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException(
+                "Problem extracting header '" + headerName + "'", e);
         }
-        return null;
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> T getJMSHeader(String headerName,
                                       Message message,
                                       Class<T> clazz) throws JMSException {
@@ -158,7 +154,7 @@ public final class JMSHeaders {
             case JMS_TYPE:
                 return getTypeHeader(message, clazz);
             default:
-                throw new IllegalArgumentException("No action defined for JMSHeader " + headerName);
+                throw new IllegalArgumentException("No action defined for JMS header '" + headerName + "'");
         }
     }
 
@@ -236,7 +232,7 @@ public final class JMSHeaders {
             .filter(clazz -> clazz.isAssignableFrom(givenClass))
             .findAny()
             .orElseThrow(() -> new IllegalArgumentException(
-                "Cannot convert " + headerName + " to " + givenClass.getName()));
+                "Cannot convert header '" + headerName + "' to " + givenClass.getName()));
     }
 
     @SuppressWarnings("unchecked")
@@ -258,6 +254,7 @@ public final class JMSHeaders {
         return (T) (Destination.class.isAssignableFrom(clazz) ? value : value.toString());
     }
 
+    @SuppressWarnings("unchecked")
     private static <T> T getClientProvidedHeader(String headerName,
                                                  Message message,
                                                  Class<T> clazz) throws JMSException {

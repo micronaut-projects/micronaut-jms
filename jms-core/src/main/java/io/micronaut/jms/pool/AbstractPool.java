@@ -44,7 +44,7 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
     public T request(Object... args) {
         if (pool.isEmpty()) {
             if (active.size() >= maxSize) {
-                throw new RuntimeException("Max Pool size reached.");
+                throw new IllegalStateException("Maximum pool size reached");
             }
             pool.add(create(args));
         }

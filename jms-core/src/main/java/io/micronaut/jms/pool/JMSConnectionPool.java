@@ -15,6 +15,8 @@
  */
 package io.micronaut.jms.pool;
 
+import io.micronaut.messaging.exceptions.MessagingSystemException;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSContext;
@@ -47,10 +49,9 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
             Connection connection = connectionFactory.createConnection();
             connection.start();
             return new PooledConnection(connection, this);
-        } catch (JMSException e) {
-            e.printStackTrace();
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException("Problem creating pooled Connection", e);
         }
-        return null;
     }
 
     @Override
@@ -76,7 +77,7 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     public Connection createConnection(String userName,
                                        String password) throws JMSException {
         throw new UnsupportedOperationException("Cannot request a Connection with credentials. " +
-            "All credentials should be configured in the ConnectionFactory");
+            "All credentials must be configured in the ConnectionFactory");
     }
 
     @Override

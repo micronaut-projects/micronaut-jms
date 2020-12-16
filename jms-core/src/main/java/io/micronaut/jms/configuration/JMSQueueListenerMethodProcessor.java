@@ -54,12 +54,12 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         if (executorName.isPresent() && !executorName.get().isEmpty()) {
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                 .orElseThrow(() -> new IllegalStateException(
-                    "There is no configured executor service for " + executorName.get()));
+                    "No ExecutorService bean found with name " + executorName.get()));
         }
 
         final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency
             .orElseThrow(() -> new IllegalStateException(
-                "If executor is not specified then concurrency must be specified")));
+                "Concurrency must be specified if ExecutorService is not specified")));
         Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
             () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
                 "Concurrency provided was " + concurrency.get());

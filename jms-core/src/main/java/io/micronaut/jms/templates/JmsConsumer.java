@@ -20,6 +20,8 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import javax.annotation.Nullable;
 import javax.jms.Connection;
@@ -83,10 +85,9 @@ public class JmsConsumer {
              Session session = createSession(connection)) {
             connection.start();
             return deserializer.deserialize(receive(session, lookupDestination(destination)), clazz);
-        } catch (JMSException e) {
-            e.printStackTrace();
+        } catch (JMSException | RuntimeException e) {
+            throw new MessageListenerException("Problem receiving message", e);
         }
-        return null;
     }
 
     /**
@@ -107,7 +108,7 @@ public class JmsConsumer {
 
     @Nullable
     private Message receive(@NonNull Session session,
-                            @NonNull Destination destination) {
+                            @NonNull Destination destination) throws JMSException {
         try (MessageConsumer consumer = session.createConsumer(destination)) {
             Message message = consumer.receive();
             if (sessionTransacted) {
@@ -117,10 +118,7 @@ public class JmsConsumer {
                 message.acknowledge();
             }
             return message;
-        } catch (JMSException e) {
-            e.printStackTrace();
         }
-        return null;
     }
 
     private Destination lookupDestination(String destination) {
@@ -129,10 +127,10 @@ public class JmsConsumer {
             return type == QUEUE ?
                 session.createQueue(destination) :
                 session.createTopic(destination);
-        } catch (JMSException e) {
-            e.printStackTrace();
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException(
+                "Problem looking up destination " + destination, e);
         }
-        return null;
     }
 
     private Session createSession(Connection connection) throws JMSException {
