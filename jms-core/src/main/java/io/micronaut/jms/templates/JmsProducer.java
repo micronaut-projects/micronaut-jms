@@ -137,11 +137,7 @@ public class JmsProducer {
         try (MessageProducer producer = session.createProducer(destination)) {
 
             for (MessageHeader header : headers) {
-                if (header.isJMSHeader()) {
-                    header.setJMSHeader(message);
-                } else {
-                    header.setHeader(message);
-                }
+                header.apply(message);
             }
 
             producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), DEFAULT_TIME_TO_LIVE);

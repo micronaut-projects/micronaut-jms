@@ -15,15 +15,18 @@
  */
 package io.micronaut.jms.model;
 
+import io.micronaut.messaging.exceptions.MessagingClientException;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
+
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
+import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO;
 import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
 
 /***
@@ -38,42 +41,37 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
  */
 public class MessageHeader {
 
-    private static final Map<String, BiConsumer<Message, String>> JMS_HEADER_OPERATIONS = new HashMap<>();
+    private static final Map<String, BiConsumer<Message, Object>> JMS_HEADER_OPERATIONS = new HashMap<>();
 
     static {
         JMS_HEADER_OPERATIONS.put(JMS_CORRELATION_ID, (message, value) -> {
+            checkArgumentType(value, String.class);
             try {
-                message.setJMSCorrelationID(value);
-            } catch (JMSException e) {
-                // log error
+                message.setJMSCorrelationID((String) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSCorrelationID header", e);
             }
         });
-        JMS_HEADER_OPERATIONS.put("JMSMessageID", (message, value) -> {
+        JMS_HEADER_OPERATIONS.put(JMS_REPLY_TO, (message, value) -> {
+            checkArgumentType(value, Destination.class);
             try {
-                message.setJMSMessageID(value);
-            } catch (JMSException e) {
-                // log error
+                message.setJMSReplyTo((Destination) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSReplyTo header", e);
             }
         });
         JMS_HEADER_OPERATIONS.put(JMS_TYPE, (message, value) -> {
+            checkArgumentType(value, String.class);
             try {
-                message.setJMSType(value);
-            } catch (JMSException e) {
-                // log error
-            }
-        });
-        JMS_HEADER_OPERATIONS.put("JMSDeliveryTime", (message, value) -> {
-            try {
-                message.setJMSDeliveryTime(LocalDateTime.parse(value)
-                        .toEpochSecond(ZoneOffset.UTC));
-            } catch (JMSException e) {
-                // log error
+                message.setJMSType((String) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSType header", e);
             }
         });
     }
 
     private final String key;
-    private final String value;
+    private final Object value;
     private final boolean isJmsHeader;
 
     /***
@@ -82,17 +80,10 @@ public class MessageHeader {
      * @param key - the name of the header.
      * @param value - the value for the header.
      */
-    public MessageHeader(String key, String value) {
+    public MessageHeader(String key, Object value) {
         this.key = key;
         this.value = value;
         isJmsHeader = JMS_HEADER_OPERATIONS.containsKey(key);
-    }
-
-    /***
-     * @return true if the {@param key} is a JMS Header. Returns false if not.
-     */
-    public boolean isJMSHeader() {
-        return isJmsHeader;
     }
 
     /***
@@ -104,21 +95,24 @@ public class MessageHeader {
      *
      * @param message
      */
-    public void setJMSHeader(Message message) {
-        JMS_HEADER_OPERATIONS.get(key).accept(message, value);
+    public void apply(Message message) {
+        if (isJmsHeader) {
+            JMS_HEADER_OPERATIONS.get(key).accept(message, value);
+        }
+        else {
+            try {
+                message.setObjectProperty(key, value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingClientException(
+                    "Problem setting message property '" + key + "' (non-JMS header)", e);
+            }
+        }
     }
 
-    /***
-     * Attempts to set a {@link String} property on the provided
-     *      {@link Message}.
-     *
-     * @param message
-     */
-    public void setHeader(Message message) {
-        try {
-            message.setStringProperty(key, value);
-        } catch (JMSException e) {
-            // log error
+    private static void checkArgumentType(Object value, Class<?> clazz) {
+        if (value != null && !clazz.isAssignableFrom(value.getClass())) {
+            throw new IllegalArgumentException(
+                    "Cannot convert " + value + " to " + clazz.getName());
         }
     }
 }

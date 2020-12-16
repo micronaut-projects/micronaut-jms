@@ -109,8 +109,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                     .stringValue()
                     .orElseThrow(() -> new IllegalArgumentException(
                         "@Header annotation on argument '" + argName + "' must have a name"));
-                String headerValue = String.valueOf(parameterValueMap.get(argName));
-                return new MessageHeader(headerName, headerValue);
+                return new MessageHeader(headerName, parameterValueMap.get(argName));
             }).toArray(MessageHeader[]::new);
 
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
