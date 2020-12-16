@@ -27,7 +27,6 @@ import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.Header;
 
@@ -93,10 +92,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
             JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
-            JmsProducer producer = new JmsProducer(QUEUE);
-            producer.setConnectionPool(pool);
-            producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+            JmsProducer producer = new JmsProducer(QUEUE, pool);
             producer.send(queueName, context.getParameterValueMap().get(messageArgumentName), headers);
             return null;
         }
@@ -126,10 +122,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
             JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
-            JmsProducer producer = new JmsProducer(TOPIC);
-            producer.setConnectionPool(pool);
-            producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+            JmsProducer producer = new JmsProducer(TOPIC, pool);
             producer.send(topicName, context.getParameterValueMap().get(messageArgumentName), headers);
             return null;
         }

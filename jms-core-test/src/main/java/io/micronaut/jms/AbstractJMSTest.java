@@ -25,7 +25,6 @@ import io.micronaut.jms.listener.JMSListenerContainer;
 import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.templates.JmsConsumer;
 import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.Body;
@@ -74,16 +73,10 @@ public abstract class AbstractJMSTest {
     @Test
     public void testSendMessage() {
 
-        final JmsProducer producer = new JmsProducer(QUEUE);
-        producer.setConnectionPool(pool);
-        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsProducer producer = new JmsProducer(QUEUE, pool);
         producer.send("test-queue", "test-message");
 
-        final JmsConsumer consumer = new JmsConsumer(QUEUE);
-        consumer.setConnectionPool(pool);
-        consumer.setDeserializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsConsumer consumer = new JmsConsumer(QUEUE, pool);
         final String message = consumer.receive("test-queue", String.class);
 
         assertNotNull(message, "Message must not be null");
@@ -107,10 +100,7 @@ public abstract class AbstractJMSTest {
 
         producer.send(message);
 
-        final JmsConsumer consumer = new JmsConsumer(QUEUE);
-        consumer.setConnectionPool(pool);
-        consumer.setDeserializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsConsumer consumer = new JmsConsumer(QUEUE, pool);
         MessageObject received = consumer.receive("test-queue-3", MessageObject.class);
 
         assertEquals(1, received.getId());
@@ -126,19 +116,14 @@ public abstract class AbstractJMSTest {
     @Test
     public void testListener() throws InterruptedException {
 
-        final JmsProducer producer = new JmsProducer(QUEUE);
-        producer.setConnectionPool(pool);
-        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsProducer producer = new JmsProducer(QUEUE, pool);
         for (int i = 2; i < 100; i++) {
             producer.send("test-queue-3", "test-message-" + i);
         }
 
         final CountDownLatch latch = new CountDownLatch(98);
 
-        final JMSListenerContainer<String> listener = new JMSListenerContainer<>(pool, QUEUE);
-        listener.setThreadPoolSize(10);
-        listener.setMaxThreadPoolSize(20);
+        final JMSListenerContainer<String> listener = new JMSListenerContainer<>(pool, QUEUE, 10, 20);
         listener.registerListener("test-queue-3", message -> {
             System.err.println("Received message " + message +
                 " on thread " + Thread.currentThread().getName() +
@@ -169,10 +154,7 @@ public abstract class AbstractJMSTest {
             listenerFactory.getRegisteredListener("test-queue-2"),
             "Listener is null");
 
-        final JmsProducer producer = new JmsProducer(QUEUE);
-        producer.setConnectionPool(pool);
-        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsProducer producer = new JmsProducer(QUEUE, pool);
         for (int i = 0; i < 100; i++) {
             producer.send("test-queue-2", "test-message-" + i,
                 new MessageHeader(JMS_CORRELATION_ID, "test-corr-id"),
@@ -199,10 +181,7 @@ public abstract class AbstractJMSTest {
             listenerFactory.getRegisteredListener("my-topic"),
             "Listener is null");
 
-        final JmsProducer producer = new JmsProducer(TOPIC);
-        producer.setConnectionPool(pool);
-        producer.setSerializer(DefaultSerializerDeserializer.getInstance());
-
+        final JmsProducer producer = new JmsProducer(TOPIC, pool);
         for (int i = 0; i < 100; i++) {
             producer.send("my-topic", "test-message-" + i,
                 new MessageHeader(JMS_PRIORITY, Integer.toString(2)),

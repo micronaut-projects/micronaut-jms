@@ -17,6 +17,7 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,12 +57,10 @@ public class JMSListenerContainer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
 
-    private final JMSConnectionPool connectionPool;
-
     private final Set<Connection> openConnections = new HashSet<>();
-    private int threadPoolSize;
-    private int maxThreadPoolSize;
-
+    private final JMSConnectionPool connectionPool;
+    private final int threadPoolSize;
+    private final int maxThreadPoolSize;
     private final JMSDestinationType type;
 
     /***
@@ -72,31 +71,22 @@ public class JMSListenerContainer<T> {
      * @param type - either {@link JMSDestinationType#QUEUE} or {@link JMSDestinationType#TOPIC}.
      */
     public JMSListenerContainer(JMSConnectionPool connectionPool,
-                                JMSDestinationType type) {
+                                JMSDestinationType type,
+                                int threadPoolSize) {
+        this(connectionPool, type, threadPoolSize, threadPoolSize);
+    }
+
+    public JMSListenerContainer(JMSConnectionPool connectionPool,
+                                JMSDestinationType type,
+                                int threadPoolSize,
+                                int maxThreadPoolSize) {
+
+        Assert.isTrue(maxThreadPoolSize >= threadPoolSize,
+            "maxThreadPoolSize cannot be smaller than the threadPoolSize");
+
         this.connectionPool = connectionPool;
         this.type = type;
-    }
-
-    /***
-     *
-     * Sets the minimum core thread pool size for the listener container.
-     *
-     * @param threadPoolSize
-     */
-    public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
-        this.maxThreadPoolSize = Math.max(maxThreadPoolSize, threadPoolSize);
-    }
-
-    /***
-     * Sets the maximum number of threads that can handle incoming requests.
-     *
-     * @param maxThreadPoolSize
-     */
-    public void setMaxThreadPoolSize(int maxThreadPoolSize) {
-        if (maxThreadPoolSize < this.threadPoolSize) {
-            throw new IllegalArgumentException("maxThreadPoolSize cannot be smaller than the threadPoolSize");
-        }
         this.maxThreadPoolSize = maxThreadPoolSize;
     }
 

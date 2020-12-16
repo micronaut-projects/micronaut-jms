@@ -19,19 +19,18 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import java.util.Optional;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
@@ -42,62 +41,33 @@ public class JmsProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JmsProducer.class);
 
-    @Nullable
-    private JMSConnectionPool connectionPool;
-    private Serializer<Object> serializer;
-    private boolean sessionTransacted = false;
-    private int sessionAcknowledgeMode = AUTO_ACKNOWLEDGE;
     private final JMSDestinationType type;
+    private final JMSConnectionPool connectionPool;
+    private final Serializer<Object> serializer;
+    private final boolean sessionTransacted;
+    private final int sessionAcknowledgeMode;
 
-    public JmsProducer(JMSDestinationType type) {
-        this.type = type;
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool) {
+        this(type, connectionPool, DefaultSerializerDeserializer.getInstance());
     }
 
     public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Serializer<Object> serializer) {
+        this(type, connectionPool, serializer, false, AUTO_ACKNOWLEDGE);
+    }
+
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Serializer<Object> serializer,
                        boolean sessionTransacted,
                        int sessionAcknowledgeMode) {
         this.type = type;
+        this.connectionPool = connectionPool;
+        this.serializer = serializer;
         this.sessionTransacted = sessionTransacted;
         this.sessionAcknowledgeMode = sessionAcknowledgeMode;
-    }
-
-    /***
-     * @return the {@link JMSConnectionPool} configured for the producer.
-     */
-    public JMSConnectionPool getConnectionPool() {
-        return Optional.ofNullable(connectionPool)
-            .orElseThrow(() -> new IllegalStateException("Connection Pool cannot be null"));
-    }
-
-    /***
-     *
-     * Sets the {@link JMSConnectionPool} to be used by the producer.
-     *
-     * @param connectionPool
-     */
-    public void setConnectionPool(@Nullable JMSConnectionPool connectionPool) {
-        this.connectionPool = connectionPool;
-    }
-
-    /***
-     *
-     * Sets the {@link Serializer} to be used by the producer to
-     *      convert the {@link Object} into an {@link Message}.
-     *
-     * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
-     *
-     * @param serializer
-     */
-    public void setSerializer(Serializer<Object> serializer) {
-        this.serializer = serializer;
-    }
-
-    /***
-     * @return the {@link Serializer} to be used by the producer.
-     */
-    public Serializer<Object> getSerializer() {
-        return Optional.ofNullable(serializer)
-            .orElseThrow(() -> new IllegalStateException("Serializer cannot be null"));
     }
 
     /***
@@ -112,9 +82,9 @@ public class JmsProducer {
     public void send(@NonNull String destination,
                      @NonNull Object body,
                      MessageHeader... headers) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
-            send(destination, getSerializer().serialize(session, body), headers);
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
+            send(destination, serializer.serialize(session, body), headers);
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -150,8 +120,8 @@ public class JmsProducer {
         Assert.notNull(destination, "Destination cannot be null");
         Assert.notNull(message, "Message cannot be null");
 
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
             send(session, destination, message, headers);
         } catch (JMSException e) {
             LOGGER.error("Exception occurred while sending message ", e);
@@ -186,8 +156,8 @@ public class JmsProducer {
     }
 
     private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
             return type == QUEUE ?
                 session.createQueue(destination) :
                 session.createTopic(destination);
@@ -197,7 +167,7 @@ public class JmsProducer {
         return null;
     }
 
-    private Session getOrCreateSession(Connection connection) throws JMSException {
+    private Session createSession(Connection connection) throws JMSException {
         return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
     }
 }

@@ -18,6 +18,7 @@ package io.micronaut.jms.templates;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import java.util.Optional;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
@@ -36,52 +36,32 @@ import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 public class JmsConsumer {
 
     private final JMSDestinationType type;
-    @Nullable
-    private JMSConnectionPool connectionPool;
-    @Nullable
-    private Deserializer deserializer;
-    private boolean sessionTransacted = false;
-    private int sessionAcknowledgeMode = AUTO_ACKNOWLEDGE;
+    private final JMSConnectionPool connectionPool;
+    private final Deserializer deserializer;
+    private final boolean sessionTransacted;
+    private final int sessionAcknowledgeMode;
 
-    public JmsConsumer(JMSDestinationType type) {
+    public JmsConsumer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool) {
+        this(type, connectionPool, DefaultSerializerDeserializer.getInstance());
+    }
+
+    public JmsConsumer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Deserializer deserializer) {
+        this(type, connectionPool, deserializer, false, AUTO_ACKNOWLEDGE);
+    }
+
+    public JmsConsumer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Deserializer deserializer,
+                       boolean sessionTransacted,
+                       int sessionAcknowledgeMode) {
         this.type = type;
-    }
-
-    /***
-     * @return the {@link JMSConnectionPool} configured for the consumer.
-     */
-    public JMSConnectionPool getConnectionPool() {
-        return Optional.ofNullable(connectionPool)
-            .orElseThrow(() -> new IllegalStateException("Connection Factory cannot be null"));
-    }
-
-    /***
-     *
-     * Set the {@link JMSConnectionPool} for the consumer.
-     *
-     * @param connectionPool
-     */
-    public void setConnectionPool(@Nullable JMSConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
-    }
-
-    /***
-     * @return Returns the {@link Deserializer} configured for the consumer
-     *      to convert an {@link Message} to an object.
-     */
-    public Deserializer getDeserializer() {
-        return Optional.ofNullable(deserializer)
-            .orElseThrow(() -> new IllegalStateException("Deserializer cannot be null"));
-    }
-
-    /***
-     *
-     * Sets the {@link Deserializer} for the consumer.
-     *
-     * @param deserializer
-     */
-    public void setDeserializer(@Nullable Deserializer deserializer) {
         this.deserializer = deserializer;
+        this.sessionTransacted = sessionTransacted;
+        this.sessionAcknowledgeMode = sessionAcknowledgeMode;
     }
 
     /***
@@ -102,7 +82,7 @@ public class JmsConsumer {
         try (Connection connection = createConnection();
              Session session = createSession(connection)) {
             connection.start();
-            return getDeserializer().deserialize(receive(session, lookupDestination(destination)), clazz);
+            return deserializer.deserialize(receive(session, lookupDestination(destination)), clazz);
         } catch (JMSException e) {
             e.printStackTrace();
         }
@@ -144,6 +124,6 @@ public class JmsConsumer {
     }
 
     private Connection createConnection() throws JMSException {
-        return getConnectionPool().createConnection();
+        return connectionPool.createConnection();
     }
 }

@@ -60,8 +60,7 @@ public class JMSListenerContainerFactory {
                                      final Class<T> clazz,
                                      final JMSDestinationType type) {
         final JMSListenerContainer<T> listener = new JMSListenerContainer<>(
-            connectionPool, type);
-        listener.setThreadPoolSize(1);
+            connectionPool, type, 1);
         listener.registerListener(destination, handler, clazz);
         listeners.put(destination, listener);
     }
@@ -92,8 +91,7 @@ public class JMSListenerContainerFactory {
                                      final int acknowledgeMode,
                                      final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
-            connectionPool, type);
-        container.setThreadPoolSize(1);
+            connectionPool, type, 1);
         container.registerListener(destination, listener, clazz, transacted, acknowledgeMode);
         listeners.put(destination, container);
     }
