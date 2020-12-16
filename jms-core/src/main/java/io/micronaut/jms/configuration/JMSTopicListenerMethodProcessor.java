@@ -17,11 +17,13 @@ package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 
 import javax.inject.Singleton;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,6 +39,14 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
 
     @Override
     protected ExecutorService getExecutorService(AnnotationValue<Topic> value) {
+
+        final Optional<String> executorName = value.stringValue("executor");
+        if (executorName.isPresent() && !executorName.get().isEmpty()) {
+            return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
+                .orElseThrow(() -> new IllegalStateException(
+                    "No ExecutorService bean found with name " + executorName.get()));
+        }
+
         return Executors.newSingleThreadExecutor();
     }
 

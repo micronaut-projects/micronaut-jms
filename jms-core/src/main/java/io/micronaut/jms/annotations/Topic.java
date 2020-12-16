@@ -15,7 +15,6 @@
  */
 package io.micronaut.jms.annotations;
 
-import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
 
 import java.lang.annotation.Documented;
@@ -24,6 +23,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
 /***
  *
@@ -58,12 +58,13 @@ public @interface Topic {
     /***
      * @return the name of the topic to target.
      */
-    @AliasFor(member = "destination")
-    String value() default "";
+    String value();
 
-    /***
-     * @return the name of the topic to target.
-     */
-    @AliasFor(member = "value")
-    String destination() default "";
+    String executor() default "";
+
+    String serializer() default "";
+
+    int acknowledgeMode() default AUTO_ACKNOWLEDGE;
+
+    boolean transacted() default false;
 }

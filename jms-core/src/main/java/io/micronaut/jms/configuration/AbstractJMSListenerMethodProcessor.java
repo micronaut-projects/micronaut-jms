@@ -30,6 +30,7 @@ import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,14 +81,14 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
             return;
         }
 
-        AnnotationValue<T> destinationAnnotation = method.getAnnotation(clazz);
-        if (destinationAnnotation == null) {
-            throw new IllegalStateException("Annotation not found on method " + method.getName() + ". " +
-                "Expecting annotation of type " + clazz);
-        }
+        String connectionFactoryName = listenerAnnotation.getRequiredValue(String.class);
 
-        registerListener(method, listenerAnnotation, beanDefinition, destinationAnnotation,
-            getExecutorService(destinationAnnotation), getDestinationType());
+        AnnotationValue<T> destinationAnnotation = method.getAnnotation(clazz);
+        Assert.notNull(destinationAnnotation, () -> "Annotation not found on method " +
+            method.getName() + ". Expecting annotation of type " + clazz.getName());
+
+        registerListener(method, connectionFactoryName, beanDefinition,
+            destinationAnnotation, getDestinationType());
     }
 
     protected abstract ExecutorService getExecutorService(AnnotationValue<T> value);
@@ -101,12 +102,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
             .orElseThrow(() -> new IllegalStateException("A method annotated with @Queue must have exactly one argument annotated with @Body"));
     }
 
-    private JMSConnectionPool generateConnectionPool(AnnotationValue<JMSListener> listenerAnnotation) {
-        String connectionFactoryName = listenerAnnotation.stringValue("connectionFactory")
-            .orElseThrow(() -> new ConfigurationException("@JMSListener must specify a connectionFactory"));
-        return beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
-    }
-
+    @SuppressWarnings("unchecked")
     private MessageListener generateAndBindListener(Object bean,
                                                     ExecutableMethod<?, ?> method,
                                                     ExecutorService executor,
@@ -128,10 +124,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
-                                  AnnotationValue<JMSListener> listenerAnnotation,
+                                  String connectionFactoryName,
                                   BeanDefinition<?> beanDefinition,
-                                  AnnotationValue<?> destinationAnnotation,
-                                  ExecutorService executor,
+                                  AnnotationValue<T> destinationAnnotation,
                                   JMSDestinationType type) {
 
         validateArguments(method);
@@ -142,18 +137,20 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation> i
             .map(Argument::getClass)
             .get();
 
-        final String destination = destinationAnnotation.stringValue().orElseThrow(
-            () -> new IllegalStateException("@Queue or @Topic must specify a destination"));
+        final String destination = destinationAnnotation.getRequiredValue(String.class);
+        final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
+        final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
 
-        final int acknowledgeMode = destinationAnnotation.intValue("acknowledgeMode").orElse(AUTO_ACKNOWLEDGE);
-        final boolean transacted = destinationAnnotation.booleanValue("transacted").orElse(false);
-
-        final JMSListenerContainerFactory listenerFactory = beanContext.findBean(JMSListenerContainerFactory.class)
+        final JMSListenerContainerFactory listenerFactory = beanContext
+            .findBean(JMSListenerContainerFactory.class)
             .orElseThrow(() -> new IllegalStateException("No JMSListenerFactory configured"));
 
-        final JMSConnectionPool connectionPool = generateConnectionPool(listenerAnnotation);
+        final JMSConnectionPool connectionPool = beanContext.getBean(
+            JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
 
         final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
+
+        final ExecutorService executor = getExecutorService(destinationAnnotation);
 
         MessageListener listener = generateAndBindListener(bean, method, executor,
             CLIENT_ACKNOWLEDGE == acknowledgeMode);

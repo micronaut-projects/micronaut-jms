@@ -196,7 +196,7 @@ public abstract class AbstractJMSTest {
     @JMSListener("activeMqConnectionFactory")
     static class TestListener {
         @Queue(
-            destination = "test-queue-2",
+            value = "test-queue-2",
             concurrency = "1-5",
             transacted = true,
             acknowledgeMode = CLIENT_ACKNOWLEDGE)
@@ -214,7 +214,7 @@ public abstract class AbstractJMSTest {
             System.err.println("Message: " + message);
         }
 
-        @Topic(destination = "my-topic")
+        @Topic("my-topic")
         public void receive(@Body String message,
                             @Header(JMS_PRIORITY) int priority,
                             @Header("X-Topic-Header") @Nullable String header) {
@@ -230,7 +230,7 @@ public abstract class AbstractJMSTest {
     @JMSProducer("activeMqConnectionFactory")
     interface TestProducer {
         @Queue(
-            destination = "test-queue-3",
+            value = "test-queue-3",
             transacted = true,
             acknowledgeMode = CLIENT_ACKNOWLEDGE)
         void send(MessageObject object);

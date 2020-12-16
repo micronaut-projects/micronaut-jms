@@ -15,7 +15,6 @@
  */
 package io.micronaut.jms.annotations;
 
-import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
@@ -89,16 +88,5 @@ public @interface JMSListener {
      *
      * @return the name of the {@link JMSConnectionFactory} to use.
      */
-    @AliasFor(member = "connectionFactory")
-    String value() default "";
-
-    /***
-     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
-     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
-     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
-     *
-     * @return the name of the {@link JMSConnectionFactory} to use.
-     */
-    @AliasFor(member = "value")
-    String connectionFactory() default "";
+    String value();
 }

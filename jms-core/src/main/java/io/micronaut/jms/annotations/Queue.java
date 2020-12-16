@@ -15,10 +15,7 @@
  */
 package io.micronaut.jms.annotations;
 
-import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
-import io.micronaut.jms.serdes.Deserializer;
 
 import javax.jms.Session;
 import java.lang.annotation.Documented;
@@ -70,19 +67,7 @@ public @interface Queue {
     /***
      * @return the name of the queue to target.
      */
-    @AliasFor(member = "destination")
-    String value() default "";
-
-    /***
-     * @return the name of the queue to target.
-     */
-    @AliasFor(member = "value")
-    String destination() default "";
-
-    /***
-     * @return the {@link Deserializer} to use to deserialize {@link javax.jms.Message} into an {@link Object}
-     */
-    Class<? extends Deserializer> deserializer() default DefaultSerializerDeserializer.class;
+    String value();
 
     /***
      * @return the size of the thread pool to use when used in conjunction with {@link JMSListener}. The value
@@ -92,6 +77,8 @@ public @interface Queue {
      *      with {@link Queue#executor()} and if both are specified then the {@link Queue#executor()} value will be used.
      */
     String concurrency() default "1-1";
+
+    String serializer() default "";
 
     /***
      * @return the name of an {@link java.util.concurrent.ExecutorService} in the bean context to execute tasks on
