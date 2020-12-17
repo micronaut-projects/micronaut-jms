@@ -16,12 +16,12 @@
 package io.micronaut.jms.templates;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
-import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
@@ -124,8 +124,8 @@ public class JmsProducer<T> {
     public void send(@NonNull Destination destination,
                      @NonNull Message message,
                      MessageHeader... headers) {
-        Assert.notNull(destination, "Destination cannot be null");
-        Assert.notNull(message, "Message cannot be null");
+        ArgumentUtils.requireNonNull("destination", destination);
+        ArgumentUtils.requireNonNull("message", message);
 
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
@@ -139,7 +139,7 @@ public class JmsProducer<T> {
                       @NonNull Destination destination,
                       @NonNull Message message,
                       MessageHeader... headers) throws JMSException {
-        Assert.notNull(session, "Session cannot be null");
+        ArgumentUtils.requireNonNull("session", session);
 
         try (MessageProducer producer = session.createProducer(destination)) {
 

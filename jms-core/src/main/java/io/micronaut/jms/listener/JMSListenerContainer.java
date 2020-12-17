@@ -15,9 +15,9 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +88,8 @@ public class JMSListenerContainer<T> {
                                 JMSDestinationType type,
                                 int threadPoolSize,
                                 int maxThreadPoolSize) {
-
-        Assert.isTrue(maxThreadPoolSize >= threadPoolSize,
-            "maxThreadPoolSize cannot be smaller than the threadPoolSize");
+        ArgumentUtils.check(() -> maxThreadPoolSize >= threadPoolSize)
+            .orElseFail("maxThreadPoolSize cannot be smaller than the threadPoolSize");
 
         this.connectionPool = connectionPool;
         this.type = type;
