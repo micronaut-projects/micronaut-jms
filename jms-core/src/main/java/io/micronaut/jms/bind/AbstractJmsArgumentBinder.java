@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 /**
  * Base class for annotated argument binders.
  *
+ * @param <A> the annotation type
  * @author Elliott Pope
  * @since 1.0.0
  */

@@ -38,16 +38,16 @@ import java.util.Map;
  * @author Elliott Pope
  * @since 1.0.0
  */
-public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
+public final class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
 
-    public static DefaultSerializerDeserializer getInstance() {
-        return INSTANCE;
+    private DefaultSerializerDeserializer() {
     }
 
-    private DefaultSerializerDeserializer() {
+    public static DefaultSerializerDeserializer getInstance() {
+        return INSTANCE;
     }
 
     @Override

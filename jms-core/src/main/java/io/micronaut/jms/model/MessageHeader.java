@@ -100,8 +100,7 @@ public class MessageHeader {
     public void apply(Message message) {
         if (isJmsHeader) {
             JMS_HEADER_OPERATIONS.get(key).accept(message, value);
-        }
-        else {
+        } else {
             try {
                 message.setObjectProperty(key, value);
             } catch (JMSException | RuntimeException e) {

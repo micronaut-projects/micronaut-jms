@@ -21,7 +21,6 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import javax.jms.MessageListener;
-import javax.jms.Session;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -83,9 +82,9 @@ public class JMSListenerContainerFactory {
      *                        received by the session will be acknowledged
      * @param type            the destination type
      * @param <T>             the class type
-     * @see Session#AUTO_ACKNOWLEDGE
-     * @see Session#CLIENT_ACKNOWLEDGE
-     * @see Session#DUPS_OK_ACKNOWLEDGE
+     * @see javax.jms.Session#AUTO_ACKNOWLEDGE
+     * @see javax.jms.Session#CLIENT_ACKNOWLEDGE
+     * @see javax.jms.Session#DUPS_OK_ACKNOWLEDGE
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
                                      final String destination,

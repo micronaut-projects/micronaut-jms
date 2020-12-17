@@ -38,9 +38,6 @@ import static javax.jms.Message.DEFAULT_PRIORITY;
  */
 public final class JMSHeaders {
 
-    private static final int MIN_PRIORITY = 0;
-    private static final int MAX_PRIORITY = 9;
-
     /**
      * Name of the Correlation ID header. Specifies an ID so the {@link Message}
      * can be linked to other messages.
@@ -121,6 +118,9 @@ public final class JMSHeaders {
      * @see Message#getJMSType()
      */
     public static final String JMS_TYPE = "JMSType";
+
+    private static final int MIN_PRIORITY = 0;
+    private static final int MAX_PRIORITY = 9;
 
     private static final Set<String> ALL_HEADER_NAMES = new HashSet<>(Arrays.asList(
         JMS_CORRELATION_ID, JMS_DELIVERY_MODE, JMS_DELIVERY_TIME,
@@ -301,23 +301,23 @@ public final class JMSHeaders {
             return null;
         }
 
-        if (boolean.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz) ) {
+        if (boolean.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)) {
             return (T) Boolean.valueOf(message.getBooleanProperty(headerName));
         }
 
-        if (byte.class.isAssignableFrom(clazz) || Byte.class.isAssignableFrom(clazz) ) {
+        if (byte.class.isAssignableFrom(clazz) || Byte.class.isAssignableFrom(clazz)) {
             return (T) Byte.valueOf(message.getByteProperty(headerName));
         }
 
-        if (double.class.isAssignableFrom(clazz) || Double.class.isAssignableFrom(clazz) ) {
+        if (double.class.isAssignableFrom(clazz) || Double.class.isAssignableFrom(clazz)) {
             return (T) Double.valueOf(message.getDoubleProperty(headerName));
         }
 
-        if (float.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz) ) {
+        if (float.class.isAssignableFrom(clazz) || Float.class.isAssignableFrom(clazz)) {
             return (T) Float.valueOf(message.getFloatProperty(headerName));
         }
 
-        if (int.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz) ) {
+        if (int.class.isAssignableFrom(clazz) || Integer.class.isAssignableFrom(clazz)) {
             return (T) Integer.valueOf(message.getIntProperty(headerName));
         }
 
@@ -325,7 +325,7 @@ public final class JMSHeaders {
             return (T) Long.valueOf(message.getLongProperty(headerName));
         }
 
-        if (short.class.isAssignableFrom(clazz) || Short.class.isAssignableFrom(clazz) ) {
+        if (short.class.isAssignableFrom(clazz) || Short.class.isAssignableFrom(clazz)) {
             return (T) Short.valueOf(message.getShortProperty(headerName));
         }
 
