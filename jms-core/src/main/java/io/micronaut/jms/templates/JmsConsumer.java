@@ -16,6 +16,7 @@
 package io.micronaut.jms.templates;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
@@ -23,7 +24,6 @@ import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.annotation.Nullable;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;

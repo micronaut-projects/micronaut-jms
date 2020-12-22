@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
@@ -32,7 +33,6 @@ import io.micronaut.messaging.annotation.Header;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.Serializable;
 import java.util.Collection;

@@ -15,9 +15,9 @@
  */
 package io.micronaut.jms.model;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.annotation.Nullable;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
