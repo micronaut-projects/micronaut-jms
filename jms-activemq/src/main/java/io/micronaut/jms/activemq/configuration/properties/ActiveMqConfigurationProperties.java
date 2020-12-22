@@ -43,7 +43,7 @@ public interface ActiveMqConfigurationProperties {
     /**
      * Whether ActiveMQ is active.
      *
-     * @return true to activate the JMS ActiveMQ implementation
+     * @return true to activate the ActiveMQ JMS implementation
      */
     boolean isEnabled();
 

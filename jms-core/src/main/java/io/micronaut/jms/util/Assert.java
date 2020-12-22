@@ -64,20 +64,6 @@ public abstract class Assert {
      * @throws IllegalArgumentException if the expression is false
      */
     public static void isTrue(boolean expression,
-                              String message) {
-        if (!expression) {
-            throw new IllegalArgumentException(message);
-        }
-    }
-
-    /**
-     * Throws an IllegalArgumentException if the boolean expression is false.
-     *
-     * @param expression a boolean expression
-     * @param message the exception message to use if false
-     * @throws IllegalArgumentException if the expression is false
-     */
-    public static void isTrue(boolean expression,
                               @NonNull Supplier<String> message) {
         if (!expression) {
             throw new IllegalArgumentException(message.get());
