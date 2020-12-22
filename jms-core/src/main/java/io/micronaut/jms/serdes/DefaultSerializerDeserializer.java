@@ -28,6 +28,7 @@ import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ import java.util.Map;
  * @author Elliott Pope
  * @since 1.0.0
  */
-public final class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
+public final class DefaultSerializerDeserializer implements Serializer<Serializable>, Deserializer {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
@@ -108,7 +109,7 @@ public final class DefaultSerializerDeserializer implements Serializer<Object>, 
 
     @Override
     public Message serialize(Session session,
-                             Object input) {
+                             Serializable input) {
         try {
             switch (MessageType.fromObject(input)) {
                 case MAP:
@@ -154,9 +155,8 @@ public final class DefaultSerializerDeserializer implements Serializer<Object>, 
         return message;
     }
 
-    private TextMessage serializeObject(final Session session,
-                                        final Object input) throws JMSException, JsonProcessingException {
-        // TODO should be ObjectMessage
-        return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
+    private ObjectMessage serializeObject(final Session session,
+                                          final Serializable input) throws JMSException, JsonProcessingException {
+        return session.createObjectMessage(input);
     }
 }
