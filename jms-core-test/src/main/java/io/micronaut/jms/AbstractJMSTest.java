@@ -61,6 +61,9 @@ public abstract class AbstractJMSTest {
 
     protected JMSConnectionPool pool;
 
+    /**
+     * Lookup the connection factory for each test.
+     */
     @BeforeEach
     public void setup() {
         pool = applicationContext.getBean(JMSConnectionPool.class,
