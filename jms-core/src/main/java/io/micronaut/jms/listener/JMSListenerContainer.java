@@ -117,7 +117,7 @@ public class JMSListenerContainer<T> {
             final Session session = connection.createSession(DEFAULT_TRANSACTED, DEFAULT_ACKNOWLEDGE_MODE);
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(
-                session.createQueue(destination));
+                lookupDestination(destination, session));
             consumer.setMessageListener(
                 new MessageHandlerAdapter<>(
                     new ConcurrentMessageHandler<>(
