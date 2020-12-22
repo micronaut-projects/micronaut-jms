@@ -25,6 +25,7 @@ import javax.jms.Session;
  * @author Elliott Pope
  * @since 1.0.0
  */
+@FunctionalInterface
 public interface Serializer<T> {
 
     /**

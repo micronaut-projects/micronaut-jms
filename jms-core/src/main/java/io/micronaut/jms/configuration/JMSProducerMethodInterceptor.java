@@ -105,8 +105,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
             .map(arg -> {
                 String argName = arg.getName();
-                String headerName = arg.getAnnotation(Header.class)
-                    .stringValue()
+                String headerName = arg.getAnnotationMetadata().stringValue(Header.class)
                     .orElseThrow(() -> new IllegalArgumentException(
                         "@Header annotation on argument '" + argName + "' must have a name"));
                 return new MessageHeader(headerName, parameterValueMap.get(argName));
