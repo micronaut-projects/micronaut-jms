@@ -58,6 +58,8 @@ public class JMSListenerContainer<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
     private static final long DEFAULT_KEEP_ALIVE_TIME = 5; // TODO configurable
     private static final int DEFAULT_EXECUTOR_QUEUE_SIZE = 10; // TODO configurable
+    private static final boolean DEFAULT_TRANSACTED = false; // TODO configurable
+    private static final int DEFAULT_ACKNOWLEDGE_MODE = AUTO_ACKNOWLEDGE; // TODO configurable
 
     private final Set<Connection> openConnections = new HashSet<>();
     private final JMSConnectionPool connectionPool;
@@ -112,7 +114,7 @@ public class JMSListenerContainer<T> {
                                  Class<T> clazz) {
         try {
             final Connection connection = connectionPool.createConnection();
-            final Session session = connection.createSession(false, AUTO_ACKNOWLEDGE);
+            final Session session = connection.createSession(DEFAULT_TRANSACTED, DEFAULT_ACKNOWLEDGE_MODE);
             openConnections.add(connection);
             final MessageConsumer consumer = session.createConsumer(
                 session.createQueue(destination));

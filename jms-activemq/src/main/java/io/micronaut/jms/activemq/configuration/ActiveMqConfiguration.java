@@ -36,6 +36,8 @@ import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigu
 @Requires(property = PREFIX + ".enabled", value = "true")
 public class ActiveMqConfiguration {
 
+    public static final String CONNECTION_FACTORY_BEAN_NAME = "activeMqConnectionFactory";
+
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
      * <p>
@@ -45,7 +47,7 @@ public class ActiveMqConfiguration {
      * @param config config settings for ActiveMQ
      * @return the {@link ActiveMQConnectionFactory} defined by the {@code config}.
      */
-    @JMSConnectionFactory("activeMqConnectionFactory")
+    @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties config) {
         return new ActiveMQConnectionFactory(config.getConnectionString());
     }
