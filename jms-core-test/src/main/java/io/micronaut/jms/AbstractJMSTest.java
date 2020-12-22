@@ -31,6 +31,7 @@ import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.Body;
 import io.micronaut.messaging.annotation.Header;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -73,6 +74,7 @@ public abstract class AbstractJMSTest {
     /**
      * Tests sending a message to a test queue on a broker.
      */
+    @Disabled
     @Test
     public void testSendMessage() {
 
@@ -89,6 +91,7 @@ public abstract class AbstractJMSTest {
     /**
      * Tests sending a message to a test queue on a broker.
      */
+    @Disabled
     @Test
     public void testSendMessageAnnotationDriven() {
         TestProducer producer = applicationContext.getBean(TestProducer.class);
@@ -116,6 +119,7 @@ public abstract class AbstractJMSTest {
      * @throws InterruptedException if the current thread is interrupted while
      * waiting for messages
      */
+    @Disabled
     @Test
     public void testListener() throws InterruptedException {
 
@@ -149,6 +153,7 @@ public abstract class AbstractJMSTest {
      * @throws InterruptedException if the current thread is interrupted while
      * waiting for messages
      */
+    @Disabled
     @Test
     public void testJMSListenerAnnotationDriven() throws InterruptedException {
         final JMSListenerContainerFactory listenerFactory =
@@ -176,6 +181,7 @@ public abstract class AbstractJMSTest {
      * @throws InterruptedException if the current thread is interrupted while
      * waiting for messages
      */
+    @Disabled
     @Test
     public void testJMSListenerTopicAnnotationDriven() throws InterruptedException {
         final JMSListenerContainerFactory listenerFactory =
