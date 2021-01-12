@@ -17,7 +17,6 @@ package io.micronaut.jms.activemq.classic.configuration.properties;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
@@ -29,7 +28,7 @@ import static io.micronaut.jms.activemq.classic.configuration.properties.ActiveM
  * {@link io.micronaut.jms.annotations.JMSConnectionFactory}.
  *
  * @author Elliott Pope
- * @see ActiveMqClassicConfiguration
+ * @see io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration
  * @since 1.0.0
  */
 @ConfigurationProperties(PREFIX)

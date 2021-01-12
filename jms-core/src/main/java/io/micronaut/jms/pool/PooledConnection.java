@@ -36,13 +36,13 @@ import javax.jms.Topic;
  */
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 
-    public static PooledConnection of(PooledObject<Connection> pooledObject) {
-        return (PooledConnection) pooledObject;
-    }
-
     public PooledConnection(Connection connection,
                             AbstractPool<PooledObject<Connection>> connectionPool) {
         super(connectionPool, connection);
+    }
+
+    public static PooledConnection of(PooledObject<Connection> pooledObject) {
+        return (PooledConnection) pooledObject;
     }
 
     @Override

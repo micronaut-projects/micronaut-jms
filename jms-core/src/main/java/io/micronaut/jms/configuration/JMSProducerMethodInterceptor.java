@@ -19,7 +19,6 @@ import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.exceptions.ConfigurationException;
-import io.micronaut.core.type.Argument;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSProducer;

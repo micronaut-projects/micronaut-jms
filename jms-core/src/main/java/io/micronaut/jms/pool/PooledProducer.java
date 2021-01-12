@@ -32,13 +32,13 @@ import javax.jms.MessageProducer;
  */
 public class PooledProducer extends PooledObject<MessageProducer> implements MessageProducer {
 
-    public static PooledProducer of(PooledObject<MessageProducer> object) {
-        return (PooledProducer) object;
-    }
-
     public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool,
                           MessageProducer object) {
         super(pool, object);
+    }
+
+    public static PooledProducer of(PooledObject<MessageProducer> object) {
+        return (PooledProducer) object;
     }
 
     @Override

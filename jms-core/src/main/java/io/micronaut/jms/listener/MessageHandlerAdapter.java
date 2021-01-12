@@ -61,8 +61,7 @@ public class MessageHandlerAdapter<T> implements MessageListener {
         if (messageTypeMatchesHandler(message)) {
             // TODO configurable deserializer
             delegate.handle((T) DefaultSerializerDeserializer.getInstance().deserialize(message));
-        }
-        else {
+        } else {
             LOGGER.warn("Unable to deserialize message {} to {}", message, clazz.getName());
         }
     }
