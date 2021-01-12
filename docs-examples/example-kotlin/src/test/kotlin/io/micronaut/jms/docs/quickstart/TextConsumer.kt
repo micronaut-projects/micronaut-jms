@@ -1,7 +1,7 @@
 package io.micronaut.jms.docs.quickstart
 
 // tag::imports[]
-import io.micronaut.jms.activemq.configuration.ActiveMqConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.Body

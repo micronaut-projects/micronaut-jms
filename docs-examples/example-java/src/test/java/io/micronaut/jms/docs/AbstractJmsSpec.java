@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.micronaut.jms.activemq.configuration.ActiveMqConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 

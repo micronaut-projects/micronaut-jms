@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.jms.activemq.configuration;
+package io.micronaut.jms.activemq.classic.configuration;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties;
+import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
@@ -25,19 +25,22 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.ConnectionFactory;
 
-import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties.PREFIX;
+import static io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties.PREFIX;
 
 /**
- * Generates the ActiveMQ {@link JMSConnectionFactory} based on the properties
- * provided by {@link ActiveMqConfigurationProperties}.
+ * Generates the ActiveMQ Classic {@link JMSConnectionFactory} based on the
+ * properties provided by {@link ActiveMqClassicConfigurationProperties}.
  *
  * @author Elliott Pope
  * @since 1.0.0
  */
 @Factory
 @Requires(property = PREFIX + ".enabled", value = "true")
-public class ActiveMqConfiguration {
+public class ActiveMqClassicConfiguration {
 
+    /**
+     * Name of the ActiveMQ Classic {@link ConnectionFactory} bean.
+     */
     public static final String CONNECTION_FACTORY_BEAN_NAME = "activeMqConnectionFactory";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -45,14 +48,14 @@ public class ActiveMqConfiguration {
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
      * <p>
-     * The bean is a simply configured {@link ActiveMQConnectionFactory}
-     * configured with properties from {@link ActiveMqConfigurationProperties}.
+     * The bean is a {@link ActiveMQConnectionFactory} configured with
+     * properties from {@link ActiveMqClassicConfigurationProperties}.
      *
-     * @param config config settings for ActiveMQ
+     * @param config config settings for ActiveMQ Classic
      * @return the {@link ActiveMQConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
-    public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties config) {
+    public ConnectionFactory activeMqConnectionFactory(ActiveMqClassicConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
             CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
         return new ActiveMQConnectionFactory(config.getConnectionString());

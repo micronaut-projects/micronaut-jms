@@ -12,7 +12,7 @@ import javax.jms.Destination
 import javax.jms.JMSException
 import javax.jms.Session
 
-import static io.micronaut.jms.activemq.configuration.ActiveMqConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE
 import static javax.jms.Session.AUTO_ACKNOWLEDGE
 

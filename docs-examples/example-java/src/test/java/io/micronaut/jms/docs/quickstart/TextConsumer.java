@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.micronaut.jms.activemq.configuration.ActiveMqConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 // end::imports[]
 import io.micronaut.context.annotation.Requires;
 

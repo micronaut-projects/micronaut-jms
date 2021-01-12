@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 /**
- * Configuration properties for ActiveMQ.
+ * Configuration properties for ActiveMQ Classic.
  *
  * @since 1.0.0
  */
-package io.micronaut.jms.activemq.configuration.properties;
+package io.micronaut.jms.activemq.classic.configuration.properties;

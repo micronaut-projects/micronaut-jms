@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 /**
- * Connection factory configuration for ActiveMQ.
+ * Connection factory configuration for ActiveMQ Classic.
  *
  * @since 1.0.0
  */
-package io.micronaut.jms.activemq.configuration;
+package io.micronaut.jms.activemq.classic.configuration;

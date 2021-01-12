@@ -13,37 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.jms.activemq.configuration.properties;
+package io.micronaut.jms.activemq.classic.configuration.properties;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
 
-import static io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties.PREFIX;
+import static io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties.PREFIX;
 
 /**
- * Configuration properties for creating the
+ * Configuration properties for creating the ActiveMQ Classic
  * {@link io.micronaut.jms.annotations.JMSConnectionFactory}.
  *
  * @author Elliott Pope
- * @see io.micronaut.jms.activemq.configuration.ActiveMqConfiguration
+ * @see ActiveMqClassicConfiguration
  * @since 1.0.0
  */
 @ConfigurationProperties(PREFIX)
 @Requires(property = PREFIX + ".enabled", value = "true")
-public interface ActiveMqConfigurationProperties {
+public interface ActiveMqClassicConfigurationProperties {
 
     /**
-     * Prefix for ActiveMQ JMS settings.
+     * Prefix for ActiveMQ Classic JMS settings.
      */
-    String PREFIX = JMSConfigurationProperties.PREFIX + ".activemq";
+    String PREFIX = JMSConfigurationProperties.PREFIX + ".activemq.classic"; // micronaut.jms.activemq.classic
 
     /**
-     * Whether ActiveMQ is active.
+     * Whether ActiveMQ Classic is active.
      *
-     * @return true to activate the ActiveMQ JMS implementation
+     * @return true to activate the ActiveMQ Classic JMS implementation
      */
     boolean isEnabled();
 
