@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.micronaut.jms.util.HeaderNameUtils.encode;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.jms.Message.DEFAULT_PRIORITY;
 
 /**
@@ -200,7 +202,7 @@ public final class JMSHeaders {
     private static <T> T getCorrelationIdHeader(Message message, Class<T> clazz) throws JMSException {
         checkArgumentType(JMS_CORRELATION_ID, clazz, byte[].class, String.class);
         return (T) (String.class.isAssignableFrom(clazz) ? message.getJMSCorrelationID()
-            : message.getJMSCorrelationIDAsBytes());
+            : message.getJMSCorrelationID().getBytes(UTF_8));
     }
 
     private static <T> T getDeliveryModeHeader(Message message, Class<T> clazz) throws JMSException {
@@ -296,6 +298,8 @@ public final class JMSHeaders {
     private static <T> T getClientProvidedHeader(String headerName,
                                                  Message message,
                                                  Class<T> clazz) throws JMSException {
+
+        headerName = encode(headerName);
 
         if (!message.propertyExists(headerName)) {
             return null;

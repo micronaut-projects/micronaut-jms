@@ -28,6 +28,7 @@ import java.util.function.BiConsumer;
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
 import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO;
 import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
+import static io.micronaut.jms.util.HeaderNameUtils.encode;
 
 /**
  * Represents a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
@@ -102,7 +103,7 @@ public class MessageHeader {
             JMS_HEADER_OPERATIONS.get(key).accept(message, value);
         } else {
             try {
-                message.setObjectProperty(key, value);
+                message.setObjectProperty(encode(key), value);
             } catch (JMSException | RuntimeException e) {
                 throw new MessagingClientException(
                     "Problem setting message property '" + key + "' (non-JMS header)", e);
