@@ -1,1 +1,4 @@
-This project integrates Micronaut with the established Java Messaging Service (JMS) API.
+This project includes integration between Micronaut and Java Messaging Service (JMS).
+
+Supported implementations include
+link:https://activemq.apache.org/components/classic/[Active MQ "Classic"], link:https://activemq.apache.org/components/artemis/[Active MQ Artemis], and link:https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/getting-started.html[AWS SQS], and configuring other JMS providers is straightforward.

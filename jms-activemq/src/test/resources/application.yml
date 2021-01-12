@@ -1,9 +1,0 @@
-micronaut:
-  jms:
-    activemq:
-      enabled: true
-      connection-string: 'vm://localhost?broker.persistent=false'
-
-logger:
-  levels:
-    root: INFO
