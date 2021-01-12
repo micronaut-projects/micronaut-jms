@@ -93,7 +93,8 @@ public class JmsProducer<T> {
                      MessageHeader... headers) {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            send(destination, serializer.serialize(session, body), headers);
+            send(session, lookupDestination(destination, session),
+                serializer.serialize(session, body), headers);
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }
@@ -110,7 +111,12 @@ public class JmsProducer<T> {
     public void send(@NonNull String destination,
                      @NonNull Message message,
                      MessageHeader... headers) {
-        send(lookupDestination(destination), message, headers);
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
+            send(session, lookupDestination(destination, session), message, headers);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message to " + destination, e);
+        }
     }
 
     /**
@@ -177,9 +183,8 @@ public class JmsProducer<T> {
         }
     }
 
-    private Destination lookupDestination(String destination) {
-        try (Connection connection = connectionPool.createConnection();
-             Session session = createSession(connection)) {
+    private Destination lookupDestination(String destination, Session session) {
+        try {
             return type == QUEUE ?
                 session.createQueue(destination) :
                 session.createTopic(destination);
