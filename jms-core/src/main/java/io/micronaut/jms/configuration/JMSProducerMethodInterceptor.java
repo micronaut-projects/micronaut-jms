@@ -31,6 +31,7 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.templates.JmsProducer;
+import io.micronaut.messaging.annotation.Body;
 import io.micronaut.messaging.annotation.Header;
 
 import javax.inject.Singleton;
@@ -87,19 +88,19 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .orElseThrow(() -> new ConfigurationException(
                 "@" + annotationType.getSimpleName() + " must specify a destination."));
 
-        String messageArgumentName = Arrays.stream(method.getArguments())
-            .filter(arg -> arg.getAnnotationMetadata().isEmpty())
-            .map(Argument::getName)
+        Map<String, Object> parameterValueMap = context.getParameterValueMap();
+
+        Object body = Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(Body.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
             .findFirst()
             .orElseThrow(() -> new ConfigurationException(
-                "At least one argument (the message body) must not have an annotation present"));
+                "One method argument must be annotated with @Body"));
 
         String serializerName = method.stringValue(annotationType, "serializer").orElse(null);
         Serializer<?> serializer = serializerName == null
             ? DefaultSerializerDeserializer.getInstance()
             : beanContext.getBean(Serializer.class, Qualifiers.byName(serializerName));
-
-        Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
         MessageHeader[] headers = Arrays.stream(method.getArguments())
             .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
@@ -114,7 +115,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
-        producer.send(destinationName, parameterValueMap.get(messageArgumentName), headers);
+        producer.send(destinationName, body, headers);
 
         return null;
     }
