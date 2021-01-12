@@ -45,6 +45,16 @@ public class SessionPool extends AbstractPool<PooledObject<Session>> {
     }
 
     @Override
+    public String toString() {
+        return "SessionPool{" +
+            "initialSize=" + initialSize +
+            ", maxSize=" + maxSize +
+            ", connection=" + connection +
+            ", producerPoolFactory=" + producerPoolFactory +
+            '}';
+    }
+
+    @Override
     protected PooledObject<Session> create(Object... args) {
         try {
             Session session;

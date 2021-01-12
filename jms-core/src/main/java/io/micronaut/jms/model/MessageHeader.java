@@ -111,6 +111,15 @@ public class MessageHeader {
         }
     }
 
+    @Override
+    public String toString() {
+        return "MessageHeader{" +
+            "key='" + key + '\'' +
+            ", value=" + value +
+            ", isJmsHeader=" + isJmsHeader +
+            '}';
+    }
+
     private static void checkArgumentType(Object value, Class<?> clazz) {
         if (value != null && !clazz.isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException(

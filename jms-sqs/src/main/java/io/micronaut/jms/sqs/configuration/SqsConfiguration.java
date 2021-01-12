@@ -22,6 +22,8 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.ConnectionFactory;
 
@@ -38,7 +40,12 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
 @Requires(property = PREFIX + ".enabled", value = "true")
 public class SqsConfiguration {
 
+    /**
+     * Name of the SQS {@link ConnectionFactory} bean.
+     */
     public static final String CONNECTION_FACTORY_BEAN_NAME = "sqsJmsConnectionFactory";
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
@@ -54,6 +61,8 @@ public class SqsConfiguration {
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      AmazonSQS sqs) {
+        logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
+            CONNECTION_FACTORY_BEAN_NAME);
         return new SQSConnectionFactory(
             new ProviderConfiguration().withNumberOfMessagesToPrefetch(config.getNumberOfMessagesToPrefetch()),
             sqs);

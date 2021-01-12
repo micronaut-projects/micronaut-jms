@@ -26,6 +26,8 @@ import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.ConnectionFactory;
 
@@ -39,6 +41,8 @@ import javax.jms.ConnectionFactory;
 @Context
 @Factory
 public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcessor<JMSConnectionFactory> {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final JMSConfigurationProperties properties;
 
@@ -65,5 +69,8 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
                 properties.getInitialPoolSize(),
                 properties.getMaxPoolSize()),
             Qualifiers.byName(name));
+
+        logger.debug("created JMSConnectionPool bean '{}' for ConnectionFactory {}",
+            name, connectionFactory.getClass().getName());
     }
 }

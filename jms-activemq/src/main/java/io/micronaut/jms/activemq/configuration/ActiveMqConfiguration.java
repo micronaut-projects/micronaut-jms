@@ -20,6 +20,8 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.activemq.configuration.properties.ActiveMqConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.ConnectionFactory;
 
@@ -38,6 +40,8 @@ public class ActiveMqConfiguration {
 
     public static final String CONNECTION_FACTORY_BEAN_NAME = "activeMqConnectionFactory";
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
      * <p>
@@ -49,6 +53,8 @@ public class ActiveMqConfiguration {
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory activeMqConnectionFactory(ActiveMqConfigurationProperties config) {
+        logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
+            CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
         return new ActiveMQConnectionFactory(config.getConnectionString());
     }
 }

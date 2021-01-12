@@ -245,4 +245,12 @@ public class PooledSession extends PooledObject<Session> implements Session {
     public void unsubscribe(String name) throws JMSException {
         get().unsubscribe(name);
     }
+
+    @Override
+    public String toString() {
+        return "PooledSession{" +
+            "producerPool=" + producerPool +
+            ", Session=" + get() +
+            '}';
+    }
 }

@@ -17,6 +17,8 @@ package io.micronaut.jms.model;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
@@ -63,6 +65,8 @@ public enum MessageType {
      */
     UNKNOWN(null, null);
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageType.class);
+
     private final Class<? extends Message> toClazz;
     private final Class<?> fromClazz;
 
@@ -88,6 +92,7 @@ public enum MessageType {
                 }
             }
         }
+        LOGGER.warn("Unsupported Message type {}", message);
         return UNKNOWN;
     }
 
@@ -107,6 +112,7 @@ public enum MessageType {
                 }
             }
         }
+        LOGGER.warn("Unsupported object type {}", message);
         return UNKNOWN;
     }
 }

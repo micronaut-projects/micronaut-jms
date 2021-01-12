@@ -43,6 +43,15 @@ public class MessageProducerPool extends AbstractPool<PooledObject<MessageProduc
     }
 
     @Override
+    public String toString() {
+        return "MessageProducerPool{" +
+            "initialSize=" + initialSize +
+            ", maxSize=" + maxSize +
+            ", session=" + session +
+            '}';
+    }
+
+    @Override
     protected PooledObject<MessageProducer> create(Object... args) {
         try {
             return new PooledProducer(this, session.createProducer((Destination) args[0]));

@@ -47,7 +47,7 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     private PooledConnection doCreate() {
         try {
             Connection connection = connectionFactory.createConnection();
-            connection.start();
+            connection.start(); // TODO config autostart
             return new PooledConnection(connection, this);
         } catch (JMSException | RuntimeException e) {
             throw new MessagingSystemException("Problem creating pooled Connection", e);
@@ -101,5 +101,14 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     @Override
     public JMSContext createContext(int sessionMode) {
         return connectionFactory.createContext(sessionMode);
+    }
+
+    @Override
+    public String toString() {
+        return "JMSConnectionPool{" +
+            "initialSize=" + initialSize +
+            ", maxSize=" + maxSize +
+            ", connectionFactory=" + connectionFactory +
+            '}';
     }
 }

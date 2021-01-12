@@ -32,6 +32,10 @@ import javax.jms.MessageProducer;
  */
 public class PooledProducer extends PooledObject<MessageProducer> implements MessageProducer {
 
+    public static PooledProducer of(PooledObject<MessageProducer> object) {
+        return (PooledProducer) object;
+    }
+
     public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool,
                           MessageProducer object) {
         super(pool, object);
@@ -162,7 +166,8 @@ public class PooledProducer extends PooledObject<MessageProducer> implements Mes
         get().send(destination, message, deliveryMode, priority, timeToLive, completionListener);
     }
 
-    public static PooledProducer of(PooledObject<MessageProducer> object) {
-        return (PooledProducer) object;
+    @Override
+    public String toString() {
+        return "PooledProducer{MessageProducer=" + get() + '}';
     }
 }

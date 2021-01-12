@@ -135,6 +135,17 @@ public class JmsProducer<T> {
         }
     }
 
+    @Override
+    public String toString() {
+        return "JmsProducer{" +
+            "type=" + type +
+            ", connectionPool=" + connectionPool +
+            ", serializer=" + serializer +
+            ", sessionTransacted=" + sessionTransacted +
+            ", sessionAcknowledgeMode=" + sessionAcknowledgeMode +
+            '}';
+    }
+
     private void send(@NonNull Session session,
                       @NonNull Destination destination,
                       @NonNull Message message,

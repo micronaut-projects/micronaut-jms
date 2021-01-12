@@ -110,6 +110,17 @@ public class JmsConsumer {
         }
     }
 
+    @Override
+    public String toString() {
+        return "JmsConsumer{" +
+            "type=" + type +
+            ", connectionPool=" + connectionPool +
+            ", deserializer=" + deserializer +
+            ", sessionTransacted=" + sessionTransacted +
+            ", sessionAcknowledgeMode=" + sessionAcknowledgeMode +
+            '}';
+    }
+
     @Nullable
     private Message receive(@NonNull Session session,
                             @NonNull Destination destination) throws JMSException {

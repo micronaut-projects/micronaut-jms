@@ -22,6 +22,8 @@ import io.micronaut.core.bind.annotation.Bindable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.core.order.OrderUtil;
 import io.micronaut.core.type.Argument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.jms.Message;
@@ -43,6 +45,8 @@ import java.util.Optional;
 @Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
 
     public JMSArgumentBinderRegistry(ConversionService<?> conversionService) {
@@ -59,6 +63,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      */
     public void registerArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
         binders.add(binder);
+        logger.debug("registered binder {}", binder);
     }
 
     /**
@@ -68,6 +73,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      */
     public void unregisterArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
         binders.remove(binder);
+        logger.debug("unregistered binder {}", binder);
     }
 
     @SuppressWarnings("unchecked")
@@ -85,5 +91,10 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
             .filter(binder -> binder.getAnnotationType().equals(annotationType))
             .max(OrderUtil.COMPARATOR)
             .orElseThrow(() -> new IllegalArgumentException("Cannot bind argument " + argument.getName())));
+    }
+
+    @Override
+    public String toString() {
+        return "JMSArgumentBinderRegistry{binders=" + binders + '}';
     }
 }

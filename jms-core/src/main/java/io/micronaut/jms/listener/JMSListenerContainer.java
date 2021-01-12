@@ -130,6 +130,8 @@ public class JMSListenerContainer<T> {
                             new LinkedBlockingQueue<>(DEFAULT_EXECUTOR_QUEUE_SIZE),
                             Executors.defaultThreadFactory())),
                     clazz));
+            LOGGER.debug("registered {} listener {} for destination '{}' and class {}",
+                type.name().toLowerCase(), listener, destination, clazz.getName());
         } catch (JMSException | RuntimeException e) {
             throw new MessageListenerException(
                 "Problem registering a MessageConsumer for " + destination, e);
@@ -184,6 +186,9 @@ public class JMSListenerContainer<T> {
                     throw new MessageListenerException(e.getMessage(), e);
                 }
             });
+            LOGGER.debug("registered {} listener {} for destination '{}'; " +
+                    "transacted: {}, ack mode: {}",
+                type.name().toLowerCase(), listener, destination, transacted, acknowledgeMode);
         } catch (JMSException | RuntimeException e) {
             throw new MessageListenerException(
                 "Problem registering a MessageConsumer for " + destination, e);
@@ -208,6 +213,17 @@ public class JMSListenerContainer<T> {
             }
         }
         return success.get();
+    }
+
+    @Override
+    public String toString() {
+        return "JMSListenerContainer{" +
+            "openConnections=" + openConnections +
+            ", connectionPool=" + connectionPool +
+            ", threadPoolSize=" + threadPoolSize +
+            ", maxThreadPoolSize=" + maxThreadPoolSize +
+            ", type=" + type +
+            '}';
     }
 
     private Destination lookupDestination(String destination,

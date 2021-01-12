@@ -17,6 +17,8 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
@@ -36,6 +38,8 @@ public class JMSListenerContainerFactory {
 
     private static final int THREAD_POOL_SIZE = 1; // TODO configurable?
 
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     // TODO one listener per destination??? at least error/warn if replacing
     private final Map<String, JMSListenerContainer<?>> listeners = new ConcurrentHashMap<>();
 
@@ -49,20 +53,22 @@ public class JMSListenerContainerFactory {
      *
      * @param connectionPool the pool
      * @param destination    the queue or topic name
-     * @param handler        the message handler
+     * @param listener       the message listener
      * @param clazz          the message type
      * @param type           the destination type
      * @param <T>            the class type
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
                                      final String destination,
-                                     final MessageHandler<T> handler,
+                                     final MessageHandler<T> listener,
                                      final Class<T> clazz,
                                      final JMSDestinationType type) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
             connectionPool, type, THREAD_POOL_SIZE);
-        container.registerListener(destination, handler, clazz);
+        container.registerListener(destination, listener, clazz);
         listeners.put(destination, container);
+        logger.debug("registered {} listener for '{}' {} for type '{}' and pool {}",
+            type.name().toLowerCase(), destination, listener, clazz.getName(), connectionPool);
     }
 
     /**
@@ -97,6 +103,10 @@ public class JMSListenerContainerFactory {
             connectionPool, type, THREAD_POOL_SIZE);
         container.registerListener(destination, listener, clazz, transacted, acknowledgeMode);
         listeners.put(destination, container);
+        logger.debug("registered {} listener for '{}' {} for type '{}'" +
+                " and pool {}; transacted: {}, ack mode {}",
+            type.name().toLowerCase(), destination, listener, clazz.getName(),
+            connectionPool, transacted, acknowledgeMode);
     }
 
     /**
@@ -117,5 +127,10 @@ public class JMSListenerContainerFactory {
         for (JMSListenerContainer<?> listener : listeners.values()) {
             listener.shutdown();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "JMSListenerContainerFactory{listeners=" + listeners + '}';
     }
 }
