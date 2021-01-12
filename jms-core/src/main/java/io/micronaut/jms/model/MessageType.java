@@ -24,6 +24,7 @@ import javax.jms.BytesMessage;
 import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Map;
@@ -61,6 +62,12 @@ public enum MessageType {
     BYTES(BytesMessage.class, byte[].class),
 
     /**
+     * A {@link StreamMessage}. JMS 2.0 only. Cannot deserialize, must be done
+     * by the client.
+     */
+    STREAM(StreamMessage.class, null),
+
+    /**
      * The default case if no known {@link Message} subtype is known for the incoming message.
      */
     UNKNOWN(null, null);
@@ -87,7 +94,7 @@ public enum MessageType {
     public static @NonNull MessageType fromMessage(@Nullable Message message) {
         if (message != null) {
             for (MessageType type : MessageType.values()) {
-                if (type.toClazz.isAssignableFrom(message.getClass())) {
+                if (type.toClazz != null && type.toClazz.isAssignableFrom(message.getClass())) {
                     return type;
                 }
             }
@@ -107,7 +114,7 @@ public enum MessageType {
     public static MessageType fromObject(Object message) {
         if (message != null) {
             for (MessageType type : MessageType.values()) {
-                if (type.fromClazz.isAssignableFrom(message.getClass())) {
+                if (type.fromClazz != null && type.fromClazz.isAssignableFrom(message.getClass())) {
                     return type;
                 }
             }

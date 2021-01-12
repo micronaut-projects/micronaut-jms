@@ -27,6 +27,7 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -109,29 +110,31 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
 
     @Override
     public Message serialize(Session session,
-                             Serializable input) {
+                             Serializable body) {
         try {
-            switch (MessageType.fromObject(input)) {
+            switch (MessageType.fromObject(body)) {
                 case MAP:
-                    return serializeMap(session, (Map<?, ?>) input);
+                    return serializeMap(session, (Map<?, ?>) body);
                 case TEXT:
-                    return serializeText(session, (String) input);
+                    return serializeText(session, (String) body);
                 case BYTES:
-                    return serializeBytes(session, (byte[]) input);
+                    return serializeBytes(session, (byte[]) body);
                 case OBJECT:
-                    return serializeObject(session, input);
+                    return serializeObject(session, body);
+                case STREAM:
+                    return serializeStream(session, (Object[]) body);
                 default:
-                    throw new IllegalArgumentException("No known serialization of message " + input);
+                    throw new IllegalArgumentException("No known serialization of message " + body);
             }
         } catch (JMSException | JsonProcessingException | RuntimeException e) {
-            throw new MessagingClientException("Problem serializing input " + input, e);
+            throw new MessagingClientException("Problem serializing body " + body, e);
         }
     }
 
     private MapMessage serializeMap(final Session session,
-                                    final Map<?, ?> input) throws JMSException {
+                                    final Map<?, ?> body) throws JMSException {
         final MapMessage message = session.createMapMessage();
-        for (Map.Entry<?, ?> entry : input.entrySet()) {
+        for (Map.Entry<?, ?> entry : body.entrySet()) {
             if (!(entry.getKey() instanceof CharSequence)) {
                 throw new IllegalArgumentException(
                     "Invalid MapMessage key type " +
@@ -144,19 +147,28 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
     }
 
     private TextMessage serializeText(final Session session,
-                                      final String input) throws JMSException {
-        return session.createTextMessage(input);
+                                      final String body) throws JMSException {
+        return session.createTextMessage(body);
     }
 
     private BytesMessage serializeBytes(final Session session,
-                                        final byte[] input) throws JMSException {
+                                        final byte[] body) throws JMSException {
         final BytesMessage message = session.createBytesMessage();
-        message.readBytes(input);
+        message.readBytes(body);
         return message;
     }
 
     private ObjectMessage serializeObject(final Session session,
                                           final Serializable input) throws JMSException, JsonProcessingException {
         return session.createObjectMessage(input);
+    }
+
+    private StreamMessage serializeStream(final Session session,
+                                          final Object[] body) throws JMSException {
+        StreamMessage message = session.createStreamMessage();
+        for (Object o : body) {
+            message.writeObject(o);
+        }
+        return message;
     }
 }
