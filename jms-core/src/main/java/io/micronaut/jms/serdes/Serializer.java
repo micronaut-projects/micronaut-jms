@@ -29,11 +29,11 @@ import javax.jms.Session;
 public interface Serializer<T> {
 
     /**
-     * Create a message from the input.
+     * Create a message from the body.
      *
      * @param session the JMS session
-     * @param input the message input
+     * @param body the message body
      * @return the message
      */
-    Message serialize(Session session, T input);
+    Message serialize(Session session, T body);
 }

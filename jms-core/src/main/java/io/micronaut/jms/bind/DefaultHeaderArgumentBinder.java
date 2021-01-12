@@ -45,7 +45,7 @@ public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<Heade
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
                                       Message source) {
 
-        final String headerName = context.getAnnotation(Header.class).stringValue()
+        final String headerName = context.getAnnotationMetadata().stringValue(Header.class)
             .orElseThrow(() -> new IllegalStateException("@Header must specify a headerName."));
 
         return () -> Optional.ofNullable(

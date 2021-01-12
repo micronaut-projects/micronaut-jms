@@ -88,10 +88,12 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
 
     @Override
     public void start() throws JMSException {
+        get().start();
     }
 
     @Override
     public void stop() throws JMSException {
+        get().stop();
     }
 
     @Override
