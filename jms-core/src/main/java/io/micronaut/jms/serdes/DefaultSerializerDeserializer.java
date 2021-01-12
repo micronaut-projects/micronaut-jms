@@ -42,6 +42,7 @@ import java.util.Map;
  */
 public final class DefaultSerializerDeserializer implements Serializer<Serializable>, Deserializer {
 
+    private static final String OBJECT_MESSAGE_TYPE_PROPERTY = "MICRONAUT_SERDES_TYPE";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
 
@@ -68,7 +69,7 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
                 case BYTES:
                     return deserializeBytes((BytesMessage) message);
                 case OBJECT:
-                    return deserializeObject((ObjectMessage) message);
+                    return deserializeObject((ObjectMessage) message, clazz);
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
@@ -104,7 +105,24 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T deserializeObject(final ObjectMessage message) throws JMSException {
+    private <T> T deserializeObject(final ObjectMessage message,
+                                    final Class<T> clazz) throws JMSException, JsonProcessingException {
+
+        Serializable body = message.getObject();
+
+        if (body instanceof String) {
+            // if it's a String and the client asks for String, return that
+            if (clazz.isAssignableFrom(String.class)) {
+                return (T) body;
+            }
+
+            // if it was serialized to JSON, deserialize as the requested type
+            String serdesType = message.getStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY);
+            if (serdesType != null) {
+                return OBJECT_MAPPER.readValue((String) body, clazz);
+            }
+        }
+
         return (T) message.getObject();
     }
 
@@ -159,8 +177,10 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
     }
 
     private ObjectMessage serializeObject(final Session session,
-                                          final Serializable input) throws JMSException, JsonProcessingException {
-        return session.createObjectMessage(input);
+                                          final Serializable body) throws JMSException, JsonProcessingException {
+        ObjectMessage message = session.createObjectMessage(OBJECT_MAPPER.writeValueAsString(body));
+        message.setStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY, body.getClass().getName());
+        return message;
     }
 
     private StreamMessage serializeStream(final Session session,
