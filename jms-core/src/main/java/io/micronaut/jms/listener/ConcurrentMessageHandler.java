@@ -35,7 +35,7 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
     private static final long DEFAULT_AWAIT_TIMEOUT = 10; // TODO configurable
 
     private final MessageHandler<T> delegate;
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     /**
      * Allows for concurrent handling of messages by handing of the logic to
@@ -59,15 +59,6 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
      */
     public ConcurrentMessageHandler(MessageHandler<T> delegate) {
         this(delegate, Executors.newSingleThreadExecutor());
-    }
-
-    /**
-     * Sets the {@link ExecutorService} to delegate the message handling to.
-     *
-     * @param executorService the executor service
-     */
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
     }
 
     @Override
