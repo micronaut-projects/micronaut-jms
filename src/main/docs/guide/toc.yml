@@ -1,15 +1,9 @@
-introduction:
-  title: Introduction
-  releaseHistory: Release History
-quickStart:
-  title: Quick Start
+introduction: Introduction
+whatsNew:  Release History
+quickStart: JMS Quick Start
 configuration:
-  title: Configuring Connections
-  activemq: ActiveMQ Connections
-  other-connections: Configuring Connections for Unsupported Brokers
-listener:
-  title: Defining a JMS Listener
-producer:
-  title: Defining a JMS Producer
-
-
+  title: Configuration
+  activemqClassic: Configuring ActiveMQ "Classic"
+  activemqArtemis: Configuring ActiveMQ Artemis
+  sqs: Configuring SQS
+  otherBrokers: Configuring Unsupported Brokers

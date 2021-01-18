@@ -15,44 +15,48 @@
  */
 package io.micronaut.jms.pool;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
-/***
+/**
+ * Pool for ensuring maximum reuse of {@link MessageProducer}s.
  *
- * Pool for ensuring maximum reuse of {@link MessageProducer} objects.
- *
+ * @author Elliott Pope
  * @see PooledProducer
  * @see MessageProducerPoolFactory
  * @see SessionPool
- *
- * @author elliott
+ * @since 1.0.0
  */
 public class MessageProducerPool extends AbstractPool<PooledObject<MessageProducer>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducerPool.class);
-
     private final Session session;
 
-    public MessageProducerPool(Integer initialSize, Integer maxSize, Session session) {
+    public MessageProducerPool(int initialSize,
+                               int maxSize,
+                               Session session) {
         super(initialSize, maxSize);
         this.session = session;
     }
 
     @Override
+    public String toString() {
+        return "MessageProducerPool{" +
+            "initialSize=" + initialSize +
+            ", maxSize=" + maxSize +
+            ", session=" + session +
+            '}';
+    }
+
+    @Override
     protected PooledObject<MessageProducer> create(Object... args) {
         try {
-            assert args.length == 1;
-            assert Destination.class.isAssignableFrom(args[0].getClass());
             return new PooledProducer(this, session.createProducer((Destination) args[0]));
-        } catch (JMSException e) {
-            LOGGER.error("failed to create Producer for pool.", e);
-            return null;
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem creating a MessageProducer", e);
         }
     }
 

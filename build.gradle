@@ -1,28 +1,27 @@
-
 buildscript {
     repositories {
         gradlePluginPortal()
         jcenter()
-        maven { url "https://dl.bintray.com/micronaut/core-releases-local" }
-        maven { url "https://repo.grails.org/grails/core" }
+        maven { url 'https://dl.bintray.com/micronaut/core-releases-local' }
+        maven { url 'https://repo.grails.org/grails/core' }
     }
     dependencies {
-        classpath "io.micronaut.build:micronaut-gradle-plugins:2.0.10"
+        classpath 'io.micronaut.build:micronaut-gradle-plugins:2.0.14'
     }
 }
 
 subprojects { Project subproject ->
-    group "io.micronaut.jms"
+    group 'io.micronaut.jms'
 
-    apply plugin: "io.micronaut.build.common"
-    apply plugin: "io.micronaut.build.dependency-updates"
+    apply plugin: 'io.micronaut.build.common'
+    apply plugin: 'io.micronaut.build.dependency-updates'
 
-    if (subproject.parent.name == "docs-examples" || subproject.name == "docs-examples") {
-        return
+    if (subproject.parent.name != 'docs-examples' &&
+            subproject.name != 'docs-examples' &&
+            !subproject.name.contains('test')) {
+        apply plugin: 'io.micronaut.build.publishing'
     }
-
-    apply plugin: "io.micronaut.build.publishing"
 }
 
-apply plugin: "io.micronaut.build.docs"
-apply plugin: "io.micronaut.build.dependency-updates"
+apply plugin: 'io.micronaut.build.docs'
+apply plugin: 'io.micronaut.build.dependency-updates'

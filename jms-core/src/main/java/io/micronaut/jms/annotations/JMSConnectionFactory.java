@@ -21,48 +21,47 @@ import io.micronaut.context.annotation.DefaultScope;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-/***
- *
- * Annotation to denote a JMS Connection Factory bean. Any connection factory that a {@link JMSListener}
- *  references must be annotated with this annotation. If a {@link javax.jms.ConnectionFactory} is present in the
- *  {@link io.micronaut.context.BeanContext} but not annotated with this annotation, the post-processing logic will fail
- *  and the {@link JMSListener} will not work.
- *
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * Denotes a JMS Connection Factory bean. Any connection factory that a
+ * {@link JMSListener} references must be annotated with this annotation. If a
+ * connection factory is present in the Bean Context but not annotated with
+ * this annotation, the post-processing logic will fail and the
+ * {@link JMSListener} will not work.
+ * <p>
  * Usage:
- *  <pre>
- *      {@code
- * @JMSConnectionFactory("myConnectionFactory")
+ * <pre>
+ * &#64;JMSConnectionFactory("myConnectionFactory")
  * public ConnectionFactory myConnectionFactory() {
  *     return new ActiveMqConnectionFactory("vm://localhost?broker.persist=false");
  * }
- *      }
  *  </pre>
  *
- * @author elliott
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({
-        ElementType.METHOD,
-        ElementType.TYPE
-})
+@Retention(RUNTIME)
+@Target({METHOD, TYPE})
 @Bean
 @DefaultScope(Singleton.class)
 public @interface JMSConnectionFactory {
 
-    /***
-     * Name to identify the {@link javax.jms.ConnectionFactory} bean in the context by. This name will be used by the
-     *      {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor} and the {@link JMSListener}
-     *      to identify which {@link javax.jms.ConnectionFactory} to use.
+    /**
+     * Name to identify the {@link javax.jms.ConnectionFactory} bean in the
+     * context. This is used by the {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
+     * and the {@link JMSListener} to identify which {@link javax.jms.ConnectionFactory} to use.
      *
      * @return the name of the bean.
-     *
      * @see JMSListener
      * @see io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor
-     *
-     * @since 1.0
      */
     @AliasFor(annotation = Named.class, member = "value")
     String value();

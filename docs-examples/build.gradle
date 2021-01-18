@@ -1,0 +1,24 @@
+plugins {
+    id 'io.micronaut.application' version '1.2.0' apply false
+}
+
+subprojects { Project subproject ->
+
+    apply plugin: 'io.micronaut.application'
+
+    micronaut {
+        version project.ext.micronautVersion
+        runtime 'netty'
+    }
+
+    dependencies {
+        compileOnly 'org.graalvm.nativeimage:svm'
+        testImplementation project(':jms-test')
+        testImplementation project(':jms-activemq-classic')
+        testImplementation 'io.micronaut.reactor:micronaut-reactor'
+    }
+
+     nativeImage {
+         args '-H:+ReportExceptionStackTraces'
+     }
+}

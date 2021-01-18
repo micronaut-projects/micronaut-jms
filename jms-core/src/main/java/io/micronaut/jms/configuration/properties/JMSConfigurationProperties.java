@@ -21,33 +21,44 @@ import io.micronaut.core.bind.annotation.Bindable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-/***
+import static io.micronaut.jms.configuration.properties.JMSConfigurationProperties.PREFIX;
+
+/**
  * Generic configuration properties for global Micronaut JMS properties.
- *
+ * <p>
  * Existing properties include:
- * - initialPoolSize: this defines the default size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
- *      {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
- * - maxPoolSize: this defines the maximum size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
- *       {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+ * - initialPoolSize: the default size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
+ * {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+ * - maxPoolSize: the maximum size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
+ * {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
  *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
-@ConfigurationProperties("micronaut.jms")
+@ConfigurationProperties(PREFIX)
 public interface JMSConfigurationProperties {
 
-    /***
-     * @return the initial size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
-     *      {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+    /**
+     * Prefix for JMS settings.
+     */
+    String PREFIX = "micronaut.jms";
+
+    /**
+     * The initial size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
+     * {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+     *
+     * @return the initial size
      */
     @NotNull
     @Min(1)
     @Bindable(defaultValue = "1")
     Integer getInitialPoolSize();
 
-    /***
-     * @return the maximum size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
-     *      {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+    /**
+     * The maximum size of the {@link io.micronaut.jms.pool.JMSConnectionPool},
+     * {@link io.micronaut.jms.pool.SessionPool}, and {@link io.micronaut.jms.pool.MessageProducerPool}.
+     *
+     * @return the maximum size
      */
     @NotNull
     @Min(1)

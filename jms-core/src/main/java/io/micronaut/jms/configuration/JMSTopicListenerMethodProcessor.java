@@ -17,28 +17,48 @@ package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 
 import javax.inject.Singleton;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
+
+/**
+ * Registers a {@link io.micronaut.jms.listener.JMSListenerContainer} for
+ * methods annotated with {@link Topic}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 @Singleton
 public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
 
-    public JMSTopicListenerMethodProcessor(BeanContext beanContext, JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
-        super(beanContext, jmsArgumentBinderRegistry, Topic.class);
+    public JMSTopicListenerMethodProcessor(BeanContext beanContext,
+                                           JMSArgumentBinderRegistry registry) {
+        super(beanContext, registry, Topic.class);
     }
 
     @Override
     protected ExecutorService getExecutorService(AnnotationValue<Topic> value) {
+
+        final Optional<String> executorName = value.stringValue("executor");
+        if (executorName.isPresent() && !executorName.get().isEmpty()) {
+            return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
+                .orElseThrow(() -> new IllegalStateException(
+                    "No ExecutorService bean found with name " + executorName.get()));
+        }
+
         return Executors.newSingleThreadExecutor();
     }
 
     @Override
     protected JMSDestinationType getDestinationType() {
-        return JMSDestinationType.TOPIC;
+        return TOPIC;
     }
 }

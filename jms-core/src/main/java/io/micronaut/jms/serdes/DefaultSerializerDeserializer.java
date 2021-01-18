@@ -18,8 +18,8 @@ package io.micronaut.jms.serdes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.jms.model.MessageType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -27,87 +27,168 @@ import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
+import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultSerializerDeserializer implements Serializer<Object>, Deserializer {
+/**
+ * Default implementation of {@link Serializer} and {@link Deserializer}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
+public final class DefaultSerializerDeserializer implements Serializer<Serializable>, Deserializer {
 
+    private static final String OBJECT_MESSAGE_TYPE_PROPERTY = "MICRONAUT_SERDES_TYPE";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSerializerDeserializer.class);
+    private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
+
+    private DefaultSerializerDeserializer() {
+    }
+
+    public static DefaultSerializerDeserializer getInstance() {
+        return INSTANCE;
+    }
 
     @Override
-    public <T> T deserialize(Message message, Class<T> clazz) {
+    public <T> T deserialize(Message message,
+                             Class<T> clazz) {
         if (message == null) {
             return null;
         }
+
         try {
             switch (MessageType.fromMessage(message)) {
                 case MAP:
-                    final MapMessage mapMessage = (MapMessage) message;
-                    final Enumeration<String> keys = mapMessage.getMapNames();
-                    final Map<String, Object> output = new HashMap<>();
-                    while (keys.hasMoreElements()) {
-                        final String key = keys.nextElement();
-                        output.put(key, mapMessage.getObject(key));
-                    }
-                    return (T) output;
+                    return deserializeMap((MapMessage) message);
                 case TEXT:
-                    final TextMessage textMessage = (TextMessage) message;
-                    if (clazz.isAssignableFrom(String.class)) {
-                        return (T) textMessage.getText();
-                    }
-                    return OBJECT_MAPPER.readValue(textMessage.getText(), clazz);
+                    return deserializeText((TextMessage) message, clazz);
                 case BYTES:
-                    final BytesMessage bytesMessage = (BytesMessage) message;
-                    byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
-                    bytesMessage.readBytes(bytes);
-                    return (T) bytes;
+                    return deserializeBytes((BytesMessage) message);
                 case OBJECT:
-                    final ObjectMessage objectMessage = (ObjectMessage) message;
-                    return (T) objectMessage.getObject();
+                    return deserializeObject((ObjectMessage) message, clazz);
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
-        } catch (JMSException | JsonProcessingException e) {
-            LOGGER.error("Failed to deserialize message " + message + " due to an error.", e);
+        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+            throw new MessageListenerException("Problem deserializing message " + message, e);
         }
-        throw new IllegalArgumentException("Failed to deserialize message " + message);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeMap(final MapMessage message) throws JMSException {
+        final Enumeration<String> keys = message.getMapNames();
+        final Map<String, Object> output = new HashMap<>();
+        while (keys.hasMoreElements()) {
+            final String key = keys.nextElement();
+            output.put(key, message.getObject(key));
+        }
+        return (T) output;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeText(final TextMessage message,
+                                  final Class<T> clazz) throws JMSException, JsonProcessingException {
+        if (clazz.isAssignableFrom(String.class)) {
+            return (T) message.getText();
+        }
+        return OBJECT_MAPPER.readValue(message.getText(), clazz);
+    }
+
+    private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
+        byte[] bytes = new byte[(int) message.getBodyLength()];
+        message.readBytes(bytes);
+        return (T) bytes;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeObject(final ObjectMessage message,
+                                    final Class<T> clazz) throws JMSException, JsonProcessingException {
+
+        Serializable body = message.getObject();
+
+        if (body instanceof String) {
+            // if it's a String and the client asks for String, return that
+            if (clazz.isAssignableFrom(String.class)) {
+                return (T) body;
+            }
+
+            // if it was serialized to JSON, deserialize as the requested type
+            String serdesType = message.getStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY);
+            if (serdesType != null) {
+                return OBJECT_MAPPER.readValue((String) body, clazz);
+            }
+        }
+
+        return (T) message.getObject();
     }
 
     @Override
-    public Message serialize(Session session, Object input) {
+    public Message serialize(Session session,
+                             Serializable body) {
         try {
-            switch (MessageType.fromObject(input)) {
+            switch (MessageType.fromObject(body)) {
                 case MAP:
-                    final MapMessage message = session.createMapMessage();
-                    final Map<?, ?> inputMap = (Map<?, ?>) input;
-                    for (Map.Entry<?, ?> entry : inputMap.entrySet()) {
-                        if (!(entry.getKey() instanceof String)) {
-                            throw new IllegalArgumentException(
-                                    String.format("Failed to convert input due to key %s with type %s",
-                                            entry.getKey(),
-                                            entry.getKey().getClass()));
-                        }
-                        message.setObject((String) entry.getKey(), entry.getValue());
-                    }
-                    return message;
+                    return serializeMap(session, (Map<?, ?>) body);
                 case TEXT:
-                    return session.createTextMessage((String) input);
+                    return serializeText(session, (String) body);
                 case BYTES:
-                    final BytesMessage bytesMessage = session.createBytesMessage();
-                    bytesMessage.readBytes((byte[]) input);
-                    return bytesMessage;
+                    return serializeBytes(session, (byte[]) body);
                 case OBJECT:
-                    return session.createTextMessage(OBJECT_MAPPER.writeValueAsString(input));
+                    return serializeObject(session, body);
+                case STREAM:
+                    return serializeStream(session, (Object[]) body);
                 default:
-                    throw new IllegalArgumentException("No known serialization of message " + input);
+                    throw new IllegalArgumentException("No known serialization of message " + body);
             }
-        } catch (JMSException | JsonProcessingException e) {
-            LOGGER.error("Failed to serialize input " + input + " due to an error.", e);
+        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+            throw new MessagingClientException("Problem serializing body " + body, e);
         }
-        throw new IllegalArgumentException("Failed to serialize input " + input);
+    }
+
+    private MapMessage serializeMap(final Session session,
+                                    final Map<?, ?> body) throws JMSException {
+        final MapMessage message = session.createMapMessage();
+        for (Map.Entry<?, ?> entry : body.entrySet()) {
+            if (!(entry.getKey() instanceof CharSequence)) {
+                throw new IllegalArgumentException(
+                    "Invalid MapMessage key type " +
+                        entry.getKey().getClass().getName() +
+                        "; must be a String/CharSequence");
+            }
+            message.setObject(((CharSequence) entry.getKey()).toString(), entry.getValue());
+        }
+        return message;
+    }
+
+    private TextMessage serializeText(final Session session,
+                                      final String body) throws JMSException {
+        return session.createTextMessage(body);
+    }
+
+    private BytesMessage serializeBytes(final Session session,
+                                        final byte[] body) throws JMSException {
+        final BytesMessage message = session.createBytesMessage();
+        message.readBytes(body);
+        return message;
+    }
+
+    private ObjectMessage serializeObject(final Session session,
+                                          final Serializable body) throws JMSException, JsonProcessingException {
+        ObjectMessage message = session.createObjectMessage(OBJECT_MAPPER.writeValueAsString(body));
+        message.setStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY, body.getClass().getName());
+        return message;
+    }
+
+    private StreamMessage serializeStream(final Session session,
+                                          final Object[] body) throws JMSException {
+        StreamMessage message = session.createStreamMessage();
+        for (Object o : body) {
+            message.writeObject(o);
+        }
+        return message;
     }
 }
-

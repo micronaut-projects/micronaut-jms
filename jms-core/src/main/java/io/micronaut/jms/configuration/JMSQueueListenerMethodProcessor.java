@@ -21,20 +21,36 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.util.Assert;
 
 import javax.inject.Singleton;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+/**
+ * Registers a {@link io.micronaut.jms.listener.JMSListenerContainer} for
+ * methods annotated with {@link Queue}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 @Singleton
 public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Queue> {
 
-    private static final String CONCURRENCY_PATTERN = "([0-9]+)-([0-9]+)";
+    private static final Pattern CONCURRENCY_PATTERN = Pattern.compile("([0-9]+)-([0-9]+)");
+    private static final long DEFAULT_KEEP_ALIVE_TIME = 500; // TODO BB
 
-    public JMSQueueListenerMethodProcessor(BeanContext beanContext, JMSArgumentBinderRegistry jmsArgumentBinderRegistry) {
-        super(beanContext, jmsArgumentBinderRegistry, Queue.class);
+    public JMSQueueListenerMethodProcessor(BeanContext beanContext,
+                                           JMSArgumentBinderRegistry registry) {
+        super(beanContext, registry, Queue.class);
     }
 
     @Override
@@ -43,32 +59,31 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         final Optional<String> concurrency = value.stringValue("concurrency");
 
         if (executorName.isPresent() && !executorName.get().isEmpty()) {
-
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
-                    .orElseThrow(() -> new IllegalStateException("There is no configured executor service for " + executorName.get()));
-        } else {
-            final Pattern concurrencyPattern = Pattern.compile(CONCURRENCY_PATTERN);
-            final Matcher matcher = concurrencyPattern.matcher(
-                    concurrency.orElseThrow(() -> new IllegalStateException("If executor is not specified then concurrency must be specified")));
-            if (matcher.find() && matcher.groupCount() == 2) {
-                int numThreads = Integer.parseInt(matcher.group(1));
-                int maxThreads = Integer.parseInt(matcher.group(2));
-                return new ThreadPoolExecutor(
-                        numThreads,
-                        maxThreads,
-                        500L,
-                        TimeUnit.MILLISECONDS,
-                        new LinkedBlockingQueue<>(numThreads),
-                        Executors.defaultThreadFactory());
-
-            } else {
-                throw new IllegalArgumentException("Concurrency must be of the form int-int (i.e. \"1-10\"). Concurrency provided was " + concurrency.get());
-            }
+                .orElseThrow(() -> new IllegalStateException(
+                    "No ExecutorService bean found with name " + executorName.get()));
         }
+
+        final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency
+            .orElseThrow(() -> new IllegalStateException(
+                "Concurrency must be specified if ExecutorService is not specified")));
+        Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
+            () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
+                "Concurrency provided was " + concurrency.get());
+
+        int numThreads = Integer.parseInt(matcher.group(1));
+        int maxThreads = Integer.parseInt(matcher.group(2));
+        return new ThreadPoolExecutor(
+            numThreads,
+            maxThreads,
+            DEFAULT_KEEP_ALIVE_TIME,
+            MILLISECONDS,
+            new LinkedBlockingQueue<>(numThreads),
+            Executors.defaultThreadFactory());
     }
 
     @Override
     protected JMSDestinationType getDestinationType() {
-        return JMSDestinationType.QUEUE;
+        return QUEUE;
     }
 }

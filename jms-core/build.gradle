@@ -1,22 +1,10 @@
-plugins {
-    id 'java-library'
-}
-
 dependencies {
-    implementation platform('io.micronaut:micronaut-bom:2.0.0')
-
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    // needed because otherwise IntelliJ integration broken
-    compileOnly "io.micronaut:micronaut-inject-java"
-    api "io.micronaut:micronaut-inject"
-    api "io.micronaut:micronaut-messaging"
-    implementation "javax.jms:javax.jms-api:2.0.1"
-    implementation 'javax.validation:validation-api:2.0.1.Final'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
-    api 'org.apache.commons:commons-pool2:2.8.1'
-
-}
-
-test {
-    useJUnitPlatform()
+    annotationProcessor 'io.micronaut:micronaut-inject-java'
+    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
+    api 'io.micronaut:micronaut-inject'
+    api 'io.micronaut:micronaut-messaging'
+    api 'io.micronaut:micronaut-runtime'
+    api 'javax.jms:javax.jms-api:2.0.1'
+    api 'org.apache.commons:commons-pool2:2.9.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
 }

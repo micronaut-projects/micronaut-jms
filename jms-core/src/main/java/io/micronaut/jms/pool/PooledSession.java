@@ -35,93 +35,102 @@ import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import java.io.Serializable;
 
+/**
+ * Wrapper for {@link Session} that returns it to the pool with a call to
+ * {@link AutoCloseable#close()}.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public class PooledSession extends PooledObject<Session> implements Session {
 
     private final MessageProducerPool producerPool;
 
-    public PooledSession(AbstractPool<PooledObject<Session>> pool, Session object, MessageProducerPool producerPool) {
+    public PooledSession(AbstractPool<PooledObject<Session>> pool,
+                         Session object,
+                         MessageProducerPool producerPool) {
         super(pool, object);
         this.producerPool = producerPool;
     }
 
     @Override
     public BytesMessage createBytesMessage() throws JMSException {
-        return object.createBytesMessage();
+        return get().createBytesMessage();
     }
 
     @Override
     public MapMessage createMapMessage() throws JMSException {
-        return object.createMapMessage();
+        return get().createMapMessage();
     }
 
     @Override
     public Message createMessage() throws JMSException {
-        return object.createMessage();
+        return get().createMessage();
     }
 
     @Override
     public ObjectMessage createObjectMessage() throws JMSException {
-        return object.createObjectMessage();
+        return get().createObjectMessage();
     }
 
     @Override
-    public ObjectMessage createObjectMessage(Serializable object) throws JMSException {
-        return this.object.createObjectMessage(object);
+    public ObjectMessage createObjectMessage(Serializable messageObject) throws JMSException {
+        return get().createObjectMessage(messageObject);
     }
 
     @Override
     public StreamMessage createStreamMessage() throws JMSException {
-        return object.createStreamMessage();
+        return get().createStreamMessage();
     }
 
     @Override
     public TextMessage createTextMessage() throws JMSException {
-        return object.createTextMessage();
+        return get().createTextMessage();
     }
 
     @Override
     public TextMessage createTextMessage(String text) throws JMSException {
-        return object.createTextMessage(text);
+        return get().createTextMessage(text);
     }
 
     @Override
     public boolean getTransacted() throws JMSException {
-        return this.object.getTransacted();
+        return get().getTransacted();
     }
 
     @Override
     public int getAcknowledgeMode() throws JMSException {
-        return object.getAcknowledgeMode();
+        return get().getAcknowledgeMode();
     }
 
     @Override
     public void commit() throws JMSException {
-        object.commit();
+        get().commit();
     }
 
     @Override
     public void rollback() throws JMSException {
-        object.rollback();
+        get().rollback();
     }
 
     @Override
     public void recover() throws JMSException {
-        object.recover();
+        get().recover();
     }
 
     @Override
     public MessageListener getMessageListener() throws JMSException {
-        return object.getMessageListener();
+        return get().getMessageListener();
     }
 
     @Override
     public void setMessageListener(MessageListener listener) throws JMSException {
-        object.setMessageListener(listener);
+        get().setMessageListener(listener);
     }
 
     @Override
     public void run() {
-        object.run();
+        get().run();
     }
 
     @Override
@@ -131,91 +140,117 @@ public class PooledSession extends PooledObject<Session> implements Session {
 
     @Override
     public MessageConsumer createConsumer(Destination destination) throws JMSException {
-        return object.createConsumer(destination);
+        return get().createConsumer(destination);
     }
 
     @Override
-    public MessageConsumer createConsumer(Destination destination, String messageSelector) throws JMSException {
-        return object.createConsumer(destination, messageSelector);
+    public MessageConsumer createConsumer(Destination destination,
+                                          String messageSelector) throws JMSException {
+        return get().createConsumer(destination, messageSelector);
     }
 
     @Override
-    public MessageConsumer createConsumer(Destination destination, String messageSelector, boolean noLocal) throws JMSException {
-        return object.createConsumer(destination, messageSelector, noLocal);
+    public MessageConsumer createConsumer(Destination destination,
+                                          String messageSelector,
+                                          boolean noLocal) throws JMSException {
+        return get().createConsumer(destination, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName) throws JMSException {
-        return object.createSharedConsumer(topic, sharedSubscriptionName);
+    public MessageConsumer createSharedConsumer(Topic topic,
+                                                String sharedSubscriptionName) throws JMSException {
+        return get().createSharedConsumer(topic, sharedSubscriptionName);
     }
 
     @Override
-    public MessageConsumer createSharedConsumer(Topic topic, String sharedSubscriptionName, String messageSelector) throws JMSException {
-        return object.createSharedConsumer(topic, sharedSubscriptionName, messageSelector);
+    public MessageConsumer createSharedConsumer(Topic topic,
+                                                String sharedSubscriptionName,
+                                                String messageSelector) throws JMSException {
+        return get().createSharedConsumer(topic, sharedSubscriptionName, messageSelector);
     }
 
     @Override
     public Queue createQueue(String queueName) throws JMSException {
-        return object.createQueue(queueName);
+        return get().createQueue(queueName);
     }
 
     @Override
     public Topic createTopic(String topicName) throws JMSException {
-        return object.createTopic(topicName);
+        return get().createTopic(topicName);
     }
 
     @Override
-    public TopicSubscriber createDurableSubscriber(Topic topic, String name) throws JMSException {
-        return object.createDurableSubscriber(topic, name);
+    public TopicSubscriber createDurableSubscriber(Topic topic,
+                                                   String name) throws JMSException {
+        return get().createDurableSubscriber(topic, name);
     }
 
     @Override
-    public TopicSubscriber createDurableSubscriber(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
-        return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
+    public TopicSubscriber createDurableSubscriber(Topic topic,
+                                                   String name,
+                                                   String messageSelector,
+                                                   boolean noLocal) throws JMSException {
+        return get().createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createDurableConsumer(Topic topic, String name) throws JMSException {
-        return object.createDurableSubscriber(topic, name);
+    public MessageConsumer createDurableConsumer(Topic topic,
+                                                 String name) throws JMSException {
+        return get().createDurableSubscriber(topic, name);
     }
 
     @Override
-    public MessageConsumer createDurableConsumer(Topic topic, String name, String messageSelector, boolean noLocal) throws JMSException {
-        return object.createDurableSubscriber(topic, name, messageSelector, noLocal);
+    public MessageConsumer createDurableConsumer(Topic topic,
+                                                 String name,
+                                                 String messageSelector,
+                                                 boolean noLocal) throws JMSException {
+        return get().createDurableSubscriber(topic, name, messageSelector, noLocal);
     }
 
     @Override
-    public MessageConsumer createSharedDurableConsumer(Topic topic, String name) throws JMSException {
-        return object.createDurableSubscriber(topic, name);
+    public MessageConsumer createSharedDurableConsumer(Topic topic,
+                                                       String name) throws JMSException {
+        return get().createDurableSubscriber(topic, name);
     }
 
     @Override
-    public MessageConsumer createSharedDurableConsumer(Topic topic, String name, String messageSelector) throws JMSException {
-        return object.createSharedDurableConsumer(topic, name, messageSelector);
+    public MessageConsumer createSharedDurableConsumer(Topic topic,
+                                                       String name,
+                                                       String messageSelector) throws JMSException {
+        return get().createSharedDurableConsumer(topic, name, messageSelector);
     }
 
     @Override
     public QueueBrowser createBrowser(Queue queue) throws JMSException {
-        return object.createBrowser(queue);
+        return get().createBrowser(queue);
     }
 
     @Override
-    public QueueBrowser createBrowser(Queue queue, String messageSelector) throws JMSException {
-        return object.createBrowser(queue, messageSelector);
+    public QueueBrowser createBrowser(Queue queue,
+                                      String messageSelector) throws JMSException {
+        return get().createBrowser(queue, messageSelector);
     }
 
     @Override
     public TemporaryQueue createTemporaryQueue() throws JMSException {
-        return object.createTemporaryQueue();
+        return get().createTemporaryQueue();
     }
 
     @Override
     public TemporaryTopic createTemporaryTopic() throws JMSException {
-        return object.createTemporaryTopic();
+        return get().createTemporaryTopic();
     }
 
     @Override
     public void unsubscribe(String name) throws JMSException {
-        object.unsubscribe(name);
+        get().unsubscribe(name);
+    }
+
+    @Override
+    public String toString() {
+        return "PooledSession{" +
+            "producerPool=" + producerPool +
+            ", Session=" + get() +
+            '}';
     }
 }

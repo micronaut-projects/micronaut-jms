@@ -17,30 +17,35 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.context.annotation.Context;
 
-import javax.inject.Inject;
 import javax.jms.Connection;
 
-/***
+/**
  * Factory for generating a {@link SessionPool} from a {@link Connection}.
  *
+ * @author Elliott Pope
  * @see JMSConnectionPool
  * @see PooledConnection
- *
- * @author elliott
+ * @since 1.0.0
  */
 @Context
 public class SessionPoolFactory {
 
-    @Inject
-    private MessageProducerPoolFactory producerPoolFactory;
+    private static final int DEFAULT_POOL_INITIAL_SIZE = 1; // TODO configurable
+    private static final int DEFAULT_POOL_MAX_SIZE = 20; // TODO configurable
 
-    /***
-     * Returns a {@link SessionPool} from the provided {@param connection}.
+    private final MessageProducerPoolFactory producerPoolFactory;
+
+    public SessionPoolFactory(MessageProducerPoolFactory producerPoolFactory) {
+        this.producerPoolFactory = producerPoolFactory;
+    }
+
+    /**
+     * Returns a {@link SessionPool} from the provided {@code connection}.
      *
-     * @param connection
-     * @return a {@link SessionPool} from the provided {@param connection}.
+     * @param connection the connection
+     * @return a {@link SessionPool} from the provided {@code connection}.
      */
     public SessionPool getSessionPool(Connection connection) {
-        return new SessionPool(1, 20, connection, producerPoolFactory);
+        return new SessionPool(DEFAULT_POOL_INITIAL_SIZE, DEFAULT_POOL_MAX_SIZE, connection, producerPoolFactory);
     }
 }

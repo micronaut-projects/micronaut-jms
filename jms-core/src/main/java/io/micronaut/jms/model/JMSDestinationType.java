@@ -15,24 +15,24 @@
  */
 package io.micronaut.jms.model;
 
-/***
+/**
  * Enumeration of the types of JMS Destinations.
  *
- * @author elliottpope
- * @since 1.0
- *
+ * @author Elliott Pope
  * @see javax.jms.Destination
+ * @since 1.0.0
  */
 public enum JMSDestinationType {
-    /***
-     * Corresponds to a {@link javax.jms.Queue}.
+
+    /**
+     * A {@link javax.jms.Queue}.
      *
      * @see javax.jms.Queue
      */
     QUEUE,
 
-    /***
-     * Corresponds to a {@link javax.jms.Topic}.
+    /**
+     * A {@link javax.jms.Topic}.
      *
      * @see javax.jms.Topic
      */

@@ -15,107 +15,115 @@
  */
 package io.micronaut.jms.model;
 
+import io.micronaut.messaging.exceptions.MessagingClientException;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
+
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-/***
- * Container class to correspond to a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
- *      and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
+import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO;
+import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
+import static io.micronaut.jms.util.HeaderNameUtils.encode;
+
+/**
+ * Represents a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
+ * and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
  *
+ * @author Elliott Pope
  * @see io.micronaut.jms.templates.JmsProducer
  * @see io.micronaut.jms.configuration.JMSProducerMethodInterceptor
- *
- * @author elliottpope
- * @since 1.0
+ * @since 1.0.0
  */
 public class MessageHeader {
-    private static final Map<String, BiConsumer<Message, String>> JMS_HEADERS = new HashMap<>();
 
-    private String key;
-    private String value;
-    private boolean isJMSHeader;
+    private static final Map<String, BiConsumer<Message, Object>> JMS_HEADER_OPERATIONS = new HashMap<>();
 
-    private MessageHeader() {
-        JMS_HEADERS.put("JMSCorrelationID", (message, value) -> {
+    static {
+        JMS_HEADER_OPERATIONS.put(JMS_CORRELATION_ID, (message, value) -> {
+            checkArgumentType(value, String.class);
             try {
-                message.setJMSCorrelationID(value);
-            } catch (JMSException e) {
-                // log error
+                message.setJMSCorrelationID((String) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSCorrelationID header", e);
             }
         });
-        JMS_HEADERS.put("JMSMessageID", (message, value) -> {
+        JMS_HEADER_OPERATIONS.put(JMS_REPLY_TO, (message, value) -> {
+            checkArgumentType(value, Destination.class);
             try {
-                message.setJMSMessageID(value);
-            } catch (JMSException e) {
-                // log error
+                message.setJMSReplyTo((Destination) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSReplyTo header", e);
             }
         });
-        JMS_HEADERS.put("JMSType", (message, value) -> {
+        JMS_HEADER_OPERATIONS.put(JMS_TYPE, (message, value) -> {
+            checkArgumentType(value, String.class);
             try {
-                message.setJMSType(value);
-            } catch (JMSException e) {
-                // log error
-            }
-        });
-        JMS_HEADERS.put("JMSDeliveryTime", (message, value) -> {
-            try {
-                message.setJMSDeliveryTime(LocalDateTime.parse(value)
-                        .toEpochSecond(ZoneOffset.UTC));
-            } catch (JMSException e) {
-                // log error
+                message.setJMSType((String) value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingSystemException("Problem setting JMSType header", e);
             }
         });
     }
 
-    /***
+    private final String key;
+    private final Object value;
+    private final boolean isJmsHeader;
+
+    /**
      * Creates a container for the message header.
      *
-     * @param key - the name of the header.
-     * @param value - the value for the header.
+     * @param key   the header name
+     * @param value the header value
      */
-    public MessageHeader(String key, String value) {
-        this();
+    public MessageHeader(String key, Object value) {
         this.key = key;
         this.value = value;
-        this.isJMSHeader = JMS_HEADERS.containsKey(key);
+        isJmsHeader = JMS_HEADER_OPERATIONS.containsKey(key);
     }
 
-    /***
-     * @return true if the {@param key} is a JMS Header. Returns false if not.
+    /**
+     * If this is a supported JMS header, attempts to set the header given by
+     * the {@code key} with the value given with {@code value}, doing all
+     * required type conversions. Not all JMS headers are supported since most
+     * are set by the JMS provider (e.g. {@link JMSHeaders#JMS_PRIORITY}).
+     *
+     * If the header isn't a JMS header, sets an object property. This is only
+     * supported for Strings and objectified primitive object types (Boolean,
+     * Byte, Short, Integer, Long, Float, Double).
+     *
+     * @param message the message
      */
-    public boolean isJMSHeader() {
-        return isJMSHeader;
+    public void apply(Message message) {
+        if (isJmsHeader) {
+            JMS_HEADER_OPERATIONS.get(key).accept(message, value);
+        } else {
+            try {
+                message.setObjectProperty(encode(key), value);
+            } catch (JMSException | RuntimeException e) {
+                throw new MessagingClientException(
+                    "Problem setting message property '" + key + "' (non-JMS header)", e);
+            }
+        }
     }
 
-    /***
-     *
-     * Attempts to set the JMS Header given by the {@param key}
-     *      with the value given with {@param value} doing all required
-     *      type conversions. Not all JMS Headers are supported since they
-     *      are not managed at the message level (i.e. {@link JMSHeaders#JMS_PRIORITY})
-     *
-     * @param message
-     */
-    public void setJMSHeader(Message message) {
-        JMS_HEADERS.get(key).accept(message, value);
+    @Override
+    public String toString() {
+        return "MessageHeader{" +
+            "key='" + key + '\'' +
+            ", value=" + value +
+            ", isJmsHeader=" + isJmsHeader +
+            '}';
     }
 
-    /***
-     * Attempts to set a {@link String} property on the provided
-     *      {@link Message}.
-     *
-     * @param message
-     */
-    public void setHeader(Message message) {
-        try {
-            message.setStringProperty(key, value);
-        } catch (JMSException e) {
-            // log error
+    private static void checkArgumentType(Object value, Class<?> clazz) {
+        if (value != null && !clazz.isAssignableFrom(value.getClass())) {
+            throw new IllegalArgumentException(
+                    "Cannot convert " + value + " to " + clazz.getName());
         }
     }
 }

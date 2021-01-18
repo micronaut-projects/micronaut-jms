@@ -25,48 +25,52 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.pool.SessionPoolFactory;
+import io.micronaut.jms.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.ConnectionFactory;
 
-/***
+/**
+ * Creates a {@link JMSConnectionPool} from each registered
+ * {@link ConnectionFactory} in the context.
  *
- * Factory for generating {@link JMSConnectionPool} from each registered {@link ConnectionFactory} in the context.
- *
- * @author elliott
- * @since 1.0
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Context
 @Factory
 public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcessor<JMSConnectionFactory> {
 
-    private final JMSConfigurationProperties properties;
-    private final SessionPoolFactory sessionPoolFactory;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public JMSConnectionFactoryBeanProcessor(
-            JMSConfigurationProperties properties,
-            SessionPoolFactory sessionPoolFactory) {
+    private final JMSConfigurationProperties properties;
+
+    public JMSConnectionFactoryBeanProcessor(JMSConfigurationProperties properties) {
         this.properties = properties;
-        this.sessionPoolFactory = sessionPoolFactory;
     }
 
     @Override
     public void process(BeanDefinition<?> beanDefinition, BeanContext context) {
         final Object candidate = context.getBean(beanDefinition);
-        if (!ConnectionFactory.class.isAssignableFrom(candidate.getClass())) {
-            throw new IllegalStateException("@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
-                    "Provided class was " + candidate.getClass().getName());
-        }
+        Assert.isTrue(candidate instanceof ConnectionFactory,
+            () -> "@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
+            "Provided class was " + candidate.getClass().getName());
+
         final ConnectionFactory connectionFactory = (ConnectionFactory) candidate;
         final String name = beanDefinition.stringValue(JMSConnectionFactory.class)
-                .orElseThrow(() -> new ConfigurationException("@JMSConnectionFactory must specify a name for the bean."));
+            .orElseThrow(() -> new ConfigurationException(
+                "@JMSConnectionFactory must specify a name for the bean."));
+
         context.registerSingleton(
-                JMSConnectionPool.class,
-                new JMSConnectionPool(
-                        connectionFactory,
-                        sessionPoolFactory,
-                        properties.getInitialPoolSize(),
-                        properties.getMaxPoolSize()),
-                Qualifiers.byName(name));
+            JMSConnectionPool.class,
+            new JMSConnectionPool(
+                connectionFactory,
+                properties.getInitialPoolSize(),
+                properties.getMaxPoolSize()),
+            Qualifiers.byName(name));
+
+        logger.debug("created JMSConnectionPool bean '{}' for ConnectionFactory {}",
+            name, connectionFactory.getClass().getName());
     }
 }

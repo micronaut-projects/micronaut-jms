@@ -17,20 +17,28 @@ package io.micronaut.jms.pool;
 
 import javax.jms.JMSException;
 
+/**
+ * Base class for wrappers of pooled objects.
+ *
+ * @param <T> the type of object being pooled
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
 public abstract class PooledObject<T> implements AutoCloseable {
 
-    protected final T object;
     private final AbstractPool<PooledObject<T>> pool;
+    private final T object;
 
-    public PooledObject(AbstractPool<PooledObject<T>> pool, T object) {
+    protected PooledObject(AbstractPool<PooledObject<T>> pool,
+                           T object) {
         this.pool = pool;
         this.object = object;
     }
 
-    /***
-     * Retrieve the underlying object that has been pooled.
+    /**
+     * Retrieve the underlying pooled object.
      *
-     * @return the underlying object that has been pooled.
+     * @return the object
      */
     public T get() {
         return object;

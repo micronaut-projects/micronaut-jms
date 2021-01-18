@@ -1,6 +1,35 @@
-= Getting Started
+To add support for JMS to a project, add a dependency to your build, depending on the JMS implementation(s) you require:
 
-To add support for JMS, introduce the following dependency to your project
+dependency:micronaut-jms-activemq-classic[groupId="io.micronaut.jms"]
 
-dependency:io.micronaut.jms:micronaut-jms-core[]
+dependency:micronaut-jms-activemq-artemis[groupId="io.micronaut.jms"]
 
+dependency:micronaut-jms-sqs[groupId="io.micronaut.jms"]
+
+Note that you can use multiple providers in a project.
+
+== Creating a JMS Producer with @JMSProducer
+
+To create a JMS client that sends messages, define an interface annotated with `JMSProducer`, for example:
+
+snippet::io.micronaut.jms.docs.quickstart.TextProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The `JMSProducer` annotation designates this interface as a client.
+<2> The ann:jms.annotation.Queue[] annotation indicates which queue the message should be published to.
+<3> The `send` method accepts a single parameter which is the payload of the message.
+
+At compile time Micronaut will produce an implementation of the interface. You can retrieve an instance of `MapProducer` either by looking up the bean from the link:{apimicronaut}context/ApplicationContext.html[ApplicationContext] or with dependency injection:
+
+snippet::io.micronaut.jms.docs.quickstart.QuickstartSpec[tags="producer", project-base="docs-examples/example"]
+
+== Creating a JMS Consumer with @JMSListener
+
+To listen to JMS messages you can use the ann:jms.annotation.JMSListener[] annotation to define a message listener.
+
+The following example will listen for messages published by the `MapProducer` in the previous section:
+
+snippet::io.micronaut.jms.docs.quickstart.TextConsumer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The ann:jms.annotation.JMSListener[] is used to designate the bean as a message listener.
+<2> The ann:jms.annotation.Queue[] annotation is used to indicate which queue to subscribe to.
+<3> The `receive` method accepts a single parameter which is the payload of the message.

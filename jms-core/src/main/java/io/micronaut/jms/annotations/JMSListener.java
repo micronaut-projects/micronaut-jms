@@ -15,35 +15,34 @@
  */
 package io.micronaut.jms.annotations;
 
-import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
 
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- *
- * Annotation for declaring a class for post-processing. Any class annotated with {@link JMSListener} must contain at
- *  least one method annotated with {@link Queue} or {@link Topic} or else an {@link IllegalStateException} will be thrown.
- *
- * Additionally, the value specified by the {@link JMSListener} must correspond to exactly one {@link JMSConnectionFactory}
- *  or else an {@link IllegalStateException} will be thrown.
- *
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * Declares a class for post-processing. Annotated classes must contain at
+ * least one method annotated with {@link Queue} or {@link Topic}, otherwise an
+ * {@link IllegalStateException} will be thrown.
+ * <p>
+ * Additionally, the value specified by the {@link JMSProducer} must correspond
+ * to exactly one {@link JMSConnectionFactory} or an {@link IllegalStateException}
+ * will be thrown.
+ * <p>
  * Usage:
  * <pre>
- *     {@code
- * @JMSConnectionFactory("connectionFactoryOne")
+ * &#64;JMSConnectionFactory("connectionFactoryOne")
  * public ConnectionFactory connectionFactoryOne() {
  *     return new ActiveMqConnectionFactory("vm://localhost?broker.persist=false");
  * }
  *
- *
- * @JMSConnectionFactory("connectionFactoryTwo")
+ * &#64;JMSConnectionFactory("connectionFactoryTwo")
  * public ConnectionFactory connectionFactoryTwo() {
  *     RMQConnectionFactory connectionFactory = new RMQConnectionFactory();
  *     connectionFactory.setUsername("guest");
@@ -54,50 +53,40 @@ import java.lang.annotation.Target;
  *     return connectionFactory;
  * }
  *
- * @JMSListener("connectionFactoryOne")
+ * &#64;JMSListener("connectionFactoryOne")
  * public static class ListenerOne {
- *      @Queue("my-activemq-queue")
+ *      &#64;Queue("my-activemq-queue")
  *      public void onMessage(String message) {
  *          // do logic
  *      }
  * }
  *
- * @JMSListener("connectionFactoryTwo")
+ * &#64;JMSListener("connectionFactoryTwo")
  * public static class ListenerTwo {
- *      @Queue("my-rabbitmq-queue")
+ *      &#64;Queue("my-rabbitmq-queue")
  *      public void handle(Integer message) {
  *          // do logic
  *      }
  * }
- *     }
  * </pre>
  *
- * @author elliott
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 @Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Retention(RUNTIME)
+@Target(TYPE)
 @Bean
 @DefaultScope(Context.class)
 public @interface JMSListener {
 
-    /***
-     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
-     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
-     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
+    /**
+     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to
+     * use to configure the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * The name must correspond to a bean annotated with {@link JMSConnectionFactory}
+     * and the values must be the same.
      *
      * @return the name of the {@link JMSConnectionFactory} to use.
      */
-    @AliasFor(member = "connectionFactory")
-    String value() default "";
-
-    /***
-     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to use to set up the
-     *      {@link io.micronaut.jms.listener.JMSListenerContainer}. The name must correspond to a bean
-     *      annotated with {@link JMSConnectionFactory} and the values must be the same.
-     *
-     * @return the name of the {@link JMSConnectionFactory} to use.
-     */
-    @AliasFor(member = "value")
-    String connectionFactory() default "";
+    String value();
 }

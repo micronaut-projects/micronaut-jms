@@ -18,6 +18,22 @@ package io.micronaut.jms.serdes;
 import javax.jms.Message;
 import javax.jms.Session;
 
+/**
+ * Serializes an object into a {@link Message}.
+ *
+ * @param <T> the object type
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
+@FunctionalInterface
 public interface Serializer<T> {
-    Message serialize(Session session, T input);
+
+    /**
+     * Create a message from the body.
+     *
+     * @param session the JMS session
+     * @param body the message body
+     * @return the message
+     */
+    Message serialize(Session session, T body);
 }

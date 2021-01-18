@@ -1,7 +1,10 @@
 rootProject.name = 'jms'
 
 include 'jms-core'
-include 'jms-core-test'
-include 'jms-activemq'
-include 'micronaut-jms-example'
-
+include 'jms-activemq-classic'
+include 'jms-activemq-artemis'
+include 'jms-sqs'
+include 'jms-test'
+include 'docs-examples:example-groovy'
+include 'docs-examples:example-java'
+include 'docs-examples:example-kotlin'

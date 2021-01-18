@@ -1,34 +1,7 @@
-plugins {
-    id 'java'
-}
-
 dependencies {
-    implementation project(':micronaut-jms-core')
-    implementation platform('io.micronaut:micronaut-bom:2.0.0')
-
-    // lombok config must come before the Micronaut annotation processor config
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-
-    implementation "javax.jms:javax.jms-api:2.0.1"
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    // needed because otherwise IntelliJ integration broken
-    compileOnly "io.micronaut:micronaut-inject-java"
-    compile "io.micronaut:micronaut-inject"
-    compile 'com.amazonaws:aws-java-sdk-sqs:1.11.816'
-    compile 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
-
-    testCompile project(':micronaut-jms-core-test')
-
-    testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
-
-    testCompileOnly "io.micronaut:micronaut-inject-java"
-
-    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-    testCompile "io.micronaut.test:micronaut-test-junit5"
-    testCompile "io.micronaut.test:micronaut-test-spock:1.2.0"
-    testCompile 'com.amazonaws:aws-java-sdk-sqs:1.11.816'
-    testCompile "org.mockito:mockito-junit-jupiter:3.3.3"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+    api project(':jms-core')
+    api 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
+    api 'com.amazonaws:aws-java-sdk-sqs:1.11.935'
+    api 'io.micronaut.aws:micronaut-aws-sdk-v1:2.2.5'
+    annotationProcessor 'io.micronaut:micronaut-inject-java'
 }

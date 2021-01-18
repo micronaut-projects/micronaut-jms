@@ -1,0 +1,20 @@
+= Configuring Unsupported Brokers
+
+Using an unsupported JMS broker is simple; you simply need to instantiate a `ConnectionFactory` like the following:
+
+[source,java]
+----
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.jms.annotations.JMSConnectionFactory;
+import javax.jms.ConnectionFactory;
+
+@Factory
+public class MyJMSConfig {
+    @JMSConnectionFactory("myConnectionFactory")
+    public ConnectionFactory connectionFactory() {
+        return new ...;
+    }
+}
+----
+
+With this in place you can configure consumers and producers that use the connection factory by referencing the bean name (`"myConnectionFactory"` in the example) in `@JMSProducer` and `@JMSListener` annotations on your producer interfaces and consumer classes.

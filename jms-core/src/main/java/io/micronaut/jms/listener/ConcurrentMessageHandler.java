@@ -17,54 +17,48 @@ package io.micronaut.jms.listener;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-/***
- * A {@link MessageHandler} decorator that wraps a delegate implementation in an {@link ExecutorService}
- *      so that many incoming messages can be handled concurrently on different threads. If no {@link ExecutorService}
- *      is provided then a default single threaded executor is provided.
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+/**
+ * A {@link MessageHandler} decorator that wraps a delegate implementation in
+ * an {@link ExecutorService} to handle many incoming messages concurrently on
+ * different threads. A default single-threaded executor is provided if no
+ * {@link ExecutorService} is provided.
  *
- * @param <T> - the type of the object that the handler is expecting.
- *
- * @author elliott
- * @since 1.0
+ * @param <T> the type of the object that the handler is expecting.
+ * @author Elliott Pope
+ * @since 1.0.0
  */
 public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
 
-    private MessageHandler<T> delegate;
-    private ExecutorService executorService;
+    private static final long DEFAULT_AWAIT_TIMEOUT = 10; // TODO configurable
 
-    /***
+    private final MessageHandler<T> delegate;
+    private final ExecutorService executorService;
+
+    /**
      * Allows for concurrent handling of messages by handing of the logic to
-     *      a delegate {@link MessageHandler} but wrapping those calls within
-     *      an {@link ExecutorService#execute(Runnable)}.
+     * a delegate {@link MessageHandler} but wrapping those calls within
+     * an {@link ExecutorService#execute(Runnable)}.
      *
-     * @param delegate - the {@link MessageHandler} to actually handle the incoming messages
-     * @param executorService - the {@link ExecutorService} to submit handling requests to.
+     * @param delegate        the {@link MessageHandler} to actually handle the incoming messages
+     * @param executorService the {@link ExecutorService} to submit handling requests to.
      */
-    public ConcurrentMessageHandler(MessageHandler<T> delegate, ExecutorService executorService) {
+    public ConcurrentMessageHandler(MessageHandler<T> delegate,
+                                    ExecutorService executorService) {
         this.delegate = delegate;
         this.executorService = executorService;
     }
 
-    /***
-     * Submits incoming handling requests on a single threaded executor to avoid
-     *      blocking the main thread.
+    /**
+     * Submits incoming handling requests on a single threaded executor to
+     * avoid blocking the main thread.
      *
-     * @param delegate - the {@link MessageHandler} to actually handle the incoming messages/
+     * @param delegate the {@link MessageHandler} to actually handle the incoming messages/
      */
     public ConcurrentMessageHandler(MessageHandler<T> delegate) {
         this(delegate, Executors.newSingleThreadExecutor());
-    }
-
-    /***
-     *
-     * Sets the {@link ExecutorService} to delegate the message handling to.
-     *
-     * @param executorService
-     */
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
     }
 
     @Override
@@ -72,17 +66,15 @@ public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
         executorService.submit(() -> delegate.handle(message));
     }
 
-    /***
-     *
+    /**
      * Closes the MessageHandler and terminates the {@link ConcurrentMessageHandler#executorService}.
      *
      * @return true if the {@link ConcurrentMessageHandler#executorService} is successfully shut down.
-     *      false otherwise.
-     * @throws InterruptedException
+     * @throws InterruptedException if there is a timeout waiting for the executor service to shut down
      */
     public boolean shutdown() throws InterruptedException {
         executorService.shutdown();
-        executorService.awaitTermination(10L, TimeUnit.SECONDS);
+        executorService.awaitTermination(DEFAULT_AWAIT_TIMEOUT, SECONDS);
         return executorService.isShutdown();
     }
 }

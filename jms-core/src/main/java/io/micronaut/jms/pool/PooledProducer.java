@@ -21,128 +21,153 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 
-/***
- *
+/**
  * Pooled object for ensuring maximum reuse of {@link MessageProducer} objects.
  *
+ * @author Elliott Pope
  * @see MessageProducerPool
  * @see MessageProducerPoolFactory
  * @see SessionPool
- *
- * @author elliott
+ * @since 1.0.0
  */
 public class PooledProducer extends PooledObject<MessageProducer> implements MessageProducer {
 
-    public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool, MessageProducer object) {
+    public PooledProducer(AbstractPool<PooledObject<MessageProducer>> pool,
+                          MessageProducer object) {
         super(pool, object);
-    }
-
-    @Override
-    public void setDisableMessageID(boolean value) throws JMSException {
-        object.setDisableMessageID(value);
-    }
-
-    @Override
-    public boolean getDisableMessageID() throws JMSException {
-        return object.getDisableMessageID();
-    }
-
-    @Override
-    public void setDisableMessageTimestamp(boolean value) throws JMSException {
-        object.setDisableMessageTimestamp(value);
-    }
-
-    @Override
-    public boolean getDisableMessageTimestamp() throws JMSException {
-        return object.getDisableMessageTimestamp();
-    }
-
-    @Override
-    public void setDeliveryMode(int deliveryMode) throws JMSException {
-        object.setDeliveryMode(deliveryMode);
-    }
-
-    @Override
-    public int getDeliveryMode() throws JMSException {
-        return object.getDeliveryMode();
-    }
-
-    @Override
-    public void setPriority(int defaultPriority) throws JMSException {
-        object.setPriority(defaultPriority);
-    }
-
-    @Override
-    public int getPriority() throws JMSException {
-        return object.getPriority();
-    }
-
-    @Override
-    public void setTimeToLive(long timeToLive) throws JMSException {
-        object.setTimeToLive(timeToLive);
-    }
-
-    @Override
-    public long getTimeToLive() throws JMSException {
-        return object.getTimeToLive();
-    }
-
-    @Override
-    public void setDeliveryDelay(long deliveryDelay) throws JMSException {
-        object.setDeliveryDelay(deliveryDelay);
-    }
-
-    @Override
-    public long getDeliveryDelay() throws JMSException {
-        return object.getDeliveryDelay();
-    }
-
-    @Override
-    public Destination getDestination() throws JMSException {
-        return object.getDestination();
-    }
-
-    @Override
-    public void send(Message message) throws JMSException {
-        object.send(message);
-    }
-
-    @Override
-    public void send(Message message, int deliveryMode, int priority, long timeToLive) throws JMSException {
-        object.send(message, deliveryMode, priority, timeToLive);
-    }
-
-    @Override
-    public void send(Destination destination, Message message) throws JMSException {
-        object.send(destination, message);
-    }
-
-    @Override
-    public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive) throws JMSException {
-        object.send(destination, message, deliveryMode, priority, timeToLive);
-    }
-
-    @Override
-    public void send(Message message, CompletionListener completionListener) throws JMSException {
-        object.send(message, completionListener);
-    }
-
-    @Override
-    public void send(Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException {
-        object.send(message, deliveryMode, priority, timeToLive, completionListener);
-    }
-
-    @Override
-    public void send(Destination destination, Message message, CompletionListener completionListener) throws JMSException {
-        object.send(destination, message, completionListener);
-    }
-
-    @Override
-    public void send(Destination destination, Message message, int deliveryMode, int priority, long timeToLive, CompletionListener completionListener) throws JMSException {
-        object.send(destination, message, deliveryMode, priority, timeToLive, completionListener);
     }
 
     public static PooledProducer of(PooledObject<MessageProducer> object) {
         return (PooledProducer) object;
+    }
+
+    @Override
+    public void setDisableMessageID(boolean value) throws JMSException {
+        get().setDisableMessageID(value);
+    }
+
+    @Override
+    public boolean getDisableMessageID() throws JMSException {
+        return get().getDisableMessageID();
+    }
+
+    @Override
+    public void setDisableMessageTimestamp(boolean value) throws JMSException {
+        get().setDisableMessageTimestamp(value);
+    }
+
+    @Override
+    public boolean getDisableMessageTimestamp() throws JMSException {
+        return get().getDisableMessageTimestamp();
+    }
+
+    @Override
+    public void setDeliveryMode(int deliveryMode) throws JMSException {
+        get().setDeliveryMode(deliveryMode);
+    }
+
+    @Override
+    public int getDeliveryMode() throws JMSException {
+        return get().getDeliveryMode();
+    }
+
+    @Override
+    public void setPriority(int defaultPriority) throws JMSException {
+        get().setPriority(defaultPriority);
+    }
+
+    @Override
+    public int getPriority() throws JMSException {
+        return get().getPriority();
+    }
+
+    @Override
+    public void setTimeToLive(long timeToLive) throws JMSException {
+        get().setTimeToLive(timeToLive);
+    }
+
+    @Override
+    public long getTimeToLive() throws JMSException {
+        return get().getTimeToLive();
+    }
+
+    @Override
+    public void setDeliveryDelay(long deliveryDelay) throws JMSException {
+        get().setDeliveryDelay(deliveryDelay);
+    }
+
+    @Override
+    public long getDeliveryDelay() throws JMSException {
+        return get().getDeliveryDelay();
+    }
+
+    @Override
+    public Destination getDestination() throws JMSException {
+        return get().getDestination();
+    }
+
+    @Override
+    public void send(Message message) throws JMSException {
+        get().send(message);
+    }
+
+    @Override
+    public void send(Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive) throws JMSException {
+        get().send(message, deliveryMode, priority, timeToLive);
+    }
+
+    @Override
+    public void send(Destination destination,
+                     Message message) throws JMSException {
+        get().send(destination, message);
+    }
+
+    @Override
+    public void send(Destination destination,
+                     Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive) throws JMSException {
+        get().send(destination, message, deliveryMode, priority, timeToLive);
+    }
+
+    @Override
+    public void send(Message message,
+                     CompletionListener completionListener) throws JMSException {
+        get().send(message, completionListener);
+    }
+
+    @Override
+    public void send(Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive,
+                     CompletionListener completionListener) throws JMSException {
+        get().send(message, deliveryMode, priority, timeToLive, completionListener);
+    }
+
+    @Override
+    public void send(Destination destination,
+                     Message message,
+                     CompletionListener completionListener) throws JMSException {
+        get().send(destination, message, completionListener);
+    }
+
+    @Override
+    public void send(Destination destination,
+                     Message message,
+                     int deliveryMode,
+                     int priority,
+                     long timeToLive,
+                     CompletionListener completionListener) throws JMSException {
+        get().send(destination, message, deliveryMode, priority, timeToLive, completionListener);
+    }
+
+    @Override
+    public String toString() {
+        return "PooledProducer{MessageProducer=" + get() + '}';
     }
 }

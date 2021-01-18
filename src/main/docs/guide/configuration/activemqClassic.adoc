@@ -1,0 +1,19 @@
+= Configuring ActiveMQ "Classic"
+
+To use ActiveMQ "Classic", add the following properties to your `application.yml`
+
+[source,yaml]
+----
+micronaut:
+  jms:
+    activemq:
+      classic:
+        enabled: true
+        connection-string: 'tcp://host:port'
+----
+
+and the following to your `build.gradle` or `pom.xml`
+
+dependency:io.micronaut.jms:micronaut-jms-activemq-classic[]
+
+The JMS link:{apijms}ConnectionFactory.html[ConnectionFactory] will be an instance of link:{apiActiveMqClassic}ActiveMQConnectionFactory.html[ActiveMQConnectionFactory]. Only the broker URL is configurable in `application.yml` but further customization is possible with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].

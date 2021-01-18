@@ -15,202 +15,186 @@
  */
 package io.micronaut.jms.templates;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import io.micronaut.messaging.exceptions.MessagingClientException;
+import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.annotation.Nullable;
 import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Optional;
 
-public class JmsProducer {
+import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
+import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
+import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
+import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JmsProducer.class);
+/**
+ * Helper class that sends messages, configuring JMS connections, sessions,
+ * etc. for you.
+ * <p>
+ * TODO rename, too similar to JMSProducer
+ *
+ * @param <T> the message type
+ * @author Elliott Pope
+ * @since 1.0.0
+ */
+public class JmsProducer<T> {
 
-    @Nullable
-    private JMSConnectionPool connectionPool;
-    private Serializer<Object> serializer;
-    private boolean sessionTransacted = false;
-    private int sessionAcknowledged = Session.AUTO_ACKNOWLEDGE;
     private final JMSDestinationType type;
-    private int defaultJMSPriority = 4;
+    private final JMSConnectionPool connectionPool;
+    private final Serializer<T> serializer;
+    private final boolean sessionTransacted;
+    private final int sessionAcknowledgeMode;
 
-    public JmsProducer(JMSDestinationType type) {
+    @SuppressWarnings("unchecked")
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool) {
+        this(type, connectionPool, (Serializer<T>) DefaultSerializerDeserializer.getInstance());
+    }
+
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Serializer<T> serializer) {
+        this(type, connectionPool, serializer, false, AUTO_ACKNOWLEDGE);
+    }
+
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Serializer<T> serializer,
+                       boolean sessionTransacted,
+                       int sessionAcknowledgeMode) {
         this.type = type;
-    }
-
-    public JmsProducer(
-            JMSDestinationType type,
-            boolean sessionTransacted,
-            int sessionAcknowledged) {
-        this.type = type;
-        this.sessionTransacted = sessionTransacted;
-        this.sessionAcknowledged = sessionAcknowledged;
-    }
-
-    /***
-     * @return the {@link JMSConnectionPool} configured for the producer.
-     */
-    public JMSConnectionPool getConnectionPool() {
-        return Optional.ofNullable(connectionPool).orElseThrow(
-                () -> new IllegalStateException("Connection Pool cannot be null"));
-    }
-
-    /***
-     *
-     * Sets the {@link JMSConnectionPool} to be used by the producer.
-     *
-     * @param connectionPool
-     */
-    public void setConnectionPool(@Nullable JMSConnectionPool connectionPool) {
         this.connectionPool = connectionPool;
-    }
-
-    /***
-     *
-     * Sets the {@link Serializer} to be used by the producer to
-     *      convert the {@link Object} into an {@link Message}.
-     *
-     * @see io.micronaut.jms.serdes.DefaultSerializerDeserializer
-     *
-     * @param serializer
-     */
-    public void setSerializer(Serializer<Object> serializer) {
         this.serializer = serializer;
+        this.sessionTransacted = sessionTransacted;
+        this.sessionAcknowledgeMode = sessionAcknowledgeMode;
     }
 
-    /***
-     * @return the {@link Serializer} to be used by the producer.
-     */
-    public Serializer<Object> getSerializer() {
-        return Optional.ofNullable(serializer).orElseThrow(
-                () -> new IllegalStateException("Serializer cannot be null"));
-    }
-
-    /***
+    /**
+     * Creates a {@link Message} from the {@code body} and sends it to the
+     * {@code destination} with the {@code headers}.
      *
-     * Sends the given {@param message} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param message
-     * @param headers
+     * @param destination the queue or topic name
+     * @param body        the body
+     * @param headers     optional headers
      */
-    public void send(
-            @NotEmpty String destination,
-            @NotNull Object message,
-            MessageHeader... headers) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
-            send(destination, getSerializer().serialize(session, message), headers);
-        } catch (JMSException e) {
-            e.printStackTrace();
+    public void send(@NonNull String destination,
+                     @NonNull T body,
+                     MessageHeader... headers) {
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
+            send(session, lookupDestination(destination, session),
+                serializer.serialize(session, body), headers);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message to " + destination, e);
         }
-
     }
 
-    /***
+    /**
+     * Sends the given {@code message} to the {@code destination} with the
+     * given {@code headers}.
      *
-     * Sends the given {@param message} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param message
-     * @param headers
+     * @param destination the queue or topic name
+     * @param message     the message
+     * @param headers     optional headers
      */
-    public void send(
-            @NotEmpty String destination,
-            @NotNull Message message,
-            MessageHeader... headers) {
-        send(lookupDestination(destination), message, headers);
-    }
-
-    private Destination lookupDestination(String destination) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
-            return type == JMSDestinationType.QUEUE ?
-                    session.createQueue(destination) :
-                    session.createTopic(destination);
-        } catch (JMSException e) {
-            e.printStackTrace();
+    public void send(@NonNull String destination,
+                     @NonNull Message message,
+                     MessageHeader... headers) {
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
+            send(session, lookupDestination(destination, session), message, headers);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message to " + destination, e);
         }
-        return null;
     }
 
-    /***
+    /**
+     * Sends the given {@code message} to the {@code destination}
+     * with the given {@code headers}.
      *
-     * Sends the given {@param message} to the {@param destination}
-     *      with the given {@param headers}.
-     *
-     * @param destination
-     * @param message
-     * @param headers
+     * @param destination the queue or topic name
+     * @param message     the message
+     * @param headers     optional headers
      */
-    public void send(
-            @NotNull Destination destination,
-            @NotNull Message message,
-            MessageHeader... headers) {
-        try (Connection connection = getConnectionPool().createConnection();
-             Session session = getOrCreateSession(connection)) {
+    public void send(@NonNull Destination destination,
+                     @NonNull Message message,
+                     MessageHeader... headers) {
+        ArgumentUtils.requireNonNull("destination", destination);
+        ArgumentUtils.requireNonNull("message", message);
+
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
             send(session, destination, message, headers);
-        } catch (JMSException e) {
-            LOGGER.error("Exception occurred while sending message ", e);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message ", e);
         }
     }
 
-    private Session getOrCreateSession(Connection connection) throws JMSException {
-        return connection.createSession(sessionTransacted, sessionAcknowledged);
+    @Override
+    public String toString() {
+        return "JmsProducer{" +
+            "type=" + type +
+            ", connectionPool=" + connectionPool +
+            ", serializer=" + serializer +
+            ", sessionTransacted=" + sessionTransacted +
+            ", sessionAcknowledgeMode=" + sessionAcknowledgeMode +
+            '}';
     }
 
-    private void send(
-            @NotNull Session session,
-            @NotNull Destination destination,
-            @NotNull Message message,
-            MessageHeader... headers) throws JMSException {
-        notNull(session, "Session cannot be null");
-        notNull(destination, "Destination cannot be null");
-        notNull(message, "Message cannot be null");
+    private void send(@NonNull Session session,
+                      @NonNull Destination destination,
+                      @NonNull Message message,
+                      MessageHeader... headers) throws JMSException {
+        ArgumentUtils.requireNonNull("session", session);
 
         try (MessageProducer producer = session.createProducer(destination)) {
-            send(producer, message, headers);
+
+            for (MessageHeader header : headers) {
+                header.apply(message);
+            }
+
+            // TODO support specifying delivery mode, TTL, priority
+            producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), DEFAULT_TIME_TO_LIVE);
+
             if (sessionTransacted) {
                 session.commit();
             }
-        } catch (JMSException e) {
-            session.rollback();
-            LOGGER.error("Error sending the message.", e);
-        }
-
-    }
-
-    private void send(@NotNull MessageProducer producer, @NotNull Message message, MessageHeader... headers) throws JMSException {
-        notNull(producer, "MessageProducer cannot be null");
-        notNull(message, "Message cannot be null");
-        setJMSHeaders(message, headers);
-        producer.send(message, Message.DEFAULT_DELIVERY_MODE, message.getJMSPriority(), Message.DEFAULT_TIME_TO_LIVE);
-    }
-
-    private static void notNull(Object object, String failureMessage) {
-        Optional.ofNullable(object).orElseThrow(() -> new IllegalStateException(failureMessage));
-    }
-
-    private static void setJMSHeaders(@NotNull Message message, MessageHeader... headers) {
-        for (MessageHeader header : headers) {
-            if (header.isJMSHeader()) {
-                header.setJMSHeader(message);
-            } else {
-                header.setHeader(message);
+        } catch (JMSException | RuntimeException e) {
+            if (sessionTransacted) {
+                try {
+                    session.rollback();
+                } catch (JMSException | RuntimeException e2) {
+                    throw new MessageListenerException(
+                        "Problem rolling back transaction", e2);
+                }
             }
+            throw new MessagingClientException("Problem sending the message", e);
         }
+    }
+
+    private Destination lookupDestination(String destination, Session session) {
+        try {
+            return type == QUEUE ?
+                session.createQueue(destination) :
+                session.createTopic(destination);
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingSystemException("Problem creating " +
+                type.name().toLowerCase() + " '" + destination + "'", e);
+        }
+    }
+
+    private Session createSession(Connection connection) throws JMSException {
+        return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
     }
 }
