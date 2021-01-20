@@ -103,6 +103,15 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
         return connectionFactory.createContext(sessionMode);
     }
 
+    /**
+     * Provides access to the underlying {@link ConnectionFactory}.
+     *
+     * @return the connection factory
+     */
+    public ConnectionFactory getConnectionFactory() {
+        return connectionFactory;
+    }
+
     @Override
     public String toString() {
         return "JMSConnectionPool{" +
