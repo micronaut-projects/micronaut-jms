@@ -1,0 +1,15 @@
+= Customizing Brokers
+
+Although only the broker URL is configurable in `application.yml`, there are potentially many configurable properties in the instantiated `ConnectionFactory`. Also, you may wish to use a different `ConnectionFactory` implementation class. Any customization you need can be done by intercepting the creation of the `ConnectionFactory` with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].
+
+== Customizing the ConnectionFactory
+
+Here we intercept the creation of the ActiveMQ "Classic" `ConnectionFactory` by overriding the default to enable asynchronous message sending:
+
+snippet::io.micronaut.jms.docs.configuration.CustomizeBrokerJMSConnectionPoolListener[tags="imports,clazz", project-base="docs-examples/example"]
+
+== Replacing the ConnectionFactory
+
+Here we discard the default instance and replace it with a custom implementation, in this case an instance of link:{apijms}XAConnectionFactory.html[XAConnectionFactory] for distributed transaction support.
+
+snippet::io.micronaut.jms.docs.configuration.CustomBrokerJMSConnectionPoolListener[tags="imports,clazz", project-base="docs-examples/example"]

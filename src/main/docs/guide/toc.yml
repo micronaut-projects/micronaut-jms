@@ -7,3 +7,7 @@ configuration:
   activemqArtemis: Configuring ActiveMQ Artemis
   sqs: Configuring SQS
   otherBrokers: Configuring Unsupported Brokers
+  customizing: Customizing Brokers
+binding: Parameter Binding
+graalvm: GraalVM support
+repository: Repository
