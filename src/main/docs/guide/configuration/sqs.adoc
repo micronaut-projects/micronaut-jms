@@ -1,1 +1,49 @@
-com.amazon.sqs.javamessaging.SQSConnectionFactory
+= Configuring Amazon SQS
+
+To use Amazon SQS, add the following property to your `application.yml`
+
+[source,yaml]
+----
+micronaut:
+  jms:
+    sqs:
+      enabled: true
+----
+
+and the following to your `build.gradle` or `pom.xml`
+
+dependency:io.micronaut.jms:micronaut-jms-sqs[]
+
+Additionally you'll need to configure an instance of `com.amazonaws.services.sqs.AmazonSQS` as a bean for AWS authentication, for example:
+
+[source,java]
+----
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import io.micronaut.aws.sdk.v1.EnvironmentAWSCredentialsProvider;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.env.Environment;
+
+import javax.inject.Singleton;
+
+import static com.amazonaws.regions.Regions.US_EAST_2;
+
+@Factory
+public class SqsClientFactory {
+
+    @Singleton
+    AmazonSQS sqsClient(Environment environment) {
+        return AmazonSQSClientBuilder
+            .standard()
+            .withRegion(US_EAST_2)
+            .withCredentials(new EnvironmentAWSCredentialsProvider(environment))
+            .build();
+    }
+}
+----
+
+See the link:https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html[Micronaut AWS] docs for more information.
+
+Note that it's not necessary to add a dependency on `io.micronaut.aws:micronaut-aws-sdk-v1` as it's already a transitive dependency of `io.micronaut.jms:micronaut-jms-sqs`.
+
+The JMS link:{apijms}ConnectionFactory.html[ConnectionFactory] will be an instance of `com.amazon.sqs.javamessaging.SQSConnectionFactory`; you can customize that with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].

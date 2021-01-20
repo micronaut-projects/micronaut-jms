@@ -1,0 +1,17 @@
+Methods in classes/interfaces annotated with `@JMSProducer` and `@JMSListener` use parameter binding annotations to access the JMS `Message`, message body, and message headers.
+
+=== @Body
+
+The link:{apimicronaut}messaging/annotation/Body.html[Body] annotation is required for the method argument that will be serialized/deserialized as the JMS `Message` body.
+
+=== @Header
+
+The link:{apimicronaut}messaging/annotation/Header.html[Header] annotation is required for any method arguments that will be serialized/deserialized as JMS headers or non-JMS headers (message properties).
+
+In this example, the message body is a `Map` and the method supports sending the `JMSCorrelationID` along with several custom header values:
+
+snippet::io.micronaut.jms.docs.binding.MapProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+This consumer can access the user-supplied header values as well as several headers that can only be set by the JMS provider, e.g. `JMSMessageID`, `JMSPriority`, etc.:
+
+snippet::io.micronaut.jms.docs.binding.MapConsumer[tags="imports,clazz", project-base="docs-examples/example"]

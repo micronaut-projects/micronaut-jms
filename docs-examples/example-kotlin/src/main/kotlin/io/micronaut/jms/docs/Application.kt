@@ -21,8 +21,8 @@ import io.micronaut.runtime.Micronaut.build
  * Main class.
  */
 fun main(args: Array<String>) {
-	build()
-		.args(*args)
-		.packages("io.micronaut.jms.docs")
-		.start()
+    build()
+        .args(*args)
+        .packages("io.micronaut.jms.docs")
+        .start()
 }

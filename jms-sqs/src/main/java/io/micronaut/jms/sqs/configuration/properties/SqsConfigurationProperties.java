@@ -41,7 +41,7 @@ public interface SqsConfigurationProperties {
     /**
      * Prefix for SQS JMS settings.
      */
-    String PREFIX = JMSConfigurationProperties.PREFIX + ".sqs";
+    String PREFIX = JMSConfigurationProperties.PREFIX + ".sqs"; // micronaut.jms.sqs
 
     /**
      * Whether SQS is active.
