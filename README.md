@@ -1,6 +1,6 @@
 # Micronaut JMS
 
-[![Maven Central](https://img.shields.io/maven-central/v/io.micronaut.jms/micronaut-jms.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.micronaut.jms%22%20AND%20a:%22micronaut-jms%22)
+[![Maven Central](https://img.shields.io/maven-central/v/io.micronaut.jms/micronaut-jms-core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.micronaut.jms%22%20AND%20a:%22micronaut-jms-core%22)
 [![Build Status](https://github.com/micronaut-projects/micronaut-jms/workflows/Java%20CI/badge.svg)](https://github.com/micronaut-projects/micronaut-jms/actions)
 
 Micronaut JMS integration Micronaut and Java Messaging Service (JMS)
