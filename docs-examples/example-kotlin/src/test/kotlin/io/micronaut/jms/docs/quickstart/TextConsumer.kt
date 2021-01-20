@@ -15,11 +15,11 @@ import io.micronaut.context.annotation.Requires
 @JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <1>
 class TextConsumer {
 
-	val messages: MutableList<String> = Collections.synchronizedList(ArrayList())
+    val messages: MutableList<String> = Collections.synchronizedList(ArrayList())
 
-	@Queue(value = "queue_text", concurrency = "1-5") // <2>
-	fun receive(@Body body: String) { // <3>
-		messages.add(body)
-	}
+    @Queue(value = "queue_text", concurrency = "1-5") // <2>
+    fun receive(@Body body: String) { // <3>
+        messages.add(body)
+    }
 }
 // end::clazz[]

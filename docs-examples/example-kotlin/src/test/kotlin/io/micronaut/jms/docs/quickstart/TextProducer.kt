@@ -13,7 +13,7 @@ import io.micronaut.context.annotation.Requires
 @JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <1>
 interface TextProducer {
 
-	@Queue("queue_text") // <2>
-	fun send(@Body body: String) // <3>
+    @Queue("queue_text") // <2>
+    fun send(@Body body: String) // <3>
 }
 // end::clazz[]
