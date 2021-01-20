@@ -1,0 +1,18 @@
+plugins {
+    id 'groovy'
+}
+
+repositories {
+    jcenter()
+}
+
+micronaut {
+    testRuntime 'spock'
+}
+
+mainClassName = 'io.micronaut.jms.docs.Application'
+
+project.afterEvaluate {
+    nativeImage.enabled = false
+    testNativeImage.enabled = false
+}

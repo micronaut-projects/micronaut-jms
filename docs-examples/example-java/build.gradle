@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'org.awaitility:awaitility:4.0.3'
+}
+
+compileJava.options.compilerArgs += '-parameters'
+compileTestJava.options.compilerArgs += '-parameters'
+
+micronaut {
+    testRuntime 'junit5'
+}
+
+mainClassName = 'io.micronaut.jms.docs.Application'
