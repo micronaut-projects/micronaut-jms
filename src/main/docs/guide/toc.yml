@@ -1,7 +1,9 @@
-introduction:
-  title: Introduction
-  releaseHistory: Release History
-quickStart:
-  title: Quick Start
-
-
+introduction: Introduction
+whatsNew:  Release History
+quickStart: JMS Quick Start
+configuration:
+  title: Configuration
+  activemqClassic: Configuring ActiveMQ "Classic"
+  activemqArtemis: Configuring ActiveMQ Artemis
+  sqs: Configuring SQS
+  otherBrokers: Configuring Unsupported Brokers

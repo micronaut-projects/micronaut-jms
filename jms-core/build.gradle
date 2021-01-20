@@ -1,0 +1,10 @@
+dependencies {
+    annotationProcessor 'io.micronaut:micronaut-inject-java'
+    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
+    api 'io.micronaut:micronaut-inject'
+    api 'io.micronaut:micronaut-messaging'
+    api 'io.micronaut:micronaut-runtime'
+    api 'javax.jms:javax.jms-api:2.0.1'
+    api 'org.apache.commons:commons-pool2:2.9.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.1'
+}
