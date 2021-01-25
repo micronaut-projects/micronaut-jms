@@ -24,13 +24,12 @@ import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import javax.jms.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
@@ -48,6 +47,8 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  * @since 1.0.0
  */
 public class JmsProducer<T> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger("io.micronaut.jms.producer");
 
     private final JMSDestinationType type;
     private final JMSConnectionPool connectionPool;
@@ -85,10 +86,19 @@ public class JmsProducer<T> {
     public void send(@NonNull String destination,
                      @NonNull T body,
                      MessageHeader... headers) {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
+                    body, destination, type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+        }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, lookupDestination(destination, session),
                 serializer.serialize(session, body), headers);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                        body, destination, type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+            }
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }
@@ -105,9 +115,17 @@ public class JmsProducer<T> {
     public void send(@NonNull String destination,
                      @NonNull Message message,
                      MessageHeader... headers) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
+                    message, destination, type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+        }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, lookupDestination(destination, session), message, headers);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                        message, destination, type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+            }
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }
@@ -127,9 +145,17 @@ public class JmsProducer<T> {
         ArgumentUtils.requireNonNull("destination", destination);
         ArgumentUtils.requireNonNull("message", message);
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
+                    message, destination.toString(), type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+        }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, destination, message, headers);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                        message, destination, type.name(), Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(",")));
+            }
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message ", e);
         }
