@@ -1,7 +1,7 @@
 dependencies {
     api project(':jms-core')
     api 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
-    api 'com.amazonaws:aws-java-sdk-sqs:1.11.935'
+    api 'com.amazonaws:aws-java-sdk-sqs:1.11.942'
     api 'io.micronaut.aws:micronaut-aws-sdk-v1:2.2.5'
     annotationProcessor 'io.micronaut:micronaut-inject-java'
 }
