@@ -1,12 +1,25 @@
+dist/
+.DS_Store
+target/
+.gradle/
+.idea/
+build/
+classes/
+out/
+*.db
+*.log
 *.iml
+.classpath
+.factorypath
+bin/
+.settings/
+.project
+*/test/
+*/META-INF/
 *.ipr
 *.iws
-*.log
-.DS_Store
-.gradle
-.idea
-build
-out
+.kotlintest
+*/.kotlintest/
 
 # ignore resources, are downloaded via a gradle task from micronaut_docs
 src/main/docs/resources/css/highlight/*.css
