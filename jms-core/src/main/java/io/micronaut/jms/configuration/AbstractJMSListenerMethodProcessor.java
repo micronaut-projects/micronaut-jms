@@ -21,19 +21,16 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
 import io.micronaut.core.bind.exceptions.UnsatisfiedArgumentException;
-import io.micronaut.core.type.Argument;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
-import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +42,6 @@ import javax.jms.MessageListener;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
-
-import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
 /**
  * Abstract {@link ExecutableMethodProcessor} for annotations related to
