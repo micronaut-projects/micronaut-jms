@@ -1,9 +1,10 @@
 package io.micronaut.jms.listener;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
 @FunctionalInterface
 public interface JMSListenerSuccessHandler {
-    void handle(Session session, Message message);
+    void handle(Session session, Message message) throws JMSException;
 }
