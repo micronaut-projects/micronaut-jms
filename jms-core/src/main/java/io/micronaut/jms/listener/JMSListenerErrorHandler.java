@@ -1,5 +1,6 @@
 package io.micronaut.jms.listener;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 

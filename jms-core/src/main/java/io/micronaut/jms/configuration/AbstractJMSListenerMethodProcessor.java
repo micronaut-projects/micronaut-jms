@@ -27,16 +27,18 @@ import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
-import io.micronaut.jms.exception.JMSExceptionHandler;
 import io.micronaut.jms.listener.JMSListenerContainerFactory;
+import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
 import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
+import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -56,23 +58,20 @@ import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
  * @since 1.0.0
  */
 public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
-    implements ExecutableMethodProcessor<T> {
+        implements ExecutableMethodProcessor<T> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final BeanContext beanContext;
 
     private final JMSArgumentBinderRegistry jmsArgumentBinderRegistry;
-    private final JMSExceptionHandler exceptionHandler;
     private final Class<T> clazz;
 
     protected AbstractJMSListenerMethodProcessor(BeanContext beanContext,
                                                  JMSArgumentBinderRegistry registry,
-                                                 JMSExceptionHandler exceptionHandler,
                                                  Class<T> clazz) {
         this.beanContext = beanContext;
         this.jmsArgumentBinderRegistry = registry;
-        this.exceptionHandler = exceptionHandler;
         this.clazz = clazz;
     }
 
@@ -101,21 +100,19 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     private void validateArguments(ExecutableMethod<?, ?> method) {
         Stream.of(method.getArguments())
-            .filter(arg ->
-                arg.isDeclaredAnnotationPresent(Body.class) ||
-                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
-            .findAny()
-            .orElseThrow(() -> new IllegalStateException(
-                "Methods annotated with @" + clazz.getSimpleName() +
-                    " must have exactly one argument annotated with @Body" +
-                    " or @Message"));
+                .filter(arg ->
+                        arg.isDeclaredAnnotationPresent(Body.class) ||
+                                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(
+                        "Methods annotated with @" + clazz.getSimpleName() +
+                                " must have exactly one argument annotated with @Body" +
+                                " or @Message"));
     }
 
     @SuppressWarnings("unchecked")
     private MessageListener generateAndBindListener(Object bean,
-                                                    ExecutableMethod<?, ?> method,
-                                                    ExecutorService executor,
-                                                    boolean acknowledge) {
+                                                    ExecutableMethod<?, ?> method) {
 
         return message -> executor.submit(() -> {
             try {
@@ -134,7 +131,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             } catch (Exception e) {
                 logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
             }
-        });
+        };
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
@@ -145,39 +142,26 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         validateArguments(method);
 
-        final Class<?> targetClass = Stream.of(method.getArguments())
-            .filter(arg ->
-                arg.isDeclaredAnnotationPresent(Body.class) ||
-                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
-            .findAny()
-            .map(Argument::getClass)
-            .get();
-
         final String destination = destinationAnnotation.getRequiredValue(String.class);
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
 
-        final JMSListenerContainerFactory listenerFactory = beanContext
-            .findBean(JMSListenerContainerFactory.class)
-            .orElseThrow(() -> new IllegalStateException("No JMSListenerFactory configured"));
+        final JMSListenerRegistry registry = beanContext
+                .findBean(JMSListenerRegistry.class)
+                .orElseThrow(() -> new IllegalStateException("No JMSListenerRegistry configured"));
 
-        final JMSConnectionPool connectionPool = beanContext.getBean(
-            JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
+        final JMSConnectionPool connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
 
         final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
 
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method, executor,
-            CLIENT_ACKNOWLEDGE == acknowledgeMode);
-
-        listenerFactory.registerListener(
-            connectionPool,
-            destination,
-            listener,
-            targetClass,
-            transacted,
-            acknowledgeMode,
-            type);
+        MessageListener listener = generateAndBindListener(bean, method);
+        try {
+            Connection connection = connectionPool.createConnection();
+            registry.register(connection, type, destination, transacted, acknowledgeMode, listener, executor, true);
+        } catch (JMSException e) {
+            logger.error("Failed to register listener for destination " + destination, e);
+        }
     }
 }

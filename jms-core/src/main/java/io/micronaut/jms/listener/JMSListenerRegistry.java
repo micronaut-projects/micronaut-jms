@@ -22,10 +22,12 @@ public class JMSListenerRegistry {
     private final Set<JMSListener> listeners = Collections.synchronizedSet(Collections.emptySet());
 
     public void register(JMSListener listener, boolean autoStart) throws JMSException {
+        // TODO: change to add if not present
+        listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         if (autoStart) {
             listener.start();
         }
-        this.listeners.add(listener);
+        listeners.add(listener);
     }
 
     public void register(
@@ -41,11 +43,13 @@ public class JMSListenerRegistry {
         Session session = connection.createSession(transacted, acknowledgeMode);
         JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor);
         if (transacted) {
-            // register transactional handlers
+            listener.addSuccessHandlers(new TransactionalJMSListenerSuccessHandler());
+            listener.addErrorHandlers(new TransactionalJMSListenerErrorHandler());
         }
         if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE) {
-            // register ack handler
+            listener.addSuccessHandlers(new AcknowledgingJMSListenerSuccessHandler());
         }
+        listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         this.register(listener, autoStart);
 
     }
