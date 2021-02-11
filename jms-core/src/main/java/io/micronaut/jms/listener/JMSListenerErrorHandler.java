@@ -20,7 +20,7 @@ import javax.jms.Session;
 
 /***
  *
- * Handles any errors thrown when handling a message on a {@link JMSListener}
+ * Handles any errors thrown when handling a message on a {@link JMSListener}.
  *
  * @author Elliott Pope
  * @since 1.0.0.M2

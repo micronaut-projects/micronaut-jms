@@ -33,14 +33,14 @@ import javax.jms.Session;
  */
 public class AcknowledgingJMSListenerSuccessHandler implements JMSListenerSuccessHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(AcknowledgingJMSListenerSuccessHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AcknowledgingJMSListenerSuccessHandler.class);
 
     @Override
     public void handle(Session session, Message message) throws JMSException {
         try {
             message.acknowledge();
         } catch (JMSException e) {
-            logger.error("Failed to acknowledge receipt of message with the broker. " +
+            LOGGER.error("Failed to acknowledge receipt of message with the broker. " +
                     "This message may be falsely retried.", e);
             throw new MessageAcknowledgementException(e.getMessage(), e);
         }

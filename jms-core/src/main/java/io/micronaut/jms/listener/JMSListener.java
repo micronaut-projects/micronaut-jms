@@ -19,7 +19,6 @@ import io.micronaut.jms.model.JMSDestinationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Connection;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -27,7 +26,6 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -66,7 +64,7 @@ class JMSListener {
     /***
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
      *  {@link JMSListener#start()} is called. The provided {@param session}'s parent {@link javax.jms.Connection}
-     *  must be started ({@link Connection#start()}) for the message listener to receive messages.
+     *  must be started ({@link javax.jms.Connection#start()}) for the message listener to receive messages.
      *
      * @param session - the {@link Session} for the messages to be consumed on
      * @param delegate - the listener logic to be invoked. All concurrency, success, and error handling is provided.

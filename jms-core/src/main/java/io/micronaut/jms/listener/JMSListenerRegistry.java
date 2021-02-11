@@ -46,7 +46,7 @@ public class JMSListenerRegistry {
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
 
     /***
-     * Registers a new listener to be managed by Micronaut JMS
+     * Registers a new listener to be managed by Micronaut JMS.
      *
      * @param listener - the listener to be registered
      * @param autoStart - whether the listener should be automatically started when registered
@@ -62,7 +62,7 @@ public class JMSListenerRegistry {
     }
 
     /***
-     * Creates and registers a new listener to be managed by Micronaut JMS
+     * Creates and registers a new listener to be managed by Micronaut JMS.
      *
      * @param connection - the {@link Connection} the listener will be linked to
      * @param destinationType - the {@link JMSDestinationType} of the target destination
@@ -98,8 +98,11 @@ public class JMSListenerRegistry {
 
     }
 
+    /***
+     * Shuts down all registered {@link JMSListener}s. If a listener fails to shut down then it is logged and skipped.
+     */
     @PreDestroy
-    public void shutdown() throws Exception {
+    public void shutdown() {
         listeners.forEach(listener -> {
             try {
                 listener.stop();

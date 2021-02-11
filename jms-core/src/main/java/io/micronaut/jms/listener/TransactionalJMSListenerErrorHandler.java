@@ -22,6 +22,12 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+/***
+ * Attempts to rollback a transaction on the given {@link Session}. If it fails then the exception is logged.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0.M2
+ */
 public class TransactionalJMSListenerErrorHandler implements JMSListenerErrorHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionalJMSListenerErrorHandler.class);
