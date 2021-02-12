@@ -41,6 +41,14 @@ import java.util.function.Supplier;
 /**
  * Default implementation of {@link Serializer} and {@link Deserializer}.
  *
+ * For serialization, it will attempt to determine the type of message to send to the broker. If the object does not extend
+ *  {@link Serializable} then the object will be converted to a JSON String and the fully qualified class name will be
+ *  added as a String property to the message with the name {@link DefaultSerializerDeserializer#OBJECT_MESSAGE_TYPE_PROPERTY}
+ *
+ * For deserialization, it will attempt to determine the type of the contained message from the JMS message type and then cast
+ *  it to the expected class. If the provided {@link Message} is a {@link TextMessage} and the expected class is not a
+ *  {@link String} then it will assume the message is a JSON format and will attempt to read the message as a JSON object.
+ *
  * @author Elliott Pope
  * @since 1.0.0
  */
@@ -121,11 +129,20 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
     @Override
     public Message serialize(Session session, Object body) {
         try {
+            String serdesType = null;
+            if (!(body instanceof Serializable)) {
+                serdesType = body.getClass().getName();
+                body = OBJECT_MAPPER.writeValueAsString(body);
+            }
             switch (MessageType.fromObject(body)) {
                 case MAP:
                     return serializeMap(session, (Map<?, ?>) body);
                 case TEXT:
-                    return serializeText(session, (String) body);
+                    TextMessage message = serializeText(session, (String) body);
+                    if (serdesType != null) {
+                        message.setStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY, serdesType);
+                    }
+                    return message;
                 case BYTES:
                     return serializeBytes(session, (byte[]) body);
                 case OBJECT:

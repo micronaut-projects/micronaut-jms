@@ -32,7 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Elliott Pope
  * @see JMSListenerContainer
  * @since 1.0.0
+ * @deprecated since 1.0.0.M2, use {@link JMSListenerRegistry} instead.
  */
+@Deprecated
 @Singleton
 public class JMSListenerContainerFactory {
 

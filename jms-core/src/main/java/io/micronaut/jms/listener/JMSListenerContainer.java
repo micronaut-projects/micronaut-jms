@@ -52,7 +52,9 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  * @param <T> the {@link javax.jms.Message} object type to convert to before handling
  * @author Elliott Pope
  * @since 1.0.0
+ * @deprecated since 1.0.0.M2. Use {@link JMSListener} instead.
  */
+@Deprecated
 public class JMSListenerContainer<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerContainer.class);
