@@ -43,15 +43,18 @@ public class MessageHandlerAdapter<T> implements MessageListener {
 
     private final MessageHandler<T> delegate;
     private final Class<T> clazz;
+    private final Deserializer deserializer;
 
     /**
      * @param delegate the underlying handler to delegate to.
      * @param clazz    the parameter class of the {@code delegate}.
+     * @param deserializer  the {@link Deserializer} to be used to convert the {@link Message} to a plain Java object
      */
     public MessageHandlerAdapter(MessageHandler<T> delegate,
-                                 Class<T> clazz) {
+                                 Class<T> clazz, Deserializer deserializer) {
         this.delegate = delegate;
         this.clazz = clazz;
+        this.deserializer = deserializer;
     }
 
     @SuppressWarnings("unchecked")

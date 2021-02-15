@@ -1,6 +1,7 @@
 package io.micronaut.jms.docs.quickstart
 
 // tag::imports[]
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
@@ -19,5 +20,8 @@ interface ComplexProducer {
             @Header("X-Custom-Header") header: String) // <3>
 }
 
-data class ComplexObject(val str: String, val int: Int, val map: Map<String, String>)
+data class ComplexObject(
+        @JsonProperty("str") val str: String,
+        @JsonProperty("int") val int: Int,
+        @JsonProperty("map") val map: Map<String, String>)
 // end::clazz[]

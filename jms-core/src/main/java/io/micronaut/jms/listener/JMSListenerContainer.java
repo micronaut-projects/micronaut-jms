@@ -15,9 +15,11 @@
  */
 package io.micronaut.jms.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +133,7 @@ public class JMSListenerContainer<T> {
                             SECONDS,
                             new LinkedBlockingQueue<>(DEFAULT_EXECUTOR_QUEUE_SIZE),
                             Executors.defaultThreadFactory())),
-                    clazz));
+                    clazz, new DefaultSerializerDeserializer(new ObjectMapper())));
             LOGGER.debug("registered {} listener {} for destination '{}' and class {}",
                 type.name().toLowerCase(), listener, destination, clazz.getName());
         } catch (Exception e) {

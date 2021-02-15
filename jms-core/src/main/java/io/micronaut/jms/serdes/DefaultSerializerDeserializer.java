@@ -47,7 +47,7 @@ import java.util.function.Supplier;
  *
  * For deserialization, it will attempt to determine the type of the contained message from the JMS message type and then cast
  *  it to the expected class. If the provided {@link Message} is a {@link TextMessage} and the expected class is not a
- *  {@link String} then it will assume the message is a JSON format and will attempt to read the message as a JSON object.
+ *  {@link String} then it will assume the message is JSON formatted string and will attempt to read the message as a JSON object.
  *
  * @author Elliott Pope
  * @since 1.0.0
@@ -132,7 +132,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
             String serdesType = null;
             if (!(body instanceof Serializable)) {
                 serdesType = body.getClass().getName();
-                body = OBJECT_MAPPER.writeValueAsString(body);
+                body = objectMapper.writeValueAsString(body);
             }
             switch (MessageType.fromObject(body)) {
                 case MAP:

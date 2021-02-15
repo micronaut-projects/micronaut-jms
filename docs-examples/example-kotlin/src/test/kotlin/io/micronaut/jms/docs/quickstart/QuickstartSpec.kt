@@ -51,7 +51,6 @@ textProducer.send("quickstart")
 				}
 			}
 		}
-
 		applicationContext.stop()
 	}
 })

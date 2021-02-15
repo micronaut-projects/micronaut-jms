@@ -19,16 +19,15 @@ class ComplexConsumer {
     val headers: MutableList<String> = Collections.synchronizedList(ArrayList())
     var nullHeaderWasNonNull: Boolean = false
 
-    @Topic(value = "queue_text", transacted = true, acknowledgeMode = CLIENT_ACKNOWLEDGE)
+    @Topic(value = "topic_complex", transacted = true, acknowledgeMode = CLIENT_ACKNOWLEDGE)
     fun onMessage( // <1>
             @Body body: ComplexObject, // <2>
             @Header("X-Custom-Header") header: String, // <3>
-//            @Header("X-Header-Does-Not-Exists") @Nullable nullHeader: Int? // <4>
+            @Header("X-Header-Does-Not-Exists") @Nullable nullHeader: Int? // <4>
     ) {
-        System.err.println("Received message $body")
-//        if (nullHeader != null) {
-//            nullHeaderWasNonNull = true
-//        }
+        if (nullHeader != null) {
+            nullHeaderWasNonNull = true
+        }
         headers.add(header)
         messages.add(body)
     }
