@@ -27,7 +27,12 @@ import io.micronaut.messaging.exceptions.MessagingSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 

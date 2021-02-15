@@ -19,6 +19,12 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+/***
+ * Commits a JMS transaction upon successful handling of a message.
+ *
+ * @author Elliott Pope
+ * @since 1.0.0.M2
+ */
 public class TransactionalJMSListenerSuccessHandler implements JMSListenerSuccessHandler {
     @Override
     public void handle(Session session, Message message) throws JMSException {

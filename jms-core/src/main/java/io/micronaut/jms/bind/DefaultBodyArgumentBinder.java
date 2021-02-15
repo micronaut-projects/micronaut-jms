@@ -17,10 +17,6 @@ package io.micronaut.jms.bind;
 
 import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.convert.ConversionService;
-<<<<<<< HEAD
-=======
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
->>>>>>> 52657ac... Completing the implementation of the POJO producer/consumer case. Test case successfully passes
 import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.messaging.annotation.Body;
 
@@ -41,11 +37,7 @@ public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Body> {
      * Constructor.
      *
      * @param conversionService conversionService
-<<<<<<< HEAD
      * @param deserializer deserializer
-=======
-     * @param deserializer deserializer to be used to convert the message body to a plain Java object.
->>>>>>> 52657ac... Completing the implementation of the POJO producer/consumer case. Test case successfully passes
      */
     public DefaultBodyArgumentBinder(ConversionService<?> conversionService, Deserializer deserializer) {
         super(conversionService);
@@ -53,12 +45,7 @@ public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Body> {
     }
 
     @Override
-<<<<<<< HEAD
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
-=======
-    public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
-                                      Message source) {
->>>>>>> 52657ac... Completing the implementation of the POJO producer/consumer case. Test case successfully passes
         return () -> Optional.of(deserializer.deserialize(source, context.getArgument().getType()));
     }
 

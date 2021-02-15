@@ -16,7 +16,11 @@ subprojects { Project subproject ->
     }
 
     dependencies {
+<<<<<<< HEAD
         testImplementation project(':jms-test')
+=======
+        compileOnly 'org.graalvm.nativeimage:svm'
+>>>>>>> c9634ff... Commiting the cherry pick from the old exception handling branch
         testImplementation project(':jms-activemq-classic')
         testImplementation 'org.apache.activemq:activemq-broker:5.16.2'
         testImplementation 'io.micronaut.reactor:micronaut-reactor'
