@@ -24,11 +24,14 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 
@@ -58,8 +61,8 @@ public class JMSListener {
     private final JMSDestinationType destinationType;
     private final String destination;
     private final ExecutorService executor;
-    private final Set<JMSListenerSuccessHandler> successHandlers = new HashSet<>();
-    private final Set<JMSListenerErrorHandler> errorHandlers = new HashSet<>();
+    private final List<JMSListenerSuccessHandler> successHandlers = new ArrayList<>();
+    private final List<JMSListenerErrorHandler> errorHandlers = new ArrayList<>();
 
     /***
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
@@ -83,23 +86,47 @@ public class JMSListener {
         this.executor = executor;
     }
 
+    /***
+     * @param handlers - add the given handlers to the success handlers for this listener. The handlers will be added
+     *                 such that the {@link JMSListenerSuccessHandler#getOrder()} is decreasing along the list.
+     */
     public void addSuccessHandlers(JMSListenerSuccessHandler... handlers) {
         this.addSuccessHandlers(Arrays.asList(handlers));
     }
 
+    /***
+     * @param handlers - add the given handlers to the success handlers for this listener. The handlers will be added
+     *                 such that the {@link JMSListenerSuccessHandler#getOrder()} is decreasing along the list.
+     */
     public void addSuccessHandlers(Collection<JMSListenerSuccessHandler> handlers) {
-
-        successHandlers.addAll(handlers);
+        handlers.forEach(handler -> {
+            orderedInsert(this.successHandlers, handler, JMSListenerSuccessHandler::getOrder);
+        });
     }
 
+    /***
+     * @param handlers - add the given handlers to the error handlers for this listener. The handlers will be added
+     *                 such that the {@link JMSListenerErrorHandler#getOrder()} is decreasing along the list.
+     */
     public void addErrorHandlers(JMSListenerErrorHandler... handlers) {
         this.addErrorHandlers(Arrays.asList(handlers));
     }
 
+    /***
+     * @param handlers - add the given handlers to the error handlers for this listener. The handlers will be added
+     *                 such that the {@link JMSListenerErrorHandler#getOrder()} is decreasing along the list.
+     */
     public void addErrorHandlers(Collection<JMSListenerErrorHandler> handlers) {
-        errorHandlers.addAll(handlers);
+        handlers.forEach(handler -> {
+            orderedInsert(this.errorHandlers, handler, JMSListenerErrorHandler::getOrder);
+        });
     }
 
+    /***
+     * Configures the listener to begin listening for messages and processing them.
+     *
+     * @throws JMSException - if any JMS related exception occurs while configuring the listener.
+     */
     public void start() throws JMSException {
         final MessageConsumer consumer = session.createConsumer(lookupDestination(destinationType, destination, session));
         consumer.setMessageListener((msg) -> executor.submit(() -> {
@@ -124,6 +151,11 @@ public class JMSListener {
         this.consumer = consumer;
     }
 
+    /***
+     * Stops the listener from consuming messages and attempts to clean up any resources used.
+     *
+     * @throws JMSException - if any error occurs while shutting down the listener.
+     */
     public void stop() throws JMSException {
         consumer.close();
         session.close();
@@ -135,6 +167,14 @@ public class JMSListener {
         return destinationType == QUEUE ?
                 session.createQueue(destination) :
                 session.createTopic(destination);
+    }
+
+    private static <T> void orderedInsert(List<T> existingList, T element, Function<T, Integer> keyExtractor) {
+        int index = Collections.binarySearch(existingList, element, Comparator.comparing(keyExtractor));
+        if (index < 0) {
+            index = -index - 1;
+        }
+        existingList.add(index, element);
     }
 
 }

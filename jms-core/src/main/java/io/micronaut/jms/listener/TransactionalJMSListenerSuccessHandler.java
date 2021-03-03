@@ -32,7 +32,7 @@ public class TransactionalJMSListenerSuccessHandler implements JMSListenerSucces
     }
 
     @Override
-    public int getOrder() {
+    public Integer getOrder() {
         return -100;
     }
 }

@@ -43,7 +43,7 @@ public interface JMSListenerSuccessHandler {
      * @return an integer representing the order the handler should be invoked in. The higher the return values will be
      *  executed first, the smaller and negative values will be executed last.
      */
-    default int getOrder() {
+    default Integer getOrder() {
         return 100;
     }
 }

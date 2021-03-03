@@ -11,7 +11,7 @@ class ErrorThrowingConsumer {
 
     val processed: MutableList<String> = mutableListOf()
 
-    @Queue("error-queue")
+    @Queue(value = "error-queue", concurrency = "1-1")
     fun receive(@Body message: String) {
         if (message == "throw an error") {
             throw RuntimeException("This is an unexpected error.")
