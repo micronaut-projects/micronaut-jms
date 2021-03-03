@@ -88,6 +88,7 @@ public class JMSListener {
     }
 
     public void addSuccessHandlers(Collection<JMSListenerSuccessHandler> handlers) {
+
         successHandlers.addAll(handlers);
     }
 
@@ -114,7 +115,7 @@ public class JMSListener {
                     }
                 });
                 if (ex.getSuppressed().length > 0) {
-                    throw ex;
+                    errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
                 }
             } catch (Throwable e) {
                 errorHandlers.forEach(handler -> handler.handle(session, msg, e));
