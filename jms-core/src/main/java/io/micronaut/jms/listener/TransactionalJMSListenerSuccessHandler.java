@@ -30,4 +30,9 @@ public class TransactionalJMSListenerSuccessHandler implements JMSListenerSucces
     public void handle(Session session, Message message) throws JMSException {
         session.commit();
     }
+
+    @Override
+    public int getOrder() {
+        return -100;
+    }
 }

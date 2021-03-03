@@ -42,4 +42,9 @@ public class TransactionalJMSListenerErrorHandler implements JMSListenerErrorHan
             LOGGER.error("Failed to rollback transaction on session", e);
         }
     }
+
+    @Override
+    public int getOrder() {
+        return 200;
+    }
 }
