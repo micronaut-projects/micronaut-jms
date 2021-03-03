@@ -45,7 +45,7 @@ import java.util.stream.Stream;
 
 /**
  * Abstract {@link ExecutableMethodProcessor} for annotations related to
- * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListenerContainer}
+ * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListener}
  * if the method annotated with {@code <T>} is part of a bean annotated with {@link JMSListener}.
  *
  * @param <T> the destination type annotation

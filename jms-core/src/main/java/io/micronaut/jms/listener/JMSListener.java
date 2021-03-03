@@ -48,7 +48,7 @@ import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
  * @author Elliott Pope
  * @since 1.0.0.M2
  */
-class JMSListener {
+public class JMSListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListener.class);
 

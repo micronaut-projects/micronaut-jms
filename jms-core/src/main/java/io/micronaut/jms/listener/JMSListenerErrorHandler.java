@@ -27,5 +27,19 @@ import javax.jms.Session;
  */
 @FunctionalInterface
 public interface JMSListenerErrorHandler {
+    /***
+     * Handles the exception thrown during message processing.
+     * @param session - the {@link Session} the {@link JMSListener} is bound to.
+     * @param message - the {@link javax.jms.Message} that was processed.
+     * @param ex - the exception that was thrown.
+     */
     void handle(Session session, Message message, Throwable ex);
+
+    /***
+     * @return an integer representing the order the handler should be invoked in. The higher the return values will be
+     *  executed first, the smaller and negative values will be executed last.
+     */
+    default int getOrder() {
+        return 100;
+    }
 }

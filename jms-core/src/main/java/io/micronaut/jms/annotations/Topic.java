@@ -85,7 +85,7 @@ public @interface Topic {
     String serializer() default "";
 
     /**
-     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
      * @see javax.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;

@@ -20,7 +20,6 @@ package io.micronaut.jms.listener;
  *
  * @param <T> the message type
  * @author Elliott Pope
- * @see ConcurrentMessageHandler
  * @see MessageHandlerAdapter
  * @since 1.0.0
  */

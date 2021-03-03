@@ -38,4 +38,12 @@ public interface JMSListenerSuccessHandler {
      * @throws JMSException if any exception occurs while handling the message.
      */
     void handle(Session session, Message message) throws JMSException;
+
+    /***
+     * @return an integer representing the order the handler should be invoked in. The higher the return values will be
+     *  executed first, the smaller and negative values will be executed last.
+     */
+    default int getOrder() {
+        return 100;
+    }
 }
