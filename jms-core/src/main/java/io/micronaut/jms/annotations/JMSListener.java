@@ -91,4 +91,18 @@ public @interface JMSListener {
      * @return the name of the {@link JMSConnectionFactory} to use.
      */
     String value();
+
+    /***
+     * The success handlers to be injected into the message handling logic for all {@link Queue} or {@link Topic} methods.
+     * @return the classes of the success handlers to be added. These handlers must be present as {@link javax.inject.Singleton}
+     *  instances.
+     */
+    Class<? extends JMSListenerSuccessHandler>[] successHandlers() default {};
+
+    /***
+     * The error handlers to be injected into the message handling logic for all {@link Queue} or {@link Topic} methods.
+     * @return the classes of the error handlers to be added. These handlers must be present as {@link javax.inject.Singleton}
+     *  instances.
+     */
+    Class<? extends JMSListenerErrorHandler>[] errorHandlers() default {};
 }

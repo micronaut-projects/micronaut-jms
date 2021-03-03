@@ -27,6 +27,7 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerRegistry;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
@@ -83,10 +84,10 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         AnnotationValue<T> destinationAnnotation = method.getAnnotation(clazz);
         Assert.notNull(destinationAnnotation, () -> "Annotation not found on method " +
-            method.getName() + ". Expecting annotation of type " + clazz.getName());
+                method.getName() + ". Expecting annotation of type " + clazz.getName());
 
         registerListener(method, connectionFactoryName, beanDefinition,
-            destinationAnnotation, getDestinationType());
+                destinationAnnotation, getDestinationType());
     }
 
     protected abstract ExecutorService getExecutorService(AnnotationValue<T> value);
@@ -154,7 +155,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         MessageListener listener = generateAndBindListener(bean, method);
         try {
             Connection connection = connectionPool.createConnection();
-            registry.register(connection, type, destination, transacted, acknowledgeMode, listener, executor, true);
+            io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
+                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true);
+            // TODO: inject the success and error handlers
         } catch (JMSException e) {
             logger.error("Failed to register listener for destination " + destination, e);
         }

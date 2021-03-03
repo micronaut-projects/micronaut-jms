@@ -73,8 +73,9 @@ public class JMSListenerRegistry {
      * @param executor
      * @param autoStart
      * @throws JMSException
+     * @return the listener that has been registered.
      */
-    public void register(
+    public JMSListener register(
             Connection connection,
             JMSDestinationType destinationType,
             String destination,
@@ -95,7 +96,7 @@ public class JMSListenerRegistry {
         }
         listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         this.register(listener, autoStart);
-
+        return listener;
     }
 
     /***
