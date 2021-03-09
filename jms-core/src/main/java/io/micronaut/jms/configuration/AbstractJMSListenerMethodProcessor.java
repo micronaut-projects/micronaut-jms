@@ -15,6 +15,15 @@
  */
 package io.micronaut.jms.configuration;
 
+import java.lang.annotation.Annotation;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Stream;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
@@ -34,13 +43,6 @@ import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import java.lang.annotation.Annotation;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Stream;
 
 import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
@@ -151,6 +153,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final String destination = destinationAnnotation.getRequiredValue(String.class);
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
+        final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
 
         final JMSListenerContainerFactory listenerFactory = beanContext
             .findBean(JMSListenerContainerFactory.class)
@@ -173,6 +176,8 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             targetClass,
             transacted,
             acknowledgeMode,
-            type);
+            type,
+            messageSelector
+        );
     }
 }

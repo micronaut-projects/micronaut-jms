@@ -98,4 +98,9 @@ public @interface Topic {
      * @see javax.jms.Session
      */
     boolean transacted() default false;
+
+    /**
+     * @return the message selector for the topic
+     */
+    String messageSelector() default "";
 }
