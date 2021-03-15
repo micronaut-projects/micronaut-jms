@@ -7,7 +7,7 @@ Micronaut JMS integration Micronaut and Java Messaging Service (JMS)
 
 ## Documentation
 
-See the [Documentation](https://micronaut-projects.github.io/micronaut-jms/latest/guide/) for more information.'
+See the [Documentation](https://micronaut-projects.github.io/micronaut-jms/1.0.x/guide/) for more information.'
 
 See the [Snapshot Documentation](https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/) for the current development docs.
 
