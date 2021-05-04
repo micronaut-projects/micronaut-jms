@@ -51,7 +51,9 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
 
     public JMSArgumentBinderRegistry(ConversionService<?> conversionService) {
         registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService));
-        registerArgumentBinder(new DefaultHeaderArgumentBinder(conversionService));
+        final DefaultHeaderArgumentBinder dhab = new DefaultHeaderArgumentBinder(conversionService);
+        registerArgumentBinder(dhab);
+        registerArgumentBinder(new MessageHeaderArgumentBinder(conversionService, dhab));
         registerArgumentBinder(new DefaultMessageArgumentBinder(conversionService));
     }
 

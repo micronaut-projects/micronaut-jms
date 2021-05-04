@@ -5,9 +5,9 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
 import java.io.Serializable
 // end::imports[]
 
@@ -17,16 +17,16 @@ import java.io.Serializable
 interface MapProducer {
     @Queue("queue_map")
     fun send(
-        @Body body: Map<String, Serializable?>,
-        @Header(JMS_CORRELATION_ID) correlationId: String?,
-        @Header("CustomStringHeader") stringHeader: String?,
-        @Header("CustomBooleanHeader") booleanHeader: Boolean,
-        @Header("CustomByteHeader") byteHeader: Byte,
-        @Header("CustomShortHeader") shortHeader: Short,
-        @Header("CustomIntegerHeader") intHeader: Int,
-        @Header("CustomLongHeader") longHeader: Long,
-        @Header("CustomFloatHeader") floatHeader: Float,
-        @Header("CustomDoubleHeader") doubleHeader: Double
+        @MessageBody body: Map<String, Serializable?>,
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
     )
 }
 // end::clazz[]

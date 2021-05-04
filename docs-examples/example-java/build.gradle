@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    testCompile 'org.awaitility:awaitility:4.0.3'
+    testImplementation 'org.awaitility:awaitility:4.0.3'
 }
 
 compileJava.options.compilerArgs += '-parameters'

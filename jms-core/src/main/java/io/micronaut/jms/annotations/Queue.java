@@ -15,7 +15,9 @@
  */
 package io.micronaut.jms.annotations;
 
+import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
+import io.micronaut.messaging.annotation.MessageMapping;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -65,6 +67,7 @@ public @interface Queue {
      * The name of the queue to target.
      * @return the name
      */
+    @AliasFor(annotation = MessageMapping.class, member = "value")
     String value();
 
     /**

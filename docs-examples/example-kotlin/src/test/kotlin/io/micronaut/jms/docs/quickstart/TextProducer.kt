@@ -4,7 +4,7 @@ package io.micronaut.jms.docs.quickstart
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
+import io.micronaut.messaging.annotation.MessageBody
 // end::imports[]
 import io.micronaut.context.annotation.Requires
 
@@ -14,6 +14,6 @@ import io.micronaut.context.annotation.Requires
 interface TextProducer {
 
     @Queue("queue_text") // <2>
-    fun send(@Body body: String) // <3>
+    fun send(@MessageBody body: String) // <3>
 }
 // end::clazz[]

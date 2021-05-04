@@ -4,9 +4,8 @@ import io.micronaut.context.annotation.Requires
 // tag::imports[]
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
-
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import javax.annotation.Nullable
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -19,15 +18,15 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
 interface MapProducer {
 
     @Queue('queue_map')
-    void send(@Body Map<String, Serializable> body,
-              @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-              @Header('CustomStringHeader') @Nullable String stringHeader,
-              @Header('CustomBooleanHeader') boolean booleanHeader,
-              @Header('CustomByteHeader') byte byteHeader,
-              @Header('CustomShortHeader') short shortHeader,
-              @Header('CustomIntegerHeader') int intHeader,
-              @Header('CustomLongHeader') long longHeader,
-              @Header('CustomFloatHeader') float floatHeader,
-              @Header('CustomDoubleHeader') double doubleHeader)
+    void send(@MessageBody Map<String, Serializable> body,
+              @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+              @MessageHeader('CustomStringHeader') @Nullable String stringHeader,
+              @MessageHeader('CustomBooleanHeader') boolean booleanHeader,
+              @MessageHeader('CustomByteHeader') byte byteHeader,
+              @MessageHeader('CustomShortHeader') short shortHeader,
+              @MessageHeader('CustomIntegerHeader') int intHeader,
+              @MessageHeader('CustomLongHeader') long longHeader,
+              @MessageHeader('CustomFloatHeader') float floatHeader,
+              @MessageHeader('CustomDoubleHeader') double doubleHeader)
 }
 // end::clazz[]
