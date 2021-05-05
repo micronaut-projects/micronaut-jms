@@ -124,8 +124,7 @@
 <h1 id="introduction"><a class="anchor" href="#introduction"></a>1 Introduction</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/introduction.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/introduction.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -142,8 +141,7 @@
 <h1 id="whatsNew"><a class="anchor" href="#whatsNew"></a>2 Release History</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/whatsNew.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/whatsNew.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -159,8 +157,7 @@
 <h1 id="quickStart"><a class="anchor" href="#quickStart"></a>3 JMS Quick Start</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/quickStart.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/quickStart.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -233,7 +230,7 @@
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 
@@ -241,7 +238,7 @@ import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicCon
 public interface TextProducer {
 
     @Queue("queue_text") <b class="conum">(2)</b>
-    void send(@Body String body); <b class="conum">(3)</b>
+    void send(@MessageBody String body); <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
@@ -249,7 +246,7 @@ public interface TextProducer {
 <div class="content">
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
+import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 
@@ -257,7 +254,7 @@ import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicCon
 interface TextProducer {
 
     @Queue('queue_text') <b class="conum">(2)</b>
-    void send(@Body String body) <b class="conum">(3)</b>
+    void send(@MessageBody String body) <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
@@ -266,13 +263,13 @@ interface TextProducer {
 <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
+import io.micronaut.messaging.annotation.MessageBody
 
 @JMSProducer(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
 interface TextProducer {
 
     @Queue("queue_text") <b class="conum">(2)</b>
-    fun send(@Body body: String) <b class="conum">(3)</b>
+    fun send(@MessageBody body: String) <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
@@ -328,7 +325,7 @@ textProducer.send("quickstart")</code></pre>
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -342,7 +339,7 @@ public class TextConsumer {
     List&lt;String&gt; messages = Collections.synchronizedList(new ArrayList&lt;&gt;());
 
     @Queue(value = "queue_text", concurrency = "1-5") <b class="conum">(2)</b>
-    public void receive(@Body String body) { <b class="conum">(3)</b>
+    public void receive(@MessageBody String body) { <b class="conum">(3)</b>
         messages.add(body);
     }
 }</code></pre>
@@ -352,7 +349,7 @@ public class TextConsumer {
 <div class="content">
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
+import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 
@@ -362,7 +359,7 @@ class TextConsumer {
     List&lt;String&gt; messages = [].asSynchronized()
 
     @Queue(value = 'queue_text', concurrency = '1-5') <b class="conum">(2)</b>
-    void receive(@Body String body) { <b class="conum">(3)</b>
+    void receive(@MessageBody String body) { <b class="conum">(3)</b>
         messages &lt;&lt; body
     }
 }</code></pre>
@@ -373,7 +370,7 @@ class TextConsumer {
 <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
+import io.micronaut.messaging.annotation.MessageBody
 import java.util.ArrayList
 import java.util.Collections
 
@@ -383,7 +380,7 @@ class TextConsumer {
     val messages: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
 
     @Queue(value = "queue_text", concurrency = "1-5") <b class="conum">(2)</b>
-    fun receive(@Body body: String) { <b class="conum">(3)</b>
+    fun receive(@MessageBody body: String) { <b class="conum">(3)</b>
         messages.add(body)
     }
 }</code></pre>
@@ -411,8 +408,7 @@ class TextConsumer {
 <h1 id="configuration"><a class="anchor" href="#configuration"></a>4 Configuration</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -423,8 +419,7 @@ class TextConsumer {
 <h2 id="activemqClassic"><a class="anchor" href="#activemqClassic"></a>4.1 Configuring ActiveMQ "Classic"</h2>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration/activemqClassic.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/activemqClassic.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -470,8 +465,7 @@ class TextConsumer {
 <h2 id="activemqArtemis"><a class="anchor" href="#activemqArtemis"></a>4.2 Configuring ActiveMQ Artemis</h2>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration/activemqArtemis.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/activemqArtemis.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -517,8 +511,7 @@ class TextConsumer {
 <h2 id="sqs"><a class="anchor" href="#sqs"></a>4.3 Configuring SQS</h2>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration/sqs.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/sqs.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -597,8 +590,7 @@ public class SqsClientFactory {
 <h2 id="otherBrokers"><a class="anchor" href="#otherBrokers"></a>4.4 Configuring Unsupported Brokers</h2>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration/otherBrokers.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/otherBrokers.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -629,8 +621,7 @@ public class MyJMSConfig {
 <h2 id="customizing"><a class="anchor" href="#customizing"></a>4.5 Customizing Brokers</h2>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/configuration/customizing.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/customizing.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -810,8 +801,7 @@ class CustomBrokerJMSConnectionPoolListener(
 <h1 id="binding"><a class="anchor" href="#binding"></a>5 Parameter Binding</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/binding.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/binding.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -838,9 +828,8 @@ class CustomBrokerJMSConnectionPoolListener(
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.annotation.Header;
-
+import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
@@ -852,16 +841,16 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
 public interface MapProducer {
 
     @Queue("queue_map")
-    void send(@Body Map&lt;String, Serializable&gt; body,
-              @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-              @Header("CustomStringHeader") @Nullable String stringHeader,
-              @Header("CustomBooleanHeader") boolean booleanHeader,
-              @Header("CustomByteHeader") byte byteHeader,
-              @Header("CustomShortHeader") short shortHeader,
-              @Header("CustomIntegerHeader") int intHeader,
-              @Header("CustomLongHeader") long longHeader,
-              @Header("CustomFloatHeader") float floatHeader,
-              @Header("CustomDoubleHeader") double doubleHeader);
+    void send(@MessageBody Map&lt;String, Serializable&gt; body,
+              @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+              @MessageHeader("CustomStringHeader") @Nullable String stringHeader,
+              @MessageHeader("CustomBooleanHeader") boolean booleanHeader,
+              @MessageHeader("CustomByteHeader") byte byteHeader,
+              @MessageHeader("CustomShortHeader") short shortHeader,
+              @MessageHeader("CustomIntegerHeader") int intHeader,
+              @MessageHeader("CustomLongHeader") long longHeader,
+              @MessageHeader("CustomFloatHeader") float floatHeader,
+              @MessageHeader("CustomDoubleHeader") double doubleHeader);
 }</code></pre>
 </div>
 </div>
@@ -869,9 +858,8 @@ public interface MapProducer {
 <div class="content">
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
-
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import javax.annotation.Nullable
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -881,16 +869,16 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
 interface MapProducer {
 
     @Queue('queue_map')
-    void send(@Body Map&lt;String, Serializable&gt; body,
-              @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-              @Header('CustomStringHeader') @Nullable String stringHeader,
-              @Header('CustomBooleanHeader') boolean booleanHeader,
-              @Header('CustomByteHeader') byte byteHeader,
-              @Header('CustomShortHeader') short shortHeader,
-              @Header('CustomIntegerHeader') int intHeader,
-              @Header('CustomLongHeader') long longHeader,
-              @Header('CustomFloatHeader') float floatHeader,
-              @Header('CustomDoubleHeader') double doubleHeader)
+    void send(@MessageBody Map&lt;String, Serializable&gt; body,
+              @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+              @MessageHeader('CustomStringHeader') @Nullable String stringHeader,
+              @MessageHeader('CustomBooleanHeader') boolean booleanHeader,
+              @MessageHeader('CustomByteHeader') byte byteHeader,
+              @MessageHeader('CustomShortHeader') short shortHeader,
+              @MessageHeader('CustomIntegerHeader') int intHeader,
+              @MessageHeader('CustomLongHeader') long longHeader,
+              @MessageHeader('CustomFloatHeader') float floatHeader,
+              @MessageHeader('CustomDoubleHeader') double doubleHeader)
 }</code></pre>
 </div>
 </div>
@@ -899,25 +887,25 @@ interface MapProducer {
 <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
 import java.io.Serializable
 
 @JMSProducer(CONNECTION_FACTORY_BEAN_NAME)
 interface MapProducer {
     @Queue("queue_map")
     fun send(
-        @Body body: Map&lt;String, Serializable?&gt;,
-        @Header(JMS_CORRELATION_ID) correlationId: String?,
-        @Header("CustomStringHeader") stringHeader: String?,
-        @Header("CustomBooleanHeader") booleanHeader: Boolean,
-        @Header("CustomByteHeader") byteHeader: Byte,
-        @Header("CustomShortHeader") shortHeader: Short,
-        @Header("CustomIntegerHeader") intHeader: Int,
-        @Header("CustomLongHeader") longHeader: Long,
-        @Header("CustomFloatHeader") floatHeader: Float,
-        @Header("CustomDoubleHeader") doubleHeader: Double
+        @MessageBody body: Map&lt;String, Serializable?&gt;,
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
     )
 }</code></pre>
 </div>
@@ -930,8 +918,8 @@ interface MapProducer {
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Message;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.annotation.Header;
+import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
 
 import javax.annotation.Nullable;
 import javax.jms.Destination;
@@ -962,26 +950,26 @@ public class MapConsumer {
     List&lt;javax.jms.Message&gt; messages = Collections.synchronizedList(new ArrayList&lt;&gt;());
 
     @Queue(value = "queue_map", concurrency = "1-5")
-    public void receive(@Body Map&lt;String, Serializable&gt; body,
+    public void receive(@MessageBody Map&lt;String, Serializable&gt; body,
                         @Message javax.jms.Message message,
-                        @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-                        @Header(JMS_DELIVERY_MODE) int deliveryMode,
-                        @Header(JMS_DESTINATION) Destination destination,
-                        @Header(JMS_EXPIRATION) long expiration,
-                        @Header(JMS_MESSAGE_ID) String messageId,
-                        @Header(JMS_PRIORITY) int priority,
-                        @Header(JMS_REDELIVERED) boolean redelivered,
-                        @Header(JMS_REPLY_TO) @Nullable Destination replyTo,
-                        @Header(JMS_TIMESTAMP) long timestamp,
-                        @Header(JMS_TYPE) @Nullable String type,
-                        @Header("CustomStringHeader") @Nullable String stringHeader,
-                        @Header("CustomBooleanHeader") boolean booleanHeader,
-                        @Header("CustomByteHeader") byte byteHeader,
-                        @Header("CustomShortHeader") short shortHeader,
-                        @Header("CustomIntegerHeader") int intHeader,
-                        @Header("CustomLongHeader") long longHeader,
-                        @Header("CustomFloatHeader") float floatHeader,
-                        @Header("CustomDoubleHeader") double doubleHeader) {
+                        @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+                        @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
+                        @MessageHeader(JMS_DESTINATION) Destination destination,
+                        @MessageHeader(JMS_EXPIRATION) long expiration,
+                        @MessageHeader(JMS_MESSAGE_ID) String messageId,
+                        @MessageHeader(JMS_PRIORITY) int priority,
+                        @MessageHeader(JMS_REDELIVERED) boolean redelivered,
+                        @MessageHeader(JMS_REPLY_TO) @Nullable Destination replyTo,
+                        @MessageHeader(JMS_TIMESTAMP) long timestamp,
+                        @MessageHeader(JMS_TYPE) @Nullable String type,
+                        @MessageHeader("CustomStringHeader") @Nullable String stringHeader,
+                        @MessageHeader("CustomBooleanHeader") boolean booleanHeader,
+                        @MessageHeader("CustomByteHeader") byte byteHeader,
+                        @MessageHeader("CustomShortHeader") short shortHeader,
+                        @MessageHeader("CustomIntegerHeader") int intHeader,
+                        @MessageHeader("CustomLongHeader") long longHeader,
+                        @MessageHeader("CustomFloatHeader") float floatHeader,
+                        @MessageHeader("CustomDoubleHeader") double doubleHeader) {
 
         Map&lt;String, Object&gt; headerValues = new HashMap&lt;&gt;();
         headerValues.put(JMS_CORRELATION_ID, correlationId);
@@ -1015,8 +1003,8 @@ public class MapConsumer {
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 
 import javax.annotation.Nullable
 import javax.jms.Destination
@@ -1041,26 +1029,26 @@ class MapConsumer {
     List&lt;javax.jms.Message&gt; messages =  [].asSynchronized()
 
     @Queue(value = 'queue_map', concurrency = '1-5')
-    void receive(@Body Map&lt;String, Serializable&gt; body,
+    void receive(@MessageBody Map&lt;String, Serializable&gt; body,
                  @Message javax.jms.Message message,
-                 @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-                 @Header(JMS_DELIVERY_MODE) int deliveryMode,
-                 @Header(JMS_DESTINATION) Destination destination,
-                 @Header(JMS_EXPIRATION) long expiration,
-                 @Header(JMS_MESSAGE_ID) String messageId,
-                 @Header(JMS_PRIORITY) int priority,
-                 @Header(JMS_REDELIVERED) boolean redelivered,
-                 @Header(JMS_REPLY_TO) @Nullable Destination replyTo,
-                 @Header(JMS_TIMESTAMP) long timestamp,
-                 @Header(JMS_TYPE) @Nullable String type,
-                 @Header('CustomStringHeader') @Nullable String stringHeader,
-                 @Header('CustomBooleanHeader') boolean booleanHeader,
-                 @Header('CustomByteHeader') byte byteHeader,
-                 @Header('CustomShortHeader') short shortHeader,
-                 @Header('CustomIntegerHeader') int intHeader,
-                 @Header('CustomLongHeader') long longHeader,
-                 @Header('CustomFloatHeader') float floatHeader,
-                 @Header('CustomDoubleHeader') double doubleHeader) {
+                 @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+                 @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
+                 @MessageHeader(JMS_DESTINATION) Destination destination,
+                 @MessageHeader(JMS_EXPIRATION) long expiration,
+                 @MessageHeader(JMS_MESSAGE_ID) String messageId,
+                 @MessageHeader(JMS_PRIORITY) int priority,
+                 @MessageHeader(JMS_REDELIVERED) boolean redelivered,
+                 @MessageHeader(JMS_REPLY_TO) @Nullable Destination replyTo,
+                 @MessageHeader(JMS_TIMESTAMP) long timestamp,
+                 @MessageHeader(JMS_TYPE) @Nullable String type,
+                 @MessageHeader('CustomStringHeader') @Nullable String stringHeader,
+                 @MessageHeader('CustomBooleanHeader') boolean booleanHeader,
+                 @MessageHeader('CustomByteHeader') byte byteHeader,
+                 @MessageHeader('CustomShortHeader') short shortHeader,
+                 @MessageHeader('CustomIntegerHeader') int intHeader,
+                 @MessageHeader('CustomLongHeader') long longHeader,
+                 @MessageHeader('CustomFloatHeader') float floatHeader,
+                 @MessageHeader('CustomDoubleHeader') double doubleHeader) {
 
         Map&lt;String, Object&gt; headerValues = [
                 (JMS_CORRELATION_ID): correlationId,
@@ -1105,8 +1093,8 @@ import io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
 import io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
 import io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
 import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import java.io.Serializable
 import javax.jms.Destination
 
@@ -1119,26 +1107,26 @@ class MapConsumer {
 
     @Queue(value = "queue_map", concurrency = "1-5")
     fun receive(
-        @Body body: Map&lt;String, Serializable&gt;,
+        @MessageBody body: Map&lt;String, Serializable&gt;,
         @Message message: javax.jms.Message,
-        @Header(JMS_CORRELATION_ID) correlationId: String?,
-        @Header(JMS_DELIVERY_MODE) deliveryMode: Int,
-        @Header(JMS_DESTINATION) destination: Destination?,
-        @Header(JMS_EXPIRATION) expiration: Long,
-        @Header(JMS_MESSAGE_ID) messageId: String?,
-        @Header(JMS_PRIORITY) priority: Int,
-        @Header(JMS_REDELIVERED) redelivered: Boolean,
-        @Header(JMS_REPLY_TO) replyTo: Destination?,
-        @Header(JMS_TIMESTAMP) timestamp: Long,
-        @Header(JMS_TYPE) type: String?,
-        @Header("CustomStringHeader") stringHeader: String?,
-        @Header("CustomBooleanHeader") booleanHeader: Boolean,
-        @Header("CustomByteHeader") byteHeader: Byte,
-        @Header("CustomShortHeader") shortHeader: Short,
-        @Header("CustomIntegerHeader") intHeader: Int,
-        @Header("CustomLongHeader") longHeader: Long,
-        @Header("CustomFloatHeader") floatHeader: Float,
-        @Header("CustomDoubleHeader") doubleHeader: Double
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader(JMS_DELIVERY_MODE) deliveryMode: Int,
+        @MessageHeader(JMS_DESTINATION) destination: Destination?,
+        @MessageHeader(JMS_EXPIRATION) expiration: Long,
+        @MessageHeader(JMS_MESSAGE_ID) messageId: String?,
+        @MessageHeader(JMS_PRIORITY) priority: Int,
+        @MessageHeader(JMS_REDELIVERED) redelivered: Boolean,
+        @MessageHeader(JMS_REPLY_TO) replyTo: Destination?,
+        @MessageHeader(JMS_TIMESTAMP) timestamp: Long,
+        @MessageHeader(JMS_TYPE) type: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
     ) {
         val headerValues = mapOf(
             JMS_CORRELATION_ID to correlationId,
@@ -1171,8 +1159,7 @@ class MapConsumer {
 <h1 id="graalvm"><a class="anchor" href="#graalvm"></a>6 GraalVM support</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/graalvm.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/graalvm.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>
@@ -1199,8 +1186,7 @@ information.
 <h1 id="repository"><a class="anchor" href="#repository"></a>7 Repository</h1>
 
 <div class='contribute-btn'>
-    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master
-/src/main/docs/guide/repository.adoc"'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/repository.adoc"'>
         <i class='fa fa-pencil-square-o'></i> Improve this doc
     </button>
 </div>

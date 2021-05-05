@@ -96,6 +96,7 @@
  @Target(value=TYPE)
  @Bean
  @DefaultScope(value=io.micronaut.context.annotation.Context.class)
+ @MessageListener
 public @interface <span class="memberNameLabel">JMSListener</span></pre>
 <div class="block">Declares a class for post-processing. Annotated classes must contain at
  least one method annotated with <a href="../../../../io/micronaut/jms/annotations/Queue.html" title="annotation in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="../../../../io/micronaut/jms/annotations/Topic.html" title="annotation in io.micronaut.jms.annotations"><code>Topic</code></a>, otherwise an
