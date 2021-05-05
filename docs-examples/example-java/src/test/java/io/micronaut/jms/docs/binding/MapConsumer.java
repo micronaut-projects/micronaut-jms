@@ -4,8 +4,8 @@ package io.micronaut.jms.docs.binding;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Message;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.annotation.Header;
+import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
 
 import javax.annotation.Nullable;
 import javax.jms.Destination;
@@ -40,26 +40,26 @@ public class MapConsumer {
     List<javax.jms.Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     @Queue(value = "queue_map", concurrency = "1-5")
-    public void receive(@Body Map<String, Serializable> body,
+    public void receive(@MessageBody Map<String, Serializable> body,
                         @Message javax.jms.Message message,
-                        @Header(JMS_CORRELATION_ID) @Nullable String correlationId,
-                        @Header(JMS_DELIVERY_MODE) int deliveryMode,
-                        @Header(JMS_DESTINATION) Destination destination,
-                        @Header(JMS_EXPIRATION) long expiration,
-                        @Header(JMS_MESSAGE_ID) String messageId,
-                        @Header(JMS_PRIORITY) int priority,
-                        @Header(JMS_REDELIVERED) boolean redelivered,
-                        @Header(JMS_REPLY_TO) @Nullable Destination replyTo,
-                        @Header(JMS_TIMESTAMP) long timestamp,
-                        @Header(JMS_TYPE) @Nullable String type,
-                        @Header("CustomStringHeader") @Nullable String stringHeader,
-                        @Header("CustomBooleanHeader") boolean booleanHeader,
-                        @Header("CustomByteHeader") byte byteHeader,
-                        @Header("CustomShortHeader") short shortHeader,
-                        @Header("CustomIntegerHeader") int intHeader,
-                        @Header("CustomLongHeader") long longHeader,
-                        @Header("CustomFloatHeader") float floatHeader,
-                        @Header("CustomDoubleHeader") double doubleHeader) {
+                        @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+                        @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
+                        @MessageHeader(JMS_DESTINATION) Destination destination,
+                        @MessageHeader(JMS_EXPIRATION) long expiration,
+                        @MessageHeader(JMS_MESSAGE_ID) String messageId,
+                        @MessageHeader(JMS_PRIORITY) int priority,
+                        @MessageHeader(JMS_REDELIVERED) boolean redelivered,
+                        @MessageHeader(JMS_REPLY_TO) @Nullable Destination replyTo,
+                        @MessageHeader(JMS_TIMESTAMP) long timestamp,
+                        @MessageHeader(JMS_TYPE) @Nullable String type,
+                        @MessageHeader("CustomStringHeader") @Nullable String stringHeader,
+                        @MessageHeader("CustomBooleanHeader") boolean booleanHeader,
+                        @MessageHeader("CustomByteHeader") byte byteHeader,
+                        @MessageHeader("CustomShortHeader") short shortHeader,
+                        @MessageHeader("CustomIntegerHeader") int intHeader,
+                        @MessageHeader("CustomLongHeader") long longHeader,
+                        @MessageHeader("CustomFloatHeader") float floatHeader,
+                        @MessageHeader("CustomDoubleHeader") double doubleHeader) {
 
         Map<String, Object> headerValues = new HashMap<>();
         headerValues.put(JMS_CORRELATION_ID, correlationId);

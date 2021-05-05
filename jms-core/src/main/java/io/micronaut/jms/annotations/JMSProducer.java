@@ -20,6 +20,7 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.DefaultScope;
 import io.micronaut.context.annotation.Type;
 import io.micronaut.jms.configuration.JMSProducerMethodInterceptor;
+import io.micronaut.messaging.annotation.MessageProducer;
 
 import javax.inject.Scope;
 import javax.inject.Singleton;
@@ -85,6 +86,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Type(JMSProducerMethodInterceptor.class)
 @Bean
 @DefaultScope(Singleton.class)
+@MessageProducer
 public @interface JMSProducer {
 
     /**

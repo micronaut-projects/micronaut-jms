@@ -16,8 +16,8 @@ import io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
 import io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
 import io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
 import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import java.io.Serializable
 import javax.jms.Destination
 // end::imports[]
@@ -33,26 +33,26 @@ class MapConsumer {
 
     @Queue(value = "queue_map", concurrency = "1-5")
     fun receive(
-        @Body body: Map<String, Serializable>,
+        @MessageBody body: Map<String, Serializable>,
         @Message message: javax.jms.Message,
-        @Header(JMS_CORRELATION_ID) correlationId: String?,
-        @Header(JMS_DELIVERY_MODE) deliveryMode: Int,
-        @Header(JMS_DESTINATION) destination: Destination?,
-        @Header(JMS_EXPIRATION) expiration: Long,
-        @Header(JMS_MESSAGE_ID) messageId: String?,
-        @Header(JMS_PRIORITY) priority: Int,
-        @Header(JMS_REDELIVERED) redelivered: Boolean,
-        @Header(JMS_REPLY_TO) replyTo: Destination?,
-        @Header(JMS_TIMESTAMP) timestamp: Long,
-        @Header(JMS_TYPE) type: String?,
-        @Header("CustomStringHeader") stringHeader: String?,
-        @Header("CustomBooleanHeader") booleanHeader: Boolean,
-        @Header("CustomByteHeader") byteHeader: Byte,
-        @Header("CustomShortHeader") shortHeader: Short,
-        @Header("CustomIntegerHeader") intHeader: Int,
-        @Header("CustomLongHeader") longHeader: Long,
-        @Header("CustomFloatHeader") floatHeader: Float,
-        @Header("CustomDoubleHeader") doubleHeader: Double
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader(JMS_DELIVERY_MODE) deliveryMode: Int,
+        @MessageHeader(JMS_DESTINATION) destination: Destination?,
+        @MessageHeader(JMS_EXPIRATION) expiration: Long,
+        @MessageHeader(JMS_MESSAGE_ID) messageId: String?,
+        @MessageHeader(JMS_PRIORITY) priority: Int,
+        @MessageHeader(JMS_REDELIVERED) redelivered: Boolean,
+        @MessageHeader(JMS_REPLY_TO) replyTo: Destination?,
+        @MessageHeader(JMS_TIMESTAMP) timestamp: Long,
+        @MessageHeader(JMS_TYPE) type: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
     ) {
         val headerValues = mapOf(
             JMS_CORRELATION_ID to correlationId,

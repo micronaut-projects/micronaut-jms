@@ -15,7 +15,9 @@
  */
 package io.micronaut.jms.annotations;
 
+import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
+import io.micronaut.messaging.annotation.MessageMapping;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -58,6 +60,7 @@ public @interface Topic {
      * The name of the topic to target.
      * @return the name
      */
+    @AliasFor(annotation = MessageMapping.class, member = "value")
     String value();
 
     /**

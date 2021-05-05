@@ -18,6 +18,7 @@ package io.micronaut.jms.annotations;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
+import io.micronaut.messaging.annotation.MessageListener;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -78,6 +79,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 @Bean
 @DefaultScope(Context.class)
+@MessageListener
 public @interface JMSListener {
 
     /**
