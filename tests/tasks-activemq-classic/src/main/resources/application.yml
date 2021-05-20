@@ -1,0 +1,6 @@
+micronaut:
+  jms:
+    activemq:
+      classic:
+        enabled: true
+

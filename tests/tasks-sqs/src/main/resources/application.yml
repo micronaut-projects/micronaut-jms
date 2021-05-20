@@ -1,0 +1,4 @@
+micronaut:
+  jms:
+    sqs:
+      enabled: true

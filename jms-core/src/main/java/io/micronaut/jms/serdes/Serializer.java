@@ -21,12 +21,11 @@ import javax.jms.Session;
 /**
  * Serializes an object into a {@link Message}.
  *
- * @param <T> the object type
  * @author Elliott Pope
  * @since 1.0.0
  */
 @FunctionalInterface
-public interface Serializer<T> {
+public interface Serializer {
 
     /**
      * Create a message from the body.
@@ -35,5 +34,5 @@ public interface Serializer<T> {
      * @param body the message body
      * @return the message
      */
-    Message serialize(Session session, T body);
+    Message serialize(Session session, Object body);
 }

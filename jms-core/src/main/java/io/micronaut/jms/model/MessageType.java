@@ -106,7 +106,7 @@ public enum MessageType {
     /**
      * Determine the {@link MessageType} corresponding to the given
      * {@code message}. Returns {@link MessageType#UNKNOWN} if the
-     * {@code message} is null or the type is not supported
+     * {@code message} is null or {@link MessageType#OBJECT} otherwise.
      *
      * @param message the {@link Message} whose type you would like to infer.
      * @return the {@link MessageType}
@@ -118,8 +118,8 @@ public enum MessageType {
                     return type;
                 }
             }
+            return OBJECT;
         }
-        LOGGER.warn("Unsupported object type {}", message);
         return UNKNOWN;
     }
 }

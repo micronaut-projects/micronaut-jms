@@ -17,6 +17,7 @@ package io.micronaut.jms.activemq.artemis.configuration.properties;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import javax.validation.constraints.NotBlank;
@@ -55,4 +56,20 @@ public interface ActiveMqArtemisConfigurationProperties {
      */
     @NotBlank
     String getConnectionString();
+
+    /**
+     * The username.
+     *
+     * @return the username
+     */
+    @Nullable
+    String getUsername();
+
+    /**
+     * The password.
+     *
+     * @return the password
+     */
+    @Nullable
+    String getPassword();
 }

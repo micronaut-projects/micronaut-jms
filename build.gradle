@@ -8,17 +8,13 @@ buildscript {
     }
 }
 
-
 subprojects { Project subproject ->
-    group 'io.micronaut.jms'
-
-    apply plugin: 'io.micronaut.build.internal.common'
-    apply plugin: 'io.micronaut.build.internal.dependency-updates'
-
-    if (subproject.parent.name != 'docs-examples' &&
-            subproject.name != 'docs-examples' &&
-            !subproject.name.contains('test')) {
+    def path = subproject.getPath()
+    if (!path.contains("docs") && !path.contains('test') || path.contains('jms-test')) {
+        group 'io.micronaut.jms'
         apply plugin: 'io.micronaut.build.internal.publishing'
+        apply plugin: 'io.micronaut.build.internal.common'
+        apply plugin: 'io.micronaut.build.internal.dependency-updates'
     }
 }
 

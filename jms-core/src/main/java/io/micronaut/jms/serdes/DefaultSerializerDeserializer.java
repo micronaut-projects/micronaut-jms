@@ -17,10 +17,13 @@ package io.micronaut.jms.serdes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micronaut.context.BeanLocator;
+import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.jms.model.MessageType;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
 
+import javax.inject.Singleton;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -33,6 +36,7 @@ import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of {@link Serializer} and {@link Deserializer}.
@@ -40,22 +44,18 @@ import java.util.Map;
  * @author Elliott Pope
  * @since 1.0.0
  */
-public final class DefaultSerializerDeserializer implements Serializer<Serializable>, Deserializer {
+@Singleton
+public final class DefaultSerializerDeserializer implements Serializer, Deserializer {
 
-    private static final String OBJECT_MESSAGE_TYPE_PROPERTY = "MICRONAUT_SERDES_TYPE";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final DefaultSerializerDeserializer INSTANCE = new DefaultSerializerDeserializer();
+    private final Supplier<ObjectMapper> objectMapperSupplier;
 
-    private DefaultSerializerDeserializer() {
-    }
-
-    public static DefaultSerializerDeserializer getInstance() {
-        return INSTANCE;
+    public DefaultSerializerDeserializer(BeanLocator beanLocator) {
+        // Lazy load object mapper
+        objectMapperSupplier = SupplierUtil.memoized(() -> beanLocator.getBean(ObjectMapper.class));
     }
 
     @Override
-    public <T> T deserialize(Message message,
-                             Class<T> clazz) {
+    public <T> T deserialize(Message message, Class<T> clazz) {
         if (message == null) {
             return null;
         }
@@ -95,7 +95,7 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
         if (clazz.isAssignableFrom(String.class)) {
             return (T) message.getText();
         }
-        return OBJECT_MAPPER.readValue(message.getText(), clazz);
+        return objectMapperSupplier.get().readValue(message.getText(), clazz);
     }
 
     private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
@@ -109,26 +109,17 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
                                     final Class<T> clazz) throws JMSException, JsonProcessingException {
 
         Serializable body = message.getObject();
-
         if (body instanceof String) {
             // if it's a String and the client asks for String, return that
             if (clazz.isAssignableFrom(String.class)) {
                 return (T) body;
             }
-
-            // if it was serialized to JSON, deserialize as the requested type
-            String serdesType = message.getStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY);
-            if (serdesType != null) {
-                return OBJECT_MAPPER.readValue((String) body, clazz);
-            }
         }
-
         return (T) message.getObject();
     }
 
     @Override
-    public Message serialize(Session session,
-                             Serializable body) {
+    public Message serialize(Session session, Object body) {
         try {
             switch (MessageType.fromObject(body)) {
                 case MAP:
@@ -138,13 +129,17 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
                 case BYTES:
                     return serializeBytes(session, (byte[]) body);
                 case OBJECT:
-                    return serializeObject(session, body);
+                    if (body instanceof Serializable) {
+                        return serializeObject(session, (Serializable) body);
+                    } else {
+                        return serializeText(session, objectMapperSupplier.get().writeValueAsString(body));
+                    }
                 case STREAM:
                     return serializeStream(session, (Object[]) body);
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + body);
             }
-        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+        } catch (Throwable e) {
             throw new MessagingClientException("Problem serializing body " + body, e);
         }
     }
@@ -177,10 +172,8 @@ public final class DefaultSerializerDeserializer implements Serializer<Serializa
     }
 
     private ObjectMessage serializeObject(final Session session,
-                                          final Serializable body) throws JMSException, JsonProcessingException {
-        ObjectMessage message = session.createObjectMessage(OBJECT_MAPPER.writeValueAsString(body));
-        message.setStringProperty(OBJECT_MESSAGE_TYPE_PROPERTY, body.getClass().getName());
-        return message;
+                                          final Serializable body) throws JMSException {
+        return session.createObjectMessage(body);
     }
 
     private StreamMessage serializeStream(final Session session,

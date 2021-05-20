@@ -17,6 +17,7 @@ package io.micronaut.jms.activemq.classic.configuration;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -58,6 +59,11 @@ public class ActiveMqClassicConfiguration {
     public ConnectionFactory activeMqConnectionFactory(ActiveMqClassicConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
             CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
+        String username = config.getUsername();
+        String password = config.getPassword();
+        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
+            return new ActiveMQConnectionFactory(username, password, config.getConnectionString());
+        }
         return new ActiveMQConnectionFactory(config.getConnectionString());
     }
 }

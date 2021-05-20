@@ -2,10 +2,6 @@ plugins {
     id 'groovy'
 }
 
-repositories {
-    jcenter()
-}
-
 micronaut {
     testRuntime 'spock'
 }

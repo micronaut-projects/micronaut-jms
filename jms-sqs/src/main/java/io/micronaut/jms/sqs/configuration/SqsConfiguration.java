@@ -62,9 +62,9 @@ public class SqsConfiguration {
     public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      AmazonSQS sqs) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
-            CONNECTION_FACTORY_BEAN_NAME);
+                CONNECTION_FACTORY_BEAN_NAME);
         return new SQSConnectionFactory(
-            new ProviderConfiguration().withNumberOfMessagesToPrefetch(config.getNumberOfMessagesToPrefetch()),
-            sqs);
+                new ProviderConfiguration().withNumberOfMessagesToPrefetch(config.getNumberOfMessagesToPrefetch()),
+                sqs);
     }
 }

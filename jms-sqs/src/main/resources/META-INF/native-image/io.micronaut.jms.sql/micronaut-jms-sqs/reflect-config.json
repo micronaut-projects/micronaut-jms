@@ -1,0 +1,457 @@
+[
+  {
+    "name": "com.sun.org.apache.xml.internal.utils.FastStringBuffer",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.services.sqs.model.QueueDoesNotExistException",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.services.sqs.MessageMD5ChecksumHandler",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.services.sqs.QueueUrlHandler",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.jmx.SdkMBeanRegistrySupport",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "org.apache.commons.logging.LogFactory",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "org.apache.commons.logging.impl.LogFactoryImpl",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "org.apache.commons.logging.impl.SLF4JLogFactory",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "io.symphonia.lambda.logging.DefaultLogbackConfigurator",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.DateConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LevelConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LoggerConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.MDCConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.MessageConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.NopThrowableInformationConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.core.pattern.ReplacingCompositeConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.ThrowableProxyConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.ThreadConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.core.rolling.helper.DateTokenConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "ch.qos.logback.core.rolling.helper.IntegerTokenConverter",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.Partitions",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.Partition",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.Endpoint",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.Region",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.Service",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.partitions.model.CredentialScope",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "java.util.HashSet",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.InternalConfigJsonHelper",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.SignerConfig",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.SignerConfigJsonHelper",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.HttpClientConfig",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.HttpClientConfigJsonHelper",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.HostRegexToRegionMappingJsonHelper",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.internal.config.JsonIndex",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.ssl.SSLContextImpl$TLSContext",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.amazonaws.auth.AWS4Signer",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "org.apache.http.client.config.RequestConfig",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "org.apache.http.client.config.RequestConfig$Builder",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.provider.X509Factory",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.AuthorityInfoAccessExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.AuthorityKeyIdentifierExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.BasicConstraintsExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.CertificateIssuerExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.CertificatePoliciesExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.CRLDistributionPointsExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.CRLNumberExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.CRLReasonCodeExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.DeltaCRLIndicatorExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.ExtendedKeyUsageExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.FreshestCRLExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.InhibitAnyPolicyExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.InvalidityDateExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.IssuerAlternativeNameExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.IssuingDistributionPointExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.KeyUsageExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.NameConstraintsExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.NetscapeCertTypeExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.OCSPNoCheckExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.PolicyConstraintsExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.PolicyMappingsExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.PrivateKeyUsageExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.SubjectAlternativeNameExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.SubjectInfoAccessExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.SubjectKeyIdentifierExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  },
+  {
+    "name": "sun.security.x509.UnparseableExtension",
+    "allDeclaredFields": true,
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredClasses": true
+  }
+]

@@ -15,7 +15,6 @@
  */
 package io.micronaut.jms.listener;
 
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +59,8 @@ public class MessageHandlerAdapter<T> implements MessageListener {
     public void onMessage(Message message) {
         if (messageTypeMatchesHandler(message)) {
             // TODO configurable deserializer
-            delegate.handle((T) DefaultSerializerDeserializer.getInstance().deserialize(message));
-        } else {
+//            delegate.handle((T) DefaultSerializerDeserializer.getInstance().deserialize(message));
+//        } else {
             LOGGER.warn("Unable to deserialize message {} to {}", message, clazz.getName());
         }
     }

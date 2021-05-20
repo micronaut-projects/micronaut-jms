@@ -1,10 +1,14 @@
 plugins {
-    id 'io.micronaut.application' version '1.5.0' apply false
+    id 'io.micronaut.application' apply false
 }
 
 subprojects { Project subproject ->
 
     apply plugin: 'io.micronaut.application'
+
+    repositories {
+        mavenCentral()
+    }
 
     micronaut {
         version project.ext.micronautVersion
@@ -12,9 +16,9 @@ subprojects { Project subproject ->
     }
 
     dependencies {
-        compileOnly 'org.graalvm.nativeimage:svm'
         testImplementation project(':jms-test')
         testImplementation project(':jms-activemq-classic')
+        testImplementation 'org.apache.activemq:activemq-broker:5.16.2'
         testImplementation 'io.micronaut.reactor:micronaut-reactor'
     }
 

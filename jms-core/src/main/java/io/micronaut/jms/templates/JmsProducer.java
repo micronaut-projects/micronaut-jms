@@ -20,7 +20,6 @@ import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
@@ -52,25 +51,20 @@ public class JmsProducer<T> {
 
     private final JMSDestinationType type;
     private final JMSConnectionPool connectionPool;
-    private final Serializer<T> serializer;
+    private final Serializer serializer;
     private final boolean sessionTransacted;
     private final int sessionAcknowledgeMode;
 
     @SuppressWarnings("unchecked")
     public JmsProducer(JMSDestinationType type,
-                       JMSConnectionPool connectionPool) {
-        this(type, connectionPool, (Serializer<T>) DefaultSerializerDeserializer.getInstance());
-    }
-
-    public JmsProducer(JMSDestinationType type,
                        JMSConnectionPool connectionPool,
-                       Serializer<T> serializer) {
+                       Serializer serializer) {
         this(type, connectionPool, serializer, false, AUTO_ACKNOWLEDGE);
     }
 
     public JmsProducer(JMSDestinationType type,
                        JMSConnectionPool connectionPool,
-                       Serializer<T> serializer,
+                       Serializer serializer,
                        boolean sessionTransacted,
                        int sessionAcknowledgeMode) {
         this.type = type;
