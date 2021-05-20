@@ -26,7 +26,3 @@ dependencies {
     testImplementation "org.testcontainers:localstack"
     testImplementation "org.testcontainers:spock"
 }
-
-nativeImage {
-    args("-H:IncludeResources=.*")
-}

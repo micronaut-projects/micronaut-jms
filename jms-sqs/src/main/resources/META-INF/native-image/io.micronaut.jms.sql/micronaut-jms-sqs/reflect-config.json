@@ -453,5 +453,19 @@
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true,
     "allDeclaredClasses": true
+  },
+  {
+    "name":"com.amazonaws.metrics.MetricAdmin",
+    "allPublicConstructors":true
+  },
+  {
+    "name":"com.amazonaws.metrics.MetricAdminMBean",
+    "allPublicMethods":true
+  },
+  {
+    "name":"com.amazonaws.services.sqs.internal.SQSRequestHandler",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allDeclaredConstructors":true
   }
 ]
