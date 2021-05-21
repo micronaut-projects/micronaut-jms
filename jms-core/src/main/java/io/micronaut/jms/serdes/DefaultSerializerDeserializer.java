@@ -73,7 +73,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
-        } catch (JMSException | JsonProcessingException | RuntimeException e) {
+        } catch (Exception e) {
             throw new MessageListenerException("Problem deserializing message " + message, e);
         }
     }
@@ -139,7 +139,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                 default:
                     throw new IllegalArgumentException("No known serialization of message " + body);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new MessagingClientException("Problem serializing body " + body, e);
         }
     }

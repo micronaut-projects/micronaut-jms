@@ -26,7 +26,7 @@ import java.util.Optional;
 /**
  * Binds the {@link MessageBody} annotation.
  *
- * @author graemerocher
+ * @author Denis Stepanov
  * @since 1.0.0
  */
 public class MessageBodyHeaderArgumentBinder extends AbstractJmsArgumentBinder<MessageBody> {

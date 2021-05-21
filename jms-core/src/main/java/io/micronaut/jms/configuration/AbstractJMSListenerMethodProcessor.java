@@ -126,8 +126,8 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                         throw new MessageAcknowledgementException(e.getMessage(), e);
                     }
                 }
-            } catch (Throwable throwable) {
-                logger.error("Failed to process a message: " + message.toString() + " " + throwable.getMessage(), throwable);
+            } catch (Exception e) {
+                logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
             }
         });
     }
