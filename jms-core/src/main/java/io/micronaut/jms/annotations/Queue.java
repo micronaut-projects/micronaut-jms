@@ -61,6 +61,7 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
 @Retention(RUNTIME)
 @Target(METHOD)
 @Executable(processOnStartup = true)
+@MessageMapping
 public @interface Queue {
 
     /**
