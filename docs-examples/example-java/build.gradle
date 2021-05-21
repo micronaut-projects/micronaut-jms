@@ -2,16 +2,9 @@ plugins {
     id 'java'
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     testImplementation 'org.awaitility:awaitility:4.1.0'
 }
-
-compileJava.options.compilerArgs += '-parameters'
-compileTestJava.options.compilerArgs += '-parameters'
 
 micronaut {
     testRuntime 'junit5'

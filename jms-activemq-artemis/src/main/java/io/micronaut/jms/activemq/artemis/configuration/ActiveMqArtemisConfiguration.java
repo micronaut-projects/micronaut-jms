@@ -17,6 +17,7 @@ package io.micronaut.jms.activemq.artemis.configuration;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.artemis.configuration.properties.ActiveMqArtemisConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
@@ -57,7 +58,13 @@ public class ActiveMqArtemisConfiguration {
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory activeMqArtemisConnectionFactory(ActiveMqArtemisConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
-            CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
+                CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
+
+        String username = config.getUsername();
+        String password = config.getPassword();
+        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
+            return new ActiveMQJMSConnectionFactory(config.getConnectionString(), username, password);
+        }
         return new ActiveMQJMSConnectionFactory(config.getConnectionString());
     }
 }

@@ -1,3 +1,10 @@
+pluginManagement {
+    plugins {
+        id 'io.micronaut.application' version getProperty("micronautGradlePluginVersion")
+        id 'io.micronaut.library' version getProperty("micronautGradlePluginVersion")
+    }
+}
+
 rootProject.name = 'jms'
 
 include 'jms-core'
@@ -8,3 +15,6 @@ include 'jms-test'
 include 'docs-examples:example-groovy'
 include 'docs-examples:example-java'
 include 'docs-examples:example-kotlin'
+include 'tests:tasks-sqs'
+include 'tests:tasks-activemq-artemis'
+include 'tests:tasks-activemq-classic'

@@ -1,0 +1,6 @@
+micronaut:
+  jms:
+    activemq:
+      artemis:
+        enabled: true
+

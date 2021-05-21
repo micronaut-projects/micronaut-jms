@@ -1,0 +1,28 @@
+plugins {
+    id "java"
+    id "groovy"
+    id "io.micronaut.application"
+}
+
+application {
+    mainClass = "example.Application"
+}
+
+micronaut {
+    version project.ext.micronautVersion
+    runtime "netty"
+    testRuntime "spock"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":jms-sqs")
+    testImplementation "io.micronaut:micronaut-http-client"
+    testImplementation "io.micronaut.test:micronaut-test-core:$micronautTestVersion"
+    testImplementation platform("org.testcontainers:testcontainers-bom:$testContainersVersion")
+    testImplementation "org.testcontainers:localstack"
+    testImplementation "org.testcontainers:spock"
+}

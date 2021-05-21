@@ -1,0 +1,18 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "org/joda/time/tz/data/.*"
+      },
+      {
+        "pattern": "com/amazonaws/partitions/endpoints.json"
+      },
+      {
+        "pattern": "com/amazonaws/internal/config/awssdk_config_default.json"
+      },
+      {
+        "pattern": "com/amazonaws/sdk/versionInfo.properties"
+      }
+    ]
+  }
+}

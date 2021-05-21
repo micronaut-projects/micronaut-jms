@@ -132,7 +132,7 @@ public class JMSListenerContainer<T> {
                     clazz));
             LOGGER.debug("registered {} listener {} for destination '{}' and class {}",
                 type.name().toLowerCase(), listener, destination, clazz.getName());
-        } catch (JMSException | RuntimeException e) {
+        } catch (Exception e) {
             throw new MessageListenerException(
                 "Problem registering a MessageConsumer for " + destination, e);
         }

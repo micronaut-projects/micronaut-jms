@@ -60,7 +60,6 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     protected final BeanContext beanContext;
 
-    private final DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
     private final JMSArgumentBinderRegistry jmsArgumentBinderRegistry;
     private final Class<T> clazz;
 
@@ -114,16 +113,21 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                                                     boolean acknowledge) {
 
         return message -> executor.submit(() -> {
-            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
-            boundExecutable.invoke(bean);
-            if (acknowledge) {
-                try {
-                    message.acknowledge();
-                } catch (JMSException e) {
-                    logger.error("Failed to acknowledge receipt of message with the broker. " +
-                        "This message may be falsely retried.", e);
-                    throw new MessageAcknowledgementException(e.getMessage(), e);
+            try {
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+                boundExecutable.invoke(bean);
+                if (acknowledge) {
+                    try {
+                        message.acknowledge();
+                    } catch (JMSException e) {
+                        logger.error("Failed to acknowledge receipt of message with the broker. " +
+                                "This message may be falsely retried.", e);
+                        throw new MessageAcknowledgementException(e.getMessage(), e);
+                    }
                 }
+            } catch (Exception e) {
+                logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
             }
         });
     }

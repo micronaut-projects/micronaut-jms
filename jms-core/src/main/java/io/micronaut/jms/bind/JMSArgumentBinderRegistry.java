@@ -15,19 +15,20 @@
  */
 package io.micronaut.jms.bind;
 
+import io.micronaut.core.annotation.AnnotationMetadata;
+import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.bind.ArgumentBinder;
 import io.micronaut.core.bind.ArgumentBinderRegistry;
 import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
-import io.micronaut.core.bind.annotation.Bindable;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.core.order.OrderUtil;
 import io.micronaut.core.type.Argument;
+import io.micronaut.jms.serdes.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
 import javax.jms.Message;
-import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,7 @@ import java.util.Optional;
  * @see io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor
  * @since 1.0.0
  */
+@Internal
 @Singleton
 public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message> {
 
@@ -49,11 +51,10 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
 
     private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
 
-    public JMSArgumentBinderRegistry(ConversionService<?> conversionService) {
-        registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService));
-        final DefaultHeaderArgumentBinder dhab = new DefaultHeaderArgumentBinder(conversionService);
-        registerArgumentBinder(dhab);
-        registerArgumentBinder(new MessageHeaderArgumentBinder(conversionService, dhab));
+    public JMSArgumentBinderRegistry(ConversionService<?> conversionService, Deserializer deserializer) {
+        registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService, deserializer));
+        registerArgumentBinder(new MessageBodyHeaderArgumentBinder(conversionService, deserializer));
+        registerArgumentBinder(new DefaultHeaderArgumentBinder(conversionService));
         registerArgumentBinder(new DefaultMessageArgumentBinder(conversionService));
     }
 
@@ -65,6 +66,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      */
     public void registerArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
         binders.add(binder);
+        binders.sort(OrderUtil.COMPARATOR);
         logger.debug("registered binder {}", binder);
     }
 
@@ -82,17 +84,13 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
     @Override
     public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument,
                                                                        Message source) {
-        Optional<Class<? extends Annotation>> opt =
-            argument.getAnnotationMetadata().getAnnotationTypeByStereotype(Bindable.class);
-        if (!opt.isPresent()) {
-            return Optional.empty();
+        AnnotationMetadata annotationMetadata = argument.getAnnotationMetadata();
+        for (AbstractAnnotatedArgumentBinder<?, ?, Message> binder: binders) {
+            if (annotationMetadata.hasAnnotation(binder.getAnnotationType())) {
+                return (Optional) Optional.of(binder);
+            }
         }
-
-        Class<? extends Annotation> annotationType = opt.get();
-        return Optional.of((ArgumentBinder<T, Message>) binders.stream()
-            .filter(binder -> binder.getAnnotationType().equals(annotationType))
-            .max(OrderUtil.COMPARATOR)
-            .orElseThrow(() -> new IllegalArgumentException("Cannot bind argument " + argument.getName())));
+        throw new IllegalArgumentException("Cannot bind argument " + argument.getName());
     }
 
     @Override

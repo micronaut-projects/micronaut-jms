@@ -18,7 +18,7 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE
 
 abstract class AbstractJmsSpec extends Specification {
 
-    protected final PollingConditions polling = new PollingConditions(timeout: 3)
+    protected final static PollingConditions polling = new PollingConditions(timeout: 3)
 
     protected ApplicationContext applicationContext
 
