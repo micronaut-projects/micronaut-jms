@@ -26,6 +26,7 @@ import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -39,7 +40,11 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -138,10 +143,18 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
         MessageListener listener = generateAndBindListener(bean, method);
+        Set<JMSListenerErrorHandler> errorHandlers = Arrays.stream(destinationAnnotation.classValues("errorHandlers"))
+                .filter(JMSListenerErrorHandler.class::isAssignableFrom)
+                .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
+                .map(beanContext::findBean)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
         try {
             Connection connection = connectionPool.createConnection();
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
                     connection, type, destination, transacted, acknowledgeMode, listener, executor, true);
+            registeredListener.addErrorHandlers(errorHandlers);
             // TODO: inject the success and error handlers
         } catch (JMSException e) {
             logger.error("Failed to register listener for destination " + destination, e);
