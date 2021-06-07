@@ -55,6 +55,8 @@ import java.util.function.Supplier;
 @Singleton
 public final class DefaultSerializerDeserializer implements Serializer, Deserializer {
 
+    private static final String OBJECT_MESSAGE_TYPE_PROPERTY = "MICRONAUT_SERDES_TYPE";
+
     private final Supplier<ObjectMapper> objectMapperSupplier;
 
     public DefaultSerializerDeserializer(BeanLocator beanLocator) {
@@ -132,7 +134,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
             String serdesType = null;
             if (!(body instanceof Serializable)) {
                 serdesType = body.getClass().getName();
-                body = objectMapper.writeValueAsString(body);
+                body = objectMapperSupplier.get().writeValueAsString(body);
             }
             switch (MessageType.fromObject(body)) {
                 case MAP:

@@ -20,19 +20,17 @@ import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
-import io.micronaut.core.bind.exceptions.UnsatisfiedArgumentException;
+import io.micronaut.core.type.Executable;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerRegistry;
-import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.exceptions.MessageListenerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,26 +106,13 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     @SuppressWarnings("unchecked")
     private MessageListener generateAndBindListener(Object bean,
-                                                    ExecutableMethod<?, ?> method) {
+                                                    Executable<?, ?> method) {
 
-        return message -> executor.submit(() -> {
-            try {
+        return message -> {
                 DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
                 BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
                 boundExecutable.invoke(bean);
-                if (acknowledge) {
-                    try {
-                        message.acknowledge();
-                    } catch (JMSException e) {
-                        logger.error("Failed to acknowledge receipt of message with the broker. " +
-                                "This message may be falsely retried.", e);
-                        throw new MessageAcknowledgementException(e.getMessage(), e);
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
-            }
-        });
+        };
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,

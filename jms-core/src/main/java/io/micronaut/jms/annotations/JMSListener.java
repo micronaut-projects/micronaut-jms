@@ -18,6 +18,8 @@ package io.micronaut.jms.annotations;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.messaging.annotation.MessageListener;
 
 import java.lang.annotation.Documented;
