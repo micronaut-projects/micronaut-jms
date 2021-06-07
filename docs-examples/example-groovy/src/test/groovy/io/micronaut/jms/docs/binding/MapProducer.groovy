@@ -1,15 +1,18 @@
 package io.micronaut.jms.docs.binding
 
 import io.micronaut.context.annotation.Requires
-// tag::imports[]
+import io.micronaut.core.annotation.Nullable
 import io.micronaut.jms.annotations.JMSProducer
+
+// tag::imports[]
+
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
-import javax.annotation.Nullable
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
+
 // end::imports[]
 
 @Requires(property = 'spec.name', value = 'BindingSpec')

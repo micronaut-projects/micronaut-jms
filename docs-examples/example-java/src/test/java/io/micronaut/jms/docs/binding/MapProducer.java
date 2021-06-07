@@ -1,11 +1,11 @@
 package io.micronaut.jms.docs.binding;
 
 // tag::imports[]
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 

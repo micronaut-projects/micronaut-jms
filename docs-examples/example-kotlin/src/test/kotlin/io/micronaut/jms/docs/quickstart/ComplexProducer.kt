@@ -6,8 +6,8 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Topic
-import io.micronaut.messaging.annotation.Body
-import io.micronaut.messaging.annotation.Header
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
 import javax.jms.Session.CLIENT_ACKNOWLEDGE
 
 @Requires(property = "spec.name", value = "QuickstartSpec")
@@ -16,8 +16,8 @@ import javax.jms.Session.CLIENT_ACKNOWLEDGE
 interface ComplexProducer {
     @Topic(value = "topic_complex", transacted = true, acknowledgeMode = CLIENT_ACKNOWLEDGE) // <1>
     fun post(
-            @Body message: ComplexObject, // <2>
-            @Header("X-Custom-Header") header: String) // <3>
+            @MessageBody message: ComplexObject, // <2>
+            @MessageHeader("X-Custom-Header") header: String) // <3>
 }
 
 data class ComplexObject(
