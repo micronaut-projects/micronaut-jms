@@ -127,7 +127,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             } catch (Exception e) {
                 logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
             }
-        };
+        });
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
