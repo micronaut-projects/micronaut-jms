@@ -1,5 +1,6 @@
 package io.micronaut.jms.docs.exceptions
 
+// tag::imports[]
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
@@ -10,12 +11,14 @@ import javax.inject.Singleton
 import javax.jms.Message
 import javax.jms.Session
 import kotlin.collections.ArrayList
+// end::imports[]
 
+// tag::clazz[]
 @JMSListener(
         CONNECTION_FACTORY_BEAN_NAME,
         errorHandlers = [
             AccumulatingErrorHandler::class,
-            CountingErrorHandler::class])
+            CountingErrorHandler::class]) // <1>
 class ErrorThrowingConsumer {
 
     val processed: MutableList<String> = mutableListOf()
@@ -23,14 +26,15 @@ class ErrorThrowingConsumer {
     @Queue(
             value = "error-queue",
             concurrency = "1-1",
-            errorHandlers = [CountingErrorHandler::class])
+            errorHandlers = [CountingErrorHandler::class]) // <2>
     fun receive(@MessageBody message: String) {
         if (message == "throw an error") {
-            throw RuntimeException("This is an unexpected error.")
+            throw RuntimeException("This is an unexpected error.") // <3>
         }
         processed.add(message)
     }
 }
+// end::clazz[]
 
 @Singleton
 class CountingErrorHandler : JMSListenerErrorHandler {
