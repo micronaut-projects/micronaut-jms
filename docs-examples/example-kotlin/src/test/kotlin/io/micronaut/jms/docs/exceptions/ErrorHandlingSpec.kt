@@ -1,6 +1,7 @@
 package io.micronaut.jms.docs.exceptions
 
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import io.micronaut.jms.docs.AbstractJmsKotest
 import kotlin.time.ExperimentalTime
 
@@ -14,10 +15,12 @@ class ErrorHandlingSpec: AbstractJmsKotest ({
         `when`("the message is sent") {
             val producer = applicationContext.getBean(ErrorHandlingProducer::class.java)
             val consumer = applicationContext.getBean(ErrorThrowingConsumer::class.java)
+            val errorHandler = applicationContext.getBean(CountingErrorHandler::class.java)
 
             producer.push("throw an error")
             then("the exception is handled by the handlers") {
                 consumer.processed shouldHaveSize 0
+                errorHandler.count shouldBe 1
             }
         }
         applicationContext.stop()
