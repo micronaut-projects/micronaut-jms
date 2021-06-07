@@ -32,6 +32,7 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,11 +102,12 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         Stream.of(method.getArguments())
                 .filter(arg ->
                         arg.isDeclaredAnnotationPresent(Body.class) ||
+                                arg.isDeclaredAnnotationPresent(MessageBody.class) ||
                                 arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException(
                         "Methods annotated with @" + clazz.getSimpleName() +
-                                " must have exactly one argument annotated with @Body" +
+                                " must have exactly one argument annotated with @MessageBody" +
                                 " or @Message"));
     }
 
@@ -143,13 +145,16 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
         MessageListener listener = generateAndBindListener(bean, method);
-        Set<JMSListenerErrorHandler> errorHandlers = Arrays.stream(destinationAnnotation.classValues("errorHandlers"))
+        Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
+                Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
+                        Arrays.stream(beanDefinition.getAnnotation(JMSListener.class).classValues("errorHandlers")))
                 .filter(JMSListenerErrorHandler.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
                 .map(beanContext::findBean)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
+
         try {
             Connection connection = connectionPool.createConnection();
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
