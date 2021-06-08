@@ -17,6 +17,7 @@ subprojects { Project subproject ->
 
     dependencies {
         testImplementation project(':jms-activemq-classic')
+        testImplementation 'ch.qos.logback:logback-classic:1.2.3'
         testImplementation 'org.apache.activemq:activemq-broker:5.16.2'
         testImplementation 'io.micronaut.reactor:micronaut-reactor'
     }
