@@ -7,6 +7,7 @@ import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerErrorHandler
 import io.micronaut.messaging.annotation.MessageBody
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Singleton
 import javax.jms.Message
 import javax.jms.Session
@@ -39,10 +40,10 @@ class ErrorThrowingConsumer {
 @Singleton
 class CountingErrorHandler : JMSListenerErrorHandler {
 
-    var count: Int = 0
+    val count: AtomicInteger = AtomicInteger(0)
 
     override fun handle(session: Session?, message: Message?, ex: Throwable?) {
-        count++
+        count.incrementAndGet()
     }
 
 }

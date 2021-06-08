@@ -23,7 +23,7 @@ class ErrorHandlingSpec: AbstractJmsKotest ({
             producer.push("throw an error")
             then("the exception is handled by the handlers") {
                 consumer.processed shouldHaveSize 0
-                errorHandler.count shouldBe 1
+                errorHandler.count.get() shouldBe 1
                 classLevelErrorHandler.exceptions shouldHaveSize 1
             }
         }
