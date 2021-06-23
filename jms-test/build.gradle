@@ -1,9 +1,0 @@
-dependencies {
-    api project(':jms-core')
-    api 'io.micronaut:micronaut-runtime'
-    api "io.micronaut.test:micronaut-test-spock:$micronautTestVersion"
-    api("org.spockframework:spock-core:$spockVersion") {
-        exclude module: 'groovy-all'
-    }
-    compileOnly 'io.micronaut:micronaut-inject-groovy'
-}

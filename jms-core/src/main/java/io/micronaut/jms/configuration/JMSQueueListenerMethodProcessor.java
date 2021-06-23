@@ -36,7 +36,7 @@ import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
- * Registers a {@link io.micronaut.jms.listener.JMSListenerContainer} for
+ * Registers a {@link io.micronaut.jms.listener.JMSListener} for
  * methods annotated with {@link Queue}.
  *
  * @author Elliott Pope
