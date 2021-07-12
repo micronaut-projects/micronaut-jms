@@ -1,0 +1,43 @@
+[
+  {
+    "name": "org.apache.activemq.openwire.OpenWireFormatFactory",
+    "allPublicMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.openwire.v12.MarshallerFactory",
+    "methods": [
+      {
+        "name": "createMarshallerMap",
+        "parameterTypes": [
+          "org.apache.activemq.openwire.OpenWireFormat"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.openwire.v10.MarshallerFactory",
+    "methods": [
+      {
+        "name": "createMarshallerMap",
+        "parameterTypes": [
+          "org.apache.activemq.openwire.OpenWireFormat"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.transport.tcp.TcpTransportFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  }
+]
