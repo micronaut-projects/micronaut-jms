@@ -118,4 +118,9 @@ public @interface Queue {
      * @see javax.jms.Session
      */
     boolean transacted() default false;
+
+    /**
+     * @return the message selector for the queue
+     */
+    String messageSelector() default "";
 }
