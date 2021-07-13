@@ -1,0 +1,5 @@
+Message Selectors allow you to filter the messages a `@JMSListener` method will receive. The selector can use all message header and properties for filtering except the message content.
+
+snippet::io.micronaut.jms.docs.binding.SelectorConsumer[tags="clazz", project-base="docs-examples/example"]
+
+More examples on how to use Message Selector can be found link:https://timjansen.github.io/jarfiller/guide/jms/selectors.xhtml[here].
