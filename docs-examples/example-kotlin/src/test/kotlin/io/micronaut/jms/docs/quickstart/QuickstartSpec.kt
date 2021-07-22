@@ -4,8 +4,9 @@ import io.kotest.assertions.timing.eventually
 import io.kotest.matchers.shouldBe
 import io.micronaut.jms.docs.AbstractJmsKotest
 import org.opentest4j.AssertionFailedError
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
+import kotlin.time.toDuration
 
 @ExperimentalTime
 class QuickstartSpec : AbstractJmsKotest({
@@ -23,7 +24,7 @@ textProducer.send("quickstart")
 // end::producer[]
 
             then("the message is consumed") {
-                eventually(3.seconds, AssertionFailedError::class) {
+                eventually(3.toDuration(DurationUnit.SECONDS), AssertionFailedError::class) {
                     textConsumer.messages.size shouldBe 1
                     textConsumer.messages[0] shouldBe "quickstart"
                 }

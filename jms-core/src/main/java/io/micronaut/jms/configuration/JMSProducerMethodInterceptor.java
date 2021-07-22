@@ -30,10 +30,9 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.templates.JmsProducer;
-import io.micronaut.messaging.annotation.Body;
-import io.micronaut.messaging.annotation.Header;
+import io.micronaut.messaging.annotation.MessageBody;
+import jakarta.inject.Singleton;
 
-import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
@@ -90,7 +89,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
         Object body = Arrays.stream(method.getArguments())
-            .filter(arg -> arg.isDeclaredAnnotationPresent(Body.class))
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageBody.class))
             .map(arg -> parameterValueMap.get(arg.getName()))
             .findFirst()
             .orElseThrow(() -> new ConfigurationException(
@@ -102,10 +101,10 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             : beanContext.getBean(Serializer.class, Qualifiers.byName(serializerName));
 
         MessageHeader[] headers = Arrays.stream(method.getArguments())
-            .filter(arg -> arg.isDeclaredAnnotationPresent(Header.class))
+            .filter(arg -> arg.isDeclaredAnnotationPresent(io.micronaut.messaging.annotation.MessageHeader.class))
             .map(arg -> {
                 String argName = arg.getName();
-                String headerName = arg.getAnnotationMetadata().stringValue(Header.class)
+                String headerName = arg.getAnnotationMetadata().stringValue(io.micronaut.messaging.annotation.MessageHeader.class)
                     .orElseThrow(() -> new IllegalArgumentException(
                         "@Header annotation on argument '" + argName + "' must have a name"));
                 return new MessageHeader(headerName, parameterValueMap.get(argName));

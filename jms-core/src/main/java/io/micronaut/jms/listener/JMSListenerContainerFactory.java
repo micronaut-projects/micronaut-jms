@@ -17,11 +17,11 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import javax.jms.MessageListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

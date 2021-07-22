@@ -11,8 +11,7 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.context.env.Environment;
 import io.micronaut.core.util.StringUtils;
-
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Factory
 public class SqsClientFactory {

@@ -22,8 +22,8 @@ import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.jms.model.MessageType;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
+import jakarta.inject.Singleton;
 
-import javax.inject.Singleton;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
