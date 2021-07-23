@@ -1,10 +1,10 @@
 package example;
 
 import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Singleton;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton

@@ -27,7 +27,7 @@ jobs:
          sudo rm -rf "/usr/local/share/boost"
          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
          sudo apt-get clean
-         df -h    
+         df -h
       - uses: actions/checkout@v2
       - uses: actions/cache@v2.1.6
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup GraalVM CE
         uses: DeLaGuardo/setup-graalvm@4.0
         with:
-          graalvm: 21.1.0
+          graalvm: 21.2.0
           java: ${{ matrix.java }}
       - name: Install Native Image
         run: gu install native-image

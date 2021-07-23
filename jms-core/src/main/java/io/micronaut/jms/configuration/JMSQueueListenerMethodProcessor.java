@@ -22,8 +22,8 @@ import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.util.Assert;
+import jakarta.inject.Singleton;
 
-import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

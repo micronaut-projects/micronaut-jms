@@ -18,19 +18,19 @@ package io.micronaut.jms.bind;
 import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.jms.model.JMSHeaders;
-import io.micronaut.messaging.annotation.Header;
+import io.micronaut.messaging.annotation.MessageHeader;
 
 import javax.jms.Message;
 import java.util.Optional;
 
 /**
  * Binds headers from a {@link Message} to a method argument annotated with
- * {@link Header}.
+ * {@link MessageHeader}.
  *
  * @author Elliott Pope
  * @since 1.0.0
  */
-public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<Header> {
+public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<MessageHeader> {
 
     /**
      * Constructor.
@@ -45,7 +45,7 @@ public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<Heade
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
                                       Message source) {
 
-        final String headerName = context.getAnnotationMetadata().stringValue(Header.class)
+        final String headerName = context.getAnnotationMetadata().stringValue(MessageHeader.class)
             .orElseThrow(() -> new IllegalStateException("@Header must specify a headerName."));
 
         return () -> Optional.ofNullable(
@@ -53,7 +53,7 @@ public class DefaultHeaderArgumentBinder extends AbstractJmsArgumentBinder<Heade
     }
 
     @Override
-    public Class<Header> getAnnotationType() {
-        return Header.class;
+    public Class<MessageHeader> getAnnotationType() {
+        return MessageHeader.class;
     }
 }

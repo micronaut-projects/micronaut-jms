@@ -1,13 +1,14 @@
 package io.micronaut.jms.docs.binding
 
+
 // tag::imports[]
+import io.micronaut.core.annotation.Nullable
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 
-import javax.annotation.Nullable
 import javax.jms.Destination
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME

@@ -18,18 +18,18 @@ package io.micronaut.jms.bind;
 import io.micronaut.core.convert.ArgumentConversionContext;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.jms.serdes.Deserializer;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 
 import javax.jms.Message;
 import java.util.Optional;
 
 /**
- * Binds a {@link Message} to a method argument annotated with {@link Body}.
+ * Binds a {@link Message} to a method argument annotated with {@link MessageBody}.
  *
  * @author Elliott Pope
  * @since 1.0.0
  */
-public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Body> {
+public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<MessageBody> {
 
     private final Deserializer deserializer;
 
@@ -50,7 +50,7 @@ public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Body> {
     }
 
     @Override
-    public Class<Body> getAnnotationType() {
-        return Body.class;
+    public Class<MessageBody> getAnnotationType() {
+        return MessageBody.class;
     }
 }

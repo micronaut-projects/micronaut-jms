@@ -30,7 +30,7 @@ import io.micronaut.jms.listener.JMSListenerContainerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     private void validateArguments(ExecutableMethod<?, ?> method) {
         Stream.of(method.getArguments())
             .filter(arg ->
-                arg.isDeclaredAnnotationPresent(Body.class) ||
+                arg.isDeclaredAnnotationPresent(MessageBody.class) ||
                 arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
             .findAny()
             .orElseThrow(() -> new IllegalStateException(
@@ -142,7 +142,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         final Class<?> targetClass = Stream.of(method.getArguments())
             .filter(arg ->
-                arg.isDeclaredAnnotationPresent(Body.class) ||
+                arg.isDeclaredAnnotationPresent(MessageBody.class) ||
                 arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
             .findAny()
             .map(Argument::getClass)
