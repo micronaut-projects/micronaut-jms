@@ -6,8 +6,9 @@ import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
 import org.opentest4j.AssertionFailedError
 import java.util.Random
 import java.util.UUID
+import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
+import kotlin.time.toDuration
 
 @ExperimentalTime
 class BindingSpec : AbstractJmsKotest({
@@ -50,7 +51,7 @@ class BindingSpec : AbstractJmsKotest({
             val mapConsumer = applicationContext.getBean(MapConsumer::class.java)
 
             then("the message is consumed") {
-                eventually(3.seconds, AssertionFailedError::class) {
+                eventually(3.toDuration(DurationUnit.SECONDS), AssertionFailedError::class) {
                     mapConsumer.messageBodies.size == 1 &&
                         mapConsumer.messageBodies[0]["foo"] == foo &&
                         mapConsumer.messageBodies[0]["bar"] == bar &&

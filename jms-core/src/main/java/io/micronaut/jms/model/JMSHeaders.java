@@ -15,7 +15,7 @@
  */
 package io.micronaut.jms.model;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import javax.jms.Destination;
@@ -154,8 +154,8 @@ public final class JMSHeaders {
      * by {@code headerName} as an object of type {@code clazz}.
      */
     public static @Nullable <T> T getHeader(String headerName,
-                                            Message message,
-                                            Class<T> clazz) {
+                    Message message,
+                    Class<T> clazz) {
         try {
             if (isJMSHeader(headerName)) {
                 return getJMSHeader(headerName, message, clazz);

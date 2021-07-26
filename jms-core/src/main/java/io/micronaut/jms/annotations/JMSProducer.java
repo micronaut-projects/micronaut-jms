@@ -21,9 +21,9 @@ import io.micronaut.context.annotation.DefaultScope;
 import io.micronaut.context.annotation.Type;
 import io.micronaut.jms.configuration.JMSProducerMethodInterceptor;
 import io.micronaut.messaging.annotation.MessageProducer;
+import jakarta.inject.Scope;
+import jakarta.inject.Singleton;
 
-import javax.inject.Scope;
-import javax.inject.Singleton;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

@@ -4,9 +4,9 @@ package io.micronaut.jms.docs.configuration
 import groovy.transform.CompileStatic
 import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
+import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQConnectionFactory
 
-import javax.inject.Singleton
 import javax.jms.ConnectionFactory
 // end::imports[]
 import io.micronaut.context.annotation.Requires
