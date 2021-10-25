@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation 'org.awaitility:awaitility:4.1.0'
+    testImplementation 'org.awaitility:awaitility:4.1.1'
 }
 
 micronaut {
