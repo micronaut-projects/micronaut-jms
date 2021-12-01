@@ -15,11 +15,11 @@
  */
 package io.micronaut.jms.serdes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.BeanLocator;
+import io.micronaut.core.type.Argument;
 import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.jms.model.MessageType;
+import io.micronaut.json.JsonMapper;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
 import jakarta.inject.Singleton;
@@ -32,7 +32,9 @@ import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,11 +49,11 @@ import java.util.function.Supplier;
 @Singleton
 public final class DefaultSerializerDeserializer implements Serializer, Deserializer {
 
-    private final Supplier<ObjectMapper> objectMapperSupplier;
+    private final Supplier<JsonMapper> objectMapperSupplier;
 
     public DefaultSerializerDeserializer(BeanLocator beanLocator) {
         // Lazy load object mapper
-        objectMapperSupplier = SupplierUtil.memoized(() -> beanLocator.getBean(ObjectMapper.class));
+        objectMapperSupplier = SupplierUtil.memoized(() -> beanLocator.getBean(JsonMapper.class));
     }
 
     @Override
@@ -91,11 +93,11 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
 
     @SuppressWarnings("unchecked")
     private <T> T deserializeText(final TextMessage message,
-                                  final Class<T> clazz) throws JMSException, JsonProcessingException {
+                                  final Class<T> clazz) throws JMSException, IOException {
         if (clazz.isAssignableFrom(String.class)) {
             return (T) message.getText();
         }
-        return objectMapperSupplier.get().readValue(message.getText(), clazz);
+        return objectMapperSupplier.get().readValue(message.getText(), Argument.of(clazz));
     }
 
     private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
@@ -106,7 +108,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
 
     @SuppressWarnings("unchecked")
     private <T> T deserializeObject(final ObjectMessage message,
-                                    final Class<T> clazz) throws JMSException, JsonProcessingException {
+                                    final Class<T> clazz) throws JMSException, IOException {
 
         Serializable body = message.getObject();
         if (body instanceof String) {
@@ -132,7 +134,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                     if (body instanceof Serializable) {
                         return serializeObject(session, (Serializable) body);
                     } else {
-                        return serializeText(session, objectMapperSupplier.get().writeValueAsString(body));
+                        return serializeText(session, new String(objectMapperSupplier.get().writeValueAsBytes(body), StandardCharsets.UTF_8));
                     }
                 case STREAM:
                     return serializeStream(session, (Object[]) body);

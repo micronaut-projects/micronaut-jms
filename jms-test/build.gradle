@@ -1,3 +1,5 @@
+pluginManager.apply(io.micronaut.build.MicronautBuildCommonPlugin)
+
 dependencies {
     api project(':jms-core')
     api 'io.micronaut:micronaut-runtime'
