@@ -1,3 +1,7 @@
+plugins {
+    id 'io.micronaut.build.internal.jms-module'
+}
+
 dependencies {
     api project(':jms-core')
     api 'org.apache.activemq:activemq-client:5.16.3'
