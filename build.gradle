@@ -1,22 +1,4 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath "io.micronaut.build.internal:micronaut-gradle-plugins:4.1.5"
-    }
+plugins {
+    id "io.micronaut.build.internal.docs"
+    id "io.micronaut.build.internal.dependency-updates"
 }
-
-subprojects { Project subproject ->
-    def path = subproject.getPath()
-    if (!path.contains("docs") && !path.contains('test') || path.contains('jms-test')) {
-        group 'io.micronaut.jms'
-        apply plugin: 'io.micronaut.build.internal.publishing'
-        apply plugin: 'io.micronaut.build.internal.common'
-        apply plugin: 'io.micronaut.build.internal.dependency-updates'
-    }
-}
-
-apply plugin: 'io.micronaut.build.internal.docs'
-apply plugin: 'io.micronaut.build.internal.dependency-updates'
