@@ -118,7 +118,7 @@
         <h1>Micronaut JMS</h1>
         <p></p>
         <p>Integration between Micronaut and Java Messaging Service (JMS)</p>
-        <p><strong>Version:</strong> <select style='max-width: 200px' onChange='window.document.location.href=this.options[this.selectedIndex].value;'><option selected='selected' value='https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/index.html'>SNAPSHOT</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M2/guide/index.html'>1.0.0.M2</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M1/guide/index.html'>1.0.0.M1</option></select></p>
+        <p><strong>Version:</strong> <select style='max-width: 200px' onChange='window.document.location.href=this.options[this.selectedIndex].value;'><option selected='selected' value='https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/index.html'>SNAPSHOT</option><option value='https://micronaut-projects.github.io/micronaut-jms/2.0.0-M1/guide/index.html'>2.0.0-M1</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M3/guide/index.html'>1.0.0.M3</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M2/guide/index.html'>1.0.0.M2</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M1/guide/index.html'>1.0.0.M1</option></select></p>
     </div>
     
 <h1 id="introduction"><a class="anchor" href="#introduction"></a>1 Introduction</h1>
@@ -644,9 +644,9 @@ public class MyJMSConfig {
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
+import jakarta.inject.Singleton;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import javax.inject.Singleton;
 import javax.jms.ConnectionFactory;
 
 @Singleton
@@ -671,9 +671,9 @@ public class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEven
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">import groovy.transform.CompileStatic
 import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
+import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQConnectionFactory
 
-import javax.inject.Singleton
 import javax.jms.ConnectionFactory
 
 @CompileStatic
@@ -697,8 +697,8 @@ class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEventListen
 <div class="content">
 <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
+import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQConnectionFactory
-import javax.inject.Singleton
 import javax.jms.ConnectionFactory
 
 @Singleton
@@ -727,9 +727,9 @@ class CustomizeBrokerJMSConnectionPoolListener : BeanCreatedEventListener&lt;Con
 <pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
+import jakarta.inject.Singleton;
 import org.apache.activemq.ActiveMQXAConnectionFactory;
 
-import javax.inject.Singleton;
 import javax.jms.ConnectionFactory;
 
 @Singleton
@@ -754,9 +754,9 @@ public class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventLi
 import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
+import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
 
-import javax.inject.Singleton
 import javax.jms.ConnectionFactory
 
 @CompileStatic
@@ -781,8 +781,8 @@ class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&
 <pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
+import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
-import javax.inject.Singleton
 import javax.jms.ConnectionFactory
 
 @Singleton
@@ -826,11 +826,11 @@ class CustomBrokerJMSConnectionPoolListener(
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
+<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.core.annotation.Nullable;
+import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -856,11 +856,11 @@ public interface MapProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
-import javax.annotation.Nullable
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
@@ -915,13 +915,13 @@ interface MapProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
+<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.core.annotation.Nullable;
+import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Message;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
 
-import javax.annotation.Nullable;
 import javax.jms.Destination;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -1000,13 +1000,13 @@ public class MapConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 
-import javax.annotation.Nullable
 import javax.jms.Destination
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
