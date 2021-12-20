@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     api project(':jms-core')
-    api ('org.apache.activemq:artemis-jms-client:2.19.0') {
+    api ('org.apache.activemq:artemis-jms-client:2.20.0') {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     runtimeOnly 'org.slf4j:jcl-over-slf4j:1.7.32'
