@@ -6,6 +6,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.CreateQueueRequest;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
@@ -31,7 +32,9 @@ public class SqsClientFactory {
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("foo", "bar")))
                 .build();
         if (client.listQueues().getQueueUrls().stream().noneMatch(it -> it.contains(TaskConstants.FIFO_QUEUE))) {
-            client.createQueue(TaskConstants.FIFO_QUEUE);
+            client.createQueue(new CreateQueueRequest()
+                    .withQueueName(TaskConstants.FIFO_QUEUE)
+                    .addAttributesEntry("FifoQueue", "true"));
         }
         return client;
 
