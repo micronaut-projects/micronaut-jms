@@ -23,7 +23,7 @@ public class TasksPublisher {
         try {
             int id = tasksIds.incrementAndGet();
             LOGGER.info("Publishing a task with id: " + id);
-            tasksProducer.send(new Task(id), "" + id);
+            tasksProducer.send(new Task(id));
         } catch (Exception e) {
             LOGGER.error("Failed to publish a task", e);
         }

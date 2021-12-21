@@ -3,10 +3,9 @@ plugins {
 }
 
 dependencies {
-    api project(':jms-core')
-    api ('org.apache.activemq:artemis-jms-client:2.19.0') {
+    api projects.jmsCore
+    api (libs.artemis.client) {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    runtimeOnly 'org.slf4j:jcl-over-slf4j:1.7.32'
-    annotationProcessor 'io.micronaut:micronaut-inject-java'
+    runtimeOnly libs.jcl.slf4j
 }

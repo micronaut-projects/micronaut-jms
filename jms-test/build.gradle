@@ -1,11 +1,12 @@
-pluginManager.apply(io.micronaut.build.MicronautBuildCommonPlugin)
+plugins {
+    id 'io.micronaut.build.internal.jms-base'
+    id 'io.micronaut.build.internal.common'
+}
 
 dependencies {
-    api project(':jms-core')
-    api 'io.micronaut:micronaut-runtime'
-    api "io.micronaut.test:micronaut-test-spock:$micronautTestVersion"
-    api("org.spockframework:spock-core:$spockVersion") {
-        exclude module: 'groovy-all'
-    }
-    compileOnly 'io.micronaut:micronaut-inject-groovy'
+    api projects.jmsCore
+    api mn.micronaut.runtime
+    api mn.micronaut.test.spock
+    api mn.spock
+    compileOnly mn.micronaut.inject.groovy
 }
