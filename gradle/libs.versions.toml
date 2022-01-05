@@ -19,6 +19,7 @@ artemis-client = { module = 'org.apache.activemq:artemis-jms-client', version.re
 awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
 aws-sqs = { module = 'com.amazonaws:aws-java-sdk-sqs', version.ref = 'aws-sqs' }
 commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'commons-pool2' }
+findbugs = { module = 'com.google.code.findbugs:jsr305', version = '' }
 jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
 micronaut-aws-v1 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v1', version.ref = 'micronaut-aws-v1' }
