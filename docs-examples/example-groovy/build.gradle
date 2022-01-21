@@ -1,4 +1,5 @@
 plugins {
+    id 'io.micronaut.build.internal.jms-examples'
     id 'groovy'
 }
 
@@ -7,8 +8,3 @@ micronaut {
 }
 
 mainClassName = 'io.micronaut.jms.docs.Application'
-
-project.afterEvaluate {
-    nativeImage.enabled = false
-    testNativeImage.enabled = false
-}

@@ -1,0 +1,31 @@
+[versions]
+activemq = '5.16.3'
+amazon-sqs-messaging = '1.0.8'
+artemis-client = '2.19.0'
+awaitility = '4.1.1'
+aws-sqs = '1.12.129'
+commons-pool2 = '2.11.1'
+jcl-slf4j = '1.7.32'
+jms-api = '2.0.1'
+kotlin = '1.6.0'
+micronaut-aws-v1 = '3.1.0'
+testcontainers = '1.16.2'
+
+[libraries]
+activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
+activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
+amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
+artemis-client = { module = 'org.apache.activemq:artemis-jms-client', version.ref = 'artemis-client' }
+awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
+aws-sqs = { module = 'com.amazonaws:aws-java-sdk-sqs', version.ref = 'aws-sqs' }
+commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'commons-pool2' }
+findbugs = { module = 'com.google.code.findbugs:jsr305', version = '' }
+jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
+jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
+micronaut-aws-v1 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v1', version.ref = 'micronaut-aws-v1' }
+testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
+testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
+
+[plugins]
+kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = 'kotlin' }
+kotlin-kapt = { id = 'org.jetbrains.kotlin.kapt', version.ref = 'kotlin' }
