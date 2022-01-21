@@ -1,27 +1,7 @@
 plugins {
-    id "java"
-    id "groovy"
-    id "io.micronaut.application"
-}
-
-application {
-    mainClass = "example.Application"
-}
-
-micronaut {
-    version project.ext.micronautVersion
-    runtime "netty"
-    testRuntime "spock"
-}
-
-repositories {
-    mavenCentral()
+    id 'io.micronaut.build.internal.jms-tests'
 }
 
 dependencies {
-    implementation project(":jms-activemq-artemis")
-    testImplementation "io.micronaut:micronaut-http-client"
-    testImplementation "io.micronaut.test:micronaut-test-core:$micronautTestVersion"
-    testImplementation platform("org.testcontainers:testcontainers-bom:$testContainersVersion")
-    testImplementation "org.testcontainers:spock"
+    implementation project(':jms-activemq-artemis')
 }

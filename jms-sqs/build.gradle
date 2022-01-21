@@ -3,11 +3,10 @@ plugins {
 }
 
 dependencies {
-    api project(':jms-core')
-    api 'com.amazonaws:amazon-sqs-java-messaging-lib:1.0.8'
-    api 'com.amazonaws:aws-java-sdk-sqs:1.12.125'
-    api 'io.micronaut.aws:micronaut-aws-sdk-v1:3.0.4'
-    compileOnly "org.graalvm.nativeimage:svm"
-    annotationProcessor 'io.micronaut:micronaut-inject-java'
-    annotationProcessor "io.micronaut:micronaut-graal"
+    annotationProcessor mn.micronaut.graal
+    api projects.jmsCore
+    api libs.amazon.sqs.messaging
+    api libs.aws.sqs
+    api libs.micronaut.aws.v1
+    compileOnly mn.graal
 }

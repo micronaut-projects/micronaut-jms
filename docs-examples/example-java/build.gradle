@@ -1,9 +1,11 @@
 plugins {
+    id 'io.micronaut.build.internal.jms-examples'
+    id 'io.micronaut.application'
     id 'java'
 }
 
 dependencies {
-    testImplementation 'org.awaitility:awaitility:4.1.1'
+    testImplementation libs.awaitility
 }
 
 micronaut {

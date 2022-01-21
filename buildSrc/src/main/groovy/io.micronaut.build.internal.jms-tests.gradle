@@ -1,0 +1,27 @@
+plugins {
+    id 'groovy'
+    id 'io.micronaut.build.internal.jms-base'
+    id 'io.micronaut.application'
+}
+
+application {
+    mainClass = 'example.Application'
+}
+
+micronaut {
+    version project.ext.micronautVersion
+    runtime 'netty'
+    testRuntime 'spock'
+}
+
+dependencies {
+    testImplementation "io.micronaut.test:micronaut-test-core:$micronautTestVersion"
+    testImplementation mn.micronaut.http.client
+    testImplementation libs.testcontainers.spock
+}
+
+graalvmNative {
+    binaries.configureEach {
+        buildArgs.add '-J--add-exports=java.management/sun.management=ALL-UNNAMED' // https://github.com/oracle/graal/issues/3875
+    }
+}

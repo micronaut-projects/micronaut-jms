@@ -3,9 +3,7 @@ plugins {
 }
 
 dependencies {
-    api project(':jms-core')
-    api 'org.apache.activemq:activemq-client:5.16.3'
-    annotationProcessor 'io.micronaut:micronaut-inject-java'
-    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
-    implementation 'com.github.spotbugs:spotbugs-annotations'
+    api projects.jmsCore
+    api libs.activemq.client
+    implementation mn.spotbugs
 }

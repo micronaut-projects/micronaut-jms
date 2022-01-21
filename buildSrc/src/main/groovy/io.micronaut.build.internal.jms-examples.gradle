@@ -1,0 +1,16 @@
+plugins {
+    id 'io.micronaut.build.internal.jms-base'
+    id 'io.micronaut.minimal.application'
+}
+
+micronaut {
+    version project.ext.micronautVersion
+    runtime 'netty'
+}
+
+dependencies {
+    testCompileOnly libs.findbugs // for "warning: unknown enum constant When.MAYBE"
+    testImplementation projects.jmsTest
+    testImplementation projects.jmsActivemqClassic
+    testImplementation libs.activemq.broker
+}

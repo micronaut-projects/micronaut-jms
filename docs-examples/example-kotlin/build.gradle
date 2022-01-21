@@ -1,6 +1,8 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
-    id 'org.jetbrains.kotlin.kapt' version "$kotlinVersion"
+    id 'io.micronaut.build.internal.jms-examples'
+    id 'io.micronaut.application'
+    alias libs.plugins.kotlin.jvm
+    alias libs.plugins.kotlin.kapt
 }
 
 dependencies {
