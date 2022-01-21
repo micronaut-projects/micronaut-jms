@@ -3,17 +3,13 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
-    plugins {
-        id 'io.micronaut.application' version getProperty("micronautGradlePluginVersion")
-        id 'io.micronaut.library' version getProperty("micronautGradlePluginVersion")
-    }
 }
 
 plugins {
-    id("io.micronaut.build.shared.settings") version "4.2.6"
+    id 'io.micronaut.build.shared.settings' version '5.1.2'
 }
 
-rootProject.name = 'jms'
+rootProject.name = 'micronaut-jms'
 
 include 'jms-core'
 include 'jms-activemq-classic'
@@ -28,3 +24,17 @@ if (!JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_16)) {
 include 'tests:tasks-sqs'
 include 'tests:tasks-activemq-artemis'
 include 'tests:tasks-activemq-classic'
+
+enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
+enableFeaturePreview 'VERSION_CATALOGS'
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+    versionCatalogs {
+        mn {
+            from "io.micronaut:micronaut-bom:${providers.gradleProperty('micronautVersion').get()}"
+        }
+    }
+}
