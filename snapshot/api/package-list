@@ -6,7 +6,6 @@ io.micronaut.jms.annotations
 io.micronaut.jms.bind
 io.micronaut.jms.configuration
 io.micronaut.jms.configuration.properties
-io.micronaut.jms.docs
 io.micronaut.jms.listener
 io.micronaut.jms.model
 io.micronaut.jms.pool
