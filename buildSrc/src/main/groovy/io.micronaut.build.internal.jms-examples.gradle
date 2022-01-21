@@ -1,6 +1,6 @@
 plugins {
     id 'io.micronaut.build.internal.jms-base'
-    id 'io.micronaut.application'
+    id 'io.micronaut.minimal.application'
 }
 
 micronaut {

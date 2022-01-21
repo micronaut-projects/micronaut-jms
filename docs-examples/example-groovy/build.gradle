@@ -1,5 +1,3 @@
-import org.graalvm.buildtools.gradle.tasks.BuildNativeImageTask
-
 plugins {
     id 'io.micronaut.build.internal.jms-examples'
     id 'groovy'
@@ -10,7 +8,3 @@ micronaut {
 }
 
 mainClassName = 'io.micronaut.jms.docs.Application'
-
-tasks.withType(BuildNativeImageTask).configureEach {
-    enabled = false
-}
