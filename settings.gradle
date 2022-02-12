@@ -26,7 +26,6 @@ include 'tests:tasks-activemq-artemis'
 include 'tests:tasks-activemq-classic'
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
-enableFeaturePreview 'VERSION_CATALOGS'
 
 dependencyResolutionManagement {
     repositories {
