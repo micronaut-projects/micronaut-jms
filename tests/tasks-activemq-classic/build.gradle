@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation project(':jms-activemq-classic')
+    implementation projects.jmsActivemqClassic
 }

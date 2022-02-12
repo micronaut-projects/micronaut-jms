@@ -16,7 +16,7 @@ micronaut {
 mainClassName = 'io.micronaut.jms.docs.ApplicationKt'
 
 java {
-    sourceCompatibility = JavaVersion.toVersion('1.8')
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 compileKotlin {
