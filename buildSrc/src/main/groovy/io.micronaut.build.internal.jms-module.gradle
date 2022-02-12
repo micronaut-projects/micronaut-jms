@@ -4,7 +4,5 @@ plugins {
 }
 
 dependencies {
-    annotationProcessor "io.micronaut.docs:micronaut-docs-asciidoc-config-props:$micronautDocsVersion"
-    annotationProcessor mn.micronaut.inject.java
-    compileOnly libs.findbugs // for "warning: unknown enum constant When.MAYBE"
+    compileOnly mn.jsr305 // for "warning: unknown enum constant When.MAYBE"
 }

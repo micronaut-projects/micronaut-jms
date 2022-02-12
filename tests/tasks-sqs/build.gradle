@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation project(':jms-sqs')
+    implementation projects.jmsSqs
     testImplementation libs.testcontainers.localstack
 }
