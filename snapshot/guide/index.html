@@ -180,8 +180,7 @@
     &lt;artifactId&gt;micronaut-jms-activemq-classic&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>        <div class="listingblock multi-language-sample">
@@ -197,8 +196,7 @@
     &lt;artifactId&gt;micronaut-jms-activemq-artemis&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>        <div class="listingblock multi-language-sample">
@@ -214,8 +212,7 @@
     &lt;artifactId&gt;micronaut-jms-sqs&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>Note that you can use multiple providers in a project.</p>
@@ -228,48 +225,48 @@
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 
-@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 public interface TextProducer {
 
-    @Queue("queue_text") <b class="conum">(2)</b>
-    void send(@MessageBody String body); <b class="conum">(3)</b>
+    @Queue("queue_text") // <b class="conum">(2)</b>
+    void send(@MessageBody String body); // <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 
-@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 interface TextProducer {
 
-    @Queue('queue_text') <b class="conum">(2)</b>
-    void send(@MessageBody String body) <b class="conum">(3)</b>
+    @Queue('queue_text') // <b class="conum">(2)</b>
+    void send(@MessageBody String body) // <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 
-@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 interface TextProducer {
 
-    @Queue("queue_text") <b class="conum">(2)</b>
-    fun send(@MessageBody body: String) <b class="conum">(3)</b>
+    @Queue("queue_text") // <b class="conum">(2)</b>
+    fun send(@MessageBody body: String) // <b class="conum">(3)</b>
 }</code></pre>
 </div>
 </div>
@@ -294,19 +291,19 @@ interface TextProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">TextProducer textProducer = applicationContext.getBean(TextProducer.class);
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">TextProducer textProducer = applicationContext.getBean(TextProducer.class);
 textProducer.send("quickstart");</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">def textProducer = applicationContext.getBean(TextProducer)
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">def textProducer = applicationContext.getBean(TextProducer)
 textProducer.send 'quickstart'</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">val textProducer = applicationContext.getBean(TextProducer::class.java)
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">val textProducer = applicationContext.getBean(TextProducer::class.java)
 textProducer.send("quickstart")</code></pre>
 </div>
 </div>
@@ -323,7 +320,7 @@ textProducer.send("quickstart")</code></pre>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 
@@ -333,13 +330,13 @@ import java.util.List;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 
-@JMSListener(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 public class TextConsumer {
 
     List&lt;String&gt; messages = Collections.synchronizedList(new ArrayList&lt;&gt;());
 
-    @Queue(value = "queue_text", concurrency = "1-5") <b class="conum">(2)</b>
-    public void receive(@MessageBody String body) { <b class="conum">(3)</b>
+    @Queue(value = "queue_text", concurrency = "1-5") // <b class="conum">(2)</b>
+    public void receive(@MessageBody String body) { // <b class="conum">(3)</b>
         messages.add(body);
     }
 }</code></pre>
@@ -347,19 +344,19 @@ public class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 
-@JMSListener(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 class TextConsumer {
 
     List&lt;String&gt; messages = [].asSynchronized()
 
-    @Queue(value = 'queue_text', concurrency = '1-5') <b class="conum">(2)</b>
-    void receive(@MessageBody String body) { <b class="conum">(3)</b>
+    @Queue(value = 'queue_text', concurrency = '1-5') // <b class="conum">(2)</b>
+    void receive(@MessageBody String body) { // <b class="conum">(3)</b>
         messages &lt;&lt; body
     }
 }</code></pre>
@@ -367,20 +364,20 @@ class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import java.util.ArrayList
 import java.util.Collections
 
-@JMSListener(CONNECTION_FACTORY_BEAN_NAME) <b class="conum">(1)</b>
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 class TextConsumer {
 
     val messages: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
 
-    @Queue(value = "queue_text", concurrency = "1-5") <b class="conum">(2)</b>
-    fun receive(@MessageBody body: String) { <b class="conum">(3)</b>
+    @Queue(value = "queue_text", concurrency = "1-5") // <b class="conum">(2)</b>
+    fun receive(@MessageBody body: String) { // <b class="conum">(3)</b>
         messages.add(body)
     }
 }</code></pre>
@@ -455,8 +452,7 @@ class TextConsumer {
     &lt;artifactId&gt;micronaut-jms-activemq-classic&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/ActiveMQConnectionFactory.html">ActiveMQConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
@@ -501,8 +497,7 @@ class TextConsumer {
     &lt;artifactId&gt;micronaut-jms-activemq-artemis&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/components/artemis/documentation/javadocs/javadoc-latest/org/apache/activemq/artemis/jms/client/ActiveMQJMSConnectionFactory.html">ActiveMQJMSConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
@@ -545,8 +540,7 @@ class TextConsumer {
     &lt;artifactId&gt;micronaut-jms-sqs&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
 </div>
-</div>
-</p>
+</div></p>
 </div>
 <div class="paragraph">
 <p>Additionally you&#8217;ll need to configure an instance of <code>com.amazonaws.services.sqs.AmazonSQS</code> as a bean for AWS authentication, for example:</p>
@@ -642,7 +636,7 @@ public class MyJMSConfig {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import jakarta.inject.Singleton;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -668,7 +662,7 @@ public class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEven
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import groovy.transform.CompileStatic
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import groovy.transform.CompileStatic
 import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import jakarta.inject.Singleton
@@ -695,7 +689,7 @@ class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEventListen
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQConnectionFactory
@@ -724,7 +718,7 @@ class CustomizeBrokerJMSConnectionPoolListener : BeanCreatedEventListener&lt;Con
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
 import jakarta.inject.Singleton;
@@ -750,7 +744,7 @@ public class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventLi
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import groovy.transform.CompileStatic
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import groovy.transform.CompileStatic
 import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
@@ -778,7 +772,7 @@ class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
 import jakarta.inject.Singleton
@@ -826,7 +820,7 @@ class CustomBrokerJMSConnectionPoolListener(
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.core.annotation.Nullable;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.core.annotation.Nullable;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
@@ -856,7 +850,7 @@ public interface MapProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.core.annotation.Nullable
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
@@ -884,7 +878,7 @@ interface MapProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSProducer
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
@@ -915,7 +909,7 @@ interface MapProducer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-java" data-lang="java">import io.micronaut.core.annotation.Nullable;
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.core.annotation.Nullable;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Message;
 import io.micronaut.jms.annotations.Queue;
@@ -1000,7 +994,7 @@ public class MapConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-groovy" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.core.annotation.Nullable
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
@@ -1079,7 +1073,7 @@ class MapConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlight"><code class="language-kotlin" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
