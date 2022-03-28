@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.jms.MessageListener;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -79,6 +80,7 @@ public class JMSListenerContainerFactory {
      * {@link JMSListenerContainer}s however it can be used to register them
      * dynamically and allow for safe shutdown within the Bean Context.
      *
+     * @param <T>             the class type
      * @param connectionPool  the pool
      * @param destination     the queue or topic name
      * @param listener        the message listener
@@ -87,26 +89,27 @@ public class JMSListenerContainerFactory {
      * @param acknowledgeMode when transacted is false, indicates how messages
      *                        received by the session will be acknowledged
      * @param type            the destination type
-     * @param <T>             the class type
+     * @param messageSelector the message selector for the listener
      * @see javax.jms.Session#AUTO_ACKNOWLEDGE
      * @see javax.jms.Session#CLIENT_ACKNOWLEDGE
      * @see javax.jms.Session#DUPS_OK_ACKNOWLEDGE
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
-                                     final String destination,
-                                     final MessageListener listener,
-                                     final Class<T> clazz,
-                                     final boolean transacted,
-                                     final int acknowledgeMode,
-                                     final JMSDestinationType type) {
+            final String destination,
+            final MessageListener listener,
+            final Class<T> clazz,
+            final boolean transacted,
+            final int acknowledgeMode,
+            final JMSDestinationType type,
+            final Optional<String> messageSelector) {
         final JMSListenerContainer<T> container = new JMSListenerContainer<>(
             connectionPool, type, THREAD_POOL_SIZE);
-        container.registerListener(destination, listener, clazz, transacted, acknowledgeMode);
+        container.registerListener(destination, listener, clazz, transacted, acknowledgeMode, messageSelector);
         listeners.put(destination, container);
         logger.debug("registered {} listener for '{}' {} for type '{}'" +
-                " and pool {}; transacted: {}, ack mode {}",
+                " and pool {}; transacted: {}, ack mode {}, messageSelector {}",
             type.name().toLowerCase(), destination, listener, clazz.getName(),
-            connectionPool, transacted, acknowledgeMode);
+            connectionPool, transacted, acknowledgeMode, messageSelector);
     }
 
     /**

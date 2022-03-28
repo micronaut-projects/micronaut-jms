@@ -15,12 +15,13 @@
  */
 package io.micronaut.jms.listener;
 
-import io.micronaut.core.util.ArgumentUtils;
-import io.micronaut.jms.model.JMSDestinationType;
-import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.messaging.exceptions.MessageListenerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 import javax.jms.Connection;
@@ -29,12 +30,13 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.micronaut.core.util.ArgumentUtils;
+import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -153,21 +155,30 @@ public class JMSListenerContainer<T> {
      * @param transacted      indicates whether the session will use a local transaction
      * @param acknowledgeMode when transacted is false, indicates how messages
      *                        received by the session will be acknowledged
+     * @param messageSelector the message selector for the listener
      * @see Session#AUTO_ACKNOWLEDGE
      * @see Session#CLIENT_ACKNOWLEDGE
      * @see Session#DUPS_OK_ACKNOWLEDGE
      */
     public void registerListener(String destination,
-                                 MessageListener listener,
-                                 Class<T> clazz, // TODO unused
-                                 boolean transacted,
-                                 int acknowledgeMode) {
+            MessageListener listener,
+            Class<T> clazz, // TODO unused
+            boolean transacted,
+            int acknowledgeMode,
+            Optional<String> messageSelector) {
         try {
             final Connection connection = connectionPool.createConnection();
             final Session session = connection.createSession(transacted, acknowledgeMode);
             openConnections.add(connection);
-            final MessageConsumer consumer = session.createConsumer(
-                lookupDestination(destination, session));
+            MessageConsumer consumer;
+            if (!messageSelector.isPresent()) {
+                consumer = session.createConsumer(
+                        lookupDestination(destination, session));
+            } else {
+                consumer = session.createConsumer(
+                        lookupDestination(destination, session), messageSelector.get());
+            }
+
             consumer.setMessageListener((message) -> {
                 try {
                     listener.onMessage(message);
