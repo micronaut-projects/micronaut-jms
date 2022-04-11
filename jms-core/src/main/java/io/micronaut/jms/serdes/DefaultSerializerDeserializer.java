@@ -169,7 +169,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
     private BytesMessage serializeBytes(final Session session,
                                         final byte[] body) throws JMSException {
         final BytesMessage message = session.createBytesMessage();
-        message.readBytes(body);
+        message.writeBytes(body);
         return message;
     }
 
