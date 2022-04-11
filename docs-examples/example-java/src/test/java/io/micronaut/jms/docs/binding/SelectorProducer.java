@@ -6,7 +6,7 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
@@ -17,10 +17,10 @@ import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicCon
 public interface SelectorProducer {
 
     @Queue(value = "selector_queue")
-    void sendQueue(@Body String body, @MessageHeader("CustomBooleanHeader") boolean booleanHeader);
+    void sendQueue(@MessageBody String body, @MessageHeader("CustomBooleanHeader") boolean booleanHeader);
 
     @Topic(value = "selector_topic")
-    void sendTopic(@Body String body, @MessageHeader("CustomBooleanHeader") boolean booleanHeader);
+    void sendTopic(@MessageBody String body, @MessageHeader("CustomBooleanHeader") boolean booleanHeader);
 
 }
 // end::clazz[]

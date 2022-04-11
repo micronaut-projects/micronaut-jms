@@ -10,7 +10,7 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
-import io.micronaut.messaging.annotation.Body;
+import io.micronaut.messaging.annotation.MessageBody;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 
@@ -26,17 +26,17 @@ public class SelectorConsumer {
     List<String> messageBodiesTopic = Collections.synchronizedList(new ArrayList<>());
 
     @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=true")
-    public void receive(@Body String body) {
+    public void receive(@MessageBody String body) {
         messageBodiesTrue.add(body);
     }
 
     @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=false")
-    public void receive2(@Body String body) {
+    public void receive2(@MessageBody String body) {
         messageBodiesFalse.add(body);
     }
 
     @Topic(value = "selector_topic", messageSelector = "CustomBooleanHeader=true")
-    public void receiveTopic(@Body String body) {
+    public void receiveTopic(@MessageBody String body) {
         messageBodiesTopic.add(body);
     }
 }
