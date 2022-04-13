@@ -103,6 +103,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
     private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
         byte[] bytes = new byte[(int) message.getBodyLength()];
         message.readBytes(bytes);
+        message.reset();
         return (T) bytes;
     }
 
