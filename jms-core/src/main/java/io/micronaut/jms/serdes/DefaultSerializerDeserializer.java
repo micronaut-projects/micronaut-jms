@@ -103,6 +103,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
     private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
         byte[] bytes = new byte[(int) message.getBodyLength()];
         message.readBytes(bytes);
+        message.reset();
         return (T) bytes;
     }
 
@@ -169,7 +170,7 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
     private BytesMessage serializeBytes(final Session session,
                                         final byte[] body) throws JMSException {
         final BytesMessage message = session.createBytesMessage();
-        message.readBytes(body);
+        message.writeBytes(body);
         return message;
     }
 

@@ -52,11 +52,6 @@ public enum MessageType {
     MAP(MapMessage.class, Map.class),
 
     /**
-     * An {@link ObjectMessage} to be deserialized to a {@link Serializable}.
-     */
-    OBJECT(ObjectMessage.class, Serializable.class),
-
-    /**
      * A {@link BytesMessage} to be deserialized to a byte array.
      */
     BYTES(BytesMessage.class, byte[].class),
@@ -66,6 +61,11 @@ public enum MessageType {
      * by the client.
      */
     STREAM(StreamMessage.class, null),
+
+    /**
+     * An {@link ObjectMessage} to be deserialized to a {@link Serializable}.
+     */
+    OBJECT(ObjectMessage.class, Serializable.class),
 
     /**
      * The default case if no known {@link Message} subtype is known for the incoming message.
