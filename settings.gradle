@@ -6,7 +6,7 @@ pluginManagement {
 }
 
 plugins {
-    id 'io.micronaut.build.shared.settings' version '5.2.3'
+    id 'io.micronaut.build.shared.settings' version '5.3.9'
 }
 
 rootProject.name = 'jms-parent'
@@ -27,13 +27,6 @@ include 'tests:tasks-activemq-classic'
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-    }
-    versionCatalogs {
-        mn {
-            from "io.micronaut:micronaut-bom:${providers.gradleProperty('micronautVersion').get()}"
-        }
-    }
+micronautBuild {
+    importMicronautCatalog()
 }

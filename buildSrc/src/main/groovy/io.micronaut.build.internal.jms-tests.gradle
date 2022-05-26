@@ -15,7 +15,7 @@ micronaut {
 }
 
 dependencies {
-    testImplementation "io.micronaut.test:micronaut-test-core:$micronautTestVersion"
+    testImplementation 'io.micronaut.test:micronaut-test-core'
     testImplementation mn.micronaut.http.client
     testImplementation libs.testcontainers.spock
 }
