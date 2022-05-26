@@ -2,6 +2,7 @@ package io.micronaut.jms.docs.configuration;
 
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.docs.AbstractJmsSpec;
+import io.micronaut.jms.pool.JMSConnectionPool;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.jupiter.api.Test;
 
@@ -19,9 +20,13 @@ class CustomizeBrokerSpec extends AbstractJmsSpec {
             ConnectionFactory.class,
             Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME));
 
-        assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
+        assertTrue(connectionFactory instanceof JMSConnectionPool);
 
-        ActiveMQConnectionFactory amqcf = (ActiveMQConnectionFactory) connectionFactory;
+        JMSConnectionPool pool = (JMSConnectionPool) connectionFactory;
+
+        assertTrue(pool.getConnectionFactory() instanceof ActiveMQConnectionFactory);
+
+        ActiveMQConnectionFactory amqcf = (ActiveMQConnectionFactory) pool.getConnectionFactory();
 
         assertTrue(amqcf.isUseAsyncSend());
     }
