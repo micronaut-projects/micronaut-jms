@@ -16,10 +16,10 @@ class TasksSpec extends Specification implements TestPropertyProvider {
 
     @Shared
     @AutoCleanup
-    public static GenericContainer<?> activeMQContainer = new GenericContainer<>("vromero/activemq-artemis:latest")
+    public static GenericContainer<?> activeMQContainer = new GenericContainer<>("makyo/activemq-artemis:latest")
             .withEnv([
-                    "ARTEMIS_USERNAME": "myuser",
-                    "ARTEMIS_PASSWORD": "otherpassword"
+                    "ARTEMIS_USERNAME": "artemis",
+                    "ARTEMIS_PASSWORD": "artemis"
             ])
             .withExposedPorts(61616)
     @Inject
@@ -39,9 +39,10 @@ class TasksSpec extends Specification implements TestPropertyProvider {
     Map<String, String> getProperties() {
         activeMQContainer.start()
         return [
+                "micronaut.jms.activemq.artemis.enabled": "true",
                 "micronaut.jms.activemq.artemis.connection-string": "tcp://${activeMQContainer.getHost()}:${activeMQContainer.getMappedPort(61616)}",
-                "micronaut.jms.activemq.artemis.username": "myuser",
-                "micronaut.jms.activemq.artemis.password": "otherpassword"
+                "micronaut.jms.activemq.artemis.username": "artemis",
+                "micronaut.jms.activemq.artemis.password": "artemis"
         ]
     }
 }
