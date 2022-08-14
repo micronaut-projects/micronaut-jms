@@ -2,6 +2,12 @@ plugins {
     id 'io.micronaut.build.internal.jms-module'
 }
 
+micronautBuild {
+    binaryCompatibility {
+        baselineVersion = "2.0.0-SNAPSHOT"
+    }
+}
+
 dependencies {
     api projects.jmsCore
     api (libs.artemis.client) {
@@ -9,3 +15,4 @@ dependencies {
     }
     runtimeOnly libs.jcl.slf4j
 }
+
