@@ -9,10 +9,3 @@ dependencies {
     api libs.jms.api
     api libs.commons.pool2
 }
-
-// disable until we have a release for the findBaseline task
-micronautBuild {
-    binaryCompatibility {
-        enabled = false
-    }
-}

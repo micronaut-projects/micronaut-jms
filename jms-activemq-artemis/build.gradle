@@ -10,11 +10,4 @@ dependencies {
     runtimeOnly libs.jcl.slf4j
 }
 
-// disable until we have a release for the findBaseline task
-micronautBuild {
-    binaryCompatibility {
-        enabled = false
-    }
-}
-
 

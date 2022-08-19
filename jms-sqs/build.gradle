@@ -10,10 +10,3 @@ dependencies {
     api libs.micronaut.aws.v1
     compileOnly mn.graal
 }
-
-// disable until we have a release for the findBaseline task
-micronautBuild {
-    binaryCompatibility {
-        enabled = false
-    }
-}
