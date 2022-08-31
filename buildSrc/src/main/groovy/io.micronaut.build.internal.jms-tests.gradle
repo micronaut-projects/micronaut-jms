@@ -20,7 +20,7 @@ dependencies {
     testImplementation libs.testcontainers.spock
 
     // without this :tests:tasks-activemq-artemis TasksSpec fails with ClassNotFoundException for javax.json.JsonValue
-    runtimeOnly 'javax.json:javax.json-api:1.1.4'
+    runtimeOnly(libs.javax.json.api)
 }
 
 graalvmNative {

@@ -10,7 +10,7 @@ jms-api = '2.0.1'
 kotlin = '1.6.21'
 micronaut-aws-v1 = '3.1.0'
 testcontainers = '1.16.2'
-
+json-api = '1.1.4'
 [libraries]
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
@@ -24,7 +24,7 @@ jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
 micronaut-aws-v1 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v1', version.ref = 'micronaut-aws-v1' }
 testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
 testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
-
+javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
 [plugins]
 kotlin-jvm = { id = 'org.jetbrains.kotlin.jvm', version.ref = 'kotlin' }
 kotlin-kapt = { id = 'org.jetbrains.kotlin.kapt', version.ref = 'kotlin' }

@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     compileOnly mn.jsr305 // for "warning: unknown enum constant When.MAYBE"
-    runtimeOnly("javax.json:javax.json-api:1.1.4")
+    runtimeOnly(libs.javax.json.api)
 }
 
 // disable until we have a release for the findBaseline task
