@@ -36,6 +36,7 @@ class TasksSpec extends Specification implements TestPropertyProvider {
     Map<String, String> getProperties() {
         activeMQContainer.start()
         return [
+                "micronaut.jms.activemq.classic.enabled"          : "true",
                 "micronaut.jms.activemq.classic.connection-string": "tcp://${activeMQContainer.getHost()}:${activeMQContainer.getMappedPort(61616)}",
                 "micronaut.jms.activemq.classic.username"         : "admin",
                 "micronaut.jms.activemq.classic.password"         : "admin"

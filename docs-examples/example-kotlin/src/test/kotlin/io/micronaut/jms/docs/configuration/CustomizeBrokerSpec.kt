@@ -5,6 +5,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.micronaut.inject.qualifiers.Qualifiers
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.docs.AbstractJmsKotest
+import io.micronaut.jms.pool.JMSConnectionPool
 import org.apache.activemq.ActiveMQConnectionFactory
 import javax.jms.ConnectionFactory
 
@@ -21,8 +22,12 @@ class CustomizeBrokerSpec : AbstractJmsKotest({
                 Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME))
 
             then("The expected customization is in effect") {
-                connectionFactory.shouldBeInstanceOf<ActiveMQConnectionFactory>()
-                connectionFactory.isUseAsyncSend shouldBe true
+                connectionFactory.shouldBeInstanceOf<JMSConnectionPool>()
+                val pool: JMSConnectionPool = connectionFactory
+                pool.getConnectionFactory().shouldBeInstanceOf<ActiveMQConnectionFactory>()
+
+                val amqcf: ActiveMQConnectionFactory = pool.getConnectionFactory() as ActiveMQConnectionFactory
+                amqcf.isUseAsyncSend() shouldBe true
             }
         }
 
