@@ -53,9 +53,11 @@
                                 
                                 <div class="toc-item" style="margin-left:0"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
                                 
-                                <div class="toc-item" style="margin-left:0"><a href="#graalvm"><strong>6</strong><span>GraalVM support</span></a></div>
+                                <div class="toc-item" style="margin-left:0"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
                                 
-                                <div class="toc-item" style="margin-left:0"><a href="#repository"><strong>7</strong><span>Repository</span></a></div>
+                                <div class="toc-item" style="margin-left:0"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
                                 
                             </div>
                         </div>
@@ -106,9 +108,11 @@
         
         <div class="toc-item" style="margin-left:0px" id="toc-item-binding"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
         
-        <div class="toc-item" style="margin-left:0px" id="toc-item-graalvm"><a href="#graalvm"><strong>6</strong><span>GraalVM support</span></a></div>
+        <div class="toc-item" style="margin-left:0px" id="toc-item-messageSelector"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
         
-        <div class="toc-item" style="margin-left:0px" id="toc-item-repository"><a href="#repository"><strong>7</strong><span>Repository</span></a></div>
+        <div class="toc-item" style="margin-left:0px" id="toc-item-graalvm"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-repository"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
         
         </div>
     </div>
@@ -1150,7 +1154,51 @@ class MapConsumer {
 </div>
 </div>
 
-<h1 id="graalvm"><a class="anchor" href="#graalvm"></a>6 GraalVM support</h1>
+<h1 id="messageSelector"><a class="anchor" href="#messageSelector"></a>6 Message Selectors</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/messageSelector.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>Message Selectors allow you to filter the messages a <code>@JMSListener</code> method will receive. The selector can use all message header and properties for filtering except the message content.</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+public class SelectorConsumer {
+
+    List&lt;String&gt; messageBodiesTrue = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    List&lt;String&gt; messageBodiesFalse = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    List&lt;String&gt; messageBodiesTopic = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=true")
+    public void receive(@MessageBody String body) {
+        messageBodiesTrue.add(body);
+    }
+
+    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=false")
+    public void receive2(@MessageBody String body) {
+        messageBodiesFalse.add(body);
+    }
+
+    @Topic(value = "selector_topic", messageSelector = "CustomBooleanHeader=true")
+    public void receiveTopic(@MessageBody String body) {
+        messageBodiesTopic.add(body);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>More examples on how to use Message Selector can be found <a href="https://timjansen.github.io/jarfiller/guide/jms/selectors.xhtml">here</a>.</p>
+</div>
+
+<h1 id="graalvm"><a class="anchor" href="#graalvm"></a>7 GraalVM support</h1>
 
 <div class='contribute-btn'>
     <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/graalvm.adoc"'>
@@ -1177,7 +1225,7 @@ information.
 </table>
 </div>
 
-<h1 id="repository"><a class="anchor" href="#repository"></a>7 Repository</h1>
+<h1 id="repository"><a class="anchor" href="#repository"></a>8 Repository</h1>
 
 <div class='contribute-btn'>
     <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/repository.adoc"'>
