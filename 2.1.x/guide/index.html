@@ -1,0 +1,1251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <title>Micronaut JMS</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="../css/main.css" type="text/css" media="screen, print" title="Style" charset="utf-8" />
+    <link rel="stylesheet" href="../css/custom.css" type="text/css" media="screen, print" title="Style" charset="utf-8" />
+    <link rel="stylesheet" href="../css/pdf.css" type="text/css" media="print" title="PDF" charset="utf-8" />
+    <link rel="stylesheet" href="../css/highlight/agate.css">
+    <script src="../js/highlight.pack.js"></script>
+    <script src="../js/guide.js"></script>
+    <script src="../js/multi-language-sample.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <link rel="stylesheet" href="../css/multi-language-sample.css"/>
+    <script src="../js/docs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.13/clipboard.min.js"></script>
+    <script type="text/javascript">
+        function addJsClass(el) {
+            var classes = document.body.className.split(" ");
+            classes.push("js");
+            document.body.className = classes.join(" ");
+        }
+    </script>
+
+</head>
+
+<body class="body" id="docs" onload="addJsClass();" onhashchange="highlightMenu()">
+
+<div id="table-of-content-nav-link" class="desktop">
+    <a id="theme-switcher" title="Switch to dark theme" href="javascript:switchTheme(true)"><i class="fa fa-moon-o"></i></a>
+    <a title="Collapse/Open Table of contents" title="Hide Table of Contents" href="javascript:hideTableOfContents();" class="button">[ + ]</a>
+</div>
+
+<div id="main">
+    <div id="navigation" class="no-print">
+        <div class="navTitle">
+            <span id="logo"><a href="http://micronaut.io" title="Go to Micronaut Website"><img src="../img/micronaut-logo-white.svg" alt="Micronaut"/></a></span>
+        </div>
+        <div class="navLinks">
+            <ul>
+                    <li><div id="nav-summary" onmouseover="toggleNavSummary(false)" onmouseout="toggleNavSummary(true)" class="desktop">
+                            <a href="../guide/index.html" class="button">Table of contents</a>
+                            <div id="nav-summary-childs" style="display:none;">
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#introduction"><strong>1</strong><span>Introduction</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#whatsNew"><strong>2</strong><span>Release History</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#quickStart"><strong>3</strong><span>JMS Quick Start</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#configuration"><strong>4</strong><span>Configuration</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
+                                
+                            </div>
+                        </div>
+                    </li>
+
+                <li id="table-of-content-nav-link-mobile" class="mobile">
+                    <a title="Scroll to Table of contents" href="javascript:scrollToTop();" class="button">Toc</a>
+                </li>
+                <li class="desktop">
+                    <a title="Go to API documentation" href="../api/index.html" class="button">API Reference</a>
+                </li>
+                <li class="mobile">
+                    <a title="Go to API documentation" href="../api/index.html" class="button">API</a>
+                </li>
+                <li class="desktop">
+                    <a title="Go to Configuration Reference documentation" href="../guide/configurationreference.html" class="button">Configuration Reference</a>
+                </li>
+                <li class="mobile">
+                    <a title="Go to Configuration Reference documentation" href="../guide/configurationreference.html" class="button">Conf</a>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    
+    <div id="table-of-content">
+        <div class="toc-content">
+
+        <h2>Table of Contents</h2>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-introduction"><a href="#introduction"><strong>1</strong><span>Introduction</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-whatsNew"><a href="#whatsNew"><strong>2</strong><span>Release History</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-quickStart"><a href="#quickStart"><strong>3</strong><span>JMS Quick Start</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-configuration"><a href="#configuration"><strong>4</strong><span>Configuration</span></a></div>
+        
+        <div class="toc-item" style="margin-left:10px" id="toc-item-activemqClassic"><a href="#activemqClassic"><strong>4.1</strong><span>Configuring ActiveMQ &quot;Classic&quot;</span></a></div>
+        
+        <div class="toc-item" style="margin-left:10px" id="toc-item-activemqArtemis"><a href="#activemqArtemis"><strong>4.2</strong><span>Configuring ActiveMQ Artemis</span></a></div>
+        
+        <div class="toc-item" style="margin-left:10px" id="toc-item-sqs"><a href="#sqs"><strong>4.3</strong><span>Configuring SQS</span></a></div>
+        
+        <div class="toc-item" style="margin-left:10px" id="toc-item-otherBrokers"><a href="#otherBrokers"><strong>4.4</strong><span>Configuring Unsupported Brokers</span></a></div>
+        
+        <div class="toc-item" style="margin-left:10px" id="toc-item-customizing"><a href="#customizing"><strong>4.5</strong><span>Customizing Brokers</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-binding"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-messageSelector"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-graalvm"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-repository"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
+        
+        </div>
+    </div>
+    
+    <div class="docs-content">
+    <div class="project">
+        <h1>Micronaut JMS</h1>
+        <p></p>
+        <p>Integration between Micronaut and Java Messaging Service (JMS)</p>
+        <p><strong>Version:</strong> <select style='max-width: 200px' onChange='window.document.location.href=this.options[this.selectedIndex].value;'><option value='https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/index.html'>SNAPSHOT</option><option selected='selected' value='https://micronaut-projects.github.io/micronaut-jms/2.1.0/guide/index.html'>2.1.0</option><option value='https://micronaut-projects.github.io/micronaut-jms/2.0.0-M1/guide/index.html'>2.0.0-M1</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M3/guide/index.html'>1.0.0.M3</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M2/guide/index.html'>1.0.0.M2</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M1/guide/index.html'>1.0.0.M1</option></select> </p>
+    </div>
+    
+<h1 id="introduction"><a class="anchor" href="#introduction"></a>1 Introduction</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/introduction.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>This project includes integration between Micronaut and Java Messaging Service (JMS).</p>
+</div>
+<div class="paragraph">
+<p>Supported implementations include
+<a href="https://activemq.apache.org/components/classic/">Active MQ "Classic"</a>, <a href="https://activemq.apache.org/components/artemis/">Active MQ Artemis</a>, and <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/getting-started.html">AWS SQS</a>, and configuring other JMS providers is straightforward.</p>
+</div>
+
+<h1 id="whatsNew"><a class="anchor" href="#whatsNew"></a>2 Release History</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/whatsNew.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>For this project, you can find a list of releases (with release notes) here:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/micronaut-projects/micronaut-jms/releases">https://github.com/micronaut-projects/micronaut-jms/releases</a></p>
+</div>
+
+<h1 id="quickStart"><a class="anchor" href="#quickStart"></a>3 JMS Quick Start</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/quickStart.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>To add support for JMS to a project, add a dependency to your build, depending on the JMS implementation(s) you require:</p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-classic")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-activemq-classic&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-artemis")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-activemq-artemis&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-sqs")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-sqs&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>Note that you can use multiple providers in a project.</p>
+</div>
+<div class="sect1">
+<h2 id="_creating_a_jms_producer_with_jmsproducer">Creating a JMS Producer with @JMSProducer</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To create a JMS client that sends messages, define an interface annotated with <code>JMSProducer</code>, for example:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.jms.annotations.JMSProducer;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.messaging.annotation.MessageBody;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+public interface TextProducer {
+
+    @Queue("queue_text") // <b class="conum">(2)</b>
+    void send(@MessageBody String body); // <b class="conum">(3)</b>
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSProducer
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+interface TextProducer {
+
+    @Queue('queue_text') // <b class="conum">(2)</b>
+    void send(@MessageBody String body) // <b class="conum">(3)</b>
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSProducer
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+interface TextProducer {
+
+    @Queue("queue_text") // <b class="conum">(2)</b>
+    fun send(@MessageBody body: String) // <b class="conum">(3)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <code>JMSProducer</code> annotation designates this interface as a client.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <a href="../api/io/micronaut/jms/annotation/Queue.html">@Queue</a> annotation indicates which queue the message should be published to.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>send</code> method accepts a single parameter which is the payload of the message.</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>At compile time Micronaut will produce an implementation of the interface. You can retrieve an instance of <code>MapProducer</code> either by looking up the bean from the <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/ApplicationContext.html">ApplicationContext</a> or with dependency injection:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">TextProducer textProducer = applicationContext.getBean(TextProducer.class);
+textProducer.send("quickstart");</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">def textProducer = applicationContext.getBean(TextProducer)
+textProducer.send 'quickstart'</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">val textProducer = applicationContext.getBean(TextProducer::class.java)
+textProducer.send("quickstart")</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_creating_a_jms_consumer_with_jmslistener">Creating a JMS Consumer with @JMSListener</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To listen to JMS messages you can use the <a href="../api/io/micronaut/jms/annotation/JMSListener.html">@JMSListener</a> annotation to define a message listener.</p>
+</div>
+<div class="paragraph">
+<p>The following example will listen for messages published by the <code>MapProducer</code> in the previous section:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.messaging.annotation.MessageBody;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+public class TextConsumer {
+
+    List&lt;String&gt; messages = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    @Queue(value = "queue_text", concurrency = "1-5") // <b class="conum">(2)</b>
+    public void receive(@MessageBody String body) { // <b class="conum">(3)</b>
+        messages.add(body);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+class TextConsumer {
+
+    List&lt;String&gt; messages = [].asSynchronized()
+
+    @Queue(value = 'queue_text', concurrency = '1-5') // <b class="conum">(2)</b>
+    void receive(@MessageBody String body) { // <b class="conum">(3)</b>
+        messages &lt;&lt; body
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import java.util.ArrayList
+import java.util.Collections
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+class TextConsumer {
+
+    val messages: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
+
+    @Queue(value = "queue_text", concurrency = "1-5") // <b class="conum">(2)</b>
+    fun receive(@MessageBody body: String) { // <b class="conum">(3)</b>
+        messages.add(body)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>The <a href="../api/io/micronaut/jms/annotation/JMSListener.html">@JMSListener</a> is used to designate the bean as a message listener.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>The <a href="../api/io/micronaut/jms/annotation/Queue.html">@Queue</a> annotation is used to indicate which queue to subscribe to.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>The <code>receive</code> method accepts a single parameter which is the payload of the message.</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+
+<h1 id="configuration"><a class="anchor" href="#configuration"></a>4 Configuration</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+
+
+<h2 id="activemqClassic"><a class="anchor" href="#activemqClassic"></a>4.1 Configuring ActiveMQ "Classic"</h2>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/activemqClassic.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>To use ActiveMQ "Classic", add the following properties to your <code>application.yml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
+  jms:
+    activemq:
+      classic:
+        enabled: true
+        connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and the following to your <code>build.gradle</code> or <code>pom.xml</code></p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-classic")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-activemq-classic&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/ActiveMQConnectionFactory.html">ActiveMQConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+</div>
+
+<h2 id="activemqArtemis"><a class="anchor" href="#activemqArtemis"></a>4.2 Configuring ActiveMQ Artemis</h2>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/activemqArtemis.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>To use ActiveMQ Artemis, add the following properties to your <code>application.yml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
+  jms:
+    activemq:
+      artemis:
+        enabled: true
+        connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and the following to your <code>build.gradle</code> or <code>pom.xml</code></p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-artemis")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-activemq-artemis&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/components/artemis/documentation/javadocs/javadoc-latest/org/apache/activemq/artemis/jms/client/ActiveMQJMSConnectionFactory.html">ActiveMQJMSConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+</div>
+
+<h2 id="sqs"><a class="anchor" href="#sqs"></a>4.3 Configuring SQS</h2>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/sqs.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>To use Amazon SQS, add the following property to your <code>application.yml</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
+  jms:
+    sqs:
+      enabled: true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and the following to your <code>build.gradle</code> or <code>pom.xml</code></p>
+</div>
+<div class="paragraph">
+<p>        <div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="gradle">implementation(<span class="hljs-string">"io.micronaut.jms:micronaut-jms-sqs")</span></code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="maven">&lt;dependency&gt;
+    &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
+    &lt;artifactId&gt;micronaut-jms-sqs&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div></p>
+</div>
+<div class="paragraph">
+<p>Additionally you&#8217;ll need to configure an instance of <code>com.amazonaws.services.sqs.AmazonSQS</code> as a bean for AWS authentication, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import io.micronaut.aws.sdk.v1.EnvironmentAWSCredentialsProvider;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.env.Environment;
+
+import javax.inject.Singleton;
+
+import static com.amazonaws.regions.Regions.US_EAST_2;
+
+@Factory
+public class SqsClientFactory {
+
+    @Singleton
+    AmazonSQS sqsClient(Environment environment) {
+        return AmazonSQSClientBuilder
+            .standard()
+            .withRegion(US_EAST_2)
+            .withCredentials(new EnvironmentAWSCredentialsProvider(environment))
+            .build();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See the <a href="https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html">Micronaut AWS</a> docs for more information.</p>
+</div>
+<div class="paragraph">
+<p>Note that it&#8217;s not necessary to add a dependency on <code>io.micronaut.aws:micronaut-aws-sdk-v1</code> as it&#8217;s already a transitive dependency of <code>io.micronaut.jms:micronaut-jms-sqs</code>.</p>
+</div>
+<div class="paragraph">
+<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <code>com.amazon.sqs.javamessaging.SQSConnectionFactory</code>; you can customize that with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+</div>
+
+<h2 id="otherBrokers"><a class="anchor" href="#otherBrokers"></a>4.4 Configuring Unsupported Brokers</h2>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/otherBrokers.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>Using an unsupported JMS broker is simple; you simply need to instantiate a <code>ConnectionFactory</code> like the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.annotation.Factory;
+import io.micronaut.jms.annotations.JMSConnectionFactory;
+import javax.jms.ConnectionFactory;
+
+@Factory
+public class MyJMSConfig {
+    @JMSConnectionFactory("myConnectionFactory")
+    public ConnectionFactory connectionFactory() {
+        return new ...;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With this in place you can configure consumers and producers that use the connection factory by referencing the bean name (<code>"myConnectionFactory"</code> in the example) in <code>@JMSProducer</code> and <code>@JMSListener</code> annotations on your producer interfaces and consumer classes.</p>
+</div>
+
+<h2 id="customizing"><a class="anchor" href="#customizing"></a>4.5 Customizing Brokers</h2>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/configuration/customizing.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Although only the broker URL is configurable in <code>application.yml</code>, there are potentially many configurable properties in the instantiated <code>ConnectionFactory</code>. Also, you may wish to use a different <code>ConnectionFactory</code> implementation class. Any customization you need can be done by intercepting the creation of the <code>ConnectionFactory</code> with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_customizing_the_connectionfactory">Customizing the ConnectionFactory</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here we intercept the creation of the ActiveMQ "Classic" <code>ConnectionFactory</code> by overriding the default to enable asynchronous message sending:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
+import io.micronaut.context.event.BeanCreatedEventListener;
+import jakarta.inject.Singleton;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+import javax.jms.ConnectionFactory;
+
+@Singleton
+public class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&lt;ConnectionFactory&gt; {
+
+    @Override
+    public ConnectionFactory onCreated(BeanCreatedEvent&lt;ConnectionFactory&gt; event) {
+
+        ConnectionFactory connectionFactory = event.getBean();
+        if (connectionFactory instanceof ActiveMQConnectionFactory) {
+            ActiveMQConnectionFactory amqcf = (ActiveMQConnectionFactory) connectionFactory;
+            amqcf.setUseAsyncSend(true);
+        }
+
+        return connectionFactory;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import groovy.transform.CompileStatic
+import io.micronaut.context.event.BeanCreatedEvent
+import io.micronaut.context.event.BeanCreatedEventListener
+import jakarta.inject.Singleton
+import org.apache.activemq.ActiveMQConnectionFactory
+
+import javax.jms.ConnectionFactory
+
+@CompileStatic
+@Singleton
+class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&lt;ConnectionFactory&gt; {
+
+    @Override
+    ConnectionFactory onCreated(BeanCreatedEvent&lt;ConnectionFactory&gt; event) {
+
+        ConnectionFactory connectionFactory = event.bean
+        if (connectionFactory instanceof ActiveMQConnectionFactory) {
+            connectionFactory.useAsyncSend = true
+        }
+
+        return connectionFactory
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
+import io.micronaut.context.event.BeanCreatedEventListener
+import jakarta.inject.Singleton
+import org.apache.activemq.ActiveMQConnectionFactory
+import javax.jms.ConnectionFactory
+
+@Singleton
+class CustomizeBrokerJMSConnectionPoolListener : BeanCreatedEventListener&lt;ConnectionFactory?&gt; {
+
+    override fun onCreated(event: BeanCreatedEvent&lt;ConnectionFactory?&gt;): ConnectionFactory? {
+        val connectionFactory = event.bean
+        if (connectionFactory is ActiveMQConnectionFactory) {
+            connectionFactory.isUseAsyncSend = true
+        }
+        return connectionFactory
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_replacing_the_connectionfactory">Replacing the ConnectionFactory</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here we discard the default instance and replace it with a custom implementation, in this case an instance of <a href="https://docs.oracle.com/javaee/7/api/javax/jms/XAConnectionFactory.html">XAConnectionFactory</a> for distributed transaction support.</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.event.BeanCreatedEvent;
+import io.micronaut.context.event.BeanCreatedEventListener;
+import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
+import jakarta.inject.Singleton;
+import org.apache.activemq.ActiveMQXAConnectionFactory;
+
+import javax.jms.ConnectionFactory;
+
+@Singleton
+public class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&lt;ConnectionFactory&gt; {
+
+    private final ActiveMqClassicConfigurationProperties amqConfig;
+
+    public CustomBrokerJMSConnectionPoolListener(ActiveMqClassicConfigurationProperties amqConfig) {
+        this.amqConfig = amqConfig;
+    }
+
+    @Override
+    public ConnectionFactory onCreated(BeanCreatedEvent&lt;ConnectionFactory&gt; event) {
+        return new ActiveMQXAConnectionFactory(amqConfig.getConnectionString());
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import groovy.transform.CompileStatic
+import io.micronaut.context.event.BeanCreatedEvent
+import io.micronaut.context.event.BeanCreatedEventListener
+import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
+import jakarta.inject.Singleton
+import org.apache.activemq.ActiveMQXAConnectionFactory
+
+import javax.jms.ConnectionFactory
+
+@CompileStatic
+@Singleton
+class CustomBrokerJMSConnectionPoolListener implements BeanCreatedEventListener&lt;ConnectionFactory&gt; {
+
+    private final ActiveMqClassicConfigurationProperties amqConfig
+
+    CustomBrokerJMSConnectionPoolListener(ActiveMqClassicConfigurationProperties amqConfig) {
+        this.amqConfig = amqConfig
+    }
+
+    @Override
+    ConnectionFactory onCreated(BeanCreatedEvent&lt;ConnectionFactory&gt; event) {
+        new ActiveMQXAConnectionFactory(amqConfig.getConnectionString())
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
+import io.micronaut.context.event.BeanCreatedEventListener
+import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
+import jakarta.inject.Singleton
+import org.apache.activemq.ActiveMQXAConnectionFactory
+import javax.jms.ConnectionFactory
+
+@Singleton
+class CustomBrokerJMSConnectionPoolListener(
+    private val amqConfig: ActiveMqClassicConfigurationProperties) :
+    BeanCreatedEventListener&lt;ConnectionFactory&gt; {
+
+    override fun onCreated(event: BeanCreatedEvent&lt;ConnectionFactory&gt;) =
+        ActiveMQXAConnectionFactory(amqConfig.connectionString)
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+
+<h1 id="binding"><a class="anchor" href="#binding"></a>5 Parameter Binding</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/binding.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>Methods in classes/interfaces annotated with <code>@JMSProducer</code> and <code>@JMSListener</code> use parameter binding annotations to access the JMS <code>Message</code>, message body, and message headers.</p>
+</div>
+<div class="sect2">
+<h3 id="_body">@Body</h3>
+<div class="paragraph">
+<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/Body.html">Body</a> annotation is required for the method argument that will be serialized/deserialized as the JMS <code>Message</code> body.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_header">@Header</h3>
+<div class="paragraph">
+<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/Header.html">Header</a> annotation is required for any method arguments that will be serialized/deserialized as JMS headers or non-JMS headers (message properties).</p>
+</div>
+<div class="paragraph">
+<p>In this example, the message body is a <code>Map</code> and the method supports sending the <code>JMSCorrelationID</code> along with several custom header values:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.core.annotation.Nullable;
+import io.micronaut.jms.annotations.JMSProducer;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
+import java.io.Serializable;
+import java.util.Map;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME)
+public interface MapProducer {
+
+    @Queue("queue_map")
+    void send(@MessageBody Map&lt;String, Serializable&gt; body,
+              @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+              @MessageHeader("CustomStringHeader") @Nullable String stringHeader,
+              @MessageHeader("CustomBooleanHeader") boolean booleanHeader,
+              @MessageHeader("CustomByteHeader") byte byteHeader,
+              @MessageHeader("CustomShortHeader") short shortHeader,
+              @MessageHeader("CustomIntegerHeader") int intHeader,
+              @MessageHeader("CustomLongHeader") long longHeader,
+              @MessageHeader("CustomFloatHeader") float floatHeader,
+              @MessageHeader("CustomDoubleHeader") double doubleHeader);
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+import io.micronaut.jms.annotations.JMSProducer
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME)
+interface MapProducer {
+
+    @Queue('queue_map')
+    void send(@MessageBody Map&lt;String, Serializable&gt; body,
+              @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+              @MessageHeader('CustomStringHeader') @Nullable String stringHeader,
+              @MessageHeader('CustomBooleanHeader') boolean booleanHeader,
+              @MessageHeader('CustomByteHeader') byte byteHeader,
+              @MessageHeader('CustomShortHeader') short shortHeader,
+              @MessageHeader('CustomIntegerHeader') int intHeader,
+              @MessageHeader('CustomLongHeader') long longHeader,
+              @MessageHeader('CustomFloatHeader') float floatHeader,
+              @MessageHeader('CustomDoubleHeader') double doubleHeader)
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSProducer
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
+import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
+import java.io.Serializable
+
+@JMSProducer(CONNECTION_FACTORY_BEAN_NAME)
+interface MapProducer {
+    @Queue("queue_map")
+    fun send(
+        @MessageBody body: Map&lt;String, Serializable?&gt;,
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
+    )
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This consumer can access the user-supplied header values as well as several headers that can only be set by the JMS provider, e.g. <code>JMSMessageID</code>, <code>JMSPriority</code>, etc.:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.core.annotation.Nullable;
+import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.annotations.Message;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
+
+import javax.jms.Destination;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
+import static io.micronaut.jms.model.JMSHeaders.JMS_DELIVERY_MODE;
+import static io.micronaut.jms.model.JMSHeaders.JMS_DESTINATION;
+import static io.micronaut.jms.model.JMSHeaders.JMS_EXPIRATION;
+import static io.micronaut.jms.model.JMSHeaders.JMS_MESSAGE_ID;
+import static io.micronaut.jms.model.JMSHeaders.JMS_PRIORITY;
+import static io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED;
+import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO;
+import static io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP;
+import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE;
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+public class MapConsumer {
+
+    List&lt;Map&lt;String, Serializable&gt;&gt; messageBodies = Collections.synchronizedList(new ArrayList&lt;&gt;());
+    List&lt;Map&lt;String, Object&gt;&gt; messageHeaders = Collections.synchronizedList(new ArrayList&lt;&gt;());
+    List&lt;javax.jms.Message&gt; messages = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    @Queue(value = "queue_map", concurrency = "1-5")
+    public void receive(@MessageBody Map&lt;String, Serializable&gt; body,
+                        @Message javax.jms.Message message,
+                        @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+                        @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
+                        @MessageHeader(JMS_DESTINATION) Destination destination,
+                        @MessageHeader(JMS_EXPIRATION) long expiration,
+                        @MessageHeader(JMS_MESSAGE_ID) String messageId,
+                        @MessageHeader(JMS_PRIORITY) int priority,
+                        @MessageHeader(JMS_REDELIVERED) boolean redelivered,
+                        @MessageHeader(JMS_REPLY_TO) @Nullable Destination replyTo,
+                        @MessageHeader(JMS_TIMESTAMP) long timestamp,
+                        @MessageHeader(JMS_TYPE) @Nullable String type,
+                        @MessageHeader("CustomStringHeader") @Nullable String stringHeader,
+                        @MessageHeader("CustomBooleanHeader") boolean booleanHeader,
+                        @MessageHeader("CustomByteHeader") byte byteHeader,
+                        @MessageHeader("CustomShortHeader") short shortHeader,
+                        @MessageHeader("CustomIntegerHeader") int intHeader,
+                        @MessageHeader("CustomLongHeader") long longHeader,
+                        @MessageHeader("CustomFloatHeader") float floatHeader,
+                        @MessageHeader("CustomDoubleHeader") double doubleHeader) {
+
+        Map&lt;String, Object&gt; headerValues = new HashMap&lt;&gt;();
+        headerValues.put(JMS_CORRELATION_ID, correlationId);
+        headerValues.put(JMS_DELIVERY_MODE, deliveryMode);
+        headerValues.put(JMS_DESTINATION, destination);
+        headerValues.put(JMS_EXPIRATION, expiration);
+        headerValues.put(JMS_MESSAGE_ID, messageId);
+        headerValues.put(JMS_PRIORITY, priority);
+        headerValues.put(JMS_REDELIVERED, redelivered);
+        headerValues.put(JMS_REPLY_TO, replyTo);
+        headerValues.put(JMS_TIMESTAMP, timestamp);
+        headerValues.put(JMS_TYPE, type);
+        headerValues.put("CustomStringHeader", stringHeader);
+        headerValues.put("CustomBooleanHeader", booleanHeader);
+        headerValues.put("CustomByteHeader", byteHeader);
+        headerValues.put("CustomShortHeader", shortHeader);
+        headerValues.put("CustomIntegerHeader", intHeader);
+        headerValues.put("CustomLongHeader", longHeader);
+        headerValues.put("CustomFloatHeader", floatHeader);
+        headerValues.put("CustomDoubleHeader", doubleHeader);
+
+        messageHeaders.add(headerValues);
+        messageBodies.add(body);
+        messages.add(message);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.core.annotation.Nullable
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Message
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
+
+import javax.jms.Destination
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
+import static io.micronaut.jms.model.JMSHeaders.JMS_DELIVERY_MODE
+import static io.micronaut.jms.model.JMSHeaders.JMS_DESTINATION
+import static io.micronaut.jms.model.JMSHeaders.JMS_EXPIRATION
+import static io.micronaut.jms.model.JMSHeaders.JMS_MESSAGE_ID
+import static io.micronaut.jms.model.JMSHeaders.JMS_PRIORITY
+import static io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
+import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
+import static io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
+import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+class MapConsumer {
+
+    List&lt;Map&lt;String, Serializable&gt;&gt; messageBodies = [].asSynchronized()
+    List&lt;Map&lt;String, Object&gt;&gt; messageHeaders =  [].asSynchronized()
+    List&lt;javax.jms.Message&gt; messages =  [].asSynchronized()
+
+    @Queue(value = 'queue_map', concurrency = '1-5')
+    void receive(@MessageBody Map&lt;String, Serializable&gt; body,
+                 @Message javax.jms.Message message,
+                 @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
+                 @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
+                 @MessageHeader(JMS_DESTINATION) Destination destination,
+                 @MessageHeader(JMS_EXPIRATION) long expiration,
+                 @MessageHeader(JMS_MESSAGE_ID) String messageId,
+                 @MessageHeader(JMS_PRIORITY) int priority,
+                 @MessageHeader(JMS_REDELIVERED) boolean redelivered,
+                 @MessageHeader(JMS_REPLY_TO) @Nullable Destination replyTo,
+                 @MessageHeader(JMS_TIMESTAMP) long timestamp,
+                 @MessageHeader(JMS_TYPE) @Nullable String type,
+                 @MessageHeader('CustomStringHeader') @Nullable String stringHeader,
+                 @MessageHeader('CustomBooleanHeader') boolean booleanHeader,
+                 @MessageHeader('CustomByteHeader') byte byteHeader,
+                 @MessageHeader('CustomShortHeader') short shortHeader,
+                 @MessageHeader('CustomIntegerHeader') int intHeader,
+                 @MessageHeader('CustomLongHeader') long longHeader,
+                 @MessageHeader('CustomFloatHeader') float floatHeader,
+                 @MessageHeader('CustomDoubleHeader') double doubleHeader) {
+
+        Map&lt;String, Object&gt; headerValues = [
+                (JMS_CORRELATION_ID): correlationId,
+                (JMS_DELIVERY_MODE): deliveryMode,
+                (JMS_DESTINATION): destination,
+                (JMS_EXPIRATION): expiration,
+                (JMS_MESSAGE_ID): messageId,
+                (JMS_PRIORITY): priority,
+                (JMS_REDELIVERED): redelivered,
+                (JMS_REPLY_TO): replyTo,
+                (JMS_TIMESTAMP): timestamp,
+                (JMS_TYPE): type,
+                CustomStringHeader: stringHeader,
+                CustomBooleanHeader: booleanHeader,
+                CustomByteHeader: byteHeader,
+                CustomShortHeader: shortHeader,
+                CustomIntegerHeader: intHeader,
+                CustomLongHeader: longHeader,
+                CustomFloatHeader: floatHeader,
+                CustomDoubleHeader: doubleHeader]
+
+        messageHeaders &lt;&lt; headerValues
+        messageBodies &lt;&lt; body
+        messages &lt;&lt; message
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Message
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
+import io.micronaut.jms.model.JMSHeaders.JMS_DELIVERY_MODE
+import io.micronaut.jms.model.JMSHeaders.JMS_DESTINATION
+import io.micronaut.jms.model.JMSHeaders.JMS_EXPIRATION
+import io.micronaut.jms.model.JMSHeaders.JMS_MESSAGE_ID
+import io.micronaut.jms.model.JMSHeaders.JMS_PRIORITY
+import io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
+import io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
+import io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
+import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
+import io.micronaut.messaging.annotation.MessageBody
+import io.micronaut.messaging.annotation.MessageHeader
+import java.io.Serializable
+import javax.jms.Destination
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+class MapConsumer {
+
+    val messageBodies = mutableListOf&lt;Map&lt;String, Serializable&gt;&gt;()
+    val messageHeaders = mutableListOf&lt;Map&lt;String, Any?&gt;&gt;()
+    val messages = mutableListOf&lt;javax.jms.Message&gt;()
+
+    @Queue(value = "queue_map", concurrency = "1-5")
+    fun receive(
+        @MessageBody body: Map&lt;String, Serializable&gt;,
+        @Message message: javax.jms.Message,
+        @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
+        @MessageHeader(JMS_DELIVERY_MODE) deliveryMode: Int,
+        @MessageHeader(JMS_DESTINATION) destination: Destination?,
+        @MessageHeader(JMS_EXPIRATION) expiration: Long,
+        @MessageHeader(JMS_MESSAGE_ID) messageId: String?,
+        @MessageHeader(JMS_PRIORITY) priority: Int,
+        @MessageHeader(JMS_REDELIVERED) redelivered: Boolean,
+        @MessageHeader(JMS_REPLY_TO) replyTo: Destination?,
+        @MessageHeader(JMS_TIMESTAMP) timestamp: Long,
+        @MessageHeader(JMS_TYPE) type: String?,
+        @MessageHeader("CustomStringHeader") stringHeader: String?,
+        @MessageHeader("CustomBooleanHeader") booleanHeader: Boolean,
+        @MessageHeader("CustomByteHeader") byteHeader: Byte,
+        @MessageHeader("CustomShortHeader") shortHeader: Short,
+        @MessageHeader("CustomIntegerHeader") intHeader: Int,
+        @MessageHeader("CustomLongHeader") longHeader: Long,
+        @MessageHeader("CustomFloatHeader") floatHeader: Float,
+        @MessageHeader("CustomDoubleHeader") doubleHeader: Double
+    ) {
+        val headerValues = mapOf(
+            JMS_CORRELATION_ID to correlationId,
+            JMS_DELIVERY_MODE to deliveryMode,
+            JMS_DESTINATION to destination,
+            JMS_EXPIRATION to expiration,
+            JMS_MESSAGE_ID to messageId,
+            JMS_PRIORITY to priority,
+            JMS_REDELIVERED to redelivered,
+            JMS_REPLY_TO to replyTo,
+            JMS_TIMESTAMP to timestamp,
+            JMS_TYPE to type,
+            "CustomStringHeader" to stringHeader,
+            "CustomBooleanHeader" to booleanHeader,
+            "CustomByteHeader" to byteHeader,
+            "CustomShortHeader" to shortHeader,
+            "CustomIntegerHeader" to intHeader,
+            "CustomLongHeader" to longHeader,
+            "CustomFloatHeader" to floatHeader,
+            "CustomDoubleHeader" to doubleHeader)
+        messageHeaders.add(headerValues)
+        messageBodies.add(body)
+        messages.add(message)
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+
+<h1 id="messageSelector"><a class="anchor" href="#messageSelector"></a>6 Message Selectors</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/messageSelector.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>Message Selectors allow you to filter the messages a <code>@JMSListener</code> method will receive. The selector can use all message header and properties for filtering except the message content.</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+public class SelectorConsumer {
+
+    List&lt;String&gt; messageBodiesTrue = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    List&lt;String&gt; messageBodiesFalse = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    List&lt;String&gt; messageBodiesTopic = Collections.synchronizedList(new ArrayList&lt;&gt;());
+
+    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=true")
+    public void receive(@MessageBody String body) {
+        messageBodiesTrue.add(body);
+    }
+
+    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=false")
+    public void receive2(@MessageBody String body) {
+        messageBodiesFalse.add(body);
+    }
+
+    @Topic(value = "selector_topic", messageSelector = "CustomBooleanHeader=true")
+    public void receiveTopic(@MessageBody String body) {
+        messageBodiesTopic.add(body);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>More examples on how to use Message Selector can be found <a href="https://timjansen.github.io/jarfiller/guide/jms/selectors.xhtml">here</a>.</p>
+</div>
+
+<h1 id="graalvm"><a class="anchor" href="#graalvm"></a>7 GraalVM support</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/graalvm.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>Micronaut JMS is compatible with <a href="https://www.graalvm.org/">GraalVM</a>. Everything is handled automatically by the library
+so users don&#8217;t need any special configuration.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+See the section on <a href="https://docs.micronaut.io/latest/guide/index.html#graal">GraalVM</a> in the user guide for more
+information.
+</td>
+</tr>
+</table>
+</div>
+
+<h1 id="repository"><a class="anchor" href="#repository"></a>8 Repository</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/repository.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>You can find the source code of this project in this repository:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/micronaut-projects/micronaut-jms">https://github.com/micronaut-projects/micronaut-jms</a></p>
+</div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+
+</script>
+</body>
+</html>
