@@ -8,9 +8,3 @@ dependencies {
     runtimeOnly(libs.javax.json.api)
 }
 
-// disable until we have a release for the findBaseline task
-micronautBuild {
-    binaryCompatibility {
-        enabled = false
-    }
-}
