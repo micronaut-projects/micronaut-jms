@@ -34,7 +34,10 @@ public class SqsClientFactory {
         if (client.listQueues().getQueueUrls().stream().noneMatch(it -> it.contains(TaskConstants.FIFO_QUEUE))) {
             client.createQueue(new CreateQueueRequest()
                     .withQueueName(TaskConstants.FIFO_QUEUE)
-                    .addAttributesEntry("FifoQueue", "true"));
+                    .addAttributesEntry("FifoQueue", "true")
+                    // see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/getting-started.html
+                    .addAttributesEntry("ContentBasedDeduplication", "true")
+            );
         }
         return client;
 
