@@ -10,7 +10,7 @@ dependencies {
 }
 
 micronaut {
-    testRuntime 'kotest'
+    testRuntime 'kotest5'
 }
 
 mainClassName = 'io.micronaut.jms.docs.ApplicationKt'
