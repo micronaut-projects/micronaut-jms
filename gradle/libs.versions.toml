@@ -7,9 +7,9 @@ aws-sqs = '1.12.129'
 commons-pool2 = '2.11.1'
 jcl-slf4j = '1.7.32'
 jms-api = '2.0.1'
-kotlin = '1.6.21'
+kotlin = '1.7.20'
 micronaut-aws-v1 = '3.1.0'
-testcontainers = '1.16.2'
+testcontainers = '1.17.5'
 json-api = '1.1.4'
 [libraries]
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
