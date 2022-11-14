@@ -103,4 +103,8 @@ public @interface Topic {
      * @return the message selector for the topic
      */
     String messageSelector() default "";
+
+    boolean shared() default false;
+
+    boolean durable() default false;
 }
