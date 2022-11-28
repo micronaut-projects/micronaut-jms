@@ -14,13 +14,18 @@ micronaut {
     testRuntime 'spock'
 }
 
+
 dependencies {
+
     testImplementation "io.micronaut.test:micronaut-test-core:$micronautTestVersion"
     testImplementation mn.micronaut.http.client
     testImplementation libs.testcontainers.spock
 
     // without this :tests:tasks-activemq-artemis TasksSpec fails with ClassNotFoundException for javax.json.JsonValue
     runtimeOnly(libs.javax.json.api)
+
+    testRuntimeOnly(mn.snakeyaml)
+
 }
 
 graalvmNative {
