@@ -1,0 +1,6 @@
+There are multiple ways to inject custom success handling into your JMS Listeners as shown here:
+
+snippet::io.micronaut.jms.docs.successhandler.SuccessHandlingConsumer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> You can add the `successHandlers` arguments to your `@JMSListener` to add custom success handling logic to all `@Queue` or `@Topic` annotated methods within that class.
+<2> You can add the `successHandlers` argument to your `@Queue` or `@Topic` annotated method to inject custom success handling logic only for messages received on that specific queue or topic
