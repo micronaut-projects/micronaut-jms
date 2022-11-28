@@ -33,8 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Elliott Pope
  * @see JMSListenerContainer
  * @since 1.0.0
+ *
+ * @deprecated as of 2.1.1
  */
-@Singleton
+@Singleton // to do
+@Deprecated
 public class JMSListenerContainerFactory {
 
     private static final int THREAD_POOL_SIZE = 1; // TODO configurable?

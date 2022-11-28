@@ -15,44 +15,48 @@
  */
 package io.micronaut.jms.configuration;
 
-import java.lang.annotation.Annotation;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Stream;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
-import io.micronaut.core.type.Argument;
+import io.micronaut.core.type.Executable;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
-import io.micronaut.jms.listener.JMSListenerContainerFactory;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.jms.listener.JMSListenerRegistry;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
-import io.micronaut.messaging.exceptions.MessageAcknowledgementException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
 
 /**
  * Abstract {@link ExecutableMethodProcessor} for annotations related to
- * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListenerContainer}
+ * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListener}
  * if the method annotated with {@code <T>} is part of a bean annotated with {@link JMSListener}.
  *
  * @param <T> the destination type annotation
- * @author Elliott Pope
+ * @author Elliott Pope, sbodvanski
  * @since 1.0.0
  */
 public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
@@ -108,30 +112,24 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                     " or @Message"));
     }
 
-    @SuppressWarnings("unchecked")
     private MessageListener generateAndBindListener(Object bean,
-                                                    ExecutableMethod<?, ?> method,
-                                                    ExecutorService executor,
+                                                    Executable<?, ?> method,
                                                     boolean acknowledge) {
 
-        return message -> executor.submit(() -> {
-            try {
-                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
-                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
-                boundExecutable.invoke(bean);
-                if (acknowledge) {
-                    try {
-                        message.acknowledge();
-                    } catch (JMSException e) {
-                        logger.error("Failed to acknowledge receipt of message with the broker. " +
-                                "This message may be falsely retried.", e);
-                        throw new MessageAcknowledgementException(e.getMessage(), e);
-                    }
+        return message -> {
+            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+            boundExecutable.invoke(bean);
+            /*if (acknowledge) {
+                try {
+                    message.acknowledge();
+                } catch (JMSException e) {
+                    logger.error("Failed to acknowledge receipt of message with the broker. " +
+                            "This message may be falsely retried.", e);
+                    throw new MessageAcknowledgementException(e.getMessage(), e);
                 }
-            } catch (Exception e) {
-                logger.error("Failed to process a message: " + message + " " + e.getMessage(), e);
-            }
-        });
+            }*/
+        };
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
@@ -142,42 +140,49 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         validateArguments(method);
 
-        final Class<?> targetClass = Stream.of(method.getArguments())
-            .filter(arg ->
-                arg.isDeclaredAnnotationPresent(MessageBody.class) ||
-                arg.isDeclaredAnnotationPresent(io.micronaut.jms.annotations.Message.class))
-            .findAny()
-            .map(Argument::getClass)
-            .get();
-
         final String destination = destinationAnnotation.getRequiredValue(String.class);
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
 
-        final JMSListenerContainerFactory listenerFactory = beanContext
-            .findBean(JMSListenerContainerFactory.class)
-            .orElseThrow(() -> new IllegalStateException("No JMSListenerFactory configured"));
+        final JMSListenerRegistry registry = beanContext
+                .findBean(JMSListenerRegistry.class)
+                .orElseThrow(() -> new IllegalStateException("No JMSListenerRegistry configured"));
 
-        final JMSConnectionPool connectionPool = beanContext.getBean(
-            JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
-
+        final JMSConnectionPool connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
         final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
-
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method, executor,
-            CLIENT_ACKNOWLEDGE == acknowledgeMode);
+        MessageListener listener = generateAndBindListener(bean, method, CLIENT_ACKNOWLEDGE == acknowledgeMode);
 
-        listenerFactory.registerListener(
-            connectionPool,
-            destination,
-            listener,
-            targetClass,
-            transacted,
-            acknowledgeMode,
-            type,
-            messageSelector
-        );
+        Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
+                        Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
+                        Arrays.stream(beanDefinition.getAnnotation(JMSListener.class).classValues("errorHandlers")))
+                .filter(JMSListenerErrorHandler.class::isAssignableFrom)
+                .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
+                .map(beanContext::findBean)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        Set<JMSListenerSuccessHandler> successHandlers = Stream.concat(
+                        Arrays.stream(destinationAnnotation.classValues("successHandlers")),
+                        Arrays.stream(beanDefinition.getAnnotation(JMSListener.class).classValues("successHandlers")))
+                .filter(JMSListenerSuccessHandler.class::isAssignableFrom)
+                .map(clazz -> (Class<? extends JMSListenerSuccessHandler>) clazz)
+                .map(beanContext::findBean)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        try {
+            Connection connection = connectionPool.createConnection();
+            io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
+                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector);
+            registeredListener.addSuccessHandlers(successHandlers);
+            registeredListener.addErrorHandlers(errorHandlers);
+        } catch (JMSException e) {
+            logger.error("Failed to register listener for destination " + destination, e);
+        }
     }
 }

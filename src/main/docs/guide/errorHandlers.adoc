@@ -1,0 +1,7 @@
+There are multiple ways to inject custom error handling into your JMS Listeners as shown here:
+
+snippet::io.micronaut.jms.docs.exceptions.ErrorHandlingConsumer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> You can add the `errorHandlers` arguments to your `@JMSListener` to add custom error handling logic to all `@Queue` or `@Topic` annotated methods within that class.
+<2> You can add the `errorHandlers` argument to your `@Queue` or `@Topic` annotated method to inject custom error handling logic only for messages received on that specific queue or topic.
+<3> By default you will always have an `io.micronaut.jms.listener.LoggingJMSListenerErrorHandler` which will log the thrown exception at `ERROR` level.

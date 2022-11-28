@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 original authors
+ * Copyright 2017-2022 original authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,24 @@
  */
 package io.micronaut.jms.listener;
 
-/**
- * Handles and converts {@link javax.jms.Message}s.
- *
- * @param <T> the message type
- * @author Elliott Pope
- * @see MessageHandlerAdapter
- * @since 1.0.0
- */
-@FunctionalInterface
-public interface MessageHandler<T> {
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 
-    /**
-     * Perform some action when receiving a message.
-     *
-     * @param message the message
-     */
-    void handle(T message);
+/**
+ * Commits a JMS transaction upon successful handling of a message.
+ *
+ * @author Elliott Pope
+ * @since 2.1.1
+ */
+public class TransactionalJMSListenerSuccessHandler implements JMSListenerSuccessHandler {
+    @Override
+    public void handle(Session session, Message message) throws JMSException {
+        session.commit();
+    }
+
+    @Override
+    public Integer getOrder() {
+        return Integer.valueOf(200);
+    }
 }

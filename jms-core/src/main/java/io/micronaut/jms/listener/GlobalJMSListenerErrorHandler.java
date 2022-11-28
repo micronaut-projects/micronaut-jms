@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 original authors
+ * Copyright 2017-2022 original authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,10 @@
 package io.micronaut.jms.listener;
 
 /**
- * Handles and converts {@link javax.jms.Message}s.
+ * Global handler that handles any errors thrown when handling a message on a {@link JMSListener}.
  *
- * @param <T> the message type
- * @author Elliott Pope
- * @see MessageHandlerAdapter
- * @since 1.0.0
+ * @author sbodvanski
+ * @since 2.1.1
  */
-@FunctionalInterface
-public interface MessageHandler<T> {
-
-    /**
-     * Perform some action when receiving a message.
-     *
-     * @param message the message
-     */
-    void handle(T message);
+public interface GlobalJMSListenerErrorHandler extends JMSListenerErrorHandler {
 }
