@@ -1,5 +1,5 @@
 [versions]
-activemq = '5.17.2'
+activemq = '5.17.3'
 amazon-sqs-messaging = '1.1.0'
 artemis-client = '2.27.0'
 awaitility = '4.2.0'
