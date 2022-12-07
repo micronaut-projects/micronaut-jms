@@ -1,9 +1,0 @@
-plugins {
-    id 'io.micronaut.build.internal.jms-base'
-    id 'io.micronaut.build.internal.common'
-}
-
-dependencies {
-    api projects.jmsCore
-    api mnTest.micronaut.test.spock
-}
