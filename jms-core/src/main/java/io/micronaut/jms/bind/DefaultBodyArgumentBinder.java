@@ -39,7 +39,7 @@ public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Message
      * @param conversionService conversionService
      * @param deserializer deserializer
      */
-    public DefaultBodyArgumentBinder(ConversionService<?> conversionService, Deserializer deserializer) {
+    public DefaultBodyArgumentBinder(ConversionService conversionService, Deserializer deserializer) {
         super(conversionService);
         this.deserializer = deserializer;
     }

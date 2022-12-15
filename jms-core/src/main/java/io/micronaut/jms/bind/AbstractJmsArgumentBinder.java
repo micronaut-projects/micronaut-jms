@@ -38,7 +38,7 @@ public abstract class AbstractJmsArgumentBinder<A extends Annotation>
      *
      * @param conversionService conversionService
      */
-    protected AbstractJmsArgumentBinder(ConversionService<?> conversionService) {
+    protected AbstractJmsArgumentBinder(ConversionService conversionService) {
         super(conversionService);
     }
 

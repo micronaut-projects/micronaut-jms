@@ -51,7 +51,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
 
     private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
 
-    public JMSArgumentBinderRegistry(ConversionService<?> conversionService, Deserializer deserializer) {
+    public JMSArgumentBinderRegistry(ConversionService conversionService, Deserializer deserializer) {
         registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService, deserializer));
         registerArgumentBinder(new MessageBodyHeaderArgumentBinder(conversionService, deserializer));
         registerArgumentBinder(new DefaultHeaderArgumentBinder(conversionService));

@@ -32,7 +32,7 @@ import static io.micronaut.jms.util.HeaderNameUtils.encode;
 
 /**
  * Represents a header on a JMS message. Used in the {@link io.micronaut.jms.templates.JmsProducer}
- * and the JMS implementation for {@link io.micronaut.messaging.annotation.Header}.
+ * and the JMS implementation for {@link io.micronaut.messaging.annotation.MessageHeader}.
  *
  * @author Elliott Pope
  * @see io.micronaut.jms.templates.JmsProducer

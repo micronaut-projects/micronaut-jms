@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.micronaut.gradle:micronaut-gradle-plugin:3.6.5'
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21")
-    implementation("org.jetbrains.kotlin:kotlin-allopen:1.7.21")
+    implementation libs.micronaut.gradle.plugin
+    implementation libs.gradle.kotlin
+    implementation libs.gradle.kotlin.allopen
 }
