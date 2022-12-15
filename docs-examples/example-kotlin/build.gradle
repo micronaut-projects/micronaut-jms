@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    kaptTest platform("io.micronaut:micronaut-bom:$micronautVersion")
+    kaptTest platform(mn.micronaut.core.bom)
 }
 
 micronaut {

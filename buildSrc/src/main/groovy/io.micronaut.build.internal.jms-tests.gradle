@@ -9,7 +9,7 @@ application {
 }
 
 micronaut {
-    version project.ext.micronautVersion
+    version libs.versions.micronaut
     runtime 'netty'
     testRuntime 'spock'
 }
@@ -23,9 +23,7 @@ dependencies {
 
     // without this :tests:tasks-activemq-artemis TasksSpec fails with ClassNotFoundException for javax.json.JsonValue
     runtimeOnly(libs.javax.json.api)
-
-    testRuntimeOnly(mn.snakeyaml)
-
+    runtimeOnly(mn.snakeyaml)
 }
 
 graalvmNative {
