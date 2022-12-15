@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly mn.jsr305 // for "warning: unknown enum constant When.MAYBE"
+    compileOnly libs.jsr305 // for "warning: unknown enum constant When.MAYBE"
     runtimeOnly(libs.javax.json.api)
 }
 

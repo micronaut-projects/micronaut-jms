@@ -17,6 +17,7 @@ jms-api = '2.0.1'
 jsr305 = "3.0.2"
 kotlin = '1.7.20'
 spock = "2.3-groovy-4.0"
+spotbugs = "4.7.1"
 testcontainers = '1.17.6'
 
 micronaut-aws-v1 = '3.9.3'
@@ -38,6 +39,7 @@ jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 micronaut-aws-v1 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v1', version.ref = 'micronaut-aws-v1' }
+spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
 testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
