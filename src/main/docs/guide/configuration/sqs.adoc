@@ -1,8 +1,8 @@
 = Configuring Amazon SQS
 
-To use Amazon SQS, add the following property to your `application.yml`
+To use Amazon SQS, add the following property to your application configuration file.
 
-[source,yaml]
+[configuration]
 ----
 micronaut:
   jms:

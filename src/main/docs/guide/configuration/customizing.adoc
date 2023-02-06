@@ -1,6 +1,6 @@
 = Customizing Brokers
 
-Although only the broker URL is configurable in `application.yml`, there are potentially many configurable properties in the instantiated `ConnectionFactory`. Also, you may wish to use a different `ConnectionFactory` implementation class. Any customization you need can be done by intercepting the creation of the `ConnectionFactory` with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].
+Although only the broker URL is configurable in the application configuration file, there are potentially many configurable properties in the instantiated `ConnectionFactory`. Also, you may wish to use a different `ConnectionFactory` implementation class. Any customization you need can be done by intercepting the creation of the `ConnectionFactory` with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].
 
 == Customizing the ConnectionFactory
 
