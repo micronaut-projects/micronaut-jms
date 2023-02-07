@@ -46,7 +46,7 @@
         <div class="docs-content">
             <div class="project">
                 <h1>Configuration Reference</h1>
-                <p><strong>Version:</strong>3.0.0-SNAPSHOT</p>
+                <p><strong>Version:</strong>2.2.0-SNAPSHOT</p>
                 <p></p>
             </div>
 <div class="sect2">
@@ -70,23 +70,27 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.artemis.enabled</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether ActiveMQ Artemis is active.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether ActiveMQ Artemis is active.</p>
+<p class="tableblock"> @return true to activate the ActiveMQ Artemis JMS implementation</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.artemis.connection-string</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The connection string to identify the broker URL,
- e.g. vm://localhost or tcp://my-activemq-cluster:61616.</p></td>
+ e.g. vm://localhost or tcp://my-activemq-cluster:61616.</p>
+<p class="tableblock"> @return the connection string</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.artemis.username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The username.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The username.</p>
+<p class="tableblock"> @return the username</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.artemis.password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The password.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The password.</p>
+<p class="tableblock"> @return the password</p></td>
 </tr>
 </tbody>
 </table>
@@ -113,23 +117,27 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.classic.enabled</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether ActiveMQ Classic is active.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether ActiveMQ Classic is active.</p>
+<p class="tableblock"> @return true to activate the ActiveMQ Classic JMS implementation</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.classic.connection-string</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The connection string to identify the broker URL,
- e.g. vm://localhost or tcp://my-activemq-cluster:61616.</p></td>
+ e.g. vm://localhost or tcp://my-activemq-cluster:61616.</p>
+<p class="tableblock"> @return the connection string</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.classic.username</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The username.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The username.</p>
+<p class="tableblock"> @return the username</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.activemq.classic.password</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.String</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The password.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The password.</p>
+<p class="tableblock"> @return the password</p></td>
 </tr>
 </tbody>
 </table>
@@ -156,14 +164,16 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.initial-pool-size</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The initial size of the ,
- , and .</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The initial size of the <a href="../api/io/micronaut/jms/pool/JMSConnectionPool.html">JMSConnectionPool</a>,
+ <a href="../api/io/micronaut/jms/pool/SessionPool.html">SessionPool</a>, and <a href="../api/io/micronaut/jms/pool/MessageProducerPool.html">MessageProducerPool</a>.</p>
+<p class="tableblock"> @return the initial size</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.max-pool-size</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum size of the ,
- , and .</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum size of the <a href="../api/io/micronaut/jms/pool/JMSConnectionPool.html">JMSConnectionPool</a>,
+ <a href="../api/io/micronaut/jms/pool/SessionPool.html">SessionPool</a>, and <a href="../api/io/micronaut/jms/pool/MessageProducerPool.html">MessageProducerPool</a>.</p>
+<p class="tableblock"> @return the maximum size</p></td>
 </tr>
 </tbody>
 </table>
@@ -190,12 +200,14 @@
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.sqs.enabled</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether SQS is active.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether SQS is active.</p>
+<p class="tableblock"> @return true to activate the SQS JMS implementation</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.sqs.number-of-messages-to-prefetch</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">java.lang.Integer</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Number of messages to prefetch for better receive turnaround times.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of messages to prefetch for better receive turnaround times.</p>
+<p class="tableblock"> @return the prefetch count</p></td>
 </tr>
 </tbody>
 </table>
