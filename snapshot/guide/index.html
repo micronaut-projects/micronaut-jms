@@ -122,7 +122,7 @@
         <h1>Micronaut JMS</h1>
         <p></p>
         <p>Integration between Micronaut and Java Messaging Service (JMS)</p>
-        <p><strong>Version:</strong> <select style='max-width: 200px' onChange='window.document.location.href=this.options[this.selectedIndex].value;'><option selected='selected' value='https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/index.html'>SNAPSHOT</option><option value='https://micronaut-projects.github.io/micronaut-jms/2.1.0/guide/index.html'>2.1.0</option><option value='https://micronaut-projects.github.io/micronaut-jms/2.0.0-M1/guide/index.html'>2.0.0-M1</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M3/guide/index.html'>1.0.0.M3</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M2/guide/index.html'>1.0.0.M2</option><option value='https://micronaut-projects.github.io/micronaut-jms/1.0.0.M1/guide/index.html'>1.0.0.M1</option></select> </p>
+        <p><strong>Version:</strong> <select style='max-width: 200px' onChange='window.document.location.href=this.options[this.selectedIndex].value;'><option selected='selected' value='https://micronaut-projects.github.io/micronaut-jms/snapshot/guide/index.html'>SNAPSHOT</option><option value='https://micronaut-projects.github.io/micronaut-jms/latest/guide/index.html'>LATEST</option></select> </p>
     </div>
     
 <h1 id="introduction"><a class="anchor" href="#introduction"></a>1 Introduction</h1>
@@ -427,9 +427,17 @@ class TextConsumer {
 
 
 <div class="paragraph">
-<p>To use ActiveMQ "Classic", add the following properties to your <code>application.yml</code></p>
+<p>To use ActiveMQ "Classic", add the following properties to your application configuration file.</p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.activemq.classic.enabled=true
+micronaut.jms.activemq.classic.connection-string=tcp://host:port</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
@@ -437,6 +445,64 @@ class TextConsumer {
       classic:
         enabled: true
         connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.activemq]
+      [micronaut.jms.activemq.classic]
+        enabled=true
+        connection-string="tcp://host:port"</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    activemq {
+      classic {
+        enabled = true
+        connectionString = "tcp://host:port"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      activemq {
+        classic {
+          enabled = true
+          connection-string = "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "activemq": {
+        "classic": {
+          "enabled": true,
+          "connection-string": "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -459,7 +525,7 @@ class TextConsumer {
 </div></p>
 </div>
 <div class="paragraph">
-<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/ActiveMQConnectionFactory.html">ActiveMQConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/maven/apidocs/org/apache/activemq/ActiveMQConnectionFactory.html">ActiveMQConnectionFactory</a>. Only the broker URL is configurable in the application configuration file, but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
 </div>
 
 <h2 id="activemqArtemis"><a class="anchor" href="#activemqArtemis"></a>4.2 Configuring ActiveMQ Artemis</h2>
@@ -472,9 +538,17 @@ class TextConsumer {
 
 
 <div class="paragraph">
-<p>To use ActiveMQ Artemis, add the following properties to your <code>application.yml</code></p>
+<p>To use ActiveMQ Artemis, add the following properties to your application configuration file.</p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.activemq.artemis.enabled=true
+micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
@@ -482,6 +556,64 @@ class TextConsumer {
       artemis:
         enabled: true
         connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.activemq]
+      [micronaut.jms.activemq.artemis]
+        enabled=true
+        connection-string="tcp://host:port"</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    activemq {
+      artemis {
+        enabled = true
+        connectionString = "tcp://host:port"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      activemq {
+        artemis {
+          enabled = true
+          connection-string = "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "activemq": {
+        "artemis": {
+          "enabled": true,
+          "connection-string": "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -504,7 +636,7 @@ class TextConsumer {
 </div></p>
 </div>
 <div class="paragraph">
-<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/components/artemis/documentation/javadocs/javadoc-latest/org/apache/activemq/artemis/jms/client/ActiveMQJMSConnectionFactory.html">ActiveMQJMSConnectionFactory</a>. Only the broker URL is configurable in <code>application.yml</code> but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+<p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <a href="https://activemq.apache.org/components/artemis/documentation/javadocs/javadoc-latest/org/apache/activemq/artemis/jms/client/ActiveMQJMSConnectionFactory.html">ActiveMQJMSConnectionFactory</a>. Only the broker URL is configurable in the application configuration file, but further customization is possible with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
 </div>
 
 <h2 id="sqs"><a class="anchor" href="#sqs"></a>4.3 Configuring SQS</h2>
@@ -517,14 +649,68 @@ class TextConsumer {
 
 
 <div class="paragraph">
-<p>To use Amazon SQS, add the following property to your <code>application.yml</code></p>
+<p>To use Amazon SQS, add the following property to your application configuration file.</p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.sqs.enabled=true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
     sqs:
       enabled: true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.sqs]
+      enabled=true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    sqs {
+      enabled = true
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      sqs {
+        enabled = true
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "sqs": {
+        "enabled": true
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -628,7 +814,7 @@ public class MyJMSConfig {
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Although only the broker URL is configurable in <code>application.yml</code>, there are potentially many configurable properties in the instantiated <code>ConnectionFactory</code>. Also, you may wish to use a different <code>ConnectionFactory</code> implementation class. Any customization you need can be done by intercepting the creation of the <code>ConnectionFactory</code> with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
+<p>Although only the broker URL is configurable in the application configuration file, there are potentially many configurable properties in the instantiated <code>ConnectionFactory</code>. Also, you may wish to use a different <code>ConnectionFactory</code> implementation class. Any customization you need can be done by intercepting the creation of the <code>ConnectionFactory</code> with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>
 </div>
 </div>
 </div>
