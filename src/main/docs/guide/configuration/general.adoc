@@ -1,8 +1,8 @@
 = Configuring JMS
 
-There are two connection pool configuration options that affect all providers, the initial and maximum pool sizes. They default to 1 and 50 respectively. To override one or both of the defaults, add the following to your `application.yml`
+There are two connection pool configuration options that affect all providers, the initial and maximum pool sizes. They default to 1 and 50 respectively. To override one or both of the defaults, add the following to your application configuration file.
 
-[source,yaml]
+[configuration]
 ----
 micronaut:
   jms:
