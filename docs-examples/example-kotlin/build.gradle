@@ -6,26 +6,26 @@ plugins {
 }
 
 dependencies {
-    kaptTest platform("io.micronaut:micronaut-bom:$micronautVersion")
+    kaptTest platform(mn.micronaut.core.bom)
 }
 
 micronaut {
-    testRuntime 'kotest'
+    testRuntime 'kotest5'
 }
 
 mainClassName = 'io.micronaut.jms.docs.ApplicationKt'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 }
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 }

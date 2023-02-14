@@ -15,6 +15,20 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.core.util.ArgumentUtils;
+import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.jms.Connection;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -22,21 +36,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.PreDestroy;
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.Session;
-
-import io.micronaut.core.util.ArgumentUtils;
-import io.micronaut.jms.model.JMSDestinationType;
-import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.messaging.exceptions.MessageListenerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.SECONDS;

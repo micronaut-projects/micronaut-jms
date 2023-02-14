@@ -5,8 +5,5 @@ plugins {
 
 dependencies {
     api projects.jmsCore
-    api mn.micronaut.runtime
-    api mn.micronaut.test.spock
-    api mn.spock
-    compileOnly mn.micronaut.inject.groovy
+    api mnTest.micronaut.test.spock
 }

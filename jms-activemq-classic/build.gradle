@@ -5,5 +5,5 @@ plugins {
 dependencies {
     api projects.jmsCore
     api libs.activemq.client
-    implementation mn.spotbugs
+    implementation libs.spotbugs
 }

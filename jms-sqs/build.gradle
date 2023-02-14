@@ -8,5 +8,5 @@ dependencies {
     api libs.amazon.sqs.messaging
     api libs.aws.sqs
     api libs.micronaut.aws.v1
-    compileOnly mn.graal
+    compileOnly libs.graal.svm
 }

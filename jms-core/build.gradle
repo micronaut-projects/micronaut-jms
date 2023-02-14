@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    api mn.micronaut.inject
     api mn.micronaut.messaging
-    api mn.micronaut.runtime
     api libs.jms.api
     api libs.commons.pool2
+
+    implementation mn.micronaut.jackson.databind
 }

@@ -2,7 +2,6 @@ package io.micronaut.jms.docs.configuration
 
 import io.micronaut.inject.qualifiers.Qualifiers
 import io.micronaut.jms.docs.AbstractJmsSpec
-import io.micronaut.jms.pool.JMSConnectionPool
 import org.apache.activemq.ActiveMQConnectionFactory
 
 import javax.jms.ConnectionFactory
@@ -18,8 +17,7 @@ class CustomizeBrokerSpec extends AbstractJmsSpec {
             Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME))
 
         then:
-        connectionFactory instanceof JMSConnectionPool
-        ((JMSConnectionPool)connectionFactory).connectionFactory instanceof ActiveMQConnectionFactory
-        ((ActiveMQConnectionFactory)((JMSConnectionPool)connectionFactory).connectionFactory).useAsyncSend
+        connectionFactory instanceof ActiveMQConnectionFactory
+        ((ActiveMQConnectionFactory) connectionFactory).useAsyncSend
     }
 }

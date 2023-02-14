@@ -4,12 +4,12 @@ plugins {
 }
 
 micronaut {
-    version project.ext.micronautVersion
+    version libs.versions.micronaut
     runtime 'netty'
 }
 
 dependencies {
-    testCompileOnly mn.jsr305 // for "warning: unknown enum constant When.MAYBE"
+    testCompileOnly libs.jsr305 // for "warning: unknown enum constant When.MAYBE"
     testImplementation projects.jmsTest
     testImplementation projects.jmsActivemqClassic
     testImplementation libs.activemq.broker

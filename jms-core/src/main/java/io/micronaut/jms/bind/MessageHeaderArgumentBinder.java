@@ -36,7 +36,7 @@ public class MessageHeaderArgumentBinder extends AbstractJmsArgumentBinder<Messa
      *
      * @param conversionService conversionService
      */
-    public MessageHeaderArgumentBinder(ConversionService<?> conversionService) {
+    public MessageHeaderArgumentBinder(ConversionService conversionService) {
         super(conversionService);
     }
 
