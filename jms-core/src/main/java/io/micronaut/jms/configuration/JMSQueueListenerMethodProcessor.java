@@ -17,9 +17,11 @@ package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
+import io.micronaut.jms.listener.ListenerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.util.Assert;
 import jakarta.inject.Singleton;
@@ -43,18 +45,18 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @since 1.0.0
  */
 @Singleton
-public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Queue> {
+public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<io.micronaut.jms.listener.Queue, Queue> {
 
     private static final Pattern CONCURRENCY_PATTERN = Pattern.compile("([0-9]+)-([0-9]+)");
     private static final long DEFAULT_KEEP_ALIVE_TIME = 500; // TODO BB
 
     public JMSQueueListenerMethodProcessor(BeanContext beanContext,
-                                           JMSArgumentBinderRegistry registry) {
-        super(beanContext, registry, Queue.class);
+                                           JMSArgumentBinderRegistry registry,
+                                           ListenerFactory factory) {
+        super(beanContext, registry, Queue.class, factory);
     }
 
-    @Override
-    protected ExecutorService getExecutorService(AnnotationValue<Queue> value) {
+    @Override protected ExecutorService getExecutorService(AnnotationValue<Queue> value) {
         final Optional<String> executorName = value.stringValue("executor");
         final Optional<String> concurrency = value.stringValue("concurrency");
 
@@ -85,5 +87,10 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
     @Override
     protected JMSDestinationType getDestinationType() {
         return QUEUE;
+    }
+
+    @Override
+    protected io.micronaut.jms.listener.Queue fromAnnotation(ExecutableMethod<?, ?> method, AnnotationValue<Queue> annotation) {
+        return io.micronaut.jms.listener.Queue.fromAnnotation(method, annotation);
     }
 }

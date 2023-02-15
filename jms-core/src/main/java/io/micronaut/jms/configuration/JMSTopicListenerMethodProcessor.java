@@ -17,9 +17,11 @@ package io.micronaut.jms.configuration;
 
 import io.micronaut.context.BeanContext;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
+import io.micronaut.jms.listener.ListenerFactory;
 import io.micronaut.jms.model.JMSDestinationType;
 import jakarta.inject.Singleton;
 
@@ -37,11 +39,12 @@ import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
  * @since 1.0.0
  */
 @Singleton
-public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
+public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<io.micronaut.jms.listener.Topic, Topic> {
 
     public JMSTopicListenerMethodProcessor(BeanContext beanContext,
-                                           JMSArgumentBinderRegistry registry) {
-        super(beanContext, registry, Topic.class);
+                                           JMSArgumentBinderRegistry registry,
+                                           ListenerFactory factory) {
+        super(beanContext, registry, Topic.class, factory);
     }
 
     @Override
@@ -60,5 +63,10 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
     @Override
     protected JMSDestinationType getDestinationType() {
         return TOPIC;
+    }
+
+    @Override
+    protected io.micronaut.jms.listener.Topic fromAnnotation(ExecutableMethod<?, ?> method, AnnotationValue<Topic> annotation) {
+        return io.micronaut.jms.listener.Topic.fromAnnotation(method, annotation);
     }
 }
