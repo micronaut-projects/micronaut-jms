@@ -29,7 +29,7 @@ import javax.jms.Session;
  *  Handler should be enabled if the listener uses the {@link Session#CLIENT_ACKNOWLEDGE} mode.
  *
  * @author Elliott Pope
- * @since 2.1.1
+ * @since 3.0.0
  */
 public class AcknowledgingJMSListenerSuccessHandler implements JMSListenerSuccessHandler {
 
@@ -41,7 +41,7 @@ public class AcknowledgingJMSListenerSuccessHandler implements JMSListenerSucces
             message.acknowledge();
         } catch (JMSException e) {
             LOGGER.error("Failed to acknowledge receipt of message with the broker. " +
-                    "This message may be falsely retried.", e);
+                    "This message may be falsely retried: " + e.getMessage(), e);
             throw new MessageAcknowledgementException(e.getMessage(), e);
         }
     }

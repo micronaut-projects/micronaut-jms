@@ -16,11 +16,14 @@
 package io.micronaut.jms.listener;
 
 
+import io.micronaut.core.annotation.Indexed;
+
 /**
  * Global handler that handles an action after a message has been received and processed by a {@link JMSListener}.
  *
  * @author sbodvanski
- * @since 2.1.1
+ * @since 3.0.0
  */
+@Indexed(GlobalJMSListenerSuccessHandler.class)
 public interface GlobalJMSListenerSuccessHandler extends JMSListenerSuccessHandler {
 }

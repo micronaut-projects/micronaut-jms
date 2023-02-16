@@ -59,7 +59,7 @@ class AccumulatingSuccessHandler implements JMSListenerSuccessHandler {
     }
 
     @Override
-    public Integer getOrder() {
+    public int getOrder() {
         return 200;
     }
 }

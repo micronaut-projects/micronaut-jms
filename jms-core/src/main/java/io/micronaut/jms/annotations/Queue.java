@@ -130,6 +130,8 @@ public @interface Queue {
      * The success handlers to be injected into the message handling logic.
      * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
      *  instances.
+     *
+     * @since 3.0.0
      */
     Class<? extends JMSListenerSuccessHandler>[] successHandlers() default {};
 
@@ -137,6 +139,8 @@ public @interface Queue {
      * The error handlers to be injected into the message handling logic.
      * @return the classes of the error handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
      *  instances.
+     *
+     *  @since 3.0.0
      */
     Class<? extends JMSListenerErrorHandler>[] errorHandlers() default {};
 }

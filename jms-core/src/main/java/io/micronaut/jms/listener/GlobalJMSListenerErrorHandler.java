@@ -15,11 +15,14 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.core.annotation.Indexed;
+
 /**
  * Global handler that handles any errors thrown when handling a message on a {@link JMSListener}.
  *
  * @author sbodvanski
- * @since 2.1.1
+ * @since 3.0.0
  */
+@Indexed(GlobalJMSListenerErrorHandler.class)
 public interface GlobalJMSListenerErrorHandler extends JMSListenerErrorHandler {
 }

@@ -120,15 +120,6 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
             BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
             boundExecutable.invoke(bean);
-            /*if (acknowledge) {
-                try {
-                    message.acknowledge();
-                } catch (JMSException e) {
-                    logger.error("Failed to acknowledge receipt of message with the broker. " +
-                            "This message may be falsely retried.", e);
-                    throw new MessageAcknowledgementException(e.getMessage(), e);
-                }
-            }*/
         };
     }
 
@@ -150,14 +141,14 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .orElseThrow(() -> new IllegalStateException("No JMSListenerRegistry configured"));
 
         final JMSConnectionPool connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
-        final Object bean = beanContext.findBean(beanDefinition.getBeanType()).get();
+        final Object bean = beanContext.getBean(beanDefinition);
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
         MessageListener listener = generateAndBindListener(bean, method, CLIENT_ACKNOWLEDGE == acknowledgeMode);
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
-                        Arrays.stream(beanDefinition.getAnnotation(JMSListener.class).classValues("errorHandlers")))
+                        Arrays.stream(beanDefinition.classValues(JMSListener.class, "errorHandlers")))
                 .filter(JMSListenerErrorHandler.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
                 .map(beanContext::findBean)
@@ -167,7 +158,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         Set<JMSListenerSuccessHandler> successHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("successHandlers")),
-                        Arrays.stream(beanDefinition.getAnnotation(JMSListener.class).classValues("successHandlers")))
+                        Arrays.stream(beanDefinition.classValues(JMSListener.class,"successHandlers")))
                 .filter(JMSListenerSuccessHandler.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends JMSListenerSuccessHandler>) clazz)
                 .map(beanContext::findBean)

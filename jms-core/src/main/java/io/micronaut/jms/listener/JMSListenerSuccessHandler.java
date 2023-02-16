@@ -19,6 +19,9 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Session;
 
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.core.order.Ordered;
+
 /**
  * Handles an action after a message has been received and processed by a {@link JMSListener}.
  *
@@ -28,7 +31,7 @@ import javax.jms.Session;
  * @see TransactionalJMSListenerSuccessHandler
  */
 @FunctionalInterface
-public interface JMSListenerSuccessHandler {
+public interface JMSListenerSuccessHandler extends Ordered {
     /**
      * Handle the successfully processed message.
      *
@@ -36,12 +39,5 @@ public interface JMSListenerSuccessHandler {
      * @param message - the {@link Message} that was processed.
      * @throws JMSException if any exception occurs while handling the message.
      */
-    void handle(Session session, Message message) throws JMSException;
-
-    /**
-     * @return an integer representing the order the handler should be invoked in. The negative and lower values will be executed first.
-     */
-    default Integer getOrder() {
-        return Integer.valueOf(100);
-    }
+    void handle(@NonNull Session session, @NonNull Message message) throws JMSException;
 }

@@ -47,12 +47,16 @@ public class JMSListenerRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerRegistry.class);
 
-    private final BeanContext beanContext;
 
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
+    private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
+    private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;
 
-    public JMSListenerRegistry(BeanContext beanContext) {
-        this.beanContext = beanContext;
+    public JMSListenerRegistry(
+        Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers,
+        Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers) {
+        this.globalSuccessHandlers = globalSuccessHandlers;
+        this.globalErrorHandlers = globalErrorHandlers;
     }
 
     /**
@@ -98,11 +102,9 @@ public class JMSListenerRegistry {
         connection.start();
         Session session = connection.createSession(transacted, acknowledgeMode);
         JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector);
-        Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers = beanContext.getBeansOfType(GlobalJMSListenerSuccessHandler.class);
         if (CollectionUtils.isNotEmpty(globalSuccessHandlers)) {
             listener.addSuccessHandlers(globalSuccessHandlers);
         }
-        Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers = beanContext.getBeansOfType(GlobalJMSListenerErrorHandler.class);
         if (CollectionUtils.isNotEmpty(globalErrorHandlers)) {
             listener.addErrorHandlers(globalErrorHandlers);
         }

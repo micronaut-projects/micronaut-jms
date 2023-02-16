@@ -26,14 +26,14 @@ import javax.jms.Session;
  *  the message
  *
  * @author Elliott Pope
- * @since 2.1.1
+ * @since 3.0.0
  */
 public class LoggingJMSListenerErrorHandler implements JMSListenerErrorHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingJMSListenerErrorHandler.class);
-    
+
     @Override
     public void handle(Session session, Message message, Throwable ex) {
-        LOGGER.error("Failed to handle message receive", ex);
+        LOGGER.error("Failed to handle message receive: " + ex.getMessage(), ex);
     }
 }

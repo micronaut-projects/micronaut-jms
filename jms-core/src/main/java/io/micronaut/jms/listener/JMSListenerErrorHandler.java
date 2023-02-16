@@ -18,27 +18,23 @@ package io.micronaut.jms.listener;
 import javax.jms.Message;
 import javax.jms.Session;
 
+import io.micronaut.core.annotation.NonNull;
+import io.micronaut.core.order.Ordered;
+
 /**
  *
  * Handles any errors thrown when handling a message on a {@link JMSListener}.
  *
  * @author Elliott Pope
- * @since 2.1.1
+ * @since 3.0.0
  */
 @FunctionalInterface
-public interface JMSListenerErrorHandler {
+public interface JMSListenerErrorHandler extends Ordered {
     /**
      * Handles the exception thrown during message processing.
      * @param session - the {@link Session} the {@link JMSListener} is bound to.
      * @param message - the {@link Message} that was processed.
      * @param ex - the exception that was thrown.
      */
-    void handle(Session session, Message message, Throwable ex);
-
-    /**
-     * @return an integer representing the order the handler should be invoked in. The negative and lower values will be executed first.
-     */
-    default int getOrder() {
-        return Integer.valueOf(100);
-    }
+    void handle(@NonNull Session session, @NonNull Message message, @NonNull Throwable ex);
 }

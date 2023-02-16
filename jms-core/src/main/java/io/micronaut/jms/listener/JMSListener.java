@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.core.order.OrderUtil;
 import io.micronaut.jms.model.JMSDestinationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +28,9 @@ import javax.jms.Session;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 
@@ -102,9 +100,7 @@ public class JMSListener {
      *                 such that the {@link JMSListenerSuccessHandler#getOrder()} is decreasing along the list.
      */
     public void addSuccessHandlers(Collection<? extends JMSListenerSuccessHandler> handlers) {
-        handlers.forEach(handler -> {
-            orderedInsert(this.successHandlers, handler, JMSListenerSuccessHandler::getOrder);
-        });
+        handlers.forEach(handler -> orderedInsert(this.successHandlers, handler));
     }
 
     /**
@@ -120,9 +116,7 @@ public class JMSListener {
      *                 such that the {@link JMSListenerErrorHandler#getOrder()} is decreasing along the list.
      */
     public void addErrorHandlers(Collection<? extends JMSListenerErrorHandler> handlers) {
-        handlers.forEach(handler -> {
-            orderedInsert(this.errorHandlers, handler, JMSListenerErrorHandler::getOrder);
-        });
+        handlers.forEach(handler -> orderedInsert(this.errorHandlers, handler));
     }
 
     /**
@@ -145,7 +139,7 @@ public class JMSListener {
                     try {
                         handler.handle(session, msg);
                     } catch (JMSException e) {
-                        LOGGER.error("Failed to handle successful message receive", e);
+                        LOGGER.error("Failed to handle successful message receive: " + e.getMessage(), e);
                         ex.addSuppressed(e);
                     }
                 });
@@ -177,12 +171,9 @@ public class JMSListener {
                 session.createTopic(destination);
     }
 
-    private static <T> void orderedInsert(List<T> existingList, T element, Function<T, Integer> keyExtractor) {
-        int index = Collections.binarySearch(existingList, element, Comparator.comparing(keyExtractor));
-        if (index < 0) {
-            index = -index - 1;
-        }
-        existingList.add(index, element);
+    private static <T> void orderedInsert(List<T> existingList, T element) {
+        existingList.add(element);
+        existingList.sort(OrderUtil.REVERSE_COMPARATOR);
     }
 
 }

@@ -23,16 +23,19 @@ import javax.jms.Session;
  * Commits a JMS transaction upon successful handling of a message.
  *
  * @author Elliott Pope
- * @since 2.1.1
+ * @since 3.0.0
  */
 public class TransactionalJMSListenerSuccessHandler implements JMSListenerSuccessHandler {
+
+    public static final int POSITION = 200;
+
     @Override
     public void handle(Session session, Message message) throws JMSException {
         session.commit();
     }
 
     @Override
-    public Integer getOrder() {
-        return Integer.valueOf(200);
+    public int getOrder() {
+        return POSITION;
     }
 }
