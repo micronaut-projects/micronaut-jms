@@ -18,6 +18,8 @@ package io.micronaut.jms.annotations;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.DefaultScope;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.messaging.annotation.MessageListener;
 
 import java.lang.annotation.Documented;
@@ -84,11 +86,25 @@ public @interface JMSListener {
 
     /**
      * Name of the {@link javax.jms.ConnectionFactory} bean in the context to
-     * use to configure the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * use to configure the {@link io.micronaut.jms.listener.JMSListener}.
      * The name must correspond to a bean annotated with {@link JMSConnectionFactory}
      * and the values must be the same.
      *
      * @return the name of the {@link JMSConnectionFactory} to use.
      */
     String value();
+
+    /**
+     * The success handlers to be injected into the message handling logic for all {@link Queue} or {@link Topic} methods.
+     * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     */
+    Class<? extends JMSListenerSuccessHandler>[] successHandlers() default {};
+
+    /**
+     * The error handlers to be injected into the message handling logic for all {@link Queue} or {@link Topic} methods.
+     * @return the classes of the error handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     */
+    Class<? extends JMSListenerErrorHandler>[] errorHandlers() default {};
 }

@@ -9,6 +9,8 @@ configuration:
   otherBrokers: Configuring Unsupported Brokers
   customizing: Customizing Brokers
 binding: Parameter Binding
+errorHandlers: Error Handlers
+successHandlers: Success Handlers
 messageSelector: Message Selectors
 graalvm: GraalVM support
 repository: Repository

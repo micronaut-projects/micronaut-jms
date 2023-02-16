@@ -17,6 +17,8 @@ package io.micronaut.jms.annotations;
 
 import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.messaging.annotation.MessageMapping;
 
 import java.lang.annotation.Documented;
@@ -85,7 +87,7 @@ public @interface Topic {
     String serializer() default "";
 
     /**
-     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
      * @see javax.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
@@ -103,4 +105,22 @@ public @interface Topic {
      * @return the message selector for the topic
      */
     String messageSelector() default "";
+
+    /**
+     * The success handlers to be injected into the message handling logic.
+     * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     *
+     *  @since 3.0.0
+     */
+    Class<? extends JMSListenerSuccessHandler>[] successHandlers() default {};
+
+    /**
+     * The error handlers to be injected into the message handling logic.
+     * @return the classes of the error handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     *
+     *  @since 3.0.0
+     */
+    Class<? extends JMSListenerErrorHandler>[] errorHandlers() default {};
 }

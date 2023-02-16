@@ -29,7 +29,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * @param <T> the type of the object that the handler is expecting.
  * @author Elliott Pope
  * @since 1.0.0
+ *
+ * @deprecated as of 2.1.1
  */
+@Deprecated
 public class ConcurrentMessageHandler<T> implements MessageHandler<T> {
 
     private static final long DEFAULT_AWAIT_TIMEOUT = 10; // TODO configurable
