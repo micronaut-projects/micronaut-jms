@@ -32,6 +32,9 @@ import io.micronaut.core.order.Ordered;
  */
 @FunctionalInterface
 public interface JMSListenerSuccessHandler extends Ordered {
+
+    int DEFAULT_POSITION = 100;
+
     /**
      * Handle the successfully processed message.
      *
@@ -40,4 +43,9 @@ public interface JMSListenerSuccessHandler extends Ordered {
      * @throws JMSException if any exception occurs while handling the message.
      */
     void handle(@NonNull Session session, @NonNull Message message) throws JMSException;
+
+    @Override
+    default int getOrder() {
+        return DEFAULT_POSITION;
+    }
 }

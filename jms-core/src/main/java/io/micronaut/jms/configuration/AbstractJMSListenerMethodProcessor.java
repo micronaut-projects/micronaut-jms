@@ -141,7 +141,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .orElseThrow(() -> new IllegalStateException("No JMSListenerRegistry configured"));
 
         final JMSConnectionPool connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
-        final Object bean = beanContext.getBean(beanDefinition);
+        final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
         MessageListener listener = generateAndBindListener(bean, method, CLIENT_ACKNOWLEDGE == acknowledgeMode);
