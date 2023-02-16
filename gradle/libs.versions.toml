@@ -4,10 +4,10 @@ micronaut = "4.0.0-SNAPSHOT"
 micronaut-test = "4.0.0-SNAPSHOT"
 
 activemq = '5.17.3'
-amazon-sqs-messaging = '1.1.2'
+amazon-sqs-messaging = '2.0.3'
 artemis-client = '2.27.1'
 awaitility = '4.2.0'
-aws-sqs = '1.12.366'
+aws-sqs = '2.19.26'
 commons-pool2 = '2.11.1'
 graal-svm = "22.0.0.2"
 groovy = "4.0.6"
@@ -19,8 +19,9 @@ kotlin = '1.7.22'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.1"
 testcontainers = '1.17.6'
+lombok = '1.18.26'
 
-micronaut-aws-v1 = '3.9.3'
+micronaut-aws-v2 = '3.13.1'
 micronaut-gradle-plugin = "3.6.6"
 
 [libraries]
@@ -30,17 +31,19 @@ activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref 
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
 artemis-client = { module = 'org.apache.activemq:artemis-jms-client', version.ref = 'artemis-client' }
 awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
-aws-sqs = { module = 'com.amazonaws:aws-java-sdk-sqs', version.ref = 'aws-sqs' }
+aws-sqs = { module = 'software.amazon.awssdk:sqs', version.ref = 'aws-sqs' }
 commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'commons-pool2' }
 graal-svm = { module = "org.graalvm.nativeimage:svm", version.ref = "graal-svm" }
 jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
-micronaut-aws-v1 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v1', version.ref = 'micronaut-aws-v1' }
+micronaut-aws-v2 = { module = 'io.micronaut.aws:micronaut-aws-sdk-v2', version.ref = 'micronaut-aws-v2' }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
 testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
+
+lombok = { module = 'org.projectlombok:lombok', version.ref = 'lombok' }
 
 #plugins
 

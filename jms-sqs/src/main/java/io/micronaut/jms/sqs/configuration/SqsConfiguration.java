@@ -17,13 +17,13 @@ package io.micronaut.jms.sqs.configuration;
 
 import com.amazon.sqs.javamessaging.ProviderConfiguration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
-import com.amazonaws.services.sqs.AmazonSQS;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.services.sqs.SqsClientBuilder;
 
 import javax.jms.ConnectionFactory;
 
@@ -55,12 +55,12 @@ public class SqsConfiguration {
      *
      * @param config config settings for SQS
      * @param sqs    a configured AmazonSQS instance, typically built with
-     *               {@link com.amazonaws.services.sqs.AmazonSQSClientBuilder}.
+     *               {@link software.amazon.awssdk.services.sqs.SqsClientBuilder}.
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
-                                                     AmazonSQS sqs) {
+                                                     SqsClientBuilder sqs) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
                 CONNECTION_FACTORY_BEAN_NAME);
         return new SQSConnectionFactory(

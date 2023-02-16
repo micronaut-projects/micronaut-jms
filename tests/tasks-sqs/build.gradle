@@ -5,4 +5,6 @@ plugins {
 dependencies {
     implementation projects.jmsSqs
     testImplementation libs.testcontainers.localstack
+    testCompileOnly libs.lombok
+    testAnnotationProcessor libs.lombok
 }

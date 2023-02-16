@@ -5,22 +5,20 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import io.micronaut.test.support.TestPropertyProvider
 import jakarta.inject.Inject
-import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS
+import static example.AwsSdkV2LocalStackContainer.Service.SQS
 
 @MicronautTest
 class TasksSpec extends Specification implements TestPropertyProvider {
 
     @Shared
     @AutoCleanup
-    LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack'), false)
-            .withServices(SQS)
+    AwsSdkV2LocalStackContainer localstack = new AwsSdkV2LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
 
     @Inject
     @Client('/')
@@ -38,6 +36,8 @@ class TasksSpec extends Specification implements TestPropertyProvider {
         localstack.start()
 
         ['sqs-url': localstack.getEndpointOverride(SQS).toString(),
-         'sqs-region': localstack.region]
+         'sqs-region': localstack.region,
+         'access-key': localstack.accessKey,
+         'secret-key': localstack.secretKey]
     }
 }
