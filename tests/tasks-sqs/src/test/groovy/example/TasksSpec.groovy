@@ -36,8 +36,8 @@ class TasksSpec extends Specification implements TestPropertyProvider {
         localstack.start()
 
         ['sqs-url': localstack.getEndpointOverride(SQS).toString(),
-         'sqs-region': localstack.region,
-         'access-key': localstack.accessKey,
-         'secret-key': localstack.secretKey]
+         'aws.region': localstack.region,
+         'aws.access-key': localstack.accessKey,
+         'aws.secret-key': localstack.secretKey]
     }
 }

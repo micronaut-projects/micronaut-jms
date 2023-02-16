@@ -25,15 +25,15 @@ public class SqsClientBuilderListener implements BeanCreatedEventListener<SqsCli
     private String sqsUrl;
 
     @Inject
-    @Property(name = "sqs-region")
+    @Property(name = "aws.region")
     private String sqsRegion;
 
     @Inject
-    @Property(name = "access-key")
+    @Property(name = "aws.access-key")
     private String accessKey;
 
     @Inject
-    @Property(name = "secret-key")
+    @Property(name = "aws.secret-key")
     private String secretKey;
 
     @Override
