@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     kaptTest platform(mn.micronaut.core.bom)
+    testImplementation libs.awaitility
 }
 
 micronaut {

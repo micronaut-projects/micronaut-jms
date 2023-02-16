@@ -3,6 +3,8 @@ package io.micronaut.jms.docs.successhandler
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.micronaut.jms.docs.AbstractJmsKotest
+import org.awaitility.Awaitility
+import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -22,9 +24,12 @@ class SuccessHandlingSpec: AbstractJmsKotest ({
             producer.push("success message no 2")
 
             then("the success flow is processed by the handlers") {
-                consumer.processed shouldHaveSize 2
-                errorHandler.count.get() shouldBe 2
-                classLevelErrorHandler.messages shouldHaveSize 2
+                Awaitility.await().atMost(5, TimeUnit.SECONDS).until {
+                    consumer.processed shouldHaveSize 2
+                    errorHandler.count.get() shouldBe 2
+                    classLevelErrorHandler.messages shouldHaveSize 2
+                    true
+                }
             }
         }
         applicationContext.stop()

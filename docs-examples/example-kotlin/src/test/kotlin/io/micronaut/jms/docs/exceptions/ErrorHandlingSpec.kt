@@ -3,6 +3,8 @@ package io.micronaut.jms.docs.exceptions
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.micronaut.jms.docs.AbstractJmsKotest
+import org.awaitility.Awaitility.await
+import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -20,9 +22,12 @@ class ErrorHandlingSpec: AbstractJmsKotest ({
 
             producer.push("throw an error")
             then("the exception is handled by the handlers") {
-                consumer.processed shouldHaveSize 0
-                errorHandler.count.get() shouldBe 1
-                classLevelErrorHandler.exceptions shouldHaveSize 1
+                await().atMost(5, TimeUnit.SECONDS).until {
+                    consumer.processed shouldHaveSize 0
+                    errorHandler.count.get() shouldBe 1
+                    classLevelErrorHandler.exceptions shouldHaveSize 1
+                    true
+                }
             }
         }
         applicationContext.stop()
