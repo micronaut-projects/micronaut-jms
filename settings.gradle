@@ -19,7 +19,6 @@ include 'jms-test'
 include 'docs-examples:example-groovy'
 include 'docs-examples:example-java'
 include 'docs-examples:example-kotlin'
-
 include 'tests:tasks-sqs'
 include 'tests:tasks-activemq-artemis'
 include 'tests:tasks-activemq-classic'

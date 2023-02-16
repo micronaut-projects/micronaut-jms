@@ -17,6 +17,8 @@ package io.micronaut.jms.annotations;
 
 import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.messaging.annotation.MessageMapping;
 
 import java.lang.annotation.Documented;
@@ -76,7 +78,7 @@ public @interface Queue {
      * {@link JMSListener}. The value must be of the form x-y where x is the
      * initial size of the thread pool and y is the maximum size. If this
      * option is specified, a new thread pool will be created and destroyed
-     * with the {@link io.micronaut.jms.listener.JMSListenerContainer}. This
+     * with the {@link io.micronaut.jms.listener.JMSListener}. This
      * option cannot be used in conjunction with {@link Queue#executor()}; if
      * both are specified the {@link Queue#executor()} value will be used.
      *
@@ -105,7 +107,7 @@ public @interface Queue {
     String executor() default "";
 
     /**
-     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListenerContainer}.
+     * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
      * @see javax.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
@@ -123,4 +125,22 @@ public @interface Queue {
      * @return the message selector for the queue
      */
     String messageSelector() default "";
+
+    /**
+     * The success handlers to be injected into the message handling logic.
+     * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     *
+     * @since 3.0.0
+     */
+    Class<? extends JMSListenerSuccessHandler>[] successHandlers() default {};
+
+    /**
+     * The error handlers to be injected into the message handling logic.
+     * @return the classes of the error handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
+     *  instances.
+     *
+     *  @since 3.0.0
+     */
+    Class<? extends JMSListenerErrorHandler>[] errorHandlers() default {};
 }
