@@ -18,11 +18,11 @@ package io.micronaut.jms.listener;
 import io.micronaut.context.BeanContext;
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
+import jakarta.annotation.PreDestroy;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
