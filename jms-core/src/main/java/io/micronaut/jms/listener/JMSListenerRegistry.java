@@ -15,7 +15,6 @@
  */
 package io.micronaut.jms.listener;
 
-import io.micronaut.context.BeanContext;
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import jakarta.annotation.PreDestroy;
@@ -46,8 +45,6 @@ import java.util.concurrent.ExecutorService;
 public class JMSListenerRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerRegistry.class);
-
-
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
     private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
     private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;

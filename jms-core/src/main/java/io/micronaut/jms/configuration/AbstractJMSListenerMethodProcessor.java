@@ -158,7 +158,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
         Set<JMSListenerSuccessHandler> successHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("successHandlers")),
-                        Arrays.stream(beanDefinition.classValues(JMSListener.class,"successHandlers")))
+                        Arrays.stream(beanDefinition.classValues(JMSListener.class, "successHandlers")))
                 .filter(JMSListenerSuccessHandler.class::isAssignableFrom)
                 .map(clazz -> (Class<? extends JMSListenerSuccessHandler>) clazz)
                 .map(beanContext::findBean)
