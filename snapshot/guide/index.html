@@ -54,11 +54,15 @@
                                 
                                 <div class="toc-item" style="margin-left:0"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
                                 
-                                <div class="toc-item" style="margin-left:0"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
+                                <div class="toc-item" style="margin-left:0"><a href="#errorHandlers"><strong>6</strong><span>Error Handlers</span></a></div>
                                 
-                                <div class="toc-item" style="margin-left:0"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+                                <div class="toc-item" style="margin-left:0"><a href="#successHandlers"><strong>7</strong><span>Success Handlers</span></a></div>
                                 
-                                <div class="toc-item" style="margin-left:0"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
+                                <div class="toc-item" style="margin-left:0"><a href="#messageSelector"><strong>8</strong><span>Message Selectors</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#graalvm"><strong>9</strong><span>GraalVM support</span></a></div>
+                                
+                                <div class="toc-item" style="margin-left:0"><a href="#repository"><strong>10</strong><span>Repository</span></a></div>
                                 
                             </div>
                         </div>
@@ -109,11 +113,15 @@
         
         <div class="toc-item" style="margin-left:0px" id="toc-item-binding"><a href="#binding"><strong>5</strong><span>Parameter Binding</span></a></div>
         
-        <div class="toc-item" style="margin-left:0px" id="toc-item-messageSelector"><a href="#messageSelector"><strong>6</strong><span>Message Selectors</span></a></div>
+        <div class="toc-item" style="margin-left:0px" id="toc-item-errorHandlers"><a href="#errorHandlers"><strong>6</strong><span>Error Handlers</span></a></div>
         
-        <div class="toc-item" style="margin-left:0px" id="toc-item-graalvm"><a href="#graalvm"><strong>7</strong><span>GraalVM support</span></a></div>
+        <div class="toc-item" style="margin-left:0px" id="toc-item-successHandlers"><a href="#successHandlers"><strong>7</strong><span>Success Handlers</span></a></div>
         
-        <div class="toc-item" style="margin-left:0px" id="toc-item-repository"><a href="#repository"><strong>8</strong><span>Repository</span></a></div>
+        <div class="toc-item" style="margin-left:0px" id="toc-item-messageSelector"><a href="#messageSelector"><strong>8</strong><span>Message Selectors</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-graalvm"><a href="#graalvm"><strong>9</strong><span>GraalVM support</span></a></div>
+        
+        <div class="toc-item" style="margin-left:0px" id="toc-item-repository"><a href="#repository"><strong>10</strong><span>Repository</span></a></div>
         
         </div>
     </div>
@@ -810,15 +818,15 @@ class CustomBrokerJMSConnectionPoolListener(
 <p>Methods in classes/interfaces annotated with <code>@JMSProducer</code> and <code>@JMSListener</code> use parameter binding annotations to access the JMS <code>Message</code>, message body, and message headers.</p>
 </div>
 <div class="sect2">
-<h3 id="_body">@Body</h3>
+<h3 id="_messagebody">@MessageBody</h3>
 <div class="paragraph">
-<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/Body.html">Body</a> annotation is required for the method argument that will be serialized/deserialized as the JMS <code>Message</code> body.</p>
+<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/MessageBody.html">MessageBody</a> annotation is required for the method argument that will be serialized/deserialized as the JMS <code>Message</code> body.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_header">@Header</h3>
+<h3 id="_messageheader">@MessageHeader</h3>
 <div class="paragraph">
-<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/Header.html">Header</a> annotation is required for any method arguments that will be serialized/deserialized as JMS headers or non-JMS headers (message properties).</p>
+<p>The <a href="https://docs.micronaut.io/latest/api/io/micronaut/messaging/annotation/MessageHeader.html">MessageHeader</a> annotation is required for any method arguments that will be serialized/deserialized as JMS headers or non-JMS headers (message properties).</p>
 </div>
 <div class="paragraph">
 <p>In this example, the message body is a <code>Map</code> and the method supports sending the <code>JMSCorrelationID</code> along with several custom header values:</p>
@@ -1155,7 +1163,148 @@ class MapConsumer {
 </div>
 </div>
 
-<h1 id="messageSelector"><a class="anchor" href="#messageSelector"></a>6 Message Selectors</h1>
+<h1 id="errorHandlers"><a class="anchor" href="#errorHandlers"></a>6 Error Handlers</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/errorHandlers.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>There are multiple ways to inject custom error handling into your JMS Listeners as shown here:</p>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>You can add the <code>errorHandlers</code> arguments to your <code>@JMSListener</code> to add custom error handling logic to all <code>@Queue</code> or <code>@Topic</code> annotated methods within that class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>You can add the <code>errorHandlers</code> argument to your <code>@Queue</code> or <code>@Topic</code> annotated method to inject custom error handling logic only for messages received on that specific queue or topic.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="3"></i><b>3</b></td>
+<td>By default you will always have an <code>io.micronaut.jms.listener.LoggingJMSListenerErrorHandler</code> which will log the thrown exception at <code>ERROR</code> level.</td>
+</tr>
+</table>
+</div>
+
+<h1 id="successHandlers"><a class="anchor" href="#successHandlers"></a>7 Success Handlers</h1>
+
+<div class='contribute-btn'>
+    <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/successHandlers.adoc"'>
+        <i class='fa fa-pencil-square-o'></i> Improve this doc
+    </button>
+</div>
+
+
+<div class="paragraph">
+<p>There are multiple ways to inject custom success handling into your JMS Listeners as shown here:</p>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.context.annotation.Requires;
+import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.jms.listener.JMSListenerSuccessHandler;
+import io.micronaut.messaging.annotation.MessageBody;
+import jakarta.inject.Singleton;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+
+@JMSListener(value = CONNECTION_FACTORY_BEAN_NAME, successHandlers = {AccumulatingSuccessHandler.class}) // <b class="conum">(1)</b>
+class SuccessHandlingConsumer {
+
+    Collection&lt;String&gt; messages = Collections.synchronizedSet(new HashSet&lt;&gt;());
+
+    @Queue(value = "success-queue", concurrency = "1-1", successHandlers = {CountingSuccessHandler.class})  // <b class="conum">(2)</b>
+    void receive(@MessageBody String message) throws JMSException {
+        messages.add(message);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.messaging.annotation.MessageBody
+import jakarta.inject.Singleton
+
+import javax.jms.Message
+import javax.jms.Session
+import java.util.concurrent.atomic.AtomicInteger
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+
+
+@JMSListener(value = CONNECTION_FACTORY_BEAN_NAME, successHandlers = [AccumulatingSuccessHandler.class]) // <b class="conum">(1)</b>
+class SuccessHandlingConsumer {
+
+    Collection&lt;String&gt; messages = Collections.synchronizedSet(new HashSet&lt;String&gt;())
+
+    @Queue(value = "success-queue", concurrency = "1-1", successHandlers = [CountingSuccessHandler.class]) // <b class="conum">(2)</b>
+    void receive(@MessageBody String message) {
+        messages.add(message)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.jms.listener.JMSListenerSuccessHandler
+import io.micronaut.messaging.annotation.MessageBody
+import jakarta.inject.Singleton
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import javax.jms.Message
+import javax.jms.Session
+
+
+@JMSListener(
+        CONNECTION_FACTORY_BEAN_NAME,
+        successHandlers = [AccumulatingSuccessHandler::class]) // <b class="conum">(1)</b>
+class SuccessHandlingConsumer {
+
+    val processed: MutableList&lt;String&gt; = mutableListOf()
+
+    @Queue(
+            value = "success-queue",
+            concurrency = "1-1",
+            successHandlers = [CountingSuccessHandler::class]) // <b class="conum">(2)</b>
+    fun receive(@MessageBody message: String) {
+        processed.add(message)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>You can add the <code>successHandlers</code> arguments to your <code>@JMSListener</code> to add custom success handling logic to all <code>@Queue</code> or <code>@Topic</code> annotated methods within that class.</td>
+</tr>
+<tr>
+<td><i class="conum" data-value="2"></i><b>2</b></td>
+<td>You can add the <code>successHandlers</code> argument to your <code>@Queue</code> or <code>@Topic</code> annotated method to inject custom success handling logic only for messages received on that specific queue or topic</td>
+</tr>
+</table>
+</div>
+
+<h1 id="messageSelector"><a class="anchor" href="#messageSelector"></a>8 Message Selectors</h1>
 
 <div class='contribute-btn'>
     <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/messageSelector.adoc"'>
@@ -1199,7 +1348,7 @@ public class SelectorConsumer {
 <p>More examples on how to use Message Selector can be found <a href="https://timjansen.github.io/jarfiller/guide/jms/selectors.xhtml">here</a>.</p>
 </div>
 
-<h1 id="graalvm"><a class="anchor" href="#graalvm"></a>7 GraalVM support</h1>
+<h1 id="graalvm"><a class="anchor" href="#graalvm"></a>9 GraalVM support</h1>
 
 <div class='contribute-btn'>
     <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/graalvm.adoc"'>
@@ -1226,7 +1375,7 @@ information.
 </table>
 </div>
 
-<h1 id="repository"><a class="anchor" href="#repository"></a>8 Repository</h1>
+<h1 id="repository"><a class="anchor" href="#repository"></a>10 Repository</h1>
 
 <div class='contribute-btn'>
     <button type='button' class='btn btn-default' onclick='window.location.href="https://github.com/micronaut-projects/micronaut-jms/edit/master/src/main/docs/guide/repository.adoc"'>
