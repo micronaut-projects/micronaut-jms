@@ -11,14 +11,14 @@ import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-import static example.AwsSdkV2LocalStackContainer.Service.SQS
+import static example.LocalStackContainer.Service.SQS
 
 @MicronautTest
 class TasksSpec extends Specification implements TestPropertyProvider {
 
     @Shared
     @AutoCleanup
-    AwsSdkV2LocalStackContainer localstack = new AwsSdkV2LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
+    LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
 
     @Inject
     @Client('/')
@@ -36,8 +36,6 @@ class TasksSpec extends Specification implements TestPropertyProvider {
         localstack.start()
 
         ['sqs-url': localstack.getEndpointOverride(SQS).toString(),
-         'aws.region': localstack.region,
-         'aws.access-key': localstack.accessKey,
-         'aws.secret-key': localstack.secretKey]
+         'sqs-region': localstack.region]
     }
 }

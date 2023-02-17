@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class AwsSdkV2LocalStackContainer extends GenericContainer<AwsSdkV2LocalStackContainer> {
+public class LocalStackContainer extends GenericContainer<LocalStackContainer> {
 
     static final int PORT = 4566;
 
@@ -59,7 +59,7 @@ public class AwsSdkV2LocalStackContainer extends GenericContainer<AwsSdkV2LocalS
     /**
      * @param dockerImageName    image name to use for Localstack
      */
-    public AwsSdkV2LocalStackContainer(final DockerImageName dockerImageName) {
+    public LocalStackContainer(final DockerImageName dockerImageName) {
         this(dockerImageName, shouldRunInLegacyMode(dockerImageName.getVersionPart()));
     }
 
@@ -67,7 +67,7 @@ public class AwsSdkV2LocalStackContainer extends GenericContainer<AwsSdkV2LocalS
      * @param dockerImageName    image name to use for Localstack
      * @param useLegacyMode      if true, each AWS service is exposed on a different port
      */
-    public AwsSdkV2LocalStackContainer(final DockerImageName dockerImageName, boolean useLegacyMode) {
+    public LocalStackContainer(final DockerImageName dockerImageName, boolean useLegacyMode) {
         super(dockerImageName);
         dockerImageName.assertCompatibleWith(DEFAULT_IMAGE_NAME);
 
@@ -155,7 +155,7 @@ public class AwsSdkV2LocalStackContainer extends GenericContainer<AwsSdkV2LocalS
         }
     }
 
-    public AwsSdkV2LocalStackContainer withServices(Service... services) {
+    public LocalStackContainer withServices(Service... services) {
         this.services.addAll(Arrays.asList(services));
         return self();
     }
@@ -165,7 +165,7 @@ public class AwsSdkV2LocalStackContainer extends GenericContainer<AwsSdkV2LocalS
      * @param services one or more service names
      * @return this container object
      */
-    public AwsSdkV2LocalStackContainer withServices(EnabledService... services) {
+    public LocalStackContainer withServices(EnabledService... services) {
         this.services.addAll(Arrays.asList(services));
         return self();
     }
