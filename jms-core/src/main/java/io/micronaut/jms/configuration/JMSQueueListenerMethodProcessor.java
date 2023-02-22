@@ -20,9 +20,12 @@ import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
+import io.micronaut.jms.listener.JMSListener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.util.Assert;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -45,6 +48,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Singleton
 public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Queue> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMSQueueListenerMethodProcessor.class);
+
     private static final Pattern CONCURRENCY_PATTERN = Pattern.compile("([0-9]+)-([0-9]+)");
     private static final long DEFAULT_KEEP_ALIVE_TIME = 500; // TODO BB
 
@@ -59,12 +64,18 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         final Optional<String> concurrency = value.stringValue("concurrency");
 
         if (executorName.isPresent() && !executorName.get().isEmpty()) {
+
+            LOGGER.warn("The deprecated 'executor' option of 'io.micronaut.jms.annotations.Queue' annotation is being used. Note that It will be removed soon.");
+
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                 .orElseThrow(() -> new IllegalStateException(
                     "No ExecutorService bean found with name " + executorName.get()));
         }
 
         if (concurrency.isPresent()) {
+
+            LOGGER.warn("The deprecated 'concurrency' option of 'io.micronaut.jms.annotations.Queue' annotation is being used. Note that It will be removed soon.");
+
             final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency.get());
             Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
                 () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
