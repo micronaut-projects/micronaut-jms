@@ -48,8 +48,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
-
 /**
  * Abstract {@link ExecutableMethodProcessor} for annotations related to
  * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListener}
