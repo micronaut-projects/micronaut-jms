@@ -82,7 +82,8 @@ public @interface Queue {
      * option cannot be used in conjunction with {@link Queue#executor()}; if
      * both are specified the {@link Queue#executor()} value will be used.
      *
-     * @deprecated since 3.0.0
+     * @deprecated since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.
+     *
      *
      * @return the initial and max size of the thread pool
      */
@@ -105,7 +106,7 @@ public @interface Queue {
      * as part of a {@link JMSListener}. The executor can be maintained by
      * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
      *
-     * @deprecated since 3.0.0
+     * @deprecated since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.
      *
      * @return the executor service bean name
      */
