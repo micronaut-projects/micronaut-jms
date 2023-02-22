@@ -137,13 +137,10 @@ public class JMSListener {
         }
 
         if (executor == null) {
-            messageConsumer.setMessageListener((msg) -> {
-                handleMessage(msg);
-            });
+            messageConsumer.setMessageListener(this::handleMessage);
         } else {
-            messageConsumer.setMessageListener((msg) -> executor.submit(() -> {
-                handleMessage(msg);
-            }));
+            messageConsumer.setMessageListener(msg -> executor.submit(
+                () -> handleMessage(msg)));
         }
 
         this.consumer = messageConsumer;
