@@ -72,8 +72,11 @@ public @interface Topic {
      * as part of a {@link JMSListener}. The executor can be maintained by
      * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
      *
+     * @deprecated since 3.0.0
+     *
      * @return the executor service name
      */
+    @Deprecated
     String executor() default "";
 
     /**

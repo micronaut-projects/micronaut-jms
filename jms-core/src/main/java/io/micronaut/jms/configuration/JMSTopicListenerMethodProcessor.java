@@ -46,9 +46,13 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
 
     @Override
     protected ExecutorService getExecutorService(AnnotationValue<Topic> value) {
-
         final Optional<String> executorName = value.stringValue("executor");
-        if (executorName.isPresent() && !executorName.get().isEmpty()) {
+
+        if (!executorName.isPresent()) {
+            return null;
+        }
+
+        if (!executorName.get().isEmpty()) {
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                 .orElseThrow(() -> new IllegalStateException(
                     "No ExecutorService bean found with name " + executorName.get()));

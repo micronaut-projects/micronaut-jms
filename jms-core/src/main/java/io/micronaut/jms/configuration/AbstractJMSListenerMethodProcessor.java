@@ -113,8 +113,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     private MessageListener generateAndBindListener(Object bean,
-                                                    Executable<?, ?> method,
-                                                    boolean acknowledge) {
+                                                    Executable<?, ?> method) {
 
         return message -> {
             DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
@@ -144,7 +143,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method, CLIENT_ACKNOWLEDGE == acknowledgeMode);
+        MessageListener listener = generateAndBindListener(bean, method);
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),

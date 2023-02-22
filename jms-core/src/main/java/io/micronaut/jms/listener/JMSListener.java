@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
@@ -45,7 +46,10 @@ import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
  *  are called sequentially. If a handler throws an error then it is caught and once all handlers have completed, those errors
  *  are rethrown
  * If any error is thrown during message handling (either by the listener itself, or by a success handler), then all the
- *  {@link JMSListenerErrorHandler}s are called sequentially. Error handlers cannot themselves throw errors.
+ * {@link JMSListenerErrorHandler}s are called sequentially.
+ *
+ * Note: To handle the special cases (e.g.the negative acknowledger feature in the AWS SQS base implementation), an error handler could throw an error to expose it to the base implementation.
+ * However, it must be ensured that the error handler executes after all other error handlers.
  *
  * @author Elliott Pope
  * @since 2.1.1
@@ -131,26 +135,38 @@ public class JMSListener {
         } else {
             consumer = session.createConsumer(lookupDestination(destinationType, destination, session));
         }
-        consumer.setMessageListener((msg) -> executor.submit(() -> {
-            try {
-                delegate.onMessage(msg);
-                Throwable ex = new Throwable();
-                successHandlers.forEach(handler -> {
-                    try {
-                        handler.handle(session, msg);
-                    } catch (JMSException e) {
-                        LOGGER.error("Failed to handle successful message receive: " + e.getMessage(), e);
-                        ex.addSuppressed(e);
-                    }
-                });
-                if (ex.getSuppressed().length > 0) {
-                    errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
-                }
-            } catch (Throwable e) {
-                errorHandlers.forEach(handler -> handler.handle(session, msg, e));
-            }
-        }));
+
+        if (executor == null) {
+            consumer.setMessageListener((msg) -> {
+                handleMessage(msg);
+            });
+        } else {
+            consumer.setMessageListener((msg) -> executor.submit(() -> {
+                handleMessage(msg);
+            }));
+        }
+
         this.consumer = consumer;
+    }
+
+    private void handleMessage(Message msg) {
+        try {
+            delegate.onMessage(msg);
+            Throwable ex = new Throwable();
+            successHandlers.forEach(handler -> {
+                try {
+                    handler.handle(session, msg);
+                } catch (JMSException e) {
+                    LOGGER.error("Failed to handle successful message receive: " + e.getMessage(), e);
+                    ex.addSuppressed(e);
+                }
+            });
+            if (ex.getSuppressed().length > 0) {
+                errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
+            }
+        } catch (Throwable e) {
+            errorHandlers.forEach(handler -> handler.handle(session, msg, e));
+        }
     }
 
     /**
