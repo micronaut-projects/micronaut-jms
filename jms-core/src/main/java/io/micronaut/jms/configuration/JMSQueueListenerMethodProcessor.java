@@ -58,31 +58,31 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
         final Optional<String> executorName = value.stringValue("executor");
         final Optional<String> concurrency = value.stringValue("concurrency");
 
-        if (!executorName.isPresent() && !concurrency.isPresent()) {
-            return null;
-        }
-
         if (executorName.isPresent() && !executorName.get().isEmpty()) {
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                 .orElseThrow(() -> new IllegalStateException(
                     "No ExecutorService bean found with name " + executorName.get()));
         }
 
-        final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency.get());
-        Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
-            () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
-                "Concurrency provided was " + concurrency.get());
+        if (concurrency.isPresent()) {
+            final Matcher matcher = CONCURRENCY_PATTERN.matcher(concurrency.get());
+            Assert.isTrue(matcher.find() && matcher.groupCount() == 2,
+                () -> "Concurrency must be of the form int-int (e.g. \"1-10\"). " +
+                    "Concurrency provided was " + concurrency.get());
 
-        int numThreads = Integer.parseInt(matcher.group(1));
-        int maxThreads = Integer.parseInt(matcher.group(2));
+            int numThreads = Integer.parseInt(matcher.group(1));
+            int maxThreads = Integer.parseInt(matcher.group(2));
 
-        return new ThreadPoolExecutor(
-            numThreads,
-            maxThreads,
-            DEFAULT_KEEP_ALIVE_TIME,
-            MILLISECONDS,
-            new LinkedBlockingQueue<>(numThreads),
-            Executors.defaultThreadFactory());
+            return new ThreadPoolExecutor(
+                numThreads,
+                maxThreads,
+                DEFAULT_KEEP_ALIVE_TIME,
+                MILLISECONDS,
+                new LinkedBlockingQueue<>(numThreads),
+                Executors.defaultThreadFactory());
+        }
+
+       return null;
     }
 
     @Override

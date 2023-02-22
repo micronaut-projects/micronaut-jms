@@ -129,24 +129,24 @@ public class JMSListener {
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
      */
     public void start() throws JMSException {
-        MessageConsumer consumer;
+        MessageConsumer messageConsumer;
         if (messageSelector.isPresent()) {
-            consumer = session.createConsumer(lookupDestination(destinationType, destination, session), messageSelector.get());
+            messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session), messageSelector.get());
         } else {
-            consumer = session.createConsumer(lookupDestination(destinationType, destination, session));
+            messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session));
         }
 
         if (executor == null) {
-            consumer.setMessageListener((msg) -> {
+            messageConsumer.setMessageListener((msg) -> {
                 handleMessage(msg);
             });
         } else {
-            consumer.setMessageListener((msg) -> executor.submit(() -> {
+            messageConsumer.setMessageListener((msg) -> executor.submit(() -> {
                 handleMessage(msg);
             }));
         }
 
-        this.consumer = consumer;
+        this.consumer = messageConsumer;
     }
 
     private void handleMessage(Message msg) {
@@ -164,7 +164,7 @@ public class JMSListener {
             if (ex.getSuppressed().length > 0) {
                 errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             errorHandlers.forEach(handler -> handler.handle(session, msg, e));
         }
     }

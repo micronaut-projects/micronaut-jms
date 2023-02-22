@@ -147,7 +147,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
                         Arrays.stream(beanDefinition.classValues(JMSListener.class, "errorHandlers")))
                 .filter(JMSListenerErrorHandler.class::isAssignableFrom)
-                .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
+                .map(handlerClass -> (Class<? extends JMSListenerErrorHandler>) handlerClass)
                 .map(beanContext::findBean)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -157,7 +157,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                         Arrays.stream(destinationAnnotation.classValues("successHandlers")),
                         Arrays.stream(beanDefinition.classValues(JMSListener.class, "successHandlers")))
                 .filter(JMSListenerSuccessHandler.class::isAssignableFrom)
-                .map(clazz -> (Class<? extends JMSListenerSuccessHandler>) clazz)
+                .map(handlerClass -> (Class<? extends JMSListenerSuccessHandler>) handlerClass)
                 .map(beanContext::findBean)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
