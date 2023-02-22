@@ -22,8 +22,6 @@ import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.model.JMSDestinationType;
 import jakarta.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +39,6 @@ import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
 @Singleton
 public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodProcessor<Topic> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JMSTopicListenerMethodProcessor.class);
-
     public JMSTopicListenerMethodProcessor(BeanContext beanContext,
                                            JMSArgumentBinderRegistry registry) {
         super(beanContext, registry, Topic.class);
@@ -58,7 +54,7 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
 
         if (!executorName.get().isEmpty()) {
 
-            LOGGER.warn("The deprecated 'executor' option of 'io.micronaut.jms.annotations.Topic' annotation is being used. Note that It will be removed soon.");
+            logger.warn("The deprecated 'executor' option of 'io.micronaut.jms.annotations.Topic' annotation is being used. Note that It will be removed soon.");
 
             return beanContext.findBean(ExecutorService.class, Qualifiers.byName(executorName.get()))
                 .orElseThrow(() -> new IllegalStateException(
