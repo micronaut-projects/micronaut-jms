@@ -88,7 +88,10 @@ loadScripts(document, 'script');</script>
   are called sequentially. If a handler throws an error then it is caught and once all handlers have completed, those errors
   are rethrown
  If any error is thrown during message handling (either by the listener itself, or by a success handler), then all the
-  <a href="JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener"><code>JMSListenerErrorHandler</code></a>s are called sequentially. Error handlers cannot themselves throw errors.</div>
+ <a href="JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener"><code>JMSListenerErrorHandler</code></a>s are called sequentially.
+
+ Note: To handle the special cases (e.g.the negative acknowledger feature in the AWS SQS base implementation), an error handler could throw an error to expose it to the base implementation.
+ However, it must be ensured that the error handler executes after all other error handlers.</div>
 <dl class="notes">
 <dt>Since:</dt>
 <dd>2.1.1</dd>

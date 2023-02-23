@@ -137,9 +137,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#executor()" class="member-name-link">executor</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">The name of an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link"><code>ExecutorService</code></a> in the bean
- context to execute tasks on when receiving a <code>Message</code>
- as part of a <a href="JMSListener.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSListener</code></a>.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.</div>
+</div>
 </div>
 <div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#messageSelector()" class="member-name-link">messageSelector</a></code></div>
@@ -196,7 +196,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executor()">
 <h3>executor</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">executor</span></div>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">executor</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.</div>
+</div>
 <div class="block">The name of an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link"><code>ExecutorService</code></a> in the bean
  context to execute tasks on when receiving a <code>Message</code>
  as part of a <a href="JMSListener.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSListener</code></a>. The executor can be maintained by
