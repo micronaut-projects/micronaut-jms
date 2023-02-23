@@ -48,8 +48,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
-
 /**
  * Abstract {@link ExecutableMethodProcessor} for annotations related to
  * {@link JMSListener}. Registers a {@link io.micronaut.jms.listener.JMSListener}
@@ -113,8 +111,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     private MessageListener generateAndBindListener(Object bean,
-                                                    Executable<?, ?> method,
-                                                    boolean acknowledge) {
+                                                    Executable<?, ?> method) {
 
         return message -> {
             DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
@@ -144,13 +141,13 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method, CLIENT_ACKNOWLEDGE == acknowledgeMode);
+        MessageListener listener = generateAndBindListener(bean, method);
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
                         Arrays.stream(beanDefinition.classValues(JMSListener.class, "errorHandlers")))
                 .filter(JMSListenerErrorHandler.class::isAssignableFrom)
-                .map(clazz -> (Class<? extends JMSListenerErrorHandler>) clazz)
+                .map(handlerClass -> (Class<? extends JMSListenerErrorHandler>) handlerClass)
                 .map(beanContext::findBean)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -160,7 +157,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                         Arrays.stream(destinationAnnotation.classValues("successHandlers")),
                         Arrays.stream(beanDefinition.classValues(JMSListener.class, "successHandlers")))
                 .filter(JMSListenerSuccessHandler.class::isAssignableFrom)
-                .map(clazz -> (Class<? extends JMSListenerSuccessHandler>) clazz)
+                .map(handlerClass -> (Class<? extends JMSListenerSuccessHandler>) handlerClass)
                 .map(beanContext::findBean)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

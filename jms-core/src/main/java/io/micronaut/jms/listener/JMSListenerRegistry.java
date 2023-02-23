@@ -64,7 +64,6 @@ public class JMSListenerRegistry {
      * @throws JMSException - if the listener fails to start
      */
     public void register(JMSListener listener, boolean autoStart) throws JMSException {
-        listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         if (autoStart) {
             listener.start();
         }
