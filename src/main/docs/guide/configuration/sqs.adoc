@@ -14,33 +14,6 @@ and the following to your `build.gradle` or `pom.xml`
 
 dependency:io.micronaut.jms:micronaut-jms-sqs[]
 
-Additionally you'll need to configure an instance of `software.amazon.awssdk.services.sqs.SqsClient` as a bean for AWS authentication, for example:
-
-[source,java]
-----
-import io.micronaut.aws.sdk.v2.EnvironmentAWSCredentialsProvider;
-import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.env.Environment;
-import software.amazon.awssdk.services.sqs.SqsClient;
-import software.amazon.awssdk.services.sqs.SqsClientBuilder;
-
-import javax.inject.Singleton;
-
-import static software.amazon.awssdk.regions.Region.US_EAST_2;
-
-@Factory
-public class SqsClientFactory {
-
-    @Singleton
-    SqsClient sqsClient(Environment environment) {
-        return SqsClient
-            .builder()
-            .region(US_EAST_2)
-            .credentialsProvider(new EnvironmentAWSCredentialsProvider(environment))
-            .build();
-    }
-}
-----
 
 See the link:https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html[Micronaut AWS] docs for more information.
 
