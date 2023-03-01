@@ -24,13 +24,21 @@ public class SqsClientBuilderCreatedEventListener implements BeanCreatedEventLis
     @Value("${sqs-url:eu-central-1}")
     public String sqsUrl = "eu-central-1";
 
+    @Inject
+    @Value("${aws.accessKeyId:foo}")
+    public String accessKeyId = "foo";
+
+    @Inject
+    @Value("${aws.secretAccessKey:bar}")
+    public String secretAccessKey = "bar";
+
     @Override
     public SqsClientBuilder onCreated(BeanCreatedEvent<SqsClientBuilder> event) {
         SqsClientBuilder builder = event.getBean();
         builder.region(Region.of(sqsRegion));
         builder.credentialsProvider(
             StaticCredentialsProvider.create(
-                AwsBasicCredentials.create("foo", "bar")
+                AwsBasicCredentials.create(accessKeyId, secretAccessKey)
             )
         );
         try {
