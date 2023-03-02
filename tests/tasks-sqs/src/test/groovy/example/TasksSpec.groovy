@@ -5,22 +5,20 @@ import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import io.micronaut.test.support.TestPropertyProvider
 import jakarta.inject.Inject
-import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.utility.DockerImageName
 import spock.lang.AutoCleanup
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SQS
+import static example.LocalStackContainer.Service.SQS
 
 @MicronautTest
 class TasksSpec extends Specification implements TestPropertyProvider {
 
     @Shared
     @AutoCleanup
-    LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack'), false)
-            .withServices(SQS)
+    LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
 
     @Inject
     @Client('/')
