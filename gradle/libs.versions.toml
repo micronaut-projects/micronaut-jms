@@ -22,10 +22,11 @@ testcontainers = '1.17.6'
 lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.13.1'
+micronaut-validation = "4.0.0-SNAPSHOT"
 micronaut-gradle-plugin = "3.6.6"
 
 [libraries]
-
+micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
