@@ -3,6 +3,9 @@ plugins {
 }
 
 dependencies {
+    annotationProcessor(mnValidation.micronaut.validation.processor)
+    implementation(mnValidation.micronaut.validation)
+
     api projects.jmsCore
     api (libs.artemis.client) {
         exclude group: 'commons-logging', module: 'commons-logging'

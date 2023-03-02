@@ -3,9 +3,13 @@ plugins {
 }
 
 dependencies {
+    annotationProcessor(mnValidation.micronaut.validation.processor)
+    implementation(mnValidation.micronaut.validation)
+
     api mn.micronaut.messaging
     api libs.jms.api
     api libs.commons.pool2
+
 
     implementation mn.micronaut.jackson.databind
 }

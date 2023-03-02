@@ -27,4 +27,5 @@ enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 micronautBuild {
     addSnapshotRepository()
     importMicronautCatalog()
+    importMicronautCatalog("micronaut-validation")
 }
