@@ -556,39 +556,10 @@ class TextConsumer {
 </div></p>
 </div>
 <div class="paragraph">
-<p>Additionally you&#8217;ll need to configure an instance of <code>com.amazonaws.services.sqs.AmazonSQS</code> as a bean for AWS authentication, for example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import io.micronaut.aws.sdk.v1.EnvironmentAWSCredentialsProvider;
-import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.env.Environment;
-
-import javax.inject.Singleton;
-
-import static com.amazonaws.regions.Regions.US_EAST_2;
-
-@Factory
-public class SqsClientFactory {
-
-    @Singleton
-    AmazonSQS sqsClient(Environment environment) {
-        return AmazonSQSClientBuilder
-            .standard()
-            .withRegion(US_EAST_2)
-            .withCredentials(new EnvironmentAWSCredentialsProvider(environment))
-            .build();
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
 <p>See the <a href="https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html">Micronaut AWS</a> docs for more information.</p>
 </div>
 <div class="paragraph">
-<p>Note that it&#8217;s not necessary to add a dependency on <code>io.micronaut.aws:micronaut-aws-sdk-v1</code> as it&#8217;s already a transitive dependency of <code>io.micronaut.jms:micronaut-jms-sqs</code>.</p>
+<p>Note that it&#8217;s not necessary to add a dependency on <code>io.micronaut.aws:micronaut-aws-sdk-v2</code> as it&#8217;s already a transitive dependency of <code>io.micronaut.jms:micronaut-jms-sqs</code>.</p>
 </div>
 <div class="paragraph">
 <p>The JMS <a href="https://docs.oracle.com/javaee/7/api/javax/jms/ConnectionFactory.html">ConnectionFactory</a> will be an instance of <code>com.amazon.sqs.javamessaging.SQSConnectionFactory</code>; you can customize that with a <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/event/BeanCreatedEventListener.html">BeanCreatedEventListener</a>.</p>

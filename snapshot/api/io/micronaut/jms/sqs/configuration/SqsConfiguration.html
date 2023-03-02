@@ -134,9 +134,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>javax.jms.ConnectionFactory</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,com.amazonaws.services.sqs.AmazonSQS)" class="member-name-link">sqsJmsConnectionFactory</a><wbr>(<a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties">SqsConfigurationProperties</a>&nbsp;config,
- com.amazonaws.services.sqs.AmazonSQS&nbsp;sqs)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,software.amazon.awssdk.services.sqs.SqsClient)" class="member-name-link">sqsJmsConnectionFactory</a><wbr>(<a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties">SqsConfigurationProperties</a>&nbsp;config,
+ software.amazon.awssdk.services.sqs.SqsClient&nbsp;sqs)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Generates a <a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> bean in the application context.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>javax.jms.ConnectionFactory</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,software.amazon.awssdk.services.sqs.SqsClientBuilder)" class="member-name-link">sqsJmsConnectionFactory</a><wbr>(<a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties">SqsConfigurationProperties</a>&nbsp;config,
+ software.amazon.awssdk.services.sqs.SqsClientBuilder&nbsp;builder)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Generates a <a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> bean in the application context.</div>
 </div>
 </div>
@@ -194,11 +200,11 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,com.amazonaws.services.sqs.AmazonSQS)">
+<section class="detail" id="sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,software.amazon.awssdk.services.sqs.SqsClient)">
 <h3>sqsJmsConnectionFactory</h3>
 <div class="member-signature"><span class="annotations"><a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations">@JMSConnectionFactory</a>("sqsJmsConnectionFactory")
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">javax.jms.ConnectionFactory</span>&nbsp;<span class="element-name">sqsJmsConnectionFactory</span><wbr><span class="parameters">(<a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties">SqsConfigurationProperties</a>&nbsp;config,
- com.amazonaws.services.sqs.AmazonSQS&nbsp;sqs)</span></div>
+ software.amazon.awssdk.services.sqs.SqsClient&nbsp;sqs)</span></div>
 <div class="block">Generates a <a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> bean in the application context.
  <p>
  The bean is a <code>SQSConnectionFactory</code>
@@ -206,8 +212,27 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>config</code> - config settings for SQS</dd>
-<dd><code>sqs</code> - a configured AmazonSQS instance, typically built with
-               <code>AmazonSQSClientBuilder</code>.</dd>
+<dd><code>sqs</code> - a configured SqsClient instance, typically built with
+               <code>SqsClientBuilder</code>.</dd>
+<dt>Returns:</dt>
+<dd>the <code>SQSConnectionFactory</code> defined by the <code>config</code>.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="sqsJmsConnectionFactory(io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties,software.amazon.awssdk.services.sqs.SqsClientBuilder)">
+<h3>sqsJmsConnectionFactory</h3>
+<div class="member-signature"><span class="annotations"><a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations">@JMSConnectionFactory</a>("sqsJmsConnectionFactory")
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">javax.jms.ConnectionFactory</span>&nbsp;<span class="element-name">sqsJmsConnectionFactory</span><wbr><span class="parameters">(<a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties">SqsConfigurationProperties</a>&nbsp;config,
+ software.amazon.awssdk.services.sqs.SqsClientBuilder&nbsp;builder)</span></div>
+<div class="block">Generates a <a href="../../annotations/JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> bean in the application context.
+ <p>
+ The bean is a <code>SQSConnectionFactory</code>
+ configured with properties from <a href="properties/SqsConfigurationProperties.html" title="interface in io.micronaut.jms.sqs.configuration.properties"><code>SqsConfigurationProperties</code></a>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>config</code> - config settings for SQS</dd>
+<dd><code>builder</code> - a configured <code>SqsClientBuilder</code>.</dd>
 <dt>Returns:</dt>
 <dd>the <code>SQSConnectionFactory</code> defined by the <code>config</code>.</dd>
 </dl>
