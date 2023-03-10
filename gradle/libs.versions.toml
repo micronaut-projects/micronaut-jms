@@ -23,7 +23,7 @@ lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.13.1'
 micronaut-validation = "4.0.0-SNAPSHOT"
-micronaut-gradle-plugin = "3.6.6"
+micronaut-gradle-plugin = "3.7.5"
 
 [libraries]
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
