@@ -7,7 +7,7 @@ dependencies {
     annotationProcessor(mnValidation.micronaut.validation.processor)
     implementation(mnValidation.micronaut.validation)
 
-    api projects.jmsCore
+    api projects.micronautJmsCore
     api libs.amazon.sqs.messaging
     api libs.aws.sqs
     api libs.micronaut.aws.v2

@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation projects.jmsSqs
+    implementation projects.micronautJmsSqs
     testImplementation libs.testcontainers.localstack
     testCompileOnly libs.lombok
     testAnnotationProcessor libs.lombok
