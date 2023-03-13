@@ -10,12 +10,12 @@ awaitility = '4.2.0'
 aws-sqs = '2.19.26'
 commons-pool2 = '2.11.1'
 graal-svm = "22.0.0.2"
-groovy = "4.0.6"
+groovy = "4.0.10"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.6'
 jms-api = '2.0.1'
 jsr305 = "3.0.2"
-kotlin = '1.7.22'
+kotlin = '1.8.10'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.1"
 testcontainers = '1.17.6'
@@ -23,7 +23,7 @@ lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.13.1'
 micronaut-validation = "4.0.0-SNAPSHOT"
-micronaut-gradle-plugin = "3.6.6"
+micronaut-gradle-plugin = "4.0.0-SNAPSHOT"
 
 [libraries]
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }

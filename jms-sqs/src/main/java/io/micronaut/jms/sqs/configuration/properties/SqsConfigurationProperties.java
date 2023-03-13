@@ -20,8 +20,8 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.bind.annotation.Bindable;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import static com.amazon.sqs.javamessaging.SQSMessagingClientConstants.MIN_PREFETCH;
 import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties.PREFIX;

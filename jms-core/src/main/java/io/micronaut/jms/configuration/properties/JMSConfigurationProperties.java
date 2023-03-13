@@ -18,8 +18,8 @@ package io.micronaut.jms.configuration.properties;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.core.bind.annotation.Bindable;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import static io.micronaut.jms.configuration.properties.JMSConfigurationProperties.PREFIX;
 

@@ -20,7 +20,7 @@ import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import static io.micronaut.jms.activemq.artemis.configuration.properties.ActiveMqArtemisConfigurationProperties.PREFIX;
 
