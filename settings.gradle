@@ -11,6 +11,7 @@ plugins {
 
 rootProject.name = 'jms-parent'
 
+include 'jms-bom'
 include 'jms-core'
 include 'jms-activemq-classic'
 include 'jms-activemq-artemis'

@@ -1,0 +1,12 @@
+plugins {
+    id("io.micronaut.build.internal.bom")
+}
+
+micronautBuild {
+    binaryCompatibility {
+        enabled = providers.provider {
+            def (major, minor, _) = project.version.split("\\.")
+            major.toInteger() >= 3 && minor.toInteger() > 0
+        }
+    }
+}
