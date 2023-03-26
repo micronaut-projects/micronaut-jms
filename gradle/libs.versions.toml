@@ -1,6 +1,6 @@
 [versions]
 micronaut-docs = "2.0.0"
-micronaut = "4.0.0-SNAPSHOT"
+micronaut = "4.0.0-M1"
 micronaut-test = "4.0.0-SNAPSHOT"
 
 activemq = '5.17.3'
@@ -22,7 +22,7 @@ testcontainers = '1.17.6'
 lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.13.1'
-micronaut-validation = "4.0.0-SNAPSHOT"
+micronaut-validation = "4.0.0-M2"
 micronaut-gradle-plugin = "4.0.0-SNAPSHOT"
 
 [libraries]
