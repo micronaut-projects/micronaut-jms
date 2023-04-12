@@ -21,7 +21,7 @@ spotbugs = "4.7.1"
 testcontainers = '1.17.6'
 lombok = '1.18.26'
 
-micronaut-aws-v2 = '3.13.1'
+micronaut-aws-v2 = '3.17.0'
 micronaut-validation = "4.0.0-M2"
 micronaut-gradle-plugin = "4.0.0-SNAPSHOT"
 
