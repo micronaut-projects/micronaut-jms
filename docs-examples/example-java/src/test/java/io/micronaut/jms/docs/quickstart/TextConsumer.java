@@ -20,7 +20,7 @@ public class TextConsumer {
 
     List<String> messages = Collections.synchronizedList(new ArrayList<>());
 
-    @Queue(value = "queue_text", concurrency = "1-5") // <2>
+    @Queue(value = "queue_text") // <2>
     public void receive(@MessageBody String body) { // <3>
         messages.add(body);
     }

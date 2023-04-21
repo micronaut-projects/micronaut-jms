@@ -3,4 +3,11 @@ micronaut:
     activemq:
       classic:
         enabled: true
-
+        connection-string: "tcp://localhost:${activemq.port}"
+test-resources:
+  containers:
+    activemq:
+      startup-timeout: 600s
+      image-name: rmohr/activemq:5.15.9
+      exposed-ports:
+        - activemq.port: 61616

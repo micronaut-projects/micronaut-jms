@@ -1,25 +1,18 @@
 plugins {
     id 'groovy'
-    id 'io.micronaut.build.internal.jms-base'
-    id 'io.micronaut.application'
-}
-
-application {
-    mainClass = 'example.Application'
+    id 'io.micronaut.build.internal.jms-application'
+    id 'io.micronaut.test-resources'
 }
 
 micronaut {
-    version '4.0.0-SNAPSHOT'
-    runtime 'netty'
-    testRuntime 'spock'
+    testResources {
+        clientTimeout = 300
+    }
 }
-
-
 dependencies {
 
     testImplementation mnTest.micronaut.test.core
     testImplementation mn.micronaut.http.client
-    testImplementation libs.testcontainers.spock
 
     // without this :tests:tasks-activemq-artemis TasksSpec fails with ClassNotFoundException for javax.json.JsonValue
     runtimeOnly(libs.javax.json.api)

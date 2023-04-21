@@ -3,4 +3,16 @@ micronaut:
     activemq:
       artemis:
         enabled: true
-
+        connection-string: "tcp://localhost:${activemq.port}"
+        username: artemis
+        password: artemis
+test-resources:
+  containers:
+    activemq:
+      startup-timeout: 600s
+      image-name: makyo/activemq-artemis:latest
+      exposed-ports:
+        - activemq.port: 61616
+      env:
+        ARTEMIS_USERNAME: artemis
+        ARTEMIS_PASSWORD: artemis

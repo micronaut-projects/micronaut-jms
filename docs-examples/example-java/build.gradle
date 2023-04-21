@@ -1,7 +1,6 @@
 plugins {
     id 'io.micronaut.build.internal.jms-examples'
-    id 'io.micronaut.application'
-    id 'java'
+    id 'io.micronaut.build.internal.jms-native-tests'
 }
 
 dependencies {
@@ -9,7 +8,6 @@ dependencies {
 }
 
 micronaut {
-    version = '4.0.0-SNAPSHOT'
     testRuntime 'junit5'
 }
 

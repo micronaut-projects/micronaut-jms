@@ -19,7 +19,7 @@ import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.bind.ArgumentBinder;
 import io.micronaut.core.bind.ArgumentBinderRegistry;
-import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
+import io.micronaut.core.bind.annotation.AnnotatedArgumentBinder;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.core.order.OrderUtil;
 import io.micronaut.core.type.Argument;
@@ -49,7 +49,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final List<AbstractAnnotatedArgumentBinder<?, ?, Message>> binders = new LinkedList<>();
+    private final List<AnnotatedArgumentBinder<?, ?, ?>> binders = new LinkedList<>();
 
     public JMSArgumentBinderRegistry(ConversionService conversionService, Deserializer deserializer) {
         registerArgumentBinder(new DefaultBodyArgumentBinder(conversionService, deserializer));
@@ -64,7 +64,7 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      *
      * @param binder the binder
      */
-    public void registerArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
+    public void registerArgumentBinder(AnnotatedArgumentBinder<?, ?, ?> binder) {
         binders.add(binder);
         binders.sort(OrderUtil.COMPARATOR);
         logger.debug("registered binder {}", binder);
@@ -75,17 +75,15 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      *
      * @param binder the binder to remove
      */
-    public void unregisterArgumentBinder(AbstractAnnotatedArgumentBinder<?, ?, Message> binder) {
+    public void unregisterArgumentBinder(AnnotatedArgumentBinder<?, ?, ?> binder) {
         binders.remove(binder);
         logger.debug("unregistered binder {}", binder);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument,
-                                                                       Message source) {
+    public <T> Optional<ArgumentBinder<T, Message>> findArgumentBinder(Argument<T> argument) {
         AnnotationMetadata annotationMetadata = argument.getAnnotationMetadata();
-        for (AbstractAnnotatedArgumentBinder<?, ?, Message> binder: binders) {
+        for (AnnotatedArgumentBinder<?, ?, ?> binder: binders) {
             if (annotationMetadata.hasAnnotation(binder.getAnnotationType())) {
                 return (Optional) Optional.of(binder);
             }
