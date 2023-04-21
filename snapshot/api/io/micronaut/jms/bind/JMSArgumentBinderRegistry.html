@@ -130,11 +130,10 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;io.micronaut.core.bind.ArgumentBinder&lt;T,<wbr>javax.jms.Message&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findArgumentBinder(io.micronaut.core.type.Argument,javax.jms.Message)" class="member-name-link">findArgumentBinder</a><wbr>(io.micronaut.core.type.Argument&lt;T&gt;&nbsp;argument,
- javax.jms.Message&nbsp;source)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findArgumentBinder(io.micronaut.core.type.Argument)" class="member-name-link">findArgumentBinder</a><wbr>(io.micronaut.core.type.Argument&lt;T&gt;&nbsp;argument)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#registerArgumentBinder(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder)" class="member-name-link">registerArgumentBinder</a><wbr>(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>javax.jms.Message&gt;&nbsp;binder)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#registerArgumentBinder(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder)" class="member-name-link">registerArgumentBinder</a><wbr>(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>?&gt;&nbsp;binder)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Registers an <code>ArgumentBinder</code>.</div>
 </div>
@@ -142,7 +141,7 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unregisterArgumentBinder(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder)" class="member-name-link">unregisterArgumentBinder</a><wbr>(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>javax.jms.Message&gt;&nbsp;binder)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#unregisterArgumentBinder(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder)" class="member-name-link">unregisterArgumentBinder</a><wbr>(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>?&gt;&nbsp;binder)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Remove a registered binder.</div>
 </div>
@@ -154,7 +153,7 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-io.micronaut.core.bind.ArgumentBinderRegistry">Methods inherited from interface&nbsp;io.micronaut.core.bind.ArgumentBinderRegistry</h3>
-<code>addRequestArgumentBinder</code></div>
+<code>addArgumentBinder, addRequestArgumentBinder, findArgumentBinder</code></div>
 </section>
 </li>
 </ul>
@@ -182,9 +181,9 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="registerArgumentBinder(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder)">
+<section class="detail" id="registerArgumentBinder(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder)">
 <h3>registerArgumentBinder</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>javax.jms.Message&gt;&nbsp;binder)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>?&gt;&nbsp;binder)</span></div>
 <div class="block">Registers an <code>ArgumentBinder</code>. Implement <code>Ordered</code>
  to override the default binder for the parameter annotation type.</div>
 <dl class="notes">
@@ -194,9 +193,9 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 </section>
 </li>
 <li>
-<section class="detail" id="unregisterArgumentBinder(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder)">
+<section class="detail" id="unregisterArgumentBinder(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder)">
 <h3>unregisterArgumentBinder</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">unregisterArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>javax.jms.Message&gt;&nbsp;binder)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">unregisterArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.bind.annotation.AnnotatedArgumentBinder&lt;?,<wbr>?,<wbr>?&gt;&nbsp;binder)</span></div>
 <div class="block">Remove a registered binder. Primarily for testing.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -205,11 +204,10 @@ implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt
 </section>
 </li>
 <li>
-<section class="detail" id="findArgumentBinder(io.micronaut.core.type.Argument,javax.jms.Message)">
+<section class="detail" id="findArgumentBinder(io.micronaut.core.type.Argument)">
 <h3>findArgumentBinder</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>
-<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;io.micronaut.core.bind.ArgumentBinder&lt;T,<wbr>javax.jms.Message&gt;&gt;</span>&nbsp;<span class="element-name">findArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.type.Argument&lt;T&gt;&nbsp;argument,
- javax.jms.Message&nbsp;source)</span></div>
+<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;io.micronaut.core.bind.ArgumentBinder&lt;T,<wbr>javax.jms.Message&gt;&gt;</span>&nbsp;<span class="element-name">findArgumentBinder</span><wbr><span class="parameters">(io.micronaut.core.type.Argument&lt;T&gt;&nbsp;argument)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>findArgumentBinder</code>&nbsp;in interface&nbsp;<code>io.micronaut.core.bind.ArgumentBinderRegistry&lt;javax.jms.Message&gt;</code></dd>
