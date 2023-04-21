@@ -39,7 +39,7 @@ public class MapConsumer {
     List<Map<String, Object>> messageHeaders = Collections.synchronizedList(new ArrayList<>());
     List<javax.jms.Message> messages = Collections.synchronizedList(new ArrayList<>());
 
-    @Queue(value = "queue_map", concurrency = "1-5")
+    @Queue(value = "queue_map")
     public void receive(@MessageBody Map<String, Serializable> body,
                         @Message javax.jms.Message message,
                         @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,

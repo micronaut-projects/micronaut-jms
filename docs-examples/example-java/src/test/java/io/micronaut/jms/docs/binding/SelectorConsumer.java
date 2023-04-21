@@ -25,12 +25,12 @@ public class SelectorConsumer {
 
     List<String> messageBodiesTopic = Collections.synchronizedList(new ArrayList<>());
 
-    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=true")
+    @Queue(value = "selector_queue", messageSelector = "CustomBooleanHeader=true")
     public void receive(@MessageBody String body) {
         messageBodiesTrue.add(body);
     }
 
-    @Queue(value = "selector_queue", concurrency = "1-5", messageSelector = "CustomBooleanHeader=false")
+    @Queue(value = "selector_queue", messageSelector = "CustomBooleanHeader=false")
     public void receive2(@MessageBody String body) {
         messageBodiesFalse.add(body);
     }

@@ -17,7 +17,7 @@ public class TasksListener {
 
     public static final AtomicInteger TASKS_PROCESSED = new AtomicInteger();
 
-    @Queue(value = TaskConstants.FIFO_QUEUE, concurrency = "1-1")
+    @Queue(value = TaskConstants.FIFO_QUEUE)
     public void receive(@MessageBody Task task) {
         LOGGER.info("Received task with id: " + task.getId());
         TASKS_PROCESSED.incrementAndGet();

@@ -28,7 +28,7 @@ class SuccessHandlingConsumer {
 
     Collection<String> messages = Collections.synchronizedSet(new HashSet<>());
 
-    @Queue(value = "success-queue", concurrency = "1-1", successHandlers = {CountingSuccessHandler.class})  // <2>
+    @Queue(value = "success-queue", successHandlers = {CountingSuccessHandler.class})  // <2>
     void receive(@MessageBody String message) throws JMSException {
         messages.add(message);
     }

@@ -1,3 +1,4 @@
+rootProject.name = 'jms-parent'
 dependencyResolutionManagement {
     versionCatalogs {
         libs {

@@ -15,7 +15,8 @@
  */
 package io.micronaut.jms.bind;
 
-import io.micronaut.core.bind.annotation.AbstractAnnotatedArgumentBinder;
+import io.micronaut.core.bind.annotation.AbstractArgumentBinder;
+import io.micronaut.core.bind.annotation.AnnotatedArgumentBinder;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.core.order.Ordered;
 
@@ -30,8 +31,8 @@ import java.lang.annotation.Annotation;
  * @since 1.0.0
  */
 public abstract class AbstractJmsArgumentBinder<A extends Annotation>
-    extends AbstractAnnotatedArgumentBinder<A, Object, Message>
-    implements Ordered {
+    extends AbstractArgumentBinder<Object>
+    implements Ordered, AnnotatedArgumentBinder<A, Object, Message> {
 
     /**
      * Constructor.

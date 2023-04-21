@@ -1,8 +1,9 @@
 [versions]
 micronaut-docs = "2.0.0"
-micronaut = "4.0.0-M1"
-micronaut-test = "4.0.0-SNAPSHOT"
 
+micronaut = "4.0.0-M2"
+micronaut-test = "4.0.0-M1"
+micronaut-platform = "4.0.0-M1"
 activemq = '5.18.1'
 amazon-sqs-messaging = '2.0.3'
 artemis-client = '2.28.0'
@@ -15,15 +16,15 @@ json-api = '1.1.4'
 jcl-slf4j = '2.0.6'
 jms-api = '2.0.1'
 jsr305 = "3.0.2"
-kotlin = '1.8.10'
+kotlin = '1.8.20'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.1"
-testcontainers = '1.17.6'
+testcontainers = '1.18.0'
 lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.13.1'
 micronaut-validation = "4.0.0-M2"
-micronaut-gradle-plugin = "4.0.0-SNAPSHOT"
+micronaut-gradle-plugin = "4.0.0-M1"
 
 [libraries]
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }

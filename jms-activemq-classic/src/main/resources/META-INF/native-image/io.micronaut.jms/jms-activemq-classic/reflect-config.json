@@ -39,5 +39,32 @@
         "parameterTypes": []
       }
     ]
+  },
+  {
+    "name": "org.apache.activemq.transport.vm.VMTransportFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.broker.DefaultBrokerFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.broker.BrokerService",
+    "queryAllPublicMethods": true,
+    "allPublicMethods": true
   }
 ]
