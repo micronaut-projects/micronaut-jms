@@ -1,0 +1,25 @@
+plugins {
+    id 'io.micronaut.build.internal.jms-base'
+    id 'io.micronaut.application'
+}
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute module('io.micronaut.jms:micronaut-jms-core') using project(':micronaut-jms-core')
+        substitute module('io.micronaut.jms:micronaut-jms-activemq-classic') using project(':micronaut-jms-activemq-classic')
+        substitute module('io.micronaut.jms:micronaut-jms-activemq-artemis') using project(':micronaut-jms-activemq-artemis')
+        substitute module('io.micronaut.jms:micronaut-jms-sqs') using project(':micronaut-jms-sqs')
+    }
+}
+micronaut {
+    version libs.versions.micronaut.platform.get()
+    runtime "netty"
+}
+
+application {
+    mainClass = 'example.Application'
+}
+
+dependencies {
+    runtimeOnly(mn.snakeyaml)
+    testImplementation(mn.logback.classic)
+}

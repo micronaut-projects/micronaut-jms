@@ -6,6 +6,15 @@
       },
       {
         "pattern": "META-INF/services/org/apache/activemq/wireformat/default"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/org/apache/activemq/broker/broker\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF/services/org/apache/activemq/transport/vm\\E"
+      },
+      {
+        "pattern": "\\Qorg/apache/activemq/version.txt\\E"
       }
     ]
   }

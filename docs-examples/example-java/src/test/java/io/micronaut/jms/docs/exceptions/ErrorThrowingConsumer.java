@@ -25,7 +25,7 @@ class ErrorThrowingConsumer {
 
     Collection<String> messages = Collections.synchronizedSet(new HashSet<>());
 
-    @Queue(value = "error-queue", concurrency = "1-1", errorHandlers = {CountingErrorHandler.class}) // <2>
+    @Queue(value = "error-queue", errorHandlers = {CountingErrorHandler.class}) // <2>
     void receive(@MessageBody String message) {
         if ("throw an error".equalsIgnoreCase(message)) {
             throw new RuntimeException("this is an error"); // <3>
