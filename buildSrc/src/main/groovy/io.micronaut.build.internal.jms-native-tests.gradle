@@ -1,12 +1,13 @@
 plugins {
     id 'io.micronaut.build.internal.jms-application'
+    id 'org.graalvm.buildtools.native'
 }
 
-tasks.named("check") { task ->
-    def graal = ["jvmci.Compiler", "java.vendor.version", "java.vendor"].any {
-        System.getProperty(it)?.toLowerCase(Locale.ENGLISH)?.contains("graal")
+graalvmNative {
+    binaries.configureEach {
+        buildArgs.add '-J--add-exports=java.management/sun.management=ALL-UNNAMED' // https://github.com/oracle/graal/issues/3875
     }
-    if (graal) {
-        task.dependsOn("nativeTest")
+    metadataRepository {
+        enabled = true
     }
 }
