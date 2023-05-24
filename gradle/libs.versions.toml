@@ -1,8 +1,8 @@
 [versions]
 micronaut-docs = "2.0.0"
 
-micronaut = "4.0.0-M2"
-micronaut-test = "4.0.0-M1"
+micronaut = "4.0.0-M5"
+micronaut-test = "4.0.0-M4"
 micronaut-platform = "4.0.0-M1"
 activemq = '5.18.1'
 amazon-sqs-messaging = '2.0.3'
@@ -23,8 +23,8 @@ testcontainers = '1.18.1'
 lombok = '1.18.26'
 
 micronaut-aws-v2 = '3.17.2'
-micronaut-validation = "4.0.0-M4"
-micronaut-gradle-plugin = "4.0.0-M1"
+micronaut-validation = "4.0.0-M7"
+micronaut-gradle-plugin = "4.0.0-M4"
 
 micronaut-logging = "1.0.0-M2"
 [libraries]
