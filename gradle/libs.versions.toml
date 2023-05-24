@@ -27,6 +27,9 @@ micronaut-validation = "4.0.0-M4"
 micronaut-gradle-plugin = "4.0.0-M1"
 
 [libraries]
+# Core
+micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
+
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
