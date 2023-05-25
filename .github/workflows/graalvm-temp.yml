@@ -30,4 +30,14 @@ jobs:
         id: set-native-test-matrix
         shell: bash
         run: |
-          ./gradlew tasks --no-daemon --all | grep -w "nativeTest"
+          nativeTestTasks=$(./gradlew tasks --no-daemon --all | grep -w "nativeTest" | sed 's/\(.*\) - Executes the test native binary/\"\1\"/' | tr '\n' ',' | sed 's/.$//')
+          echo "matrix={\"native_test_task\":[$(echo $nativeTestTasks)]}" >> $GITHUB_OUTPUT
+
+  run_native_tests:
+    if: github.repository != 'micronaut-projects/micronaut-project-template'
+    needs: native_test_matrix_prep
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.native_test_matrix_prep.outputs.matrix)}}
+    steps:
+      - run: echo "Hello ${{ matrix.native_test_task }}"
