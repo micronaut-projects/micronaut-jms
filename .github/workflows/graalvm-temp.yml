@@ -17,5 +17,4 @@ jobs:
       - name: "Set native test matrix"
         id: set-native-test-matrix
         run: |
-          nativeTestTasks=$(./gradlew tasks --no-daemon --all | grep -w "nativeTest" | sed 's/\(.*\) - Executes the test native binary/\"\1\"/' | tr '\n' ',' | sed 's/.$//')
-          echo "matrix={\"native_test_task\":[$(echo $nativeTestTasks)]}"
+          ./gradlew tasks --no-daemon --all | grep -w "nativeTest" | sed 's/\(.*\) - Executes the test native binary/\"\1\"/' | tr '\n' ',' | sed 's/.$//'
