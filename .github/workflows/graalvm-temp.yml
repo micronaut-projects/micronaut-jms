@@ -24,4 +24,4 @@ jobs:
         id: set-native-test-matrix
         shell: bash
         run: |
-          ./gradlew tasks --no-daemon --all
+          ./gradlew tasks --no-daemon --all | grep -w "nativeTest"
