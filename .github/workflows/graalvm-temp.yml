@@ -23,7 +23,7 @@ jobs:
           java: '17'
   build:
     needs: build_matrix
-    if: ${{ github.repository != 'micronaut-projects/micronaut-project-template' && needs.build_matrix.outputs.matrix.native_test_task }}
+    if: ${{ needs.build_matrix.outputs.matrix.native_test_task }}
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 6
