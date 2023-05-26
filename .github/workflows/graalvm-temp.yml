@@ -22,11 +22,12 @@ jobs:
           graalvm: 'latest'
           java: '17'
   build:
-    if: github.repository != 'micronaut-projects/micronaut-project-template'
-    runs-on: ubuntu-latest
     needs: build_matrix
+    if: ${{ github.repository != 'micronaut-projects/micronaut-project-template' && needs.build_matrix.outputs.matrix.native_test_task }}
+    runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJson(needs.build_matrix.outputs.matrix)}}
+      max-parallel: 6
+      matrix: ${{ fromJson(needs.build_matrix.outputs.matrix) }}
     env:
       GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
       GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USERNAME }}
