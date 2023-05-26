@@ -32,4 +32,23 @@ jobs:
       GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USERNAME }}
       GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
     steps:
-      - run: echo "Task-${{ matrix.native_test_task }}, java-${{ matrix.java }}, graalvm-${{ matrix.graalvm }}"
+      - uses: actions/checkout@v3
+      - name: Pre-Build Steps
+        uses: micronaut-projects/github-actions/graalvm/pre-build@master
+        id: pre-build
+        with:
+          graalvm: ${{ matrix.graalvm }}
+          java: ${{ matrix.java }}
+      - name: Build Steps
+        uses: micronaut-projects/github-actions/graalvm/build@parallel-native-tests
+        id: build
+        env:
+          GH_TOKEN_PUBLIC_REPOS_READONLY: ${{ secrets.GH_TOKEN_PUBLIC_REPOS_READONLY }}
+          GH_USERNAME: ${{ secrets.GH_USERNAME }}
+        with:
+          nativeTestTask: ${{ matrix.native_test_task }}
+      - name: Post-Build Steps
+        uses: micronaut-projects/github-actions/graalvm/post-build@master
+        id: post-build
+        with:
+          java: ${{ matrix.java }}
