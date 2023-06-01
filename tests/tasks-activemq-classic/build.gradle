@@ -7,6 +7,3 @@ dependencies {
     implementation projects.micronautJmsActivemqClassic
     testImplementation libs.awaitility
 }
-micronaut {
-    testRuntime "junit5"
-}

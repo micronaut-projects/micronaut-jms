@@ -5,13 +5,17 @@ plugins {
 }
 
 micronaut {
+    importMicronautPlatform = false
+    testRuntime "junit5"
     testResources {
         clientTimeout = 300
+        version = libs.versions.micronaut.testresources.get()
     }
 }
 dependencies {
+    implementation mnLogging.logback.classic
 
-    testImplementation mnTest.micronaut.test.core
+    testImplementation mnTest.micronaut.test.junit5
     testImplementation mn.micronaut.http.client
 
     // without this :tests:tasks-activemq-artemis TasksSpec fails with ClassNotFoundException for javax.json.JsonValue
