@@ -18,6 +18,7 @@ package io.micronaut.jms.sqs.configuration.properties;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.bind.annotation.Bindable;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import jakarta.validation.constraints.Min;
@@ -35,7 +36,7 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  * @since 1.0.0
  */
 @ConfigurationProperties(PREFIX)
-@Requires(property = PREFIX + ".enabled", value = "true")
+@Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 public interface SqsConfigurationProperties {
 
     /**
