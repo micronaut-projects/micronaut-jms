@@ -2,6 +2,7 @@ package example;
 
 import io.micronaut.context.event.BeanCreatedEvent;
 import io.micronaut.context.event.BeanCreatedEventListener;
+import io.micronaut.core.util.StringUtils;
 import jakarta.inject.Singleton;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
@@ -21,9 +22,9 @@ public class SqsClientCreatedEventListener implements BeanCreatedEventListener<S
                     .queueName(TaskConstants.FIFO_QUEUE)
                     .attributes(
                         Map.of(
-                            QueueAttributeName.FIFO_QUEUE, "true",
+                            QueueAttributeName.FIFO_QUEUE, StringUtils.TRUE,
                             // see https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/getting-started.html
-                            QueueAttributeName.CONTENT_BASED_DEDUPLICATION, "true"
+                            QueueAttributeName.CONTENT_BASED_DEDUPLICATION, StringUtils.TRUE
                         )
                     )
                     .build()

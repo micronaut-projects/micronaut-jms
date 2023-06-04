@@ -19,6 +19,7 @@ import com.amazon.sqs.javamessaging.ProviderConfiguration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
 import io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  * @since 1.0.0
  */
 @Factory
-@Requires(property = PREFIX + ".enabled", value = "true")
+@Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 public class SqsConfiguration {
 
     /**
