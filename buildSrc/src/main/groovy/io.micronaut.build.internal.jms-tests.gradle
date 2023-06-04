@@ -5,12 +5,15 @@ plugins {
 }
 
 micronaut {
+    importMicronautPlatform = false
     testResources {
         clientTimeout = 300
     }
 }
 dependencies {
-
+    micronautBoms(platform(mn.micronaut.core.bom))
+    micronautBoms(platform(mnLogging.micronaut.logging.bom))
+    micronautBoms(platform(mnTest.micronaut.test.bom))
     testImplementation mnTest.micronaut.test.core
     testImplementation mn.micronaut.http.client
 
