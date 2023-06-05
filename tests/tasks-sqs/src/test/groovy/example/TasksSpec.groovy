@@ -16,8 +16,13 @@ class TasksSpec extends Specification {
         when:
         LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
         localstack.start()
-        EmbeddedServer server = ApplicationContext.run(['sqs-url': localstack.getEndpointOverride(SQS).toString(),
-         'sqs-region': localstack.region])
+        EmbeddedServer server = ApplicationContext.run(
+                EmbeddedServer,
+                [
+                        'sqs-url'   : localstack.getEndpointOverride(SQS).toString(),
+                        'sqs-region': localstack.region,
+                ]
+        )
         HttpClient httpClient = server.applicationContext.createBean(HttpClient, server.URL)
         BlockingHttpClient client = httpClient.toBlocking()
 
