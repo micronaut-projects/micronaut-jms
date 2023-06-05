@@ -4,9 +4,6 @@ plugins {
 }
 
 graalvmNative {
-    binaries.configureEach {
-        buildArgs.add '-J--add-exports=java.management/sun.management=ALL-UNNAMED' // https://github.com/oracle/graal/issues/3875
-    }
     metadataRepository {
         enabled = true
     }

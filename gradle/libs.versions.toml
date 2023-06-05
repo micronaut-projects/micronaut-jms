@@ -3,6 +3,7 @@ micronaut-docs = "2.0.0"
 
 micronaut = "4.0.0-M6"
 micronaut-test = "4.0.0-M6"
+micronaut-testresources = "2.0.0-M9"
 micronaut-platform = "4.0.0-M2"
 activemq = '5.18.1'
 amazon-sqs-messaging = '2.0.3'
@@ -20,7 +21,6 @@ kotlin = '1.8.21'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.3"
 testcontainers = '1.18.1'
-lombok = '1.18.28'
 
 micronaut-aws-v2 = '4.0.0-M6'
 micronaut-validation = "4.0.0-M9"
@@ -47,8 +47,6 @@ spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = 
 testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
 testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
-
-lombok = { module = 'org.projectlombok:lombok', version.ref = 'lombok' }
 
 #plugins
 

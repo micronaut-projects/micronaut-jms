@@ -6,8 +6,10 @@ plugins {
 
 micronaut {
     importMicronautPlatform = false
+    testRuntime "junit5"
     testResources {
         clientTimeout = 300
+        version = libs.versions.micronaut.testresources.get()
     }
 }
 dependencies {
