@@ -1,6 +1,7 @@
 package example;
 
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Replaces;
 import jakarta.inject.Singleton;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -12,6 +13,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Factory
+@Replaces(factory = io.micronaut.aws.sdk.v2.service.sqs.SqsClientFactory.class)
 public class SqsClientFactory {
 
     @Singleton
