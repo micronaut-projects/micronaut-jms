@@ -12,6 +12,7 @@ configurations.all {
 }
 micronaut {
     version libs.versions.micronaut.platform.get()
+    importMicronautPlatform = false
     runtime "netty"
 }
 
@@ -20,6 +21,8 @@ application {
 }
 
 dependencies {
+    micronautBoms(platform(mn.micronaut.core.bom))
+    micronautBoms(platform(mnTest.micronaut.test.bom))
     runtimeOnly(mn.snakeyaml)
     testImplementation(mnLogging.logback.classic)
 }

@@ -18,6 +18,7 @@ package io.micronaut.jms.activemq.classic.configuration.properties;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 
 import jakarta.validation.constraints.NotBlank;
@@ -33,7 +34,7 @@ import static io.micronaut.jms.activemq.classic.configuration.properties.ActiveM
  * @since 1.0.0
  */
 @ConfigurationProperties(PREFIX)
-@Requires(property = PREFIX + ".enabled", value = "true")
+@Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 public interface ActiveMqClassicConfigurationProperties {
 
     /**
