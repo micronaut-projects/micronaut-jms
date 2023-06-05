@@ -9,7 +9,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 
 @MicronautTest
-public class TasksTest {
+class TasksTest {
 
     @Test
     void testShouldProcessTasks(@Client("/") HttpClient client) {
