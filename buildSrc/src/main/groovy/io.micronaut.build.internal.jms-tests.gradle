@@ -5,12 +5,17 @@ plugins {
 }
 
 micronaut {
+    importMicronautPlatform = false
+    testRuntime "junit5"
     testResources {
         clientTimeout = 300
+        version = libs.versions.micronaut.testresources.get()
     }
 }
 dependencies {
-
+    micronautBoms(platform(mn.micronaut.core.bom))
+    micronautBoms(platform(mnLogging.micronaut.logging.bom))
+    micronautBoms(platform(mnTest.micronaut.test.bom))
     testImplementation mnTest.micronaut.test.core
     testImplementation mn.micronaut.http.client
 
