@@ -3,7 +3,7 @@ micronaut-docs = "2.0.0"
 
 micronaut = "4.0.0-M6"
 micronaut-test = "4.0.0-M6"
-micronaut-testresources = "2.0.0-SNAPSHOT"
+micronaut-testresources = "2.0.0-M9"
 micronaut-platform = "4.0.0-M2"
 activemq = '5.18.1'
 amazon-sqs-messaging = '2.0.3'
