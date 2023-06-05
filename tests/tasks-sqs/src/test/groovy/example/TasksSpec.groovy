@@ -5,7 +5,6 @@ import io.micronaut.http.client.BlockingHttpClient
 import io.micronaut.http.client.HttpClient
 import io.micronaut.runtime.server.EmbeddedServer
 import org.testcontainers.utility.DockerImageName
-import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.util.concurrent.PollingConditions
 
@@ -13,13 +12,17 @@ import static example.LocalStackContainer.Service.SQS
 
 class TasksSpec extends Specification {
 
-    @PendingFeature
     void 'should process tasks'() {
         when:
         LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse('localstack/localstack')).withServices(SQS)
         localstack.start()
-        EmbeddedServer server = ApplicationContext.run(['sqs-url': localstack.getEndpointOverride(SQS).toString(),
-         'sqs-region': localstack.region])
+        EmbeddedServer server = ApplicationContext.run(
+                EmbeddedServer,
+                [
+                        'sqs-url'   : localstack.getEndpointOverride(SQS).toString(),
+                        'sqs-region': localstack.region,
+                ]
+        )
         HttpClient httpClient = server.applicationContext.createBean(HttpClient, server.URL)
         BlockingHttpClient client = httpClient.toBlocking()
 
