@@ -521,18 +521,18 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:H">H</h2>
 <dl class="index">
-<dt><a href="io/micronaut/jms/listener/AcknowledgingJMSListenerSuccessHandler.html#handle(javax.jms.Session,javax.jms.Message)" class="member-name-link">handle(Session, Message)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/AcknowledgingJMSListenerSuccessHandler.html" title="class in io.micronaut.jms.listener">AcknowledgingJMSListenerSuccessHandler</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/JMSListenerSuccessHandler.html#handle(javax.jms.Session,javax.jms.Message)" class="member-name-link">handle(Session, Message)</a> - Method in interface io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a></dt>
 <dd>
 <div class="block">Handle the successfully processed message.</div>
 </dd>
-<dt><a href="io/micronaut/jms/listener/TransactionalJMSListenerSuccessHandler.html#handle(javax.jms.Session,javax.jms.Message)" class="member-name-link">handle(Session, Message)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/TransactionalJMSListenerSuccessHandler.html" title="class in io.micronaut.jms.listener">TransactionalJMSListenerSuccessHandler</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html#handle(javax.jms.Session,javax.jms.Message,java.lang.Throwable)" class="member-name-link">handle(Session, Message, Throwable)</a> - Method in interface io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a></dt>
 <dd>
 <div class="block">Handles the exception thrown during message processing.</div>
 </dd>
+<dt><a href="io/micronaut/jms/listener/AcknowledgingJMSListenerSuccessHandler.html#handle(javax.jms.Session,javax.jms.Message)" class="member-name-link">handle(Session, Message)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/AcknowledgingJMSListenerSuccessHandler.html" title="class in io.micronaut.jms.listener">AcknowledgingJMSListenerSuccessHandler</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="io/micronaut/jms/listener/TransactionalJMSListenerSuccessHandler.html#handle(javax.jms.Session,javax.jms.Message)" class="member-name-link">handle(Session, Message)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/TransactionalJMSListenerSuccessHandler.html" title="class in io.micronaut.jms.listener">TransactionalJMSListenerSuccessHandler</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/LoggingJMSListenerErrorHandler.html#handle(javax.jms.Session,javax.jms.Message,java.lang.Throwable)" class="member-name-link">handle(Session, Message, Throwable)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/LoggingJMSListenerErrorHandler.html" title="class in io.micronaut.jms.listener">LoggingJMSListenerErrorHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/TransactionalJMSListenerErrorHandler.html#handle(javax.jms.Session,javax.jms.Message,java.lang.Throwable)" class="member-name-link">handle(Session, Message, Throwable)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/TransactionalJMSListenerErrorHandler.html" title="class in io.micronaut.jms.listener">TransactionalJMSListenerErrorHandler</a></dt>
@@ -911,11 +911,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Does not require the broker to log the message to stable storage.</div>
 </dd>
-<dt><a href="io/micronaut/jms/util/Assert.html#notNull(java.lang.Object,java.lang.String)" class="member-name-link">notNull(Object, String)</a> - Static method in class io.micronaut.jms.util.<a href="io/micronaut/jms/util/Assert.html" title="class in io.micronaut.jms.util">Assert</a></dt>
+<dt><a href="io/micronaut/jms/util/Assert.html#notNull(java.lang.Object,java.util.function.Supplier)" class="member-name-link">notNull(Object, Supplier&lt;String&gt;)</a> - Static method in class io.micronaut.jms.util.<a href="io/micronaut/jms/util/Assert.html" title="class in io.micronaut.jms.util">Assert</a></dt>
 <dd>
 <div class="block">Throws an IllegalArgumentException if the object is null.</div>
 </dd>
-<dt><a href="io/micronaut/jms/util/Assert.html#notNull(java.lang.Object,java.util.function.Supplier)" class="member-name-link">notNull(Object, Supplier&lt;String&gt;)</a> - Static method in class io.micronaut.jms.util.<a href="io/micronaut/jms/util/Assert.html" title="class in io.micronaut.jms.util">Assert</a></dt>
+<dt><a href="io/micronaut/jms/util/Assert.html#notNull(java.lang.Object,java.lang.String)" class="member-name-link">notNull(Object, String)</a> - Static method in class io.micronaut.jms.util.<a href="io/micronaut/jms/util/Assert.html" title="class in io.micronaut.jms.util">Assert</a></dt>
 <dd>
 <div class="block">Throws an IllegalArgumentException if the object is null.</div>
 </dd>
@@ -1084,17 +1084,17 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates a <code>Message</code> from the <code>body</code> and sends it to the
  <code>destination</code> with the <code>headers</code>.</div>
 </dd>
+<dt><a href="io/micronaut/jms/templates/JmsProducer.html#send(javax.jms.Destination,javax.jms.Message,io.micronaut.jms.model.MessageHeader...)" class="member-name-link">send(Destination, Message, MessageHeader...)</a> - Method in class io.micronaut.jms.templates.<a href="io/micronaut/jms/templates/JmsProducer.html" title="class in io.micronaut.jms.templates">JmsProducer</a></dt>
+<dd>
+<div class="block">Sends the given <code>message</code> to the <code>destination</code>
+ with the given <code>headers</code>.</div>
+</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#send(javax.jms.Destination,javax.jms.Message)" class="member-name-link">send(Destination, Message)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#send(javax.jms.Destination,javax.jms.Message,int,int,long)" class="member-name-link">send(Destination, Message, int, int, long)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#send(javax.jms.Destination,javax.jms.Message,int,int,long,javax.jms.CompletionListener)" class="member-name-link">send(Destination, Message, int, int, long, CompletionListener)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/micronaut/jms/templates/JmsProducer.html#send(javax.jms.Destination,javax.jms.Message,io.micronaut.jms.model.MessageHeader...)" class="member-name-link">send(Destination, Message, MessageHeader...)</a> - Method in class io.micronaut.jms.templates.<a href="io/micronaut/jms/templates/JmsProducer.html" title="class in io.micronaut.jms.templates">JmsProducer</a></dt>
-<dd>
-<div class="block">Sends the given <code>message</code> to the <code>destination</code>
- with the given <code>headers</code>.</div>
-</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#send(javax.jms.Destination,javax.jms.Message,javax.jms.CompletionListener)" class="member-name-link">send(Destination, Message, CompletionListener)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#send(javax.jms.Message)" class="member-name-link">send(Message)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
