@@ -16,13 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build Matrix
-        uses: micronaut-projects/github-actions/graalvm/build-matrix@parallel-native-tests
+        uses: micronaut-projects/github-actions/graalvm/build-matrix@latest-graalvm-changes
         id: build-matrix
         with:
-          graalvm: 'latest'
+          distribution: 'graalvm-community'
           java: '17'
   build:
     needs: build_matrix
+    if: github.repository != 'micronaut-projects/micronaut-project-template'
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 6
@@ -34,13 +35,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Pre-Build Steps
-        uses: micronaut-projects/github-actions/graalvm/pre-build@master
+        uses: micronaut-projects/github-actions/graalvm/pre-build@latest-graalvm-changes
         id: pre-build
         with:
-          graalvm: ${{ matrix.graalvm }}
+          distribution: 'graalvm-community'
           java: ${{ matrix.java }}
       - name: Build Steps
-        uses: micronaut-projects/github-actions/graalvm/build@parallel-native-tests
+        uses: micronaut-projects/github-actions/graalvm/build@master
         id: build
         env:
           GH_TOKEN_PUBLIC_REPOS_READONLY: ${{ secrets.GH_TOKEN_PUBLIC_REPOS_READONLY }}
