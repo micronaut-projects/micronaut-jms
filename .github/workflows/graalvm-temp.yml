@@ -49,5 +49,5 @@ jobs:
         uses: micronaut-projects/github-actions/graalvm/post-build@master
         id: post-build
         with:
-          java: ${{ matrix.java }}
+          java: '17'
 
