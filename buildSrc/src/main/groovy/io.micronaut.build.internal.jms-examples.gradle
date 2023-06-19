@@ -1,10 +1,9 @@
 plugins {
     id 'io.micronaut.build.internal.jms-application'
 }
-
 dependencies {
     testCompileOnly libs.jsr305 // for "warning: unknown enum constant When.MAYBE"
     testImplementation projects.micronautJmsActivemqClassic
     testImplementation libs.activemq.broker
-    testImplementation(mn.logback.classic)
+    testImplementation(mnLogging.logback.classic)
 }

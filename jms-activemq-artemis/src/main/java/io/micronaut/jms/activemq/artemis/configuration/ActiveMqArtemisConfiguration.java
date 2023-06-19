@@ -36,7 +36,7 @@ import static io.micronaut.jms.activemq.artemis.configuration.properties.ActiveM
  * @since 1.0.0
  */
 @Factory
-@Requires(property = PREFIX + ".enabled", value = "true")
+@Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 public class ActiveMqArtemisConfiguration {
 
     /**

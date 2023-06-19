@@ -1,35 +1,34 @@
 [versions]
 micronaut-docs = "2.0.0"
 
-micronaut = "4.0.0-M2"
-micronaut-test = "4.0.0-M1"
-micronaut-platform = "4.0.0-M1"
+micronaut = "4.0.0-RC1"
+micronaut-test = "4.0.0-M6"
+micronaut-testresources = "2.0.0-M9"
+micronaut-platform = "4.0.0-M2"
 activemq = '5.18.1'
 amazon-sqs-messaging = '2.0.3'
 artemis-client = '2.28.0'
 awaitility = '4.2.0'
-aws-sqs = '2.20.58'
+aws-sqs = '2.20.83'
 commons-pool2 = '2.11.1'
-graal-svm = "22.3.2"
+graal-svm = "23.0.0"
 groovy = "4.0.10"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.7'
 jms-api = '2.0.1'
 jsr305 = "3.0.2"
-kotlin = '1.8.20'
+kotlin = '1.8.22'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.3"
-testcontainers = '1.18.0'
-lombok = '1.18.26'
+testcontainers = '1.18.3'
+micronaut-aws-v2 = '4.0.0-M10'
+micronaut-validation = "4.0.0-M11"
+micronaut-gradle-plugin = "4.0.0-M4"
 
-micronaut-aws-v2 = '3.17.0'
-micronaut-validation = "4.0.0-M4"
-micronaut-gradle-plugin = "4.0.0-M1"
-
+micronaut-logging = "1.0.0-M5"
 [libraries]
-# Core
+micronaut-logging = { module = "io.micronaut.logging:micronaut-logging-bom", version.ref = "micronaut-logging" }
 micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
-
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
@@ -47,8 +46,6 @@ spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = 
 testcontainers-localstack = { module = 'org.testcontainers:localstack', version.ref = 'testcontainers' }
 testcontainers-spock = { module = 'org.testcontainers:spock', version.ref = 'testcontainers' }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
-
-lombok = { module = 'org.projectlombok:lombok', version.ref = 'lombok' }
 
 #plugins
 

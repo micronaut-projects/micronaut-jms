@@ -2,8 +2,3 @@ micronaut:
   jms:
     sqs:
       enabled: true
-
-aws:
-  region: eu-central-1
-  accessKeyId: foo
-  secretAccessKey: bar

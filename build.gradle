@@ -5,10 +5,17 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
 }
 configurations.all {
     resolutionStrategy {
         preferProjectModules()
+    }
+}
+
+if (System.getenv("SONAR_TOKEN") != null) {
+    sonarqube {
+        properties {
+            property "sonar.exclusions", "**/example/**"
+        }
     }
 }
