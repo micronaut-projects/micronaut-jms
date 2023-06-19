@@ -19,8 +19,8 @@ jobs:
         uses: micronaut-projects/github-actions/graalvm/build-matrix@latest-graalvm-changes
         id: build-matrix
         with:
-          distribution: 'graalvm-community'
-          java: '17'
+          distribution: ''
+          java: 'dev'
   build:
     needs: build_matrix
     if: github.repository != 'micronaut-projects/micronaut-project-template'
