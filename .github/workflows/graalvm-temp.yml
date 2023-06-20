@@ -35,7 +35,7 @@ jobs:
         uses: micronaut-projects/github-actions/graalvm/pre-build@latest-graalvm-changes
         id: pre-build
         with:
-          distribution: 'graalvm-community'
+          distribution: 'graalvm'
           java: '17'
       - name: Build Steps
         uses: micronaut-projects/github-actions/graalvm/build@master
