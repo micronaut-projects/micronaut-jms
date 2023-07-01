@@ -4,9 +4,8 @@ plugins {
 
 micronautBuild {
     binaryCompatibility {
-        enabled = providers.provider {
-            def (major, minor, _) = project.version.split("\\.")
-            major.toInteger() >= 3 && minor.toInteger() > 0
-        }
+        enabled = true
+        // TODO required for now. Remove after Micronaut 4 release
+        baselineVersion = "3.0.0-M6"
     }
 }
