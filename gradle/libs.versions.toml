@@ -25,7 +25,7 @@ micronaut-aws-v2 = '4.0.0-M11'
 micronaut-validation = "4.0.0-M12"
 micronaut-gradle-plugin = "4.0.0-M8"
 
-micronaut-logging = "1.0.0-M5"
+micronaut-logging = "1.0.0-M6"
 [libraries]
 micronaut-logging = { module = "io.micronaut.logging:micronaut-logging-bom", version.ref = "micronaut-logging" }
 micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
