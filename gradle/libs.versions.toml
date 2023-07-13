@@ -2,9 +2,9 @@
 micronaut-docs = "2.0.0"
 
 micronaut = "4.0.0"
-micronaut-test = "4.0.0-M9"
-micronaut-testresources = "2.0.0-M9"
-micronaut-platform = "4.0.0-M5"
+micronaut-test = "4.0.0"
+micronaut-testresources = "2.0.0"
+micronaut-platform = "4.0.0-RC1"
 activemq = '5.18.2'
 amazon-sqs-messaging = '2.0.3'
 artemis-client = '2.28.0'
@@ -22,8 +22,8 @@ spock = "2.3-groovy-4.0"
 spotbugs = "4.7.3"
 testcontainers = '1.18.3'
 micronaut-aws-v2 = '4.0.0'
-micronaut-validation = "4.0.0-M12"
-micronaut-gradle-plugin = "4.0.0-M8"
+micronaut-validation = "4.0.0"
+micronaut-gradle-plugin = "4.0.0"
 
 micronaut-logging = "1.0.0"
 [libraries]
