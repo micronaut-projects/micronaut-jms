@@ -12,9 +12,3 @@ micronaut {
 }
 
 mainClassName = 'io.micronaut.jms.docs.Application'
-
-graalvmNative {
-    metadataRepository {
-        version = "0.3.2"
-    }
-}
