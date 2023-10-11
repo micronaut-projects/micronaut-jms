@@ -131,10 +131,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final String destination = destinationAnnotation.getRequiredValue(String.class);
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
-        Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
-        if (messageSelector.isPresent() && messageSelector.get().isEmpty()) {
-            messageSelector = Optional.empty();
-        }
+        final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)

@@ -131,7 +131,7 @@ public @interface Queue {
     /**
      * @return the message selector for the queue
      */
-    String messageSelector() default "";
+    Class<String> messageSelector() default String.class;
 
     /**
      * The success handlers to be injected into the message handling logic.
