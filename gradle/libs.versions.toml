@@ -1,10 +1,10 @@
 [versions]
 micronaut-docs = "2.0.0"
 
-micronaut = "4.0.0"
+micronaut = "4.1.10"
 micronaut-test = "4.0.0"
 micronaut-testresources = "2.0.0"
-micronaut-platform = "4.0.0-RC1"
+micronaut-platform = "4.1.5"
 activemq = '5.18.2'
 amazon-sqs-messaging = '2.0.3'
 artemis-client = '2.28.0'
@@ -12,12 +12,12 @@ awaitility = '4.2.0'
 aws-sqs = '2.20.99'
 commons-pool2 = '2.11.1'
 graal-svm = "23.0.0"
-groovy = "4.0.10"
+groovy = "4.0.15"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.7'
 jms-api = '2.0.1'
 jsr305 = "3.0.2"
-kotlin = '1.8.22'
+kotlin = '1.9.10'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.7.3"
 testcontainers = '1.18.3'
@@ -25,9 +25,8 @@ micronaut-aws-v2 = '4.0.1'
 micronaut-validation = "4.0.0"
 micronaut-gradle-plugin = "4.0.3"
 
-micronaut-logging = "1.0.0"
+micronaut-logging = "1.1.2"
 [libraries]
-micronaut-logging = { module = "io.micronaut.logging:micronaut-logging-bom", version.ref = "micronaut-logging" }
 micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }

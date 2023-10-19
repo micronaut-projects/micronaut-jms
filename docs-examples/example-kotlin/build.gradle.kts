@@ -13,18 +13,9 @@ micronaut {
 application {
     mainClass.set("com.example.ApplicationKt")
 }
-java {
-    sourceCompatibility = JavaVersion.toVersion("17")
-}
-tasks {
-    compileKotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
-    }
-    compileTestKotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        }
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
