@@ -130,7 +130,7 @@ public class JMSListener {
      */
     public void start() throws JMSException {
         MessageConsumer messageConsumer;
-        if (messageSelector.isPresent()) {
+        if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
             messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session), messageSelector.get());
         } else {
             messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session));
