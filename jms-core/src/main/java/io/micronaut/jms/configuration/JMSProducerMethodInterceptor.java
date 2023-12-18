@@ -22,6 +22,7 @@ import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSProducer;
+import io.micronaut.jms.annotations.MessageTTL;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.model.JMSDestinationType;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
+import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
 
 /**
  * Sends messages to a broker. Requires that the interface be annotated with
@@ -110,10 +112,17 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                 return new MessageHeader(headerName, parameterValueMap.get(argName));
             }).toArray(MessageHeader[]::new);
 
+        long timeToLive = Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageTTL.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .map(arg -> (Long) arg)
+            .findFirst()
+            .orElse(DEFAULT_TIME_TO_LIVE);
+
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
-        producer.send(destinationName, body, headers);
+        producer.send(destinationName, body, timeToLive, headers);
 
         return null;
     }
