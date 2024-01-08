@@ -20,3 +20,5 @@ See the link:https://micronaut-projects.github.io/micronaut-aws/latest/guide/ind
 Note that it's not necessary to add a dependency on `io.micronaut.aws:micronaut-aws-sdk-v2` as it's already a transitive dependency of `io.micronaut.jms:micronaut-jms-sqs`.
 
 The JMS link:{apijms}ConnectionFactory.html[ConnectionFactory] will be an instance of `com.amazon.sqs.javamessaging.SQSConnectionFactory`; you can customize that with a link:{apimicronaut}context/event/BeanCreatedEventListener.html[BeanCreatedEventListener].
+
+TIP: See the guide for https://guides.micronaut.io/latest/micronaut-jms-aws-sqs.html[Connect a Micronaut JMS Application to an AWS SQS Queue] to learn more.
