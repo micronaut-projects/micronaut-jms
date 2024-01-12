@@ -2,7 +2,7 @@
 
 To use Amazon SQS, add the following property to your `application.yml`
 
-[source,yaml]
+[configuration]
 ----
 micronaut:
   jms:
