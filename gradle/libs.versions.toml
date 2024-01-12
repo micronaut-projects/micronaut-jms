@@ -3,6 +3,7 @@ micronaut-docs = "2.0.0"
 
 micronaut = "4.2.3"
 micronaut-test = "4.1.1"
+micronaut-aws = '4.2.3'
 micronaut-testresources = "2.3.1"
 activemq = '5.18.3'
 micronaut-platform = "4.2.3"
@@ -31,6 +32,7 @@ micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'mi
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
+micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
 artemis-client = { module = 'org.apache.activemq:artemis-jms-client', version.ref = 'artemis-client' }
 awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
