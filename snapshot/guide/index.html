@@ -438,7 +438,15 @@ class TextConsumer {
 <div class="paragraph">
 <p>To use ActiveMQ "Classic", add the following properties to your <code>application.yml</code></p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.activemq.classic.enabled=true
+micronaut.jms.activemq.classic.connection-string=tcp://host:port</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
@@ -446,6 +454,64 @@ class TextConsumer {
       classic:
         enabled: true
         connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.activemq]
+      [micronaut.jms.activemq.classic]
+        enabled=true
+        connection-string="tcp://host:port"</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    activemq {
+      classic {
+        enabled = true
+        connectionString = "tcp://host:port"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      activemq {
+        classic {
+          enabled = true
+          connection-string = "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "activemq": {
+        "classic": {
+          "enabled": true,
+          "connection-string": "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -483,7 +549,15 @@ class TextConsumer {
 <div class="paragraph">
 <p>To use ActiveMQ Artemis, add the following properties to your <code>application.yml</code></p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.activemq.artemis.enabled=true
+micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
@@ -491,6 +565,64 @@ class TextConsumer {
       artemis:
         enabled: true
         connection-string: 'tcp://host:port'</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.activemq]
+      [micronaut.jms.activemq.artemis]
+        enabled=true
+        connection-string="tcp://host:port"</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    activemq {
+      artemis {
+        enabled = true
+        connectionString = "tcp://host:port"
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      activemq {
+        artemis {
+          enabled = true
+          connection-string = "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "activemq": {
+        "artemis": {
+          "enabled": true,
+          "connection-string": "tcp://host:port"
+        }
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -528,12 +660,66 @@ class TextConsumer {
 <div class="paragraph">
 <p>To use Amazon SQS, add the following property to your <code>application.yml</code></p>
 </div>
-<div class="listingblock">
+<div class="openblock">
+<div class="content">
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">micronaut.jms.sqs.enabled=true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">micronaut:
   jms:
     sqs:
       enabled: true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
+  [micronaut.jms]
+    [micronaut.jms.sqs]
+      enabled=true</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy-config hljs" data-lang="groovy-config">micronaut {
+  jms {
+    sqs {
+      enabled = true
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-hocon hljs" data-lang="hocon">{
+  micronaut {
+    jms {
+      sqs {
+        enabled = true
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json-config hljs" data-lang="json-config">{
+  "micronaut": {
+    "jms": {
+      "sqs": {
+        "enabled": true
+      }
+    }
+  }
+}</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="paragraph">
