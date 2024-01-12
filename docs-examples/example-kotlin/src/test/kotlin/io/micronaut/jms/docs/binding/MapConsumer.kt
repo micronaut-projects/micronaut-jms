@@ -19,7 +19,7 @@ import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 import java.io.Serializable
-import javax.jms.Destination
+import jakarta.jms.Destination
 // end::imports[]
 
 @Requires(property = "spec.name", value = "BindingSpec")

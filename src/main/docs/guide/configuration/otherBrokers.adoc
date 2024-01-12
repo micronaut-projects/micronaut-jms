@@ -6,7 +6,7 @@ Using an unsupported JMS broker is simple; you simply need to instantiate a `Con
 ----
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 @Factory
 public class MyJMSConfig {

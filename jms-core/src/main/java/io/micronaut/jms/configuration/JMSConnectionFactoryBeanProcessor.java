@@ -29,7 +29,7 @@ import io.micronaut.jms.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 /**
  * Creates a {@link JMSConnectionPool} from each registered

@@ -6,9 +6,9 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.PooledConnection;
 import org.junit.jupiter.api.Test;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.XAConnection;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSException;
+import jakarta.jms.XAConnection;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;

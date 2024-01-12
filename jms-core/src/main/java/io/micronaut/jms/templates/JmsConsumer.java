@@ -23,16 +23,16 @@ import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.Session;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
-import static javax.jms.Session.CLIENT_ACKNOWLEDGE;
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
+import static jakarta.jms.Session.CLIENT_ACKNOWLEDGE;
 
 /**
  * Helper class that receives messages, configuring JMS connections, sessions,

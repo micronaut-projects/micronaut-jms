@@ -8,7 +8,7 @@ import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
 
-import javax.jms.Destination;
+import jakarta.jms.Destination;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;

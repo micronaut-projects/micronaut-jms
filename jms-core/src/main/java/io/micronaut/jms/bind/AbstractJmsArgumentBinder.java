@@ -20,7 +20,7 @@ import io.micronaut.core.bind.annotation.AnnotatedArgumentBinder;
 import io.micronaut.core.convert.ConversionService;
 import io.micronaut.core.order.Ordered;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 import java.lang.annotation.Annotation;
 
 /**

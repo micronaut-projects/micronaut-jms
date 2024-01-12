@@ -17,10 +17,10 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
 import java.util.concurrent.CompletableFuture;
 
 /**

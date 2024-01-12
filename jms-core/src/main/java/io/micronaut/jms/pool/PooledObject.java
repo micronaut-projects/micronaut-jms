@@ -15,7 +15,7 @@
  */
 package io.micronaut.jms.pool;
 
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
 /**
  * Base class for wrappers of pooled objects.

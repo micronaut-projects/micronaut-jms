@@ -15,7 +15,7 @@
  */
 package io.micronaut.jms.model;
 
-import javax.jms.DeliveryMode;
+import jakarta.jms.DeliveryMode;
 
 /**
  * The different persistence modes of JMS Brokers.

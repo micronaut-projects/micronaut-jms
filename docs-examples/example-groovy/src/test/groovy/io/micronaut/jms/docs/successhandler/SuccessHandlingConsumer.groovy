@@ -10,8 +10,8 @@ import io.micronaut.jms.listener.JMSListenerSuccessHandler
 import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
 
-import javax.jms.Message
-import javax.jms.Session
+import jakarta.jms.Message
+import jakarta.jms.Session
 import java.util.concurrent.atomic.AtomicInteger
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME

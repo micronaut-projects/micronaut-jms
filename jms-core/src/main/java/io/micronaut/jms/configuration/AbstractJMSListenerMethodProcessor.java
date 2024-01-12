@@ -36,10 +36,10 @@ import io.micronaut.messaging.annotation.MessageBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageListener;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Optional;

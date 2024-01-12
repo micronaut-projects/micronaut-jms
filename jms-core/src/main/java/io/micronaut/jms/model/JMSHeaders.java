@@ -18,9 +18,9 @@ package io.micronaut.jms.model;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 import static io.micronaut.jms.util.HeaderNameUtils.encode;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static javax.jms.Message.DEFAULT_PRIORITY;
+import static jakarta.jms.Message.DEFAULT_PRIORITY;
 
 /**
  * Utility class for access to the supported JMS Headers, and methods to

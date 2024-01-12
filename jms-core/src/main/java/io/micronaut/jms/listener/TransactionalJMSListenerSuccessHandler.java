@@ -15,9 +15,9 @@
  */
 package io.micronaut.jms.listener;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 /**
  * Commits a JMS transaction upon successful handling of a message.
