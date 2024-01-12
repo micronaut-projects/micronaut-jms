@@ -22,7 +22,7 @@ spock = "2.3-groovy-4.0"
 spotbugs = "4.8.3"
 testcontainers = '1.19.1'
 micronaut-aws-v2 = '4.2.3'
-micronaut-validation = "4.1.0"
+micronaut-validation = "4.2.0"
 micronaut-gradle-plugin = "4.0.3"
 
 micronaut-logging = "1.1.2"
