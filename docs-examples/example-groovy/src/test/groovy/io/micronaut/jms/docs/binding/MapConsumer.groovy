@@ -32,11 +32,11 @@ class MapConsumer {
 
     List<Map<String, Serializable>> messageBodies = [].asSynchronized()
     List<Map<String, Object>> messageHeaders =  [].asSynchronized()
-    List<javax.jms.Message> messages =  [].asSynchronized()
+    List<jakarta.jms.Message> messages =  [].asSynchronized()
 
     @Queue(value = 'queue_map', concurrency = '1-5')
     void receive(@MessageBody Map<String, Serializable> body,
-                 @Message javax.jms.Message message,
+                 @Message jakarta.jms.Message message,
                  @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
                  @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
                  @MessageHeader(JMS_DESTINATION) Destination destination,

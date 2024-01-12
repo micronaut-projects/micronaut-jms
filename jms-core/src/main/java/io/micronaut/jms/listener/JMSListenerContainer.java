@@ -50,7 +50,7 @@ import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
  * not been fully tested. It is recommended to instead use the
  * {@link io.micronaut.jms.annotations.JMSListener} annotation on existing classes.
  *
- * @param <T> the {@link javax.jms.Message} object type to convert to before handling
+ * @param <T> the {@link jakarta.jms.Message} object type to convert to before handling
  * @author Elliott Pope
  * @since 1.0.0
  *

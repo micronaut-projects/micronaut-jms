@@ -70,11 +70,11 @@ public class JMSListener {
 
     /**
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
-     *  {@link JMSListener#start()} is called. The provided session's parent {@link javax.jms.Connection}
-     *  must be started ({@link javax.jms.Connection#start()}) for the message listener to receive messages.
+     *  {@link JMSListener#start()} is called. The provided session's parent {@link jakarta.jms.Connection}
+     *  must be started ({@link jakarta.jms.Connection#start()}) for the message listener to receive messages.
      * @param session - the {@link Session} for the messages to be consumed on
      * @param delegate - the listener logic to be invoked. All concurrency, success, and error handling is provided.
-     *                 This {@link MessageListener} should extract the necessary data from the {@link javax.jms.Message}
+     *                 This {@link MessageListener} should extract the necessary data from the {@link jakarta.jms.Message}
      *                 and perform application specific logic.
      * @param destinationType - the {@link JMSDestinationType} of the target destination
      * @param destination - the name of the target destination

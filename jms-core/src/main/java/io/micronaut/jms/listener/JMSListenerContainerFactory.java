@@ -93,9 +93,9 @@ public class JMSListenerContainerFactory {
      *                        received by the session will be acknowledged
      * @param type            the destination type
      * @param messageSelector the message selector for the listener
-     * @see javax.jms.Session#AUTO_ACKNOWLEDGE
-     * @see javax.jms.Session#CLIENT_ACKNOWLEDGE
-     * @see javax.jms.Session#DUPS_OK_ACKNOWLEDGE
+     * @see jakarta.jms.Session#AUTO_ACKNOWLEDGE
+     * @see jakarta.jms.Session#CLIENT_ACKNOWLEDGE
+     * @see jakarta.jms.Session#DUPS_OK_ACKNOWLEDGE
      */
     public <T> void registerListener(final JMSConnectionPool connectionPool,
             final String destination,
