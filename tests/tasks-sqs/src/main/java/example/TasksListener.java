@@ -14,13 +14,13 @@ import static io.micronaut.jms.sqs.configuration.SqsConfiguration.CONNECTION_FAC
 @JMSListener(CONNECTION_FACTORY_BEAN_NAME)
 public class TasksListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TasksListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TasksListener.class);
 
     public static final AtomicInteger TASKS_PROCESSED = new AtomicInteger();
 
     @Queue(value = TaskConstants.FIFO_QUEUE, concurrency = "1-1")
     public void receive(@MessageBody Task task) {
-        LOGGER.info("Received task with id: " + task.getId());
+        LOG.info("Received task with id: {}", task.getId());
         TASKS_PROCESSED.incrementAndGet();
     }
 
