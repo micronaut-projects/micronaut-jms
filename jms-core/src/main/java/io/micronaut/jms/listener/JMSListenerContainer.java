@@ -113,6 +113,7 @@ public class JMSListenerContainer<T> {
      * @param listener    the message handler
      * @param clazz       the message type
      */
+    @SuppressWarnings("java:S2095")
     public void registerListener(String destination,
                                  MessageHandler<T> listener,
                                  Class<T> clazz) {
@@ -162,6 +163,7 @@ public class JMSListenerContainer<T> {
      * @see Session#CLIENT_ACKNOWLEDGE
      * @see Session#DUPS_OK_ACKNOWLEDGE
      */
+    @SuppressWarnings("java:S2095")
     public void registerListener(String destination,
             MessageListener listener,
             Class<T> clazz, // TODO unused

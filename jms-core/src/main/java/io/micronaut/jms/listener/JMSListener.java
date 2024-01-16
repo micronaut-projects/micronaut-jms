@@ -128,6 +128,7 @@ public class JMSListener {
      *
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
      */
+    @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
     public void start() throws JMSException {
         MessageConsumer messageConsumer;
         if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
