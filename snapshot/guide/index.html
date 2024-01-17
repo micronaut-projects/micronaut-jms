@@ -742,18 +742,6 @@ micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
 </div></p>
 </div>
 <div class="paragraph">
-<p>Force the <code>software.amazon.awssdk:sqs</code> dependency to <code>2.21.15</code>. For example, with gradle:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">configurations.all {
-    resolutionStrategy {
-        force("software.amazon.awssdk:sqs:2.21.15")
-    }
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
 <p>See the <a href="https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html">Micronaut AWS</a> docs for more information.</p>
 </div>
 <div class="paragraph">
