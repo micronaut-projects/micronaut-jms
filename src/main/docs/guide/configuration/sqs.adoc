@@ -14,16 +14,6 @@ and the following to your `build.gradle` or `pom.xml`
 
 dependency:io.micronaut.jms:micronaut-jms-sqs[]
 
-Force the `software.amazon.awssdk:sqs` dependency to `2.21.15`. For example, with gradle:
-
-[source,kotlin]
-----
-configurations.all {
-    resolutionStrategy {
-        force("software.amazon.awssdk:sqs:2.21.15")
-    }
-}
-----
 
 See the link:https://micronaut-projects.github.io/micronaut-aws/latest/guide/index.html[Micronaut AWS] docs for more information.
 
