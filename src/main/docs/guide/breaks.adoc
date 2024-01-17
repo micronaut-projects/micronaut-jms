@@ -1,0 +1,13 @@
+== 4.0.0
+
+=== Removal of `javax.jms` namespace
+
+Version 4 switches from the deprecated `javax.jms` namespace to the new Jakarta EE `jakarta.jms` namespace.
+
+==== ActiveMQ Classic
+
+The ActiveMQ Classic client has been updated https://activemq.apache.org/new-features-in-60[to version 6] to support the new namespace.
+
+==== ActiveMQ Artemis
+
+The client dependency for ActiveMq Artemis has changed from `org.apache.activemq:artemis-jms-client` to `org.apache.activemq:artemis-jakarta-client` which uses the new namespace.
