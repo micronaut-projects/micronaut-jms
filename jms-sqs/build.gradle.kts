@@ -10,6 +10,6 @@ dependencies {
     api(projects.micronautJmsCore)
     api(libs.amazon.sqs.messaging)
     api(libs.aws.sqs)
-    api(libs.micronaut.aws.v2)
+    api(mnAws.micronaut.aws.sdk.v2)
     compileOnly(libs.graal.svm)
 }
