@@ -2,7 +2,7 @@
 
 To use ActiveMQ "Classic", add the following properties to your `application.yml`
 
-[source,yaml]
+[configuration]
 ----
 micronaut:
   jms:
