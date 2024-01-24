@@ -9,7 +9,7 @@ micronaut-aws = "4.3.0"
 micronaut-testresources = "2.3.1"
 micronaut-platform = "4.2.3"
 amazon-sqs-messaging = '2.1.1'
-micronaut-validation = "4.2.0"
+micronaut-validation = "4.3.0"
 micronaut-gradle-plugin = "4.2.1"
 awaitility = '4.2.0'
 commons-pool2 = '2.12.0'
@@ -22,8 +22,6 @@ kotlin = '1.9.22'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.8.3"
 testcontainers = '1.19.3'
-
-
 micronaut-logging = "1.1.2"
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
