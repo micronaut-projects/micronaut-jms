@@ -112,12 +112,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
                 return new MessageHeader(headerName, parameterValueMap.get(argName));
             }).toArray(MessageHeader[]::new);
 
-        long timeToLive = Arrays.stream(method.getArguments())
-            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageTTL.class))
-            .map(arg -> parameterValueMap.get(arg.getName()))
-            .map(arg -> (Long) arg)
-            .findFirst()
-            .orElse(DEFAULT_TIME_TO_LIVE);
+        long timeToLive = timeToLive(method, parameterValueMap);
 
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
@@ -125,5 +120,14 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         producer.send(destinationName, body, timeToLive, headers);
 
         return null;
+    }
+
+    private long timeToLive(ExecutableMethod<?, ?> method, Map<String, Object> parameterValueMap) {
+        return Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageTTL.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .map(arg -> (Long) arg)
+            .findFirst()
+            .orElse(DEFAULT_TIME_TO_LIVE);
     }
 }
