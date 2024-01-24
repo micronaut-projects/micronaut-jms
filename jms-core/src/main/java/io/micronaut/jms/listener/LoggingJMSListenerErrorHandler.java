@@ -18,8 +18,8 @@ package io.micronaut.jms.listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 /**
  * Default logger for all {@link JMSListener}s. Logs any exception that occurs while receiving, processing, or handling

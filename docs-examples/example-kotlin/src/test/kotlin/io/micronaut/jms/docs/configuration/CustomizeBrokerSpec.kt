@@ -6,7 +6,7 @@ import io.micronaut.inject.qualifiers.Qualifiers
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.docs.AbstractJmsKotest
 import org.apache.activemq.ActiveMQConnectionFactory
-import javax.jms.ConnectionFactory
+import jakarta.jms.ConnectionFactory
 
 class CustomizeBrokerSpec : AbstractJmsKotest({
 

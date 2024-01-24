@@ -9,7 +9,7 @@ import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 
-import javax.jms.Destination
+import jakarta.jms.Destination
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
@@ -32,11 +32,11 @@ class MapConsumer {
 
     List<Map<String, Serializable>> messageBodies = [].asSynchronized()
     List<Map<String, Object>> messageHeaders =  [].asSynchronized()
-    List<javax.jms.Message> messages =  [].asSynchronized()
+    List<jakarta.jms.Message> messages =  [].asSynchronized()
 
     @Queue(value = 'queue_map', concurrency = '1-5')
     void receive(@MessageBody Map<String, Serializable> body,
-                 @Message javax.jms.Message message,
+                 @Message jakarta.jms.Message message,
                  @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
                  @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
                  @MessageHeader(JMS_DESTINATION) Destination destination,

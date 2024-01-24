@@ -29,7 +29,7 @@ import io.micronaut.jms.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 /**
  * Creates a {@link JMSConnectionPool} from each registered
@@ -54,7 +54,7 @@ public class JMSConnectionFactoryBeanProcessor implements BeanDefinitionProcesso
     public void process(BeanDefinition<?> beanDefinition, BeanContext context) {
         final Object candidate = context.getBean(beanDefinition);
         Assert.isTrue(candidate instanceof ConnectionFactory,
-            () -> "@JMSConnectionFactory can only be applied to a bean of type javax.jms.ConnectionFactory. " +
+            () -> "@JMSConnectionFactory can only be applied to a bean of type jakarta.jms.ConnectionFactory. " +
             "Provided class was " + candidate.getClass().getName());
 
         final ConnectionFactory connectionFactory = (ConnectionFactory) candidate;

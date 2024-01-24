@@ -8,7 +8,7 @@ import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassi
 import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
 
-import javax.jms.ConnectionFactory
+import jakarta.jms.ConnectionFactory
 // end::imports[]
 import io.micronaut.context.annotation.Requires
 

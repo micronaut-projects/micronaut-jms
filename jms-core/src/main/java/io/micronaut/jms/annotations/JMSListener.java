@@ -85,7 +85,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface JMSListener {
 
     /**
-     * Name of the {@link javax.jms.ConnectionFactory} bean in the context to
+     * Name of the {@link jakarta.jms.ConnectionFactory} bean in the context to
      * use to configure the {@link io.micronaut.jms.listener.JMSListener}.
      * The name must correspond to a bean annotated with {@link JMSConnectionFactory}
      * and the values must be the same.
