@@ -30,7 +30,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * argument is bound from the JMS TTL attribute on {@link javax.jms.MessageProducer#send(Message, int, int, long)}.
  *
  * @author jaecktec
- * @since 3.1.1
+ * @since 3.3.0
  */
 @Documented
 @Retention(RUNTIME)
