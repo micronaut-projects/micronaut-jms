@@ -21,7 +21,7 @@ jsr305 = "3.0.2"
 kotlin = '1.9.22'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.8.3"
-testcontainers = '1.19.3'
+testcontainers = '1.19.4'
 micronaut-logging = "1.1.2"
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
