@@ -18,9 +18,9 @@ package io.micronaut.jms.listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 /**
  * Attempts to rollback a transaction on the given {@link Session}. If it fails then the exception is logged.

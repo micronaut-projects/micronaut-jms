@@ -16,7 +16,7 @@
 package io.micronaut.jms.listener;
 
 /**
- * Handles and converts {@link javax.jms.Message}s.
+ * Handles and converts {@link jakarta.jms.Message}s.
  *
  * @param <T> the message type
  * @author Elliott Pope

@@ -7,7 +7,7 @@ import io.micronaut.context.event.BeanCreatedEventListener
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
 import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
-import javax.jms.ConnectionFactory
+import jakarta.jms.ConnectionFactory
 // end::imports[]
 
 @Requires(property = "spec.name", value = "CustomBrokerSpec")

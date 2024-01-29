@@ -1,5 +1,6 @@
 introduction: Introduction
 whatsNew:  Release History
+breaks: Breaking Changes
 quickStart: JMS Quick Start
 configuration:
   title: Configuration

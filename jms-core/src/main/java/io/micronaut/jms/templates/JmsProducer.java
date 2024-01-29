@@ -27,19 +27,19 @@ import io.micronaut.messaging.exceptions.MessagingSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
-import static javax.jms.Message.DEFAULT_DELIVERY_MODE;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
+import static jakarta.jms.Message.DEFAULT_DELIVERY_MODE;
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
  * Helper class that sends messages, configuring JMS connections, sessions,

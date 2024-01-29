@@ -22,7 +22,7 @@ import io.micronaut.jms.annotations.Message;
 import java.util.Optional;
 
 /**
- * Binds a {@link javax.jms.Message} to a method argument annotated with {@link Message}.
+ * Binds a {@link jakarta.jms.Message} to a method argument annotated with {@link Message}.
  *
  * @author Burt Beckwith
  * @since 1.0.0
@@ -40,7 +40,7 @@ public class DefaultMessageArgumentBinder extends AbstractJmsArgumentBinder<Mess
 
     @Override
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context,
-                                      javax.jms.Message source) {
+                                      jakarta.jms.Message source) {
         return () -> Optional.of(source);
     }
 

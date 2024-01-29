@@ -15,8 +15,8 @@
  */
 package io.micronaut.jms.serdes;
 
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 
 /**
  * Serializes an object into a {@link Message}.

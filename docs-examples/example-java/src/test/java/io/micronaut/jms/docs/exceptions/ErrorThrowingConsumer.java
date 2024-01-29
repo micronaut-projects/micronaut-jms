@@ -7,8 +7,8 @@ import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.messaging.annotation.MessageBody;
 import jakarta.inject.Singleton;
 
-import javax.jms.Message;
-import javax.jms.Session;
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

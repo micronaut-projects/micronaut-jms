@@ -27,11 +27,11 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
- * Annotation to bind a {@link javax.jms.Topic} to a method for receiving or
- * sending a {@link javax.jms.Message}.
+ * Annotation to bind a {@link jakarta.jms.Topic} to a method for receiving or
+ * sending a {@link jakarta.jms.Message}.
  * <p>
  * Usage:
  * <pre>
@@ -68,7 +68,7 @@ public @interface Topic {
 
     /**
      * The name of an {@link java.util.concurrent.ExecutorService} in the bean
-     * context to execute tasks on when receiving a {@link javax.jms.Message}
+     * context to execute tasks on when receiving a {@link jakarta.jms.Message}
      * as part of a {@link JMSListener}. The executor can be maintained by
      * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
      *
@@ -82,7 +82,7 @@ public @interface Topic {
 
     /**
      * The name of a {@link io.micronaut.jms.serdes.Serializer} in the bean
-     * context to use to serialize an object into a {@link javax.jms.Message}
+     * context to use to serialize an object into a {@link jakarta.jms.Message}
      * when sending. If not specified, defaults to
      * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
      *
@@ -92,7 +92,7 @@ public @interface Topic {
 
     /**
      * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
-     * @see javax.jms.Session
+     * @see jakarta.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
 
@@ -101,7 +101,7 @@ public @interface Topic {
      * transacted sessions.
      *
      * @return true if transacted
-     * @see javax.jms.Session
+     * @see jakarta.jms.Session
      */
     boolean transacted() default false;
 

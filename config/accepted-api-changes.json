@@ -1,0 +1,62 @@
+[
+  {
+    "type": "io.micronaut.jms.listener.JMSListener",
+    "member": "Constructor io.micronaut.jms.listener.JMSListener(javax.jms.Session,javax.jms.MessageListener,io.micronaut.jms.model.JMSDestinationType,java.lang.String,java.util.concurrent.ExecutorService,java.util.Optional)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.listener.MessageHandlerAdapter",
+    "member": "Implemented interface javax.jms.MessageListener",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.JMSConnectionPool",
+    "member": "Constructor io.micronaut.jms.pool.JMSConnectionPool(javax.jms.ConnectionFactory,int,int)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.JMSConnectionPool",
+    "member": "Implemented interface javax.jms.ConnectionFactory",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.MessageProducerPool",
+    "member": "Constructor io.micronaut.jms.pool.MessageProducerPool(int,int,javax.jms.Session)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledConnection",
+    "member": "Constructor io.micronaut.jms.pool.PooledConnection(javax.jms.Connection,io.micronaut.jms.pool.AbstractPool)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledConnection",
+    "member": "Implemented interface javax.jms.Connection",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledProducer",
+    "member": "Constructor io.micronaut.jms.pool.PooledProducer(io.micronaut.jms.pool.AbstractPool,javax.jms.MessageProducer)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledProducer",
+    "member": "Implemented interface javax.jms.MessageProducer",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledSession",
+    "member": "Constructor io.micronaut.jms.pool.PooledSession(io.micronaut.jms.pool.AbstractPool,javax.jms.Session,io.micronaut.jms.pool.MessageProducerPool)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledSession",
+    "member": "Implemented interface javax.jms.Session",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.pool.SessionPool",
+    "member": "Constructor io.micronaut.jms.pool.SessionPool(int,int,javax.jms.Connection,io.micronaut.jms.pool.MessageProducerPoolFactory)",
+    "reason": "Migration from javax.jms to jakarta.jms"
+  }
+]

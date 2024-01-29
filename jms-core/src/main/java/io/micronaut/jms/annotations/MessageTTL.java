@@ -17,7 +17,7 @@ package io.micronaut.jms.annotations;
 
 import io.micronaut.core.bind.annotation.Bindable;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -27,7 +27,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * An annotation that can be applied to method argument to indicate that the
- * argument is bound from the JMS TTL attribute on {@link javax.jms.MessageProducer#send(Message, int, int, long)}.
+ * argument is bound from the JMS TTL attribute on {@link jakarta.jms.MessageProducer#send(Message, int, int, long)}.
  *
  * @author jaecktec
  * @since 3.3.0

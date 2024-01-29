@@ -40,7 +40,7 @@ import java.util.Map;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
-import static javax.jms.Message.DEFAULT_TIME_TO_LIVE;
+import static jakarta.jms.Message.DEFAULT_TIME_TO_LIVE;
 
 /**
  * Sends messages to a broker. Requires that the interface be annotated with

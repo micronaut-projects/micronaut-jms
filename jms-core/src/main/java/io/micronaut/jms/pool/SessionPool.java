@@ -17,9 +17,9 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSException;
+import jakarta.jms.Session;
 import java.util.Arrays;
 
 /**

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "[Ljava.sql.Date;"
+  },
+  {
+    "name": "[Ljava.sql.Time;"
+  },
+  {
+    "name": "[Ljava.sql.Timestamp;"
+  },
+  {
+    "name": "[Ljava.util.Calendar;"
+  },
+  {
+    "name": "[Ljava.util.Date;"
+  },
+  {
+    "name": "org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.artemis.api.core.client.loadbalance.RoundRobinConnectionLoadBalancingPolicy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle_impl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.slf4j.Logger"
+        ]
+      }
+    ]
+  }
+]

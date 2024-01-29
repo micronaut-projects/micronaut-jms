@@ -19,7 +19,7 @@ import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
 import java.io.Serializable
-import javax.jms.Destination
+import jakarta.jms.Destination
 // end::imports[]
 
 @Requires(property = "spec.name", value = "BindingSpec")
@@ -29,12 +29,12 @@ class MapConsumer {
 
     val messageBodies = mutableListOf<Map<String, Serializable>>()
     val messageHeaders = mutableListOf<Map<String, Any?>>()
-    val messages = mutableListOf<javax.jms.Message>()
+    val messages = mutableListOf<jakarta.jms.Message>()
 
     @Queue(value = "queue_map", concurrency = "1-5")
     fun receive(
         @MessageBody body: Map<String, Serializable>,
-        @Message message: javax.jms.Message,
+        @Message message: jakarta.jms.Message,
         @MessageHeader(JMS_CORRELATION_ID) correlationId: String?,
         @MessageHeader(JMS_DELIVERY_MODE) deliveryMode: Int,
         @MessageHeader(JMS_DESTINATION) destination: Destination?,
