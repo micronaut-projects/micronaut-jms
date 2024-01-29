@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.SqsClientBuilder;
 
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties.PREFIX;
 

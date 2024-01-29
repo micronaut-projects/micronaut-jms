@@ -5,7 +5,7 @@ import io.micronaut.jms.docs.AbstractJmsSpec;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.junit.jupiter.api.Test;
 
-import javax.jms.ConnectionFactory;
+import jakarta.jms.ConnectionFactory;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;

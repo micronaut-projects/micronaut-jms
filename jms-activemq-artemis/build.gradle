@@ -7,7 +7,7 @@ dependencies {
     implementation(mnValidation.micronaut.validation)
 
     api projects.micronautJmsCore
-    api (libs.artemis.client) {
+    api (libs.managed.artemis.jakarta.client) {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     runtimeOnly libs.jcl.slf4j

@@ -55,9 +55,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface JMSConnectionFactory {
 
     /**
-     * Name to identify the {@link javax.jms.ConnectionFactory} bean in the
+     * Name to identify the {@link jakarta.jms.ConnectionFactory} bean in the
      * context. This is used by the {@link io.micronaut.jms.configuration.AbstractJMSListenerMethodProcessor}
-     * and the {@link JMSListener} to identify which {@link javax.jms.ConnectionFactory} to use.
+     * and the {@link JMSListener} to identify which {@link jakarta.jms.ConnectionFactory} to use.
      *
      * @return the name of the bean.
      * @see JMSListener

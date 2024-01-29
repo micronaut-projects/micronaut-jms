@@ -20,7 +20,7 @@ import io.micronaut.core.convert.ConversionService;
 import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.messaging.annotation.MessageBody;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 import java.util.Optional;
 
 /**

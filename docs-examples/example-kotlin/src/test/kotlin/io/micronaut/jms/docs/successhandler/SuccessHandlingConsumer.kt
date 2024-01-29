@@ -9,8 +9,8 @@ import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import javax.jms.Message
-import javax.jms.Session
+import jakarta.jms.Message
+import jakarta.jms.Session
 
 // end::imports[]
 

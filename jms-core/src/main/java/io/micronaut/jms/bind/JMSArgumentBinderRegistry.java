@@ -28,7 +28,7 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;

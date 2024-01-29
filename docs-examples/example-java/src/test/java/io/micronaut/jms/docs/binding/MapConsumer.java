@@ -8,7 +8,7 @@ import io.micronaut.jms.annotations.Queue;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.micronaut.messaging.annotation.MessageHeader;
 
-import javax.jms.Destination;
+import jakarta.jms.Destination;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,11 +37,11 @@ public class MapConsumer {
 
     List<Map<String, Serializable>> messageBodies = Collections.synchronizedList(new ArrayList<>());
     List<Map<String, Object>> messageHeaders = Collections.synchronizedList(new ArrayList<>());
-    List<javax.jms.Message> messages = Collections.synchronizedList(new ArrayList<>());
+    List<jakarta.jms.Message> messages = Collections.synchronizedList(new ArrayList<>());
 
     @Queue(value = "queue_map")
     public void receive(@MessageBody Map<String, Serializable> body,
-                        @Message javax.jms.Message message,
+                        @Message jakarta.jms.Message message,
                         @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
                         @MessageHeader(JMS_DELIVERY_MODE) int deliveryMode,
                         @MessageHeader(JMS_DESTINATION) Destination destination,

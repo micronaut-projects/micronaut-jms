@@ -20,12 +20,12 @@ import io.micronaut.jms.model.JMSDestinationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.Session;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.Session;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,11 +70,11 @@ public class JMSListener {
 
     /**
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
-     *  {@link JMSListener#start()} is called. The provided session's parent {@link javax.jms.Connection}
-     *  must be started ({@link javax.jms.Connection#start()}) for the message listener to receive messages.
+     *  {@link JMSListener#start()} is called. The provided session's parent {@link jakarta.jms.Connection}
+     *  must be started ({@link jakarta.jms.Connection#start()}) for the message listener to receive messages.
      * @param session - the {@link Session} for the messages to be consumed on
      * @param delegate - the listener logic to be invoked. All concurrency, success, and error handling is provided.
-     *                 This {@link MessageListener} should extract the necessary data from the {@link javax.jms.Message}
+     *                 This {@link MessageListener} should extract the necessary data from the {@link jakarta.jms.Message}
      *                 and perform application specific logic.
      * @param destinationType - the {@link JMSDestinationType} of the target destination
      * @param destination - the name of the target destination
@@ -128,6 +128,7 @@ public class JMSListener {
      *
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
      */
+    @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
     public void start() throws JMSException {
         MessageConsumer messageConsumer;
         if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {

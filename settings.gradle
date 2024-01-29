@@ -29,4 +29,5 @@ micronautBuild {
     useStandardizedProjectNames = true
     importMicronautCatalog()
     importMicronautCatalog("micronaut-validation")
+    importMicronautCatalog("micronaut-aws")
 }

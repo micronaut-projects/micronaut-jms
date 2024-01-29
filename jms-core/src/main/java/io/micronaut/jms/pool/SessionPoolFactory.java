@@ -17,7 +17,7 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.context.annotation.Context;
 
-import javax.jms.Connection;
+import jakarta.jms.Connection;
 
 /**
  * Factory for generating a {@link SessionPool} from a {@link Connection}.

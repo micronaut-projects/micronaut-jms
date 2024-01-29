@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Classes related to binding JMS {@link javax.jms.Message} instances to method signatures.
+ * Classes related to binding JMS {@link jakarta.jms.Message} instances to method signatures.
  *
  * @since 1.0.0
  */

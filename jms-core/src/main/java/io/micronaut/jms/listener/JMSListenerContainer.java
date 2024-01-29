@@ -23,12 +23,12 @@ import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.Connection;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.Session;
+import jakarta.jms.Connection;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.Session;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static javax.jms.Session.AUTO_ACKNOWLEDGE;
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
  * Sets up and manages {@link MessageListener}s created by the
@@ -50,7 +50,7 @@ import static javax.jms.Session.AUTO_ACKNOWLEDGE;
  * not been fully tested. It is recommended to instead use the
  * {@link io.micronaut.jms.annotations.JMSListener} annotation on existing classes.
  *
- * @param <T> the {@link javax.jms.Message} object type to convert to before handling
+ * @param <T> the {@link jakarta.jms.Message} object type to convert to before handling
  * @author Elliott Pope
  * @since 1.0.0
  *
@@ -113,6 +113,7 @@ public class JMSListenerContainer<T> {
      * @param listener    the message handler
      * @param clazz       the message type
      */
+    @SuppressWarnings("java:S2095")
     public void registerListener(String destination,
                                  MessageHandler<T> listener,
                                  Class<T> clazz) {
@@ -162,6 +163,7 @@ public class JMSListenerContainer<T> {
      * @see Session#CLIENT_ACKNOWLEDGE
      * @see Session#DUPS_OK_ACKNOWLEDGE
      */
+    @SuppressWarnings("java:S2095")
     public void registerListener(String destination,
             MessageListener listener,
             Class<T> clazz, // TODO unused

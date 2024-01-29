@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Singleton
 public class TasksPublisher {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TasksPublisher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TasksPublisher.class);
     private final AtomicInteger tasksIds = new AtomicInteger();
     private final TasksProducer tasksProducer;
 
@@ -22,10 +22,10 @@ public class TasksPublisher {
     public void sendMessages() {
         try {
             int id = tasksIds.incrementAndGet();
-            LOGGER.info("Publishing a task with id: " + id);
+            LOG.info("Publishing a task with id: {}", id);
             tasksProducer.send(new Task(id), "" + id);
         } catch (Exception e) {
-            LOGGER.error("Failed to publish a task", e);
+            LOG.error("Failed to publish a task", e);
         }
     }
 

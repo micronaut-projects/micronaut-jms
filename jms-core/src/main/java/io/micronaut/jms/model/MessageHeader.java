@@ -18,9 +18,9 @@ package io.micronaut.jms.model;
 import io.micronaut.messaging.exceptions.MessagingClientException;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.Message;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;

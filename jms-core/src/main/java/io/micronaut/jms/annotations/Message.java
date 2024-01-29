@@ -26,7 +26,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * An annotation that can be applied to method argument to indicate that the
- * argument is bound from the JMS {@link javax.jms.Message}.
+ * argument is bound from the JMS {@link jakarta.jms.Message}.
  *
  * @author Burt Beckwith
  * @since 1.0.0

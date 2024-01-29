@@ -6,7 +6,7 @@ import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfigurat
 import io.micronaut.jms.docs.AbstractJmsKotest
 import io.micronaut.jms.pool.JMSConnectionPool
 import io.micronaut.jms.pool.PooledConnection
-import javax.jms.XAConnection
+import jakarta.jms.XAConnection
 
 class CustomBrokerSpec : AbstractJmsKotest({
 

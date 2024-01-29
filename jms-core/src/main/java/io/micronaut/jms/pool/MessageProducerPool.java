@@ -17,10 +17,10 @@ package io.micronaut.jms.pool;
 
 import io.micronaut.messaging.exceptions.MessagingClientException;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
 
 /**
  * Pool for ensuring maximum reuse of {@link MessageProducer}s.

@@ -15,7 +15,7 @@
  */
 package io.micronaut.jms.serdes;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 
 /**
  * Extracts a {@link Message} body to an instance of the specified type.

@@ -13,8 +13,3 @@ micronaut {
         additionalModules.add("localstack-sqs")
     }
 }
-configurations.all {
-    resolutionStrategy {
-        force("${libs.aws.sqs.get()}")
-    }
-}
