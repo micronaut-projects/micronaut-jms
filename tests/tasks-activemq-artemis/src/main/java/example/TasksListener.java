@@ -19,7 +19,7 @@ public class TasksListener {
 
     @Queue(value = TaskConstants.FIFO_QUEUE)
     public void receive(@MessageBody Task task) {
-        LOGGER.info("Received task with id: " + task.getId());
+        LOGGER.info("Received task with id: {}",  task.getId());
         TASKS_PROCESSED.incrementAndGet();
     }
 
