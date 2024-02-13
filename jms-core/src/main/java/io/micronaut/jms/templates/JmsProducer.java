@@ -87,10 +87,12 @@ public class JmsProducer<T> {
      *
      * @param destination the queue or topic name
      * @param body        the body
+     * @param timeToLive  time to live parameter in milliseconds
      * @param headers     optional headers
      */
     public void send(@NonNull String destination,
                      @NonNull T body,
+                     @NonNull long timeToLive,
                      MessageHeader... headers) {
         String joinedHeaders = "";
         if (LOGGER.isDebugEnabled()) {
@@ -101,7 +103,7 @@ public class JmsProducer<T> {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), headers);
+                serializer.serialize(session, body), timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         body, destination, type.name(), joinedHeaders);
@@ -117,10 +119,12 @@ public class JmsProducer<T> {
      *
      * @param destination the queue or topic name
      * @param message     the message
+     * @param timeToLive  time to live parameter in milliseconds
      * @param headers     optional headers
      */
     public void send(@NonNull String destination,
                      @NonNull Message message,
+                     @NonNull long timeToLive,
                      MessageHeader... headers) {
         String joinedHeaders = "";
         if (LOGGER.isDebugEnabled()) {
@@ -130,7 +134,7 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            send(session, lookupDestination(destination, session), message, headers);
+            send(session, lookupDestination(destination, session), message, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -146,10 +150,12 @@ public class JmsProducer<T> {
      *
      * @param destination the queue or topic name
      * @param message     the message
+     * @param timeToLive  time to live parameter in milliseconds
      * @param headers     optional headers
      */
     public void send(@NonNull Destination destination,
                      @NonNull Message message,
+                     @NonNull long timeToLive,
                      MessageHeader... headers) {
         ArgumentUtils.requireNonNull("destination", destination);
         ArgumentUtils.requireNonNull("message", message);
@@ -162,7 +168,7 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            send(session, destination, message, headers);
+            send(session, destination, message, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -186,6 +192,7 @@ public class JmsProducer<T> {
     private void send(@NonNull Session session,
                       @NonNull Destination destination,
                       @NonNull Message message,
+                      @NonNull long timeToLive,
                       MessageHeader... headers) throws JMSException {
         ArgumentUtils.requireNonNull("session", session);
 
@@ -195,8 +202,8 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
-            // TODO support specifying delivery mode, TTL, priority
-            producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), DEFAULT_TIME_TO_LIVE);
+            // TODO support specifying delivery mode
+            producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), timeToLive);
 
             if (sessionTransacted) {
                 session.commit();
