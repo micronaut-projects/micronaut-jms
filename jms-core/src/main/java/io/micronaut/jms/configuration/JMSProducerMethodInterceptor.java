@@ -37,6 +37,7 @@ import jakarta.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
@@ -113,7 +114,6 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             }).toArray(MessageHeader[]::new);
 
         long timeToLive = timeToLive(method, parameterValueMap);
-
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
@@ -126,7 +126,8 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         return Arrays.stream(method.getArguments())
             .filter(arg -> arg.isDeclaredAnnotationPresent(MessageTTL.class))
             .map(arg -> parameterValueMap.get(arg.getName()))
-            .map(arg -> (Long) arg)
+            .map(arg -> (arg instanceof Number n) ? n.longValue() : null)
+            .filter(Objects::nonNull)
             .findFirst()
             .orElse(DEFAULT_TIME_TO_LIVE);
     }
