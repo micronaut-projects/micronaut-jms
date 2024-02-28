@@ -46,5 +46,18 @@
         ]
       }
     ]
+  },
+  {
+    "name": "org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory",
+    "methods": [
+      {
+        "name": "getDeserializationDenyList",
+        "parameterTypes": []
+      },
+      {
+        "name": "getDeserializationAllowList",
+        "parameterTypes": []
+      }
+    ]
   }
 ]
