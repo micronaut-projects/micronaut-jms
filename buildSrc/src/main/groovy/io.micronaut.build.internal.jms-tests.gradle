@@ -9,7 +9,6 @@ micronaut {
     testRuntime "junit5"
     testResources {
         clientTimeout = 300
-        version = libs.versions.micronaut.test.resources.get()
     }
 }
 dependencies {
