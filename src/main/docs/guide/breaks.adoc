@@ -1,6 +1,6 @@
 == 4.0.0
 
-=== Removal of `javax.jms` namespace
+==== Removal of `javax.jms` namespace
 
 Version 4 switches from the deprecated `javax.jms` namespace to the new Jakarta EE `jakarta.jms` namespace.
 
@@ -11,3 +11,20 @@ The ActiveMQ Classic client has been updated https://activemq.apache.org/new-fea
 ==== ActiveMQ Artemis
 
 The client dependency for ActiveMq Artemis has changed from `org.apache.activemq:artemis-jms-client` to `org.apache.activemq:artemis-jakarta-client` which uses the new namespace.
+
+==== Deprecations
+
+** The annotation `io.micronaut.jms.annotations.Queue` removes the following attributes that were deprecated previously. This is to align the implementation with the JMS model and the messaging libraries' presumptions.
+
+*** `String concurrency() default "1-1"`
+*** `String executor() default ""`
+
+** The annotation `io.micronaut.jms.annotations.Topic` removes the following attributes that were deprecated previously. This is to align the implementation with the JMS model and the messaging libraries' presumptions.
+
+*** `String executor() default ""`
+
+** The following classes in the `io.micronaut.jms.listener` package were deprecated previously are now removed.
+
+*** `ConcurrentMessageHandler`
+*** `JMSListenerContainer`
+*** `JMSListenerContainerFactory`

@@ -58,5 +58,155 @@
     "type": "io.micronaut.jms.pool.SessionPool",
     "member": "Constructor io.micronaut.jms.pool.SessionPool(int,int,javax.jms.Connection,io.micronaut.jms.pool.MessageProducerPoolFactory)",
     "reason": "Migration from javax.jms to jakarta.jms"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Field $ANNOTATION_METADATA",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Constructor io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference()",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.annotation.AnnotationSource",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.inject.BeanContextConditional",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.annotation.AnnotationMetadataProvider",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.beans.BeanInfo",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.annotation.AnnotationMetadataDelegate",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.annotation.AnnotationMetadata",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.inject.QualifiedBeanType",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.core.type.ArgumentCoercible",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.inject.BeanType",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.$JMSListenerContainerFactory$Definition$Reference",
+    "member": "Implemented interface io.micronaut.inject.BeanDefinitionReference",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.ConcurrentMessageHandler",
+    "member": "Constructor io.micronaut.jms.listener.ConcurrentMessageHandler(io.micronaut.jms.listener.MessageHandler,java.util.concurrent.ExecutorService)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.ConcurrentMessageHandler",
+    "member": "Constructor io.micronaut.jms.listener.ConcurrentMessageHandler(io.micronaut.jms.listener.MessageHandler)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.ConcurrentMessageHandler",
+    "member": "Implemented interface io.micronaut.jms.listener.MessageHandler",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.JMSListener",
+    "member": "Constructor io.micronaut.jms.listener.JMSListener(javax.jms.Session,javax.jms.MessageListener,io.micronaut.jms.model.JMSDestinationType,java.lang.String,java.util.concurrent.ExecutorService,java.util.Optional)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.JMSListenerContainer",
+    "member": "Constructor io.micronaut.jms.listener.JMSListenerContainer(io.micronaut.jms.pool.JMSConnectionPool,io.micronaut.jms.model.JMSDestinationType,int)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.JMSListenerContainer",
+    "member": "Constructor io.micronaut.jms.listener.JMSListenerContainer(io.micronaut.jms.pool.JMSConnectionPool,io.micronaut.jms.model.JMSDestinationType,int,int)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.JMSListenerContainerFactory",
+    "member": "Constructor io.micronaut.jms.listener.JMSListenerContainerFactory()",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.listener.MessageHandlerAdapter",
+    "member": "Implemented interface javax.jms.MessageListener",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.JMSConnectionPool",
+    "member": "Constructor io.micronaut.jms.pool.JMSConnectionPool(javax.jms.ConnectionFactory,int,int)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.JMSConnectionPool",
+    "member": "Implemented interface javax.jms.ConnectionFactory",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.MessageProducerPool",
+    "member": "Constructor io.micronaut.jms.pool.MessageProducerPool(int,int,javax.jms.Session)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledConnection",
+    "member": "Constructor io.micronaut.jms.pool.PooledConnection(javax.jms.Connection,io.micronaut.jms.pool.AbstractPool)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledConnection",
+    "member": "Implemented interface javax.jms.Connection",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledProducer",
+    "member": "Constructor io.micronaut.jms.pool.PooledProducer(io.micronaut.jms.pool.AbstractPool,javax.jms.MessageProducer)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledProducer",
+    "member": "Implemented interface javax.jms.MessageProducer",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledSession",
+    "member": "Constructor io.micronaut.jms.pool.PooledSession(io.micronaut.jms.pool.AbstractPool,javax.jms.Session,io.micronaut.jms.pool.MessageProducerPool)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.PooledSession",
+    "member": "Implemented interface javax.jms.Session",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
+  },
+  {
+    "type": "io.micronaut.jms.pool.SessionPool",
+    "member": "Constructor io.micronaut.jms.pool.SessionPool(int,int,javax.jms.Connection,io.micronaut.jms.pool.MessageProducerPoolFactory)",
+    "reason": "Removed deprecated code for Micronaut Framework 5"
   }
 ]

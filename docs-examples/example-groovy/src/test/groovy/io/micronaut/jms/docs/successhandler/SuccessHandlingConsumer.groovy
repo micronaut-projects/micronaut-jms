@@ -4,14 +4,14 @@ import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerSuccessHandler
+import io.micronaut.messaging.annotation.MessageBody
 
 // tag::imports[]
 
-import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
-
 import jakarta.jms.Message
 import jakarta.jms.Session
+
 import java.util.concurrent.atomic.AtomicInteger
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -25,7 +25,7 @@ class SuccessHandlingConsumer {
 
     Collection<String> messages = Collections.synchronizedSet(new HashSet<String>())
 
-    @Queue(value = "success-queue", concurrency = "1-1", successHandlers = [CountingSuccessHandler.class]) // <2>
+    @Queue(value = "success-queue", successHandlers = [CountingSuccessHandler.class]) // <2>
     void receive(@MessageBody String message) {
         messages.add(message)
     }

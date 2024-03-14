@@ -2,14 +2,13 @@ package io.micronaut.jms.docs.exceptions
 
 import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
 
 // tag::imports[]
 
-import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerErrorHandler
 import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
-
 import jakarta.jms.Message
 import jakarta.jms.Session
 
@@ -24,7 +23,7 @@ class ErrorThrowingConsumer {
 
     Collection<String> messages = Collections.synchronizedSet(new HashSet<String>())
 
-    @Queue(value = "error-queue", concurrency = "1-1", errorHandlers = [CountingErrorHandler.class]) // <2>
+    @Queue(value = "error-queue", errorHandlers = [CountingErrorHandler.class]) // <2>
     void receive(@MessageBody String message) {
         if (message == "throw an error") {
             throw new RuntimeException("this is an error") // <3>

@@ -7,10 +7,10 @@ import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerErrorHandler
 import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 import jakarta.jms.Message
 import jakarta.jms.Session
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 // end::imports[]
 
@@ -24,7 +24,6 @@ class ErrorThrowingConsumer {
 
     @Queue(
             value = "error-queue",
-            concurrency = "1-1",
             errorHandlers = [CountingErrorHandler::class]) // <2>
     fun receive(@MessageBody message: String) {
         if (message == "throw an error") {

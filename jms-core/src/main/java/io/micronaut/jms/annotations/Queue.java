@@ -25,9 +25,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
  * Binds a {@link jakarta.jms.Queue} to a method for receiving or sending a {@link jakarta.jms.Message}.
@@ -74,23 +74,6 @@ public @interface Queue {
     String value();
 
     /**
-     * The size of the thread pool to use when used in conjunction with
-     * {@link JMSListener}. The value must be of the form x-y where x is the
-     * initial size of the thread pool and y is the maximum size. If this
-     * option is specified, a new thread pool will be created and destroyed
-     * with the {@link io.micronaut.jms.listener.JMSListener}. This
-     * option cannot be used in conjunction with {@link Queue#executor()}; if
-     * both are specified the {@link Queue#executor()} value will be used.
-     *
-     * @deprecated since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.
-     *
-     *
-     * @return the initial and max size of the thread pool
-     */
-    @Deprecated
-    String concurrency() default "1-1";
-
-    /**
      * The name of a {@link io.micronaut.jms.serdes.Serializer} in the bean
      * context to use to serialize an object into a {@link jakarta.jms.Message}
      * when sending. If not specified, defaults to
@@ -99,19 +82,6 @@ public @interface Queue {
      * @return the serializer bean name
      */
     String serializer() default "";
-
-    /**
-     * The name of an {@link java.util.concurrent.ExecutorService} in the bean
-     * context to execute tasks on when receiving a {@link jakarta.jms.Message}
-     * as part of a {@link JMSListener}. The executor can be maintained by
-     * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
-     *
-     * @deprecated since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.
-     *
-     * @return the executor service bean name
-     */
-    @Deprecated
-    String executor() default "";
 
     /**
      * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.

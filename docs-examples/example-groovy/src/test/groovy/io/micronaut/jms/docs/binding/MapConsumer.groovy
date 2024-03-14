@@ -1,14 +1,16 @@
 package io.micronaut.jms.docs.binding
 
+import io.micronaut.context.annotation.Requires
+import io.micronaut.core.annotation.Nullable
+
 
 // tag::imports[]
-import io.micronaut.core.annotation.Nullable
+
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
-
 import jakarta.jms.Destination
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -22,8 +24,8 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
 import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
 import static io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
 import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE
+
 // end::imports[]
-import io.micronaut.context.annotation.Requires
 
 @Requires(property = 'spec.name', value = 'BindingSpec')
 // tag::clazz[]
@@ -34,7 +36,7 @@ class MapConsumer {
     List<Map<String, Object>> messageHeaders =  [].asSynchronized()
     List<jakarta.jms.Message> messages =  [].asSynchronized()
 
-    @Queue(value = 'queue_map', concurrency = '1-5')
+    @Queue(value = 'queue_map')
     void receive(@MessageBody Map<String, Serializable> body,
                  @Message jakarta.jms.Message message,
                  @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,

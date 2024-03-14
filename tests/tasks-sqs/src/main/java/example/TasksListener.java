@@ -6,7 +6,6 @@ import io.micronaut.messaging.annotation.MessageBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.jms.Session;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.micronaut.jms.sqs.configuration.SqsConfiguration.CONNECTION_FACTORY_BEAN_NAME;
@@ -18,7 +17,7 @@ public class TasksListener {
 
     public static final AtomicInteger TASKS_PROCESSED = new AtomicInteger();
 
-    @Queue(value = TaskConstants.FIFO_QUEUE, concurrency = "1-1")
+    @Queue(value = TaskConstants.FIFO_QUEUE)
     public void receive(@MessageBody Task task) {
         LOG.info("Received task with id: {}", task.getId());
         TASKS_PROCESSED.incrementAndGet();
