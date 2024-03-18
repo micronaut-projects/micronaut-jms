@@ -25,9 +25,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static jakarta.jms.Session.AUTO_ACKNOWLEDGE;
 
 /**
  * Annotation to bind a {@link jakarta.jms.Topic} to a method for receiving or
@@ -65,20 +65,6 @@ public @interface Topic {
      */
     @AliasFor(annotation = MessageMapping.class, member = "value")
     String value();
-
-    /**
-     * The name of an {@link java.util.concurrent.ExecutorService} in the bean
-     * context to execute tasks on when receiving a {@link jakarta.jms.Message}
-     * as part of a {@link JMSListener}. The executor can be maintained by
-     * Micronaut using the {@link io.micronaut.scheduling.executor.UserExecutorConfiguration}.
-     *
-     * @deprecated since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.
-     *
-     *
-     * @return the executor service name
-     */
-    @Deprecated
-    String executor() default "";
 
     /**
      * The name of a {@link io.micronaut.jms.serdes.Serializer} in the bean
