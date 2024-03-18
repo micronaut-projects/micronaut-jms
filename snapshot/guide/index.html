@@ -183,10 +183,11 @@
 <div class="sect1">
 <h2 id="_4_0_0">4.0.0</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_removal_of_javax_jms_namespace">Removal of <code>javax.jms</code> namespace</h3>
+<div class="sect3">
+<h4 id="_removal_of_javax_jms_namespace">Removal of <code>javax.jms</code> namespace</h4>
 <div class="paragraph">
 <p>Version 4 switches from the deprecated <code>javax.jms</code> namespace to the new Jakarta EE <code>jakarta.jms</code> namespace.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_activemq_classic">ActiveMQ Classic</h4>
@@ -199,6 +200,51 @@
 <div class="paragraph">
 <p>The client dependency for ActiveMq Artemis has changed from <code>org.apache.activemq:artemis-jms-client</code> to <code>org.apache.activemq:artemis-jakarta-client</code> which uses the new namespace.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_deprecations">Deprecations</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>The annotation <code>io.micronaut.jms.annotations.Queue</code> removes the following attributes that were deprecated previously. This is to align the implementation with the JMS model and the messaging libraries' presumptions.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>String concurrency() default "1-1"</code></p>
+</li>
+<li>
+<p><code>String executor() default ""</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The annotation <code>io.micronaut.jms.annotations.Topic</code> removes the following attributes that were deprecated previously. This is to align the implementation with the JMS model and the messaging libraries' presumptions.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>String executor() default ""</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>The following classes in the <code>io.micronaut.jms.listener</code> package were deprecated previously are now removed.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>ConcurrentMessageHandler</code></p>
+</li>
+<li>
+<p><code>JMSListenerContainer</code></p>
+</li>
+<li>
+<p><code>JMSListenerContainerFactory</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -394,18 +440,18 @@ public class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
-import io.micronaut.jms.annotations.Queue
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+
 
 @JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 class TextConsumer {
 
     List&lt;String&gt; messages = [].asSynchronized()
 
-    @Queue(value = 'queue_text', concurrency = '1-5') // <b class="conum">(2)</b>
+    @Queue(value = 'queue_text') // <b class="conum">(2)</b>
     void receive(@MessageBody String body) { // <b class="conum">(3)</b>
         messages &lt;&lt; body
     }
@@ -414,19 +460,12 @@ class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
-import io.micronaut.jms.annotations.JMSListener
-import io.micronaut.jms.annotations.Queue
-import io.micronaut.messaging.annotation.MessageBody
-import java.util.ArrayList
-import java.util.Collections
-
-@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 class TextConsumer {
 
     val messages: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
 
-    @Queue(value = "queue_text", concurrency = "1-5") // <b class="conum">(2)</b>
+    @Queue(value = "queue_text") // <b class="conum">(2)</b>
     fun receive(@MessageBody body: String) { // <b class="conum">(3)</b>
         messages.add(body)
     }
@@ -1213,13 +1252,11 @@ public class MapConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.core.annotation.Nullable
-import io.micronaut.jms.annotations.JMSListener
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
-
 import jakarta.jms.Destination
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -1234,6 +1271,7 @@ import static io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
 import static io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
 import static io.micronaut.jms.model.JMSHeaders.JMS_TYPE
 
+
 @JMSListener(CONNECTION_FACTORY_BEAN_NAME)
 class MapConsumer {
 
@@ -1241,7 +1279,7 @@ class MapConsumer {
     List&lt;Map&lt;String, Object&gt;&gt; messageHeaders =  [].asSynchronized()
     List&lt;jakarta.jms.Message&gt; messages =  [].asSynchronized()
 
-    @Queue(value = 'queue_map', concurrency = '1-5')
+    @Queue(value = 'queue_map')
     void receive(@MessageBody Map&lt;String, Serializable&gt; body,
                  @Message jakarta.jms.Message message,
                  @MessageHeader(JMS_CORRELATION_ID) @Nullable String correlationId,
@@ -1292,24 +1330,17 @@ class MapConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.annotation.Requires
+import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Message
 import io.micronaut.jms.annotations.Queue
-import io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID
-import io.micronaut.jms.model.JMSHeaders.JMS_DELIVERY_MODE
-import io.micronaut.jms.model.JMSHeaders.JMS_DESTINATION
-import io.micronaut.jms.model.JMSHeaders.JMS_EXPIRATION
-import io.micronaut.jms.model.JMSHeaders.JMS_MESSAGE_ID
-import io.micronaut.jms.model.JMSHeaders.JMS_PRIORITY
-import io.micronaut.jms.model.JMSHeaders.JMS_REDELIVERED
-import io.micronaut.jms.model.JMSHeaders.JMS_REPLY_TO
-import io.micronaut.jms.model.JMSHeaders.JMS_TIMESTAMP
-import io.micronaut.jms.model.JMSHeaders.JMS_TYPE
+import io.micronaut.jms.model.JMSHeaders.*
 import io.micronaut.messaging.annotation.MessageBody
 import io.micronaut.messaging.annotation.MessageHeader
-import java.io.Serializable
 import jakarta.jms.Destination
+import java.io.Serializable
+
 
 @JMSListener(CONNECTION_FACTORY_BEAN_NAME)
 class MapConsumer {
@@ -1318,7 +1349,7 @@ class MapConsumer {
     val messageHeaders = mutableListOf&lt;Map&lt;String, Any?&gt;&gt;()
     val messages = mutableListOf&lt;jakarta.jms.Message&gt;()
 
-    @Queue(value = "queue_map", concurrency = "1-5")
+    @Queue(value = "queue_map")
     fun receive(
         @MessageBody body: Map&lt;String, Serializable&gt;,
         @Message message: jakarta.jms.Message,
@@ -1444,11 +1475,10 @@ class SuccessHandlingConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.messaging.annotation.MessageBody
-import jakarta.inject.Singleton
-
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import jakarta.inject.Singleton
 import jakarta.jms.Message
 import jakarta.jms.Session
+
 import java.util.concurrent.atomic.AtomicInteger
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -1459,7 +1489,7 @@ class SuccessHandlingConsumer {
 
     Collection&lt;String&gt; messages = Collections.synchronizedSet(new HashSet&lt;String&gt;())
 
-    @Queue(value = "success-queue", concurrency = "1-1", successHandlers = [CountingSuccessHandler.class]) // <b class="conum">(2)</b>
+    @Queue(value = "success-queue", successHandlers = [CountingSuccessHandler.class]) // <b class="conum">(2)</b>
     void receive(@MessageBody String message) {
         messages.add(message)
     }
@@ -1474,10 +1504,10 @@ import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerSuccessHandler
 import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
-import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 import jakarta.jms.Message
 import jakarta.jms.Session
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 
 @JMSListener(
@@ -1489,7 +1519,6 @@ class SuccessHandlingConsumer {
 
     @Queue(
             value = "success-queue",
-            concurrency = "1-1",
             successHandlers = [CountingSuccessHandler::class]) // <b class="conum">(2)</b>
     fun receive(@MessageBody message: String) {
         processed.add(message)

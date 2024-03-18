@@ -31,7 +31,6 @@ loadScripts(document, 'script');</script>
 <li>Package</li>
 <li>Class</li>
 <li><a href="overview-tree.html">Tree</a></li>
-<li><a href="deprecated-list.html">Deprecated</a></li>
 <li class="nav-bar-cell1-rev">Index</li>
 <li><a href="help-doc.html#index">Help</a></li>
 </ul>
@@ -162,31 +161,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/PooledSession.html#commit()" class="member-name-link">commit()</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledSession.html" title="class in io.micronaut.jms.pool">PooledSession</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/micronaut/jms/annotations/Queue.html#concurrency()" class="member-name-link">concurrency()</a> - Element in annotation interface io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Queue.html" title="annotation interface in io.micronaut.jms.annotations">Queue</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.</div>
-</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" class="type-name-link" title="class in io.micronaut.jms.listener">ConcurrentMessageHandler</a>&lt;<a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" title="type parameter in ConcurrentMessageHandler">T</a>&gt; - Class in <a href="io/micronaut/jms/listener/package-summary.html">io.micronaut.jms.listener</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">as of 2.1.1</div>
-</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html#%3Cinit%3E(io.micronaut.jms.listener.MessageHandler)" class="member-name-link">ConcurrentMessageHandler(MessageHandler&lt;T&gt;)</a> - Constructor for class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" title="class in io.micronaut.jms.listener">ConcurrentMessageHandler</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Submits incoming handling requests on a single threaded executor to
- avoid blocking the main thread.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html#%3Cinit%3E(io.micronaut.jms.listener.MessageHandler,java.util.concurrent.ExecutorService)" class="member-name-link">ConcurrentMessageHandler(MessageHandler&lt;T&gt;, ExecutorService)</a> - Constructor for class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" title="class in io.micronaut.jms.listener">ConcurrentMessageHandler</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Allows for concurrent handling of messages by handing of the logic to
- a delegate <a href="io/micronaut/jms/listener/MessageHandler.html" title="interface in io.micronaut.jms.listener"><code>MessageHandler</code></a> but wrapping those calls within
- an <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Executor.html#execute(java.lang.Runnable)" title="class or interface in java.util.concurrent" class="external-link"><code>Executor.execute(Runnable)</code></a>.</div>
-</dd>
 <dt><a href="io/micronaut/jms/activemq/artemis/configuration/ActiveMqArtemisConfiguration.html#CONNECTION_FACTORY_BEAN_NAME" class="member-name-link">CONNECTION_FACTORY_BEAN_NAME</a> - Static variable in class io.micronaut.jms.activemq.artemis.configuration.<a href="io/micronaut/jms/activemq/artemis/configuration/ActiveMqArtemisConfiguration.html" title="class in io.micronaut.jms.activemq.artemis.configuration">ActiveMqArtemisConfiguration</a></dt>
 <dd>
 <div class="block">Name of the ActiveMQ Artemis <code>ConnectionFactory</code> bean.</div>
@@ -356,18 +330,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The error handlers to be injected into the message handling logic.</div>
 </dd>
-<dt><a href="io/micronaut/jms/annotations/Queue.html#executor()" class="member-name-link">executor()</a> - Element in annotation interface io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Queue.html" title="annotation interface in io.micronaut.jms.annotations">Queue</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.</div>
-</div>
-</dd>
-<dt><a href="io/micronaut/jms/annotations/Topic.html#executor()" class="member-name-link">executor()</a> - Element in annotation interface io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Topic.html" title="annotation interface in io.micronaut.jms.annotations">Topic</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">since 3.0.0, to align the implementation with the JMS model and the messaging libraries' presumptions.</div>
-</div>
-</dd>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
@@ -489,11 +451,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Generates and configures a <a href="io/micronaut/jms/pool/MessageProducerPool.html" title="class in io.micronaut.jms.pool"><code>MessageProducerPool</code></a> given a <code>Session</code>.</div>
 </dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#getRegisteredListener(java.lang.String)" class="member-name-link">getRegisteredListener(String)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">The <a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener"><code>JMSListenerContainer</code></a> that is listening to the given <code>destination</code>.</div>
-</dd>
 <dt><a href="io/micronaut/jms/pool/SessionPoolFactory.html#getSessionPool(jakarta.jms.Connection)" class="member-name-link">getSessionPool(Connection)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/SessionPoolFactory.html" title="class in io.micronaut.jms.pool">SessionPoolFactory</a></dt>
 <dd>
 <div class="block">Returns a <a href="io/micronaut/jms/pool/SessionPool.html" title="class in io.micronaut.jms.pool"><code>SessionPool</code></a> from the provided <code>connection</code>.</div>
@@ -537,10 +494,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/TransactionalJMSListenerErrorHandler.html#handle(jakarta.jms.Session,jakarta.jms.Message,java.lang.Throwable)" class="member-name-link">handle(Session, Message, Throwable)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/TransactionalJMSListenerErrorHandler.html" title="class in io.micronaut.jms.listener">TransactionalJMSListenerErrorHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html#handle(T)" class="member-name-link">handle(T)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" title="class in io.micronaut.jms.listener">ConcurrentMessageHandler</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/MessageHandler.html#handle(T)" class="member-name-link">handle(T)</a> - Method in interface io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/MessageHandler.html" title="interface in io.micronaut.jms.listener">MessageHandler</a></dt>
 <dd>
 <div class="block">Perform some action when receiving a message.</div>
@@ -751,30 +704,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a> instance.</div>
 </dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html" class="type-name-link" title="class in io.micronaut.jms.listener">JMSListenerContainer</a>&lt;<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="type parameter in JMSListenerContainer">T</a>&gt; - Class in <a href="io/micronaut/jms/listener/package-summary.html">io.micronaut.jms.listener</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">as of 2.1.1</div>
-</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#%3Cinit%3E(io.micronaut.jms.pool.JMSConnectionPool,io.micronaut.jms.model.JMSDestinationType,int)" class="member-name-link">JMSListenerContainer(JMSConnectionPool, JMSDestinationType, int)</a> - Constructor for class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#%3Cinit%3E(io.micronaut.jms.pool.JMSConnectionPool,io.micronaut.jms.model.JMSDestinationType,int,int)" class="member-name-link">JMSListenerContainer(JMSConnectionPool, JMSDestinationType, int, int)</a> - Constructor for class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" class="type-name-link" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a> - Class in <a href="io/micronaut/jms/listener/package-summary.html">io.micronaut.jms.listener</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">as of 2.1.1</div>
-</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#%3Cinit%3E()" class="member-name-link">JMSListenerContainerFactory()</a> - Constructor for class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
 <dt><a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" class="type-name-link" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a> - Interface in <a href="io/micronaut/jms/listener/package-summary.html">io.micronaut.jms.listener</a></dt>
 <dd>
 <div class="block">Handles any errors thrown when handling a message on a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>.</div>
@@ -1031,29 +960,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Registers an <code>ArgumentBinder</code>.</div>
 </dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#registerListener(io.micronaut.jms.pool.JMSConnectionPool,java.lang.String,io.micronaut.jms.listener.MessageHandler,java.lang.Class,io.micronaut.jms.model.JMSDestinationType)" class="member-name-link">registerListener(JMSConnectionPool, String, MessageHandler&lt;T&gt;, Class&lt;T&gt;, JMSDestinationType)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Generates a new <a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener"><code>JMSListenerContainer</code></a> and registers the
- provided <a href="io/micronaut/jms/listener/MessageHandler.html" title="interface in io.micronaut.jms.listener"><code>MessageHandler</code></a> as the receiving executable method.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#registerListener(io.micronaut.jms.pool.JMSConnectionPool,java.lang.String,jakarta.jms.MessageListener,java.lang.Class,boolean,int,io.micronaut.jms.model.JMSDestinationType,java.util.Optional)" class="member-name-link">registerListener(JMSConnectionPool, String, MessageListener, Class&lt;T&gt;, boolean, int, JMSDestinationType, Optional&lt;String&gt;)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Generates a new <a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener"><code>JMSListenerContainer</code></a> and registers the
- provided <code>MessageListener</code> as the receiving executable method.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#registerListener(java.lang.String,io.micronaut.jms.listener.MessageHandler,java.lang.Class)" class="member-name-link">registerListener(String, MessageHandler&lt;T&gt;, Class&lt;T&gt;)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Registers a <a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener"><code>JMSListenerContainer</code></a> with default concurrency.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#registerListener(java.lang.String,jakarta.jms.MessageListener,java.lang.Class,boolean,int,java.util.Optional)" class="member-name-link">registerListener(String, MessageListener, Class&lt;T&gt;, boolean, int, Optional&lt;String&gt;)</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Internal method used by the <a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener"><code>JMSListenerContainerFactory</code></a> for
- registering new listeners.</div>
-</dd>
 <dt><a href="io/micronaut/jms/pool/AbstractPool.html#release(T)" class="member-name-link">release(T)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/AbstractPool.html" title="class in io.micronaut.jms.pool">AbstractPool</a></dt>
 <dd>
 <div class="block">Release the provided object and return it to the pool.</div>
@@ -1162,21 +1068,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/PooledProducer.html#setTimeToLive(long)" class="member-name-link">setTimeToLive(long)</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledProducer.html" title="class in io.micronaut.jms.pool">PooledProducer</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/ConcurrentMessageHandler.html" title="class in io.micronaut.jms.listener">ConcurrentMessageHandler</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Closes the MessageHandler and terminates the <code>ConcurrentMessageHandler.executorService</code>.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Safely shuts down all open connections linked to the listener container.</div>
-</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-<div class="block">Shuts down the listeners registered with this factory.</div>
-</dd>
 <dt><a href="io/micronaut/jms/listener/JMSListenerRegistry.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerRegistry.html" title="class in io.micronaut.jms.listener">JMSListenerRegistry</a></dt>
 <dd>
 <div class="block">Shuts down all registered <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>s.</div>
@@ -1247,14 +1138,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="io/micronaut/jms/bind/JMSArgumentBinderRegistry.html#toString()" class="member-name-link">toString()</a> - Method in class io.micronaut.jms.bind.<a href="io/micronaut/jms/bind/JMSArgumentBinderRegistry.html" title="class in io.micronaut.jms.bind">JMSArgumentBinderRegistry</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainer.html#toString()" class="member-name-link">toString()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainer.html" title="class in io.micronaut.jms.listener">JMSListenerContainer</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
-<dt><a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html#toString()" class="member-name-link">toString()</a> - Method in class io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerContainerFactory.html" title="class in io.micronaut.jms.listener">JMSListenerContainerFactory</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
-&nbsp;</dd>
 <dt><a href="io/micronaut/jms/model/MessageHeader.html#toString()" class="member-name-link">toString()</a> - Method in class io.micronaut.jms.model.<a href="io/micronaut/jms/model/MessageHeader.html" title="class in io.micronaut.jms.model">MessageHeader</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="io/micronaut/jms/pool/JMSConnectionPool.html#toString()" class="member-name-link">toString()</a> - Method in class io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/JMSConnectionPool.html" title="class in io.micronaut.jms.pool">JMSConnectionPool</a></dt>
