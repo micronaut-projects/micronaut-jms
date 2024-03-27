@@ -1,6 +1,6 @@
 [versions]
 managed-jakarta-jms-api = '3.1.0'
-managed-activemq-jakarta = '6.0.1'
+managed-activemq-jakarta = '6.1.0'
 managed-artemis-jakarta-client = '2.32.0'
 micronaut-docs = "2.0.0"
 micronaut = "4.3.12"
