@@ -2,7 +2,7 @@
 micronaut-docs = "2.0.0"
 micronaut = "4.5.1"
 micronaut-test = "4.1.1"
-activemq = '5.18.3'
+activemq = '5.18.4'
 amazon-sqs-messaging = '2.0.3'
 micronaut-platform = "4.2.3"
 artemis-client = '2.31.2'
