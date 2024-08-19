@@ -21,11 +21,13 @@ micronaut-validation = "4.7.0"
 micronaut-aws = "4.6.0"
 micronaut-gradle-plugin = "4.4.2"
 micronaut-logging = "1.3.0"
+micronaut-test-resources = "2.5.4"
 
 [libraries]
 micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
+micronaut-test-resources = { module = "io.micronaut.testresources:micronaut-test-resources-bom", version.ref = "micronaut-test-resources" }
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'activemq' }
 activemq-client = { module = 'org.apache.activemq:activemq-client', version.ref = 'activemq' }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
@@ -39,6 +41,7 @@ jms-api = { module = 'javax.jms:javax.jms-api', version.ref = 'jms-api' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter"}
 
 #plugins
 

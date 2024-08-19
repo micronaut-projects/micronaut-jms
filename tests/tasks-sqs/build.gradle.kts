@@ -6,6 +6,8 @@ plugins {
 dependencies {
     implementation(projects.micronautJmsSqs)
     testImplementation(libs.awaitility)
+    testImplementation(platform(mnTestResources.boms.testcontainers))
+    testImplementation(libs.testcontainers.junit.jupiter)
 }
 
 micronaut {
