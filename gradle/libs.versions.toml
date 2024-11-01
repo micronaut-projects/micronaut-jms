@@ -19,7 +19,7 @@ groovy = "4.0.17"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.12'
 jsr305 = "3.0.2"
-kotlin = '1.9.23'
+kotlin = '1.9.25'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.8.4"
 
