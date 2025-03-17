@@ -21,7 +21,7 @@ jcl-slf4j = '2.0.17'
 jsr305 = "3.0.2"
 kotlin = '1.9.25'
 spock = "2.3-groovy-4.0"
-spotbugs = "4.9.2"
+spotbugs = "4.9.3"
 sonatype-scan = "3.0.0"
 
 [libraries]
