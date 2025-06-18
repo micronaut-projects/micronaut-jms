@@ -6,12 +6,13 @@ plugins {
 String ossIndexUsername = System.getenv("OSS_INDEX_USERNAME") ?: project.properties["ossIndexUsername"]
 String ossIndexPassword = System.getenv("OSS_INDEX_PASSWORD") ?: project.properties["ossIndexPassword"]
 boolean sonatypePluginConfigured = ossIndexUsername != null && ossIndexPassword != null
+ossIndexAudit {
 if (sonatypePluginConfigured) {
-    ossIndexAudit {
-        username = ossIndexUsername
-        password = ossIndexPassword
-        excludeCompileOnly = true
-    }
+    username = ossIndexUsername
+    password = ossIndexPassword
+}
+    excludeCompileOnly = true
+    excludeCoordinates = ["commons-beanutils:commons-beanutils:1.10.1"]
 }
 
 dependencies {
