@@ -22,7 +22,7 @@ jsr305 = "3.0.2"
 kotlin = '1.9.25'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.9.3"
-sonatype-scan = "3.1.1"
+sonatype-scan = "3.1.4"
 
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
