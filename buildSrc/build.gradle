@@ -11,5 +11,4 @@ dependencies {
     implementation libs.micronaut.gradle.plugin
     implementation libs.gradle.kotlin
     implementation libs.gradle.kotlin.allopen
-    implementation(libs.sonatype.scan)
 }
