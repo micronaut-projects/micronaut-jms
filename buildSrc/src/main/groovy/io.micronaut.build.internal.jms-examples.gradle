@@ -6,4 +6,5 @@ dependencies {
     testImplementation projects.micronautJmsActivemqClassic
     testImplementation libs.activemq.broker
     testImplementation(mnLogging.logback.classic)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

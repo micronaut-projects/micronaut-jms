@@ -8,6 +8,7 @@ dependencies {
     testImplementation(libs.awaitility)
     testImplementation(platform(mnTestResources.boms.testcontainers))
     testImplementation(libs.testcontainers.junit.jupiter)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 micronaut {
