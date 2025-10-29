@@ -11,4 +11,6 @@ micronaut {
     testRuntime 'junit5'
 }
 
-mainClassName = 'io.micronaut.jms.docs.Application'
+application {
+    mainClass.set("io.micronaut.jms.docs.Application'")
+}
