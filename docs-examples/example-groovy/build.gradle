@@ -7,4 +7,6 @@ micronaut {
     testRuntime 'spock'
 }
 
-mainClassName = 'io.micronaut.jms.docs.Application'
+application {
+    mainClass.set("io.micronaut.jms.docs.Application")
+}

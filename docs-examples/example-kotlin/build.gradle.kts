@@ -13,9 +13,3 @@ micronaut {
 application {
     mainClass.set("com.example.ApplicationKt")
 }
-
-kotlin {
-    jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
