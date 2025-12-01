@@ -15,7 +15,7 @@
  */
 package io.micronaut.jms.model;
 
-import io.micronaut.core.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import io.micronaut.messaging.exceptions.MessagingSystemException;
 
 import jakarta.jms.Destination;

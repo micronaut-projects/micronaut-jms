@@ -17,7 +17,7 @@ package io.micronaut.jms.activemq.artemis.configuration.properties;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.core.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 

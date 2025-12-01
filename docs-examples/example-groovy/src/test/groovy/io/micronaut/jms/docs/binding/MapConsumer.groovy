@@ -1,7 +1,7 @@
 package io.micronaut.jms.docs.binding
 
 import io.micronaut.context.annotation.Requires
-import io.micronaut.core.annotation.Nullable
+import org.jspecify.annotations.Nullable
 
 
 // tag::imports[]
