@@ -4,9 +4,13 @@ plugins {
 }
 
 micronaut {
-    testRuntime 'spock'
+
 }
 
 application {
     mainClass.set("io.micronaut.jms.docs.Application")
+}
+
+dependencies {
+    testImplementation("org.spockframework:spock-core:2.4-M7-groovy-5.0")
 }
