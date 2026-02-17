@@ -38,7 +38,7 @@ jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
-testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter"}
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter"}
 
 #plugins
 micronaut-gradle-plugin = { module = 'io.micronaut.gradle:micronaut-gradle-plugin', version.ref = 'micronaut-gradle-plugin' }
