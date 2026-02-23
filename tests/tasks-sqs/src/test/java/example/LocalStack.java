@@ -27,7 +27,6 @@ public class LocalStack {
 
             container.start();
 
-            // Setup the queue
             try (SqsClient sqsClient = SqsClient.builder()
                 .endpointOverride(container.getEndpoint())
                 .credentialsProvider(StaticCredentialsProvider.create(
@@ -38,7 +37,10 @@ public class LocalStack {
 
                 sqsClient.createQueue(CreateQueueRequest.builder()
                     .queueName(TaskConstants.FIFO_QUEUE)
-                    .attributes(Map.of(QueueAttributeName.FIFO_QUEUE, "true"))
+                    .attributes(Map.of(
+                        QueueAttributeName.FIFO_QUEUE, "true",
+                        QueueAttributeName.CONTENT_BASED_DEDUPLICATION, "true"
+                    ))
                     .build());
             }
         }
@@ -49,6 +51,10 @@ public class LocalStack {
     private static Map<String, String> buildProperties(LocalStackContainer container) {
         Map<String, String> props = new HashMap<>();
         props.put("micronaut.jms.sqs.enabled", "true");
+        props.put("aws.access-key-id", container.getAccessKey());
+        props.put("aws.secret-key", container.getSecretKey());
+        props.put("aws.region", container.getRegion());
+        props.put("aws.services.sqs.endpoint-override", container.getEndpoint().toString());
         return props;
     }
 }

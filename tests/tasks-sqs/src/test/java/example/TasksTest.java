@@ -1,6 +1,7 @@
 package example;
 
 import io.micronaut.context.annotation.Property;
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -18,7 +19,8 @@ import static org.awaitility.Awaitility.await;
 
 @Testcontainers(disabledWithoutDocker = true)
 @MicronautTest
-class TasksTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class TasksTest implements TestPropertyProvider {
 
     @Test
     void testShouldProcessTasks(@Client("/") HttpClient client) {
@@ -28,5 +30,10 @@ class TasksTest {
                 return result != null && result > 3;
             }
         );
+    }
+
+    @Override
+    public @NonNull Map<String, String> getProperties() {
+        return LocalStack.getProperties();
     }
 }
