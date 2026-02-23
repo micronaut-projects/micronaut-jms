@@ -1,16 +1,11 @@
 plugins {
     id 'groovy'
     id 'io.micronaut.build.internal.jms-application'
-    id 'io.micronaut.test-resources'
 }
 
 micronaut {
     importMicronautPlatform = false
     testRuntime "junit5"
-    testResources {
-        clientTimeout = 300
-        version = libs.versions.micronaut.test.resources.get()
-    }
 }
 dependencies {
     micronautBoms(platform(mn.micronaut.core.bom))

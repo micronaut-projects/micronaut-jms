@@ -28,6 +28,8 @@ abstract class AbstractJmsSpec extends Specification {
         Map<String, Object> config = [:]
         config['micronaut.jms.activemq.classic.connectionString'] = 'vm://' + broker + '?broker.persistent=false'
         config['micronaut.jms.activemq.classic.enabled'] = true
+        config['micronaut.jms.activemq.classic.username'] = 'activemq'
+        config['micronaut.jms.activemq.classic.password'] = 'activemq'
         config['spec.name'] = getClass().getSimpleName()
         config
     }

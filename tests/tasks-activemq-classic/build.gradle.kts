@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(projects.micronautJmsActivemqClassic)
     testImplementation(libs.awaitility)
-    testImplementation(platform(mnTestResources.boms.testcontainers))
+    testImplementation(platform(mnTest.boms.testcontainers))
+    testImplementation(libs.testcontainers.activemq)
     testImplementation(libs.testcontainers.junit.jupiter)
 }

@@ -34,6 +34,8 @@ public abstract class AbstractJmsSpec {
         Map<String, Object> config = new HashMap<>();
         config.put("micronaut.jms.activemq.classic.connectionString", "vm://" + broker + "?broker.persistent=false");
         config.put("micronaut.jms.activemq.classic.enabled", true);
+        config.put("micronaut.jms.activemq.classic.username", "activemq");
+        config.put("micronaut.jms.activemq.classic.password", "activemq");
         config.put("spec.name", getClass().getSimpleName());
         return config;
     }
