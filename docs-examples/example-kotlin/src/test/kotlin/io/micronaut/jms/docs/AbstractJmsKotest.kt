@@ -21,6 +21,8 @@ abstract class AbstractJmsKotest(body: BehaviorSpec.() -> Unit = {}): BehaviorSp
                 "micronaut.jms.activemq.artemis.enabled" to false,
                 "micronaut.jms.activemq.classic.enabled" to true,
                 "micronaut.jms.activemq.sqs.enabled" to false,
+                "micronaut.jms.activemq.classic.username" to "activemq",
+                "micronaut.jms.activemq.classic.password" to "activemq",
                 "spec.name" to specName)
 
         }
