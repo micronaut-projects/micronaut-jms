@@ -1,9 +1,9 @@
 [versions]
 managed-jakarta-jms-api = '3.1.0'
 managed-activemq-jakarta = '6.2.1'
-managed-artemis-jakarta-client = '2.42.0'
+managed-artemis-jakarta-client = '2.51.0'
 micronaut-docs = "3.0.0"
-micronaut = "5.0.0-M10"
+micronaut = "5.0.0-M13"
 micronaut-platform = "4.9.4"
 micronaut-test = "5.0.0-M6"
 micronaut-logging = "2.0.0-M1"
@@ -19,7 +19,7 @@ groovy = "4.0.17"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.17'
 jsr305 = "3.0.2"
-kotlin = '2.2.21'
+kotlin = '2.3.10'
 spock = "2.3-groovy-4.0"
 spotbugs = "4.9.8"
 
