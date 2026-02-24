@@ -60,9 +60,8 @@ public class SqsConfiguration {
      *               {@link software.amazon.awssdk.services.sqs.SqsClientBuilder}.
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
-    @Requires(beans = SqsClient.class)
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
-    public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
+    public SQSConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      SqsClient sqs) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
             CONNECTION_FACTORY_BEAN_NAME);
@@ -81,7 +80,6 @@ public class SqsConfiguration {
      * @param builder a configured {@link software.amazon.awssdk.services.sqs.SqsClientBuilder}.
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
-    @Requires(missingBeans = SqsClient.class)
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
     public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      SqsClientBuilder builder) {

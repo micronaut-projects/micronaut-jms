@@ -12,9 +12,17 @@ class CustomizeBrokerSpec extends AbstractJmsSpec {
 
     void 'test customize broker'() {
         when:
-        ConnectionFactory connectionFactory = applicationContext.getBean(
+        Collection<ConnectionFactory> connectionFactories = applicationContext.getBeansOfType(
             ConnectionFactory,
             Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME))
+
+        then:
+        connectionFactories.stream().anyMatch(ActiveMQConnectionFactory.class::isInstance)
+
+        when:
+        ActiveMQConnectionFactory connectionFactory = (ActiveMQConnectionFactory) connectionFactories.stream()
+                .filter(ActiveMQConnectionFactory.class::isInstance).findFirst()
+                .get();
 
         then:
         connectionFactory instanceof ActiveMQConnectionFactory

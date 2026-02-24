@@ -7,7 +7,7 @@ dependencies {
 }
 micronaut {
     importMicronautPlatform.set(false)
-    testRuntime("kotest5")
+    testRuntime("junit5")
 }
 application {
     mainClass.set("com.example.ApplicationKt")

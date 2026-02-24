@@ -4,13 +4,12 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.docs.AbstractJmsSpec;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.PooledConnection;
+import jakarta.jms.ConnectionFactory;
 import org.junit.jupiter.api.Test;
 
 import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.XAConnection;
-
-import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomBrokerSpec extends AbstractJmsSpec {
@@ -20,7 +19,7 @@ class CustomBrokerSpec extends AbstractJmsSpec {
 
         JMSConnectionPool connectionPool = applicationContext.getBean(
             JMSConnectionPool.class,
-            Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME));
+            Qualifiers.byName("activeMQXAConnectionFactory"));
 
         Connection connection = connectionPool.createConnection();
         assertTrue(connection instanceof PooledConnection);

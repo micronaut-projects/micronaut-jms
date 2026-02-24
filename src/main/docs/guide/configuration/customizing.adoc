@@ -12,4 +12,8 @@ snippet::io.micronaut.jms.docs.configuration.CustomizeBrokerJMSConnectionPoolLis
 
 Here we discard the default instance and replace it with a custom implementation, in this case an instance of link:{apijms}XAConnectionFactory.html[XAConnectionFactory] for distributed transaction support.
 
-snippet::io.micronaut.jms.docs.configuration.CustomBrokerJMSConnectionPoolListener[tags="imports,clazz", project-base="docs-examples/example"]
+snippet::io.micronaut.jms.docs.configuration.ActiveMQXAConnectionBeanFactory[tags="imports,clazz", project-base="docs-examples/example"]
+
+and, then, create a JMSConnectionPool in another factory:
+
+snippet::io.micronaut.jms.docs.configuration.JmsConnectionPoolActiveMQXAConnectionFactory[tags="imports,clazz", project-base="docs-examples/example"]

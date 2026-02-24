@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import jakarta.jms.ConnectionFactory;
 
+import java.util.Collection;
+
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,14 +17,15 @@ class CustomizeBrokerSpec extends AbstractJmsSpec {
     @Test
     void testCustomizeBroker() {
 
-        ConnectionFactory connectionFactory = applicationContext.getBean(
+        Collection<ConnectionFactory> connectionFactories = applicationContext.getBeansOfType(
             ConnectionFactory.class,
             Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME));
 
-        assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
+        assertTrue(connectionFactories.stream().anyMatch(ActiveMQConnectionFactory.class::isInstance));
 
-        ActiveMQConnectionFactory amqcf = (ActiveMQConnectionFactory) connectionFactory;
-
+        ActiveMQConnectionFactory amqcf = (ActiveMQConnectionFactory) connectionFactories.stream()
+            .filter(ActiveMQConnectionFactory.class::isInstance).findFirst()
+            .get();
         assertTrue(amqcf.isUseAsyncSend());
     }
 }

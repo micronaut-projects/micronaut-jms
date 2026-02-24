@@ -56,7 +56,7 @@ public class ActiveMqArtemisConfiguration {
      * @return the {@link ActiveMQJMSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
-    public ConnectionFactory activeMqArtemisConnectionFactory(ActiveMqArtemisConfigurationProperties config) {
+    public ActiveMQJMSConnectionFactory activeMqArtemisConnectionFactory(ActiveMqArtemisConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
                 CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
 

@@ -1,31 +1,25 @@
-package io.micronaut.jms.docs.configuration;
+package io.micronaut.jms.docs.configuration
 
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.micronaut.inject.qualifiers.Qualifiers
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
-import io.micronaut.jms.docs.AbstractJmsKotest
+import io.micronaut.jms.docs.AbstractJmsSpec
 import org.apache.activemq.ActiveMQConnectionFactory
 import jakarta.jms.ConnectionFactory
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
-class CustomizeBrokerSpec : AbstractJmsKotest({
+class CustomizeBrokerSpec : AbstractJmsSpec() {
 
-    val specName = javaClass.simpleName
+    @Test
+    fun testCustomizeBroker() {
+        val connectionFactories = applicationContext.getBeansOfType(
+            ConnectionFactory::class.java,
+            Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME)
+        )
 
-    given("Using a customized broker") {
-        val applicationContext = startContext(specName)
+        assertTrue(connectionFactories.any { it is ActiveMQConnectionFactory })
 
-        `when`("Accessing the connection factory") {
-            val connectionFactory = applicationContext.getBean(
-                ConnectionFactory::class.java,
-                Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME))
-
-            then("The expected customization is in effect") {
-                connectionFactory.shouldBeInstanceOf<ActiveMQConnectionFactory>()
-                connectionFactory.isUseAsyncSend shouldBe true
-            }
-        }
-
-        applicationContext.stop()
+        val amqcf = connectionFactories.first { it is ActiveMQConnectionFactory } as ActiveMQConnectionFactory
+        assertTrue(amqcf.isUseAsyncSend)
     }
-})
+}

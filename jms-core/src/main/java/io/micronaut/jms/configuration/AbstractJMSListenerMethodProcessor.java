@@ -31,9 +31,6 @@ import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
-import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
-import io.micronaut.context.exceptions.NoSuchBeanException;
-import jakarta.jms.ConnectionFactory;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
 import org.slf4j.Logger;
@@ -140,17 +137,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .findBean(JMSListenerRegistry.class)
                 .orElseThrow(() -> new IllegalStateException("No JMSListenerRegistry configured"));
 
-        JMSConnectionPool connectionPool;
-        try {
-            connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
-        } catch (NoSuchBeanException e) {
-            // Fallback: if the pool isn't registered yet, force-create the ConnectionFactory, then register the pool
-            ConnectionFactory cf = beanContext.getBean(ConnectionFactory.class, Qualifiers.byName(connectionFactoryName));
-            JMSConfigurationProperties props = beanContext.getBean(JMSConfigurationProperties.class);
-            JMSConnectionPool pool = new JMSConnectionPool(cf, props.getInitialPoolSize(), props.getMaxPoolSize());
-            beanContext.registerSingleton(JMSConnectionPool.class, pool, Qualifiers.byName(connectionFactoryName));
-            connectionPool = pool;
-        }
+        final JMSConnectionPool connectionPool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactoryName));
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
