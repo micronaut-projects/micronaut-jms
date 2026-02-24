@@ -1,6 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm")
-    id("org.jetbrains.kotlin.kapt")
+    id("io.micronaut.build.internal.kotlin-kapt")
     id("io.micronaut.build.internal.jms-examples")
 }
 dependencies {
@@ -8,7 +7,7 @@ dependencies {
 }
 micronaut {
     importMicronautPlatform.set(false)
-    testRuntime("kotest5")
+    testRuntime("junit5")
 }
 application {
     mainClass.set("com.example.ApplicationKt")

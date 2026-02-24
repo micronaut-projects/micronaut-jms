@@ -1,36 +1,24 @@
 package io.micronaut.jms.docs.quickstart
 
-import io.kotest.assertions.timing.eventually
-import io.kotest.matchers.shouldBe
-import io.micronaut.jms.docs.AbstractJmsKotest
-import org.opentest4j.AssertionFailedError
-import kotlin.time.DurationUnit
-import kotlin.time.ExperimentalTime
-import kotlin.time.toDuration
+import io.micronaut.jms.docs.AbstractJmsSpec
+import org.junit.jupiter.api.Test
 
-@ExperimentalTime
-class QuickstartSpec : AbstractJmsKotest({
+import org.awaitility.Awaitility.await
+import java.util.concurrent.TimeUnit
 
-    val specName = javaClass.simpleName
+class QuickstartSpec : AbstractJmsSpec() {
 
-    given("A basic producer and consumer") {
-        val applicationContext = startContext(specName)
-
-        `when`("the message is published") {
-            val textConsumer = applicationContext.getBean(TextConsumer::class.java)
+    @Test
+    fun testTextProducerAndConsumer() {
 // tag::producer[]
 val textProducer = applicationContext.getBean(TextProducer::class.java)
 textProducer.send("quickstart")
 // end::producer[]
 
-            then("the message is consumed") {
-                eventually(3.toDuration(DurationUnit.SECONDS), AssertionFailedError::class) {
-                    textConsumer.messages.size shouldBe 1
-                    textConsumer.messages[0] shouldBe "quickstart"
-                }
-            }
+        val textConsumer = applicationContext.getBean(TextConsumer::class.java)
+        await().atMost(3, TimeUnit.SECONDS).until {
+            textConsumer.messages.size == 1 &&
+                textConsumer.messages[0] == "quickstart"
         }
-
-        applicationContext.stop()
     }
-})
+}

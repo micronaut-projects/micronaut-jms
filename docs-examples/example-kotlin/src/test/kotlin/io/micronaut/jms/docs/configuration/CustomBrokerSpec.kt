@@ -1,32 +1,26 @@
-package io.micronaut.jms.docs.configuration;
+package io.micronaut.jms.docs.configuration
 
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.micronaut.inject.qualifiers.Qualifiers
-import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
-import io.micronaut.jms.docs.AbstractJmsKotest
+import io.micronaut.jms.docs.AbstractJmsSpec
 import io.micronaut.jms.pool.JMSConnectionPool
 import io.micronaut.jms.pool.PooledConnection
 import jakarta.jms.XAConnection
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
-class CustomBrokerSpec : AbstractJmsKotest({
+class CustomBrokerSpec : AbstractJmsSpec() {
 
-    val specName = javaClass.simpleName
+    @Test
+    fun testCustomBroker() {
+        val connectionPool = applicationContext.getBean(
+            JMSConnectionPool::class.java,
+            Qualifiers.byName("activeMQXAConnectionFactory")
+        )
 
-    given("Using a custom broker") {
-        val applicationContext = startContext(specName)
+        val connection = connectionPool.createConnection()
+        assertTrue(connection is PooledConnection)
 
-        `when`("Accessing the connection pool") {
-            val connectionPool = applicationContext.getBean(
-                JMSConnectionPool::class.java,
-                Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME));
-            val connection = connectionPool.createConnection()
-            val realConnection = (connection as PooledConnection).get();
-
-            then("The expected customization is in effect") {
-                realConnection.shouldBeInstanceOf<XAConnection>()
-            }
-        }
-
-        applicationContext.stop()
+        val realConnection = (connection as PooledConnection).get()
+        assertTrue(realConnection is XAConnection)
     }
-})
+}

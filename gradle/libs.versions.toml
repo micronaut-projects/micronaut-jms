@@ -2,25 +2,20 @@
 managed-jakarta-jms-api = '3.1.0'
 managed-activemq-jakarta = '6.2.1'
 managed-artemis-jakarta-client = '2.51.0'
-micronaut-docs = "3.0.0"
 micronaut = "5.0.0-M13"
-micronaut-platform = "4.9.4"
+micronaut-platform = "4.10.8"
 micronaut-test = "5.0.0-M6"
-micronaut-logging = "2.0.0-M1"
+micronaut-logging = "2.0.0-M2"
 micronaut-validation = "5.0.0-M1"
-micronaut-aws = "4.11.0"
-micronaut-test-resources = "3.0.0-M6"
+micronaut-aws = "5.0.0-M1"
 micronaut-gradle-plugin = "4.6.2"
 amazon-sqs-messaging = '2.1.4'
 awaitility = '4.3.0'
-commons-pool2 = '2.12.1'
-graal-svm = "23.1.9"
-groovy = "4.0.17"
+commons-pool2 = '2.13.1'
+graal-svm = "25.0.2"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.17'
 jsr305 = "3.0.2"
-kotlin = '2.3.10'
-spock = "2.3-groovy-4.0"
 spotbugs = "4.9.8"
 
 [libraries]
@@ -31,7 +26,6 @@ managed-activemq-client-jakarta = { module = 'org.apache.activemq:activemq-clien
 micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'micronaut' }
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 micronaut-platform = { module = "io.micronaut.platform:micronaut-platform-bom", version.ref = "micronaut-platform" }
-micronaut-test-resources = { module = "io.micronaut.testresources:micronaut-test-resources-bom", version.ref = "micronaut-test-resources" }
 micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
 
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'managed-activemq-jakarta' }
@@ -44,9 +38,10 @@ jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
-testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter"}
 
+testcontainers = { module = "org.testcontainers:testcontainers" }
+testcontainers-localstack = { module = "org.testcontainers:testcontainers-localstack" }
+testcontainers-activemq = { module = "org.testcontainers:testcontainers-activemq" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter"}
 #plugins
 micronaut-gradle-plugin = { module = 'io.micronaut.gradle:micronaut-gradle-plugin', version.ref = 'micronaut-gradle-plugin' }
-gradle-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-gradle-kotlin-allopen = { module = "org.jetbrains.kotlin:kotlin-allopen", version.ref = "kotlin" }

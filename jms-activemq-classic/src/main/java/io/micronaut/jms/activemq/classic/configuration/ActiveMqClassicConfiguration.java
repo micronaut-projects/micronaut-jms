@@ -56,7 +56,7 @@ public class ActiveMqClassicConfiguration {
      * @return the {@link ActiveMQConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
-    public ConnectionFactory activeMqConnectionFactory(ActiveMqClassicConfigurationProperties config) {
+    public ActiveMQConnectionFactory activeMqConnectionFactory(ActiveMqClassicConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
             CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
         String username = config.getUsername();

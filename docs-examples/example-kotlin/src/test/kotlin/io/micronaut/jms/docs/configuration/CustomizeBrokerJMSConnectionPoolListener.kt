@@ -12,9 +12,9 @@ import jakarta.jms.ConnectionFactory
 @Requires(property = "spec.name", value = "CustomizeBrokerSpec")
 // tag::clazz[]
 @Singleton
-class CustomizeBrokerJMSConnectionPoolListener : BeanCreatedEventListener<ConnectionFactory?> {
+class CustomizeBrokerJMSConnectionPoolListener : BeanCreatedEventListener<ConnectionFactory> {
 
-    override fun onCreated(event: BeanCreatedEvent<ConnectionFactory?>): ConnectionFactory? {
+    override fun onCreated(event: BeanCreatedEvent<ConnectionFactory>): ConnectionFactory {
         val connectionFactory = event.bean
         if (connectionFactory is ActiveMQConnectionFactory) {
             connectionFactory.isUseAsyncSend = true

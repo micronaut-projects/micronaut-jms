@@ -5,6 +5,7 @@ plugins {
 
 micronaut {
     testRuntime 'spock'
+
 }
 
 application {

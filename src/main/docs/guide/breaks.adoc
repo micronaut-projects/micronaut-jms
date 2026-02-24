@@ -1,3 +1,7 @@
+== 5.0.0
+
+The way of configuring unsupported brokers has changed. See the <<customizing, Customizing Brokers>> section.
+
 == 4.0.0
 
 ==== Removal of `javax.jms` namespace

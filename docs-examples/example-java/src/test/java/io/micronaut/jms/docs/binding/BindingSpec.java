@@ -1,6 +1,8 @@
 package io.micronaut.jms.docs.binding;
 
+import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.docs.AbstractJmsSpec;
+import jakarta.jms.ConnectionFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -9,14 +11,19 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static io.micronaut.jms.model.JMSHeaders.JMS_CORRELATION_ID;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BindingSpec extends AbstractJmsSpec {
 
     @Test
     void testMapProducerAndConsumerWithHeaders() {
+        assertTrue(applicationContext.containsBean(ConnectionFactory.class));
+        assertTrue(applicationContext.containsBean(ConnectionFactory.class, Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME)));
+
         int foo = 123;
         boolean bar = true;
         Map<String, Serializable> body = new HashMap<>();

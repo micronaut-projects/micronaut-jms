@@ -39,7 +39,7 @@ class CountingErrorHandler : JMSListenerErrorHandler {
 
     val count: AtomicInteger = AtomicInteger(0)
 
-    override fun handle(session: Session?, message: Message?, ex: Throwable?) {
+    override fun handle(session: Session, message: Message, ex: Throwable) {
         count.incrementAndGet()
     }
 
@@ -50,7 +50,7 @@ class AccumulatingErrorHandler : JMSListenerErrorHandler {
 
     val exceptions: MutableList<Throwable> = Collections.synchronizedList(ArrayList())
 
-    override fun handle(session: Session?, message: Message?, ex: Throwable?) {
+    override fun handle(session: Session, message: Message, ex: Throwable) {
         if (ex != null) {
             exceptions.add(ex)
         }

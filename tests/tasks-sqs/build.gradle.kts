@@ -6,13 +6,10 @@ plugins {
 dependencies {
     implementation(projects.micronautJmsSqs)
     testImplementation(libs.awaitility)
-    testImplementation(platform(mnTestResources.boms.testcontainers))
+    testImplementation(platform(mnTest.boms.testcontainers))
+    testImplementation(libs.testcontainers)
     testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.localstack)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
 
-micronaut {
-    testResources {
-        additionalModules.add("localstack-sqs")
-    }
 }

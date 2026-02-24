@@ -16,7 +16,7 @@ class CustomBrokerSpec extends AbstractJmsSpec {
         when:
         JMSConnectionPool connectionPool = applicationContext.getBean(
             JMSConnectionPool,
-            Qualifiers.byName(CONNECTION_FACTORY_BEAN_NAME))
+            Qualifiers.byName("activeMQXAConnectionFactory"))
 
         Connection connection = connectionPool.createConnection()
 

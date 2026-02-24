@@ -61,7 +61,7 @@ public class SqsConfiguration {
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
-    public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
+    public SQSConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      SqsClient sqs) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
             CONNECTION_FACTORY_BEAN_NAME);

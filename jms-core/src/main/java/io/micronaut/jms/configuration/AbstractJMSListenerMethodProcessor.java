@@ -76,8 +76,8 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     @Override
-    public void process(BeanDefinition<?> beanDefinition,
-                        ExecutableMethod<?, ?> method) {
+    public <B> void process(BeanDefinition<B> beanDefinition,
+                        ExecutableMethod<B, ?> method) {
 
         AnnotationValue<JMSListener> listenerAnnotation = beanDefinition.getAnnotation(JMSListener.class);
         if (listenerAnnotation == null) {
