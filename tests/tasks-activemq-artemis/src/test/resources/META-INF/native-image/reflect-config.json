@@ -1,0 +1,8 @@
+[
+  {
+    "name": "example.Task",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  }
+]
