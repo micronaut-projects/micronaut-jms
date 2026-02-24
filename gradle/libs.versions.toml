@@ -38,6 +38,7 @@ jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
+
 testcontainers = { module = "org.testcontainers:testcontainers" }
 testcontainers-localstack = { module = "org.testcontainers:testcontainers-localstack" }
 testcontainers-activemq = { module = "org.testcontainers:testcontainers-activemq" }
