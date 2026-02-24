@@ -13,5 +13,4 @@ dependencies {
     micronautBoms(platform(mnTest.micronaut.test.bom))
     testImplementation mnTest.micronaut.test.core
     testImplementation mn.micronaut.http.client
-    runtimeOnly(mn.snakeyaml)
 }

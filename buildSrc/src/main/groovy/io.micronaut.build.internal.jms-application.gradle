@@ -23,6 +23,5 @@ application {
 dependencies {
     micronautBoms(platform(mn.micronaut.core.bom))
     micronautBoms(platform(mnTest.micronaut.test.bom))
-    runtimeOnly(mn.snakeyaml)
     testImplementation(mnLogging.logback.classic)
 }
