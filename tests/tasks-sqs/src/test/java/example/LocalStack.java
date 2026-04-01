@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class LocalStack {
 
-    private static final String IMAGE_NAME = "localstack/localstack:latest";
+    private static final String IMAGE_NAME = "localstack/localstack:4.14.0";
     private static LocalStackContainer container;
 
     public static Map<String, String> getProperties() {
