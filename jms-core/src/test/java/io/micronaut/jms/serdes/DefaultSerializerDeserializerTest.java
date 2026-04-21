@@ -17,6 +17,8 @@ package io.micronaut.jms.serdes;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.core.type.Argument;
+import io.micronaut.messaging.exceptions.MessageListenerException;
+import jakarta.jms.ObjectMessage;
 import jakarta.jms.TextMessage;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +26,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefaultSerializerDeserializerTest {
 
@@ -38,6 +41,21 @@ class DefaultSerializerDeserializerTest {
         }
     }
 
+    @Test
+    void deserializeObjectFailsFastForIncompatibleBodyType() {
+        try (ApplicationContext context = ApplicationContext.run()) {
+            DefaultSerializerDeserializer deserializer = context.getBean(DefaultSerializerDeserializer.class);
+
+            MessageListenerException exception = assertThrows(MessageListenerException.class,
+                () -> deserializer.deserialize(objectMessage("value"), Integer.class));
+
+            assertEquals("Problem deserializing message ObjectMessage[value]", exception.getMessage());
+            assertEquals(ClassCastException.class, exception.getCause().getClass());
+            assertEquals("Cannot deserialize ObjectMessage body to type java.lang.Integer; actual body type is java.lang.String",
+                exception.getCause().getMessage());
+        }
+    }
+
     private static TextMessage textMessage(String text) {
         return (TextMessage) Proxy.newProxyInstance(
             TextMessage.class.getClassLoader(),
@@ -45,6 +63,20 @@ class DefaultSerializerDeserializerTest {
             (proxy, method, args) -> switch (method.getName()) {
                 case "getText" -> text;
                 case "toString" -> "TextMessage[" + text + "]";
+                case "equals" -> proxy == args[0];
+                case "hashCode" -> System.identityHashCode(proxy);
+                default -> null;
+            }
+        );
+    }
+
+    private static ObjectMessage objectMessage(Object value) {
+        return (ObjectMessage) Proxy.newProxyInstance(
+            ObjectMessage.class.getClassLoader(),
+            new Class<?>[]{ObjectMessage.class},
+            (proxy, method, args) -> switch (method.getName()) {
+                case "getObject" -> value;
+                case "toString" -> "ObjectMessage[" + value + "]";
                 case "equals" -> proxy == args[0];
                 case "hashCode" -> System.identityHashCode(proxy);
                 default -> null;

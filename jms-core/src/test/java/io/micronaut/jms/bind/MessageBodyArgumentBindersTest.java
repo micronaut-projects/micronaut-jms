@@ -75,6 +75,7 @@ class MessageBodyArgumentBindersTest {
         private final List<String> value = List.of("value");
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T deserialize(Message message, Argument<T> argument) {
             capturedArgument.set(argument);
             return (T) value;

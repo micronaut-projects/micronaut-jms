@@ -44,6 +44,11 @@ public interface Deserializer {
      * @param argument the argument
      * @param <T> the type
      * @return the extracted message body as an instance of the specified type
+     *
+     * The default implementation delegates to {@link #deserialize(Message, Class)} and only uses
+     * {@link Argument#getType()}, so it does not preserve type variables. Implementers should
+     * override this method to support generic-aware deserialization.
+     *
      * @since 5.0.0
      */
     default <T> T deserialize(Message message, Argument<T> argument) {

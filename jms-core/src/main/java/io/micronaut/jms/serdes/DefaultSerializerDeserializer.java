@@ -128,7 +128,8 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
         if (clazz.isInstance(body)) {
             return clazz.cast(body);
         }
-        return (T) body;
+        throw new ClassCastException("Cannot deserialize ObjectMessage body to type " + clazz.getName()
+            + "; actual body type is " + (body == null ? "null" : body.getClass().getName()));
     }
 
     @Override
