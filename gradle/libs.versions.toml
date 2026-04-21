@@ -36,6 +36,9 @@ commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'co
 graal-svm = { module = "org.graalvm.nativeimage:svm", version.ref = "graal-svm" }
 jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
 

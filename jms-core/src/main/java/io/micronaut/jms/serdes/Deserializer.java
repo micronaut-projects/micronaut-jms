@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.serdes;
 
+import io.micronaut.core.type.Argument;
 import jakarta.jms.Message;
 
 /**
@@ -33,7 +34,20 @@ public interface Deserializer {
      * @return the extracted message body as an instance of a sensible type
      */
     default Object deserialize(Message message) {
-        return deserialize(message, Object.class);
+        return deserialize(message, Argument.of(Object.class));
+    }
+
+    /**
+     * Extract the body of the message into the specified type.
+     *
+     * @param message the message
+     * @param argument the argument
+     * @param <T> the type
+     * @return the extracted message body as an instance of the specified type
+     * @since 5.0.0
+     */
+    default <T> T deserialize(Message message, Argument<T> argument) {
+        return deserialize(message, argument.getType());
     }
 
     /**
