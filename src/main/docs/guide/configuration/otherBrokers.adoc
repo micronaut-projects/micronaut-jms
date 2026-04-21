@@ -7,17 +7,18 @@ With this in place you can configure consumers and producers that use the connec
 
 == Oracle AQ
 
-Oracle AQ exposes `AQjmsFactory.getConnectionFactory(DataSource)` and similar datasource-based factory methods. Those methods expect `dataSource.getConnection()` to return an Oracle JDBC connection implementation directly.
+Oracle AQ exposes datasource-based `AQjmsFactory` factory overloads. Those methods expect `dataSource.getConnection()` to return an Oracle JDBC connection implementation directly.
 
-When Micronaut Data JDBC is on the classpath, the injected `DataSource` bean is a delegating proxy and `getConnection()` is routed through Micronaut Data's contextual connection proxy. Passing that bean directly to the AQ datasource overload can fail with a `ClassCastException` when Oracle AQ tries to cast the proxied connection to `oracle.jdbc.internal.OracleConnection`.
+When Micronaut Data JDBC is on the classpath, the injected `DataSource` bean is a delegating proxy and `getConnection()` is routed through Micronaut Data's contextual connection proxy. Passing that bean directly to an AQ datasource overload can fail with a `ClassCastException` when Oracle AQ tries to cast the proxied connection to an Oracle JDBC connection type, such as `oracle.jdbc.OracleConnection` or `oracle.jdbc.internal.OracleConnection`.
 
 Before calling the AQ datasource overloads, unwrap the Micronaut Data proxy with `io.micronaut.data.connection.jdbc.advice.DelegatingDataSource.unwrapDataSource(dataSource)` and pass the resulting target datasource to Oracle AQ instead:
 
 [source,java]
 ----
-DataSource oracleDataSource = DelegatingDataSource.unwrapDataSource(dataSource);
-ConnectionFactory connectionFactory = AQjmsFactory.getConnectionFactory(oracleDataSource);
+DataSource oracleDataSource = io.micronaut.data.connection.jdbc.advice.DelegatingDataSource.unwrapDataSource(dataSource);
 ----
+
+Then pass `oracleDataSource` to the `AQjmsFactory.*(DataSource)` overload for your Oracle AQ version.
 
 The `AQjmsFactory` overloads that accept the JDBC URL and connection properties remain a suitable alternative when you prefer not to pass a datasource bean to Oracle AQ directly.
 
