@@ -74,7 +74,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1 title="Class JMSListenerRegistry" class="title">Class JMSListenerRegistry</h1>
 </div>
-<div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
+<div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">io.micronaut.jms.listener.JMSListenerRegistry</div>
 </div>
 <section class="class-description" id="class-description">
@@ -82,7 +82,7 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="annotations">@Singleton
 </span><span class="modifiers">public class </span><span class="element-name type-name-label">JMSListenerRegistry</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Registry for all <a href="JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>s managed by Micronaut JMS. Listeners can be dynamically registered
  using the <a href="#register(jakarta.jms.Connection,io.micronaut.jms.model.JMSDestinationType,java.lang.String,boolean,int,jakarta.jms.MessageListener,java.util.concurrent.ExecutorService,boolean,java.util.Optional)"><code>register(Connection, JMSDestinationType, String, boolean, int, MessageListener, ExecutorService, boolean, Optional)</code></a>
  method. When the application context closes, all open connections, listeners, and sessions, are closed.</div>
@@ -104,8 +104,8 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.Collection,java.util.Collection)" class="member-name-link">JMSListenerRegistry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerSuccessHandler</a>&gt;&nbsp;globalSuccessHandlers,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerErrorHandler</a>&gt;&nbsp;globalErrorHandlers)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.Collection,java.util.Collection)" class="member-name-link">JMSListenerRegistry</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerSuccessHandler</a>&gt;&nbsp;globalSuccessHandlers,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerErrorHandler</a>&gt;&nbsp;globalErrorHandlers)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -130,13 +130,13 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="JMSListener.html" title="class in io.micronaut.jms.listener">JMSListener</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#register(jakarta.jms.Connection,io.micronaut.jms.model.JMSDestinationType,java.lang.String,boolean,int,jakarta.jms.MessageListener,java.util.concurrent.ExecutorService,boolean,java.util.Optional)" class="member-name-link">register</a><wbr>(jakarta.jms.Connection&nbsp;connection,
  <a href="../model/JMSDestinationType.html" title="enum class in io.micronaut.jms.model">JMSDestinationType</a>&nbsp;destinationType,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;destination,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;destination,
  boolean&nbsp;transacted,
  int&nbsp;acknowledgeMode,
  jakarta.jms.MessageListener&nbsp;delegate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link">ExecutorService</a>&nbsp;executor,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link">ExecutorService</a>&nbsp;executor,
  boolean&nbsp;autoStart,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;messageSelector)</code></div>
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;messageSelector)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Creates and registers a new listener to be managed by Micronaut JMS.</div>
 </div>
@@ -149,8 +149,8 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#method-summary" title="class or interface in java.lang" class="external-link">Object</a></h3>
-<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#method-summary" title="class or interface in java.lang" class="external-link">Object</a></h3>
+<code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 </section>
 </li>
 </ul>
@@ -166,8 +166,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(java.util.Collection,java.util.Collection)">
 <h3>JMSListenerRegistry</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">JMSListenerRegistry</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerSuccessHandler</a>&gt;&nbsp;globalSuccessHandlers,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerErrorHandler</a>&gt;&nbsp;globalErrorHandlers)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">JMSListenerRegistry</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerSuccessHandler</a>&gt;&nbsp;globalSuccessHandlers,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Collection.html" title="class or interface in java.util" class="external-link">Collection</a>&lt;<a href="GlobalJMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">GlobalJMSListenerErrorHandler</a>&gt;&nbsp;globalErrorHandlers)</span></div>
 </div>
 </section>
 </li>
@@ -203,13 +203,13 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="JMSListener.html" title="class in io.micronaut.jms.listener">JMSListener</a></span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(jakarta.jms.Connection&nbsp;connection,
  <a href="../model/JMSDestinationType.html" title="enum class in io.micronaut.jms.model">JMSDestinationType</a>&nbsp;destinationType,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;destination,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;destination,
  boolean&nbsp;transacted,
  int&nbsp;acknowledgeMode,
  jakarta.jms.MessageListener&nbsp;delegate,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link">ExecutorService</a>&nbsp;executor,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link">ExecutorService</a>&nbsp;executor,
  boolean&nbsp;autoStart,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;messageSelector)</span>
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;messageSelector)</span>
                      throws <span class="exceptions">jakarta.jms.JMSException</span></div>
 <div class="block">Creates and registers a new listener to be managed by Micronaut JMS.</div>
 <dl class="notes">
@@ -220,7 +220,7 @@ loadScripts(document, 'script');</script>
 <dd><code>transacted</code> - - whether the listener should commit the transaction once the message is received</dd>
 <dd><code>acknowledgeMode</code> - - whether the message receipt should be acknowledged</dd>
 <dd><code>delegate</code> - - the underlying handler to delegate to</dd>
-<dd><code>executor</code> - - the <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link"><code>ExecutorService</code></a> to perform the message handling logic on.</dd>
+<dd><code>executor</code> - - the <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ExecutorService.html" title="class or interface in java.util.concurrent" class="external-link"><code>ExecutorService</code></a> to perform the message handling logic on.</dd>
 <dd><code>autoStart</code> - -  whether the listener should be automatically started when registered</dd>
 <dd><code>messageSelector</code> - - the message selector for the listener</dd>
 <dt>Returns:</dt>

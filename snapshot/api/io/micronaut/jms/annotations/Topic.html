@@ -76,9 +76,9 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <hr>
 <div class="horizontal-scroll">
-<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
-<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
-<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/ElementType.html#METHOD" title="class or interface in java.lang.annotation" class="external-link">METHOD</a>)
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/ElementType.html#METHOD" title="class or interface in java.lang.annotation" class="external-link">METHOD</a>)
 @Executable(processOnStartup=true)
 @MessageMapping
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">Topic</span></div>
@@ -119,7 +119,7 @@ public class Listener {
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Required Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">The name of the topic to target.</div>
@@ -139,22 +139,22 @@ public class Listener {
 <div class="col-first even-row-color"><code>int</code></div>
 <div class="col-second even-row-color"><code><a href="#acknowledgeMode()" class="member-name-link">acknowledgeMode</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</code></div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</code></div>
 <div class="col-second odd-row-color"><code><a href="#errorHandlers()" class="member-name-link">errorHandlers</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">The error handlers to be injected into the message handling logic.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#messageSelector()" class="member-name-link">messageSelector</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#serializer()" class="member-name-link">serializer</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">The name of a <a href="../serdes/Serializer.html" title="interface in io.micronaut.jms.serdes"><code>Serializer</code></a> in the bean
 context to use to serialize an object into a <code>Message</code>
 when sending.</div>
 </div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</code></div>
 <div class="col-second even-row-color"><code><a href="#successHandlers()" class="member-name-link">successHandlers</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">The success handlers to be injected into the message handling logic.</div>
@@ -182,7 +182,7 @@ when sending.</div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="annotations">@AliasFor(annotation=io.micronaut.messaging.annotation.MessageMapping.class,
           member="value")
-</span><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
+</span><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
 <div class="block">The name of the topic to target.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -195,7 +195,7 @@ when sending.</div>
 <section class="detail" id="serializer()">
 <h3>serializer</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">serializer</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">serializer</span></div>
 <div class="block">The name of a <a href="../serdes/Serializer.html" title="interface in io.micronaut.jms.serdes"><code>Serializer</code></a> in the bean
 context to use to serialize an object into a <code>Message</code>
 when sending. If not specified, defaults to
@@ -261,7 +261,7 @@ transacted sessions.</div>
 <section class="detail" id="messageSelector()">
 <h3>messageSelector</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">messageSelector</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">messageSelector</span></div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the message selector for the topic</dd>
@@ -277,7 +277,7 @@ transacted sessions.</div>
 <section class="detail" id="successHandlers()">
 <h3>successHandlers</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</span>&nbsp;<span class="element-name">successHandlers</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</span>&nbsp;<span class="element-name">successHandlers</span></div>
 <div class="block">The success handlers to be injected into the message handling logic.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -297,7 +297,7 @@ transacted sessions.</div>
 <section class="detail" id="errorHandlers()">
 <h3>errorHandlers</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</span>&nbsp;<span class="element-name">errorHandlers</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</span>&nbsp;<span class="element-name">errorHandlers</span></div>
 <div class="block">The error handlers to be injected into the message handling logic.</div>
 <dl class="notes">
 <dt>Returns:</dt>

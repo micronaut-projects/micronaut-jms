@@ -72,19 +72,19 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <hr>
 <div class="horizontal-scroll">
-<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
-<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
-<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/annotation/ElementType.html#TYPE" title="class or interface in java.lang.annotation" class="external-link">TYPE</a>)
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Documented.html" title="class or interface in java.lang.annotation" class="external-link">@Documented</a>
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Retention.html" title="class or interface in java.lang.annotation" class="external-link">@Retention</a>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/RetentionPolicy.html#RUNTIME" title="class or interface in java.lang.annotation" class="external-link">RUNTIME</a>)
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Target.html" title="class or interface in java.lang.annotation" class="external-link">@Target</a>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/ElementType.html#TYPE" title="class or interface in java.lang.annotation" class="external-link">TYPE</a>)
 @Bean
 @DefaultScope(io.micronaut.context.annotation.Context.class)
 @MessageListener
 </span><span class="modifiers">public @interface </span><span class="element-name type-name-label">JMSListener</span></div>
 <div class="block">Declares a class for post-processing. Annotated classes must contain at
 least one method annotated with <a href="Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a>, otherwise an
-<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> will be thrown.
+<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> will be thrown.
 <p>
 Additionally, the value specified by the <a href="JMSProducer.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSProducer</code></a> must correspond
-to exactly one <a href="JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> or an <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>
+to exactly one <a href="JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a> or an <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a>
 will be thrown.
 <p>
 Usage:
@@ -140,7 +140,7 @@ public static class ListenerTwo {
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Required Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="#value()" class="member-name-link">value</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Name of the <code>ConnectionFactory</code> bean in the context to
@@ -158,12 +158,12 @@ use to configure the <a href="../listener/JMSListener.html" title="class in io.m
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Optional Element</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</code></div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</code></div>
 <div class="col-second even-row-color"><code><a href="#errorHandlers()" class="member-name-link">errorHandlers</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">The error handlers to be injected into the message handling logic for all <a href="Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a> methods.</div>
 </div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</code></div>
+<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</code></div>
 <div class="col-second odd-row-color"><code><a href="#successHandlers()" class="member-name-link">successHandlers</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">The success handlers to be injected into the message handling logic for all <a href="Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a> methods.</div>
@@ -184,7 +184,7 @@ use to configure the <a href="../listener/JMSListener.html" title="class in io.m
 <section class="detail" id="value()">
 <h3>value</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">value</span></div>
 <div class="block">Name of the <code>ConnectionFactory</code> bean in the context to
 use to configure the <a href="../listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>.
 The name must correspond to a bean annotated with <a href="JMSConnectionFactory.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSConnectionFactory</code></a>
@@ -200,7 +200,7 @@ and the values must be the same.</div>
 <section class="detail" id="successHandlers()">
 <h3>successHandlers</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</span>&nbsp;<span class="element-name">successHandlers</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a>&gt;[]</span>&nbsp;<span class="element-name">successHandlers</span></div>
 <div class="block">The success handlers to be injected into the message handling logic for all <a href="Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a> methods.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -218,7 +218,7 @@ and the values must be the same.</div>
 <section class="detail" id="errorHandlers()">
 <h3>errorHandlers</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</span>&nbsp;<span class="element-name">errorHandlers</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;? extends <a href="../listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>&gt;[]</span>&nbsp;<span class="element-name">errorHandlers</span></div>
 <div class="block">The error handlers to be injected into the message handling logic for all <a href="Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a> or <a href="Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a> methods.</div>
 <dl class="notes">
 <dt>Returns:</dt>
