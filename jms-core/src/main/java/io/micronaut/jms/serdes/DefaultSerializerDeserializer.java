@@ -58,6 +58,11 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
 
     @Override
     public <T> T deserialize(Message message, Class<T> clazz) {
+        return deserialize(message, Argument.of(clazz));
+    }
+
+    @Override
+    public <T> T deserialize(Message message, Argument<T> argument) {
         if (message == null) {
             return null;
         }
@@ -67,11 +72,11 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                 case MAP:
                     return deserializeMap((MapMessage) message);
                 case TEXT:
-                    return deserializeText((TextMessage) message, clazz);
+                    return deserializeText((TextMessage) message, argument);
                 case BYTES:
                     return deserializeBytes((BytesMessage) message);
                 case OBJECT:
-                    return deserializeObject((ObjectMessage) message, clazz);
+                    return deserializeObject((ObjectMessage) message, argument);
                 default:
                     throw new IllegalArgumentException("No known deserialization of message " + message);
             }
@@ -93,11 +98,12 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
 
     @SuppressWarnings("unchecked")
     private <T> T deserializeText(final TextMessage message,
-                                  final Class<T> clazz) throws JMSException, IOException {
+                                  final Argument<T> argument) throws JMSException, IOException {
+        Class<T> clazz = argument.getType();
         if (clazz.isAssignableFrom(String.class)) {
             return (T) message.getText();
         }
-        return objectMapperSupplier.get().readValue(message.getText(), Argument.of(clazz));
+        return objectMapperSupplier.get().readValue(message.getText(), argument);
     }
 
     private <T> T deserializeBytes(final BytesMessage message) throws JMSException {
@@ -109,7 +115,8 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
 
     @SuppressWarnings("unchecked")
     private <T> T deserializeObject(final ObjectMessage message,
-                                    final Class<T> clazz) throws JMSException, IOException {
+                                    final Argument<T> argument) throws JMSException, IOException {
+        Class<T> clazz = argument.getType();
 
         Serializable body = message.getObject();
         if (body instanceof String) {
@@ -118,7 +125,11 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                 return (T) body;
             }
         }
-        return (T) message.getObject();
+        if (clazz.isInstance(body)) {
+            return clazz.cast(body);
+        }
+        throw new ClassCastException("Cannot deserialize ObjectMessage body to type " + clazz.getName()
+            + "; actual body type is " + (body == null ? "null" : body.getClass().getName()));
     }
 
     @Override
