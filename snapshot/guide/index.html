@@ -547,12 +547,7 @@ micronaut.jms.activemq.classic.connection-string=tcp://host:port</code></pre>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
-  [micronaut.jms]
-    [micronaut.jms.activemq]
-      [micronaut.jms.activemq.classic]
-        enabled=true
-        connection-string="tcp://host:port"</code></pre>
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">micronaut = {jms = {activemq = {classic = {enabled = true, connection-string = "tcp://host:port"}}}}</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -659,12 +654,7 @@ micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
-  [micronaut.jms]
-    [micronaut.jms.activemq]
-      [micronaut.jms.activemq.artemis]
-        enabled=true
-        connection-string="tcp://host:port"</code></pre>
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">micronaut = {jms = {activemq = {artemis = {enabled = true, connection-string = "tcp://host:port"}}}}</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -768,10 +758,7 @@ micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">[micronaut]
-  [micronaut.jms]
-    [micronaut.jms.sqs]
-      enabled=true</code></pre>
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="toml">micronaut = {jms = {sqs = {enabled = true}}}</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
