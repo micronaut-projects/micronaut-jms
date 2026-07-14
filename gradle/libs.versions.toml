@@ -14,7 +14,7 @@ awaitility = '4.3.0'
 commons-pool2 = '2.13.1'
 graal-svm = "25.0.3"
 json-api = '1.1.4'
-jcl-slf4j = '2.0.17'
+jcl-slf4j = '2.0.18'
 jsr305 = "3.0.2"
 spotbugs = "4.9.8"
 
