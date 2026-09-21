@@ -24,7 +24,7 @@ class QuickstartSpec:
     @Test
     def test_text_producer_and_consumer(self) -> None:
 # tag::producer[]
-        text_producer = self.application_context.getBean(TextProducer).asPolyglotValue()
+        text_producer = self.application_context.getBean(TextProducer)
         text_producer.send("quickstart")
 # end::producer[]
 

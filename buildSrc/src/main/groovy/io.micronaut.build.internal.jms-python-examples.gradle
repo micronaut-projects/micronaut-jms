@@ -8,10 +8,6 @@ dependencies {
     testImplementation platform(mn.micronaut.core.bom)
     testImplementation platform(mnTest.micronaut.test.bom)
     testImplementation platform(mnLogging.micronaut.logging.bom)
-    // The Java test helper of the Python examples (src/test/java: the PythonRuntimeInitializer)
-    // is processed by javac
-    testAnnotationProcessor platform(mn.micronaut.core.bom)
-    testAnnotationProcessor mn.micronaut.inject.java
     // Annotation processors of the Python sources MUST be testImplementation (not testAnnotationProcessor):
     // the Python compiler takes the (jar-resolved) compile classpath as its annotation processor path.
     testImplementation mn.micronaut.inject.python.test

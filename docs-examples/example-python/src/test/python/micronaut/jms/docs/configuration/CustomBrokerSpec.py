@@ -1,18 +1,13 @@
 from typing import Annotated
 
-import java
 from jakarta.inject import Inject
+from jakarta.jms import XAConnection
 from micronaut.context import ApplicationContext
 from micronaut.context.annotation import Property
 from micronaut.inject.qualifiers import Qualifiers
 from micronaut.jms.pool import JMSConnectionPool, PooledConnection
 from micronaut.test.extensions.junit5.annotation import MicronautTest
 from org.junit.jupiter.api import Test
-
-# TODO(python): java.type needed because the imported jakarta.jms.XAConnection interface is not a Java class at
-# runtime (isinstance(connection, XAConnection) is always False, java.instanceof rejects it as "not a Java class")
-XAConnection = java.type("jakarta.jms.XAConnection")
-
 
 @MicronautTest
 @Property(name="spec.name", value="CustomBrokerSpec")

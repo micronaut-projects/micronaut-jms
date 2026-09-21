@@ -4,8 +4,8 @@ import time
 import uuid
 from typing import Annotated
 
-import java
 from jakarta.inject import Inject
+from jakarta.jms import ConnectionFactory
 from micronaut.context import ApplicationContext
 from micronaut.context.annotation import Property
 from micronaut.inject.qualifiers import Qualifiers
@@ -15,11 +15,6 @@ from org.junit.jupiter.api import Test
 
 from .MapConsumer import MapConsumer
 from .MapProducer import MapProducer
-
-# TODO(python): java.type needed because the imported jakarta.jms.ConnectionFactory interface is not a Java class
-# at runtime (containsBean(ConnectionFactory) fails with "Unsupported operation identifier 'typeHashCode'")
-ConnectionFactory = java.type("jakarta.jms.ConnectionFactory")
-
 
 @MicronautTest
 @Property(name="spec.name", value="BindingSpec")
