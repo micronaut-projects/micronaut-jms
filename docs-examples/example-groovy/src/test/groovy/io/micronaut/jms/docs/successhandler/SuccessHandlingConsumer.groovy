@@ -1,13 +1,12 @@
 package io.micronaut.jms.docs.successhandler
 
 import io.micronaut.context.annotation.Requires
+
+// tag::imports[]
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerSuccessHandler
 import io.micronaut.messaging.annotation.MessageBody
-
-// tag::imports[]
-
 import jakarta.inject.Singleton
 import jakarta.jms.Message
 import jakarta.jms.Session

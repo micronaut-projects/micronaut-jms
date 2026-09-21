@@ -9,8 +9,8 @@ import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
 
 // end::imports[]
-@Requires(property = "spec.name", value = "CustomBrokerSpec") // tag::clazz[]
-// end::clazz[]
+@Requires(property = "spec.name", value = "CustomBrokerSpec")
+// tag::clazz[]
 @Factory
 internal class ActiveMQXAConnectionBeanFactory {
     @JMSConnectionFactory("activeMQXAConnectionFactory")
@@ -18,4 +18,5 @@ internal class ActiveMQXAConnectionBeanFactory {
     fun createActiveMQXAConnectionFactory(amqConfig: ActiveMqClassicConfigurationProperties): ActiveMQXAConnectionFactory {
         return ActiveMQXAConnectionFactory(amqConfig.getConnectionString())
     }
-} // end::clazz[]
+}
+// end::clazz[]
