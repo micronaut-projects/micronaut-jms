@@ -1,11 +1,10 @@
 package io.micronaut.jms.docs.exceptions
 
 import io.micronaut.context.annotation.Requires
-import io.micronaut.jms.annotations.JMSListener
-import io.micronaut.jms.annotations.Queue
 
 // tag::imports[]
-
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
 import io.micronaut.jms.listener.JMSListenerErrorHandler
 import io.micronaut.messaging.annotation.MessageBody
 import jakarta.inject.Singleton
