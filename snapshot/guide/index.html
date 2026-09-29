@@ -287,6 +287,15 @@
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-classic"</span>,
+]</code></pre>
+</div>
+</div>
 </p>
 </div>
 <div class="paragraph">
@@ -302,6 +311,15 @@
     &lt;groupId&gt;io.micronaut.jms&lt;/groupId&gt;
     &lt;artifactId&gt;micronaut-jms-activemq-artemis&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-artemis"</span>,
+]</code></pre>
 </div>
 </div>
 </p>
@@ -321,6 +339,15 @@
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-sqs"</span>,
+]</code></pre>
+</div>
+</div>
 </p>
 </div>
 <div class="paragraph">
@@ -331,6 +358,18 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>To create a JMS client that sends messages, define an interface annotated with <code>JMSProducer</code>, for example:</p>
+</div>
+<div class="admonitionblock note lang-python">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In Python the producer is an abstract class (<code>ABC</code>) whose <code>@abstractmethod</code> methods have <code>&#8230;&#8203;</code> bodies; the parameter binding annotations are applied with <code>typing.Annotated</code>.
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
@@ -346,6 +385,23 @@ public interface TextProducer {
     @Queue("queue_text") // <b class="conum">(2)</b>
     void send(@MessageBody String body); // <b class="conum">(3)</b>
 }</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from abc import ABC, abstractmethod
+from typing import Annotated
+
+from micronaut.jms.annotations import JMSProducer, Queue
+from micronaut.messaging.annotation import MessageBody
+
+@JMSProducer("activeMqConnectionFactory")  # <b class="conum">(1)</b>
+class TextProducer(ABC):
+
+    @Queue("queue_text")  # <b class="conum">(2)</b>
+    @abstractmethod
+    def send(self, body: Annotated[str, MessageBody]) -&gt; None:  # <b class="conum">(3)</b>
+        ...</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -396,12 +452,18 @@ interface TextProducer {
 </table>
 </div>
 <div class="paragraph">
-<p>At compile time Micronaut will produce an implementation of the interface. You can retrieve an instance of <code>MapProducer</code> either by looking up the bean from the <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/ApplicationContext.html">ApplicationContext</a> or with dependency injection:</p>
+<p>At compile time Micronaut will produce an implementation of the interface. You can retrieve an instance of <code>TextProducer</code> either by looking up the bean from the <a href="https://docs.micronaut.io/latest/api/io/micronaut/context/ApplicationContext.html">ApplicationContext</a> or with dependency injection:</p>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">TextProducer textProducer = applicationContext.getBean(TextProducer.class);
 textProducer.send("quickstart");</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">        text_producer = self.application_context.getBean(TextProducer)
+        text_producer.send("quickstart")</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -425,7 +487,7 @@ textProducer.send 'quickstart'</code></pre>
 <p>To listen to JMS messages you can use the <a href="../api/io/micronaut/jms/annotation/JMSListener.html">@JMSListener</a> annotation to define a message listener.</p>
 </div>
 <div class="paragraph">
-<p>The following example will listen for messages published by the <code>MapProducer</code> in the previous section:</p>
+<p>The following example will listen for messages published by the <code>TextProducer</code> in the previous section:</p>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
@@ -453,7 +515,31 @@ public class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from typing import Annotated
+
+from micronaut.jms.annotations import JMSListener, Queue
+from micronaut.messaging.annotation import MessageBody
+
+@JMSListener("activeMqConnectionFactory")  # <b class="conum">(1)</b>
+class TextConsumer:
+
+    def __init__(self) -&gt; None:
+        self.messages: list[str] = []
+
+    @Queue("queue_text")  # <b class="conum">(2)</b>
+    def receive(self, body: Annotated[str, MessageBody]) -&gt; None:  # <b class="conum">(3)</b>
+        self.messages.append(body)</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.messaging.annotation.MessageBody
+import java.util.*
+
+@JMSListener(CONNECTION_FACTORY_BEAN_NAME) // <b class="conum">(1)</b>
 class TextConsumer {
 
     val messages: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
@@ -467,7 +553,8 @@ class TextConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.Queue
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
@@ -616,6 +703,15 @@ micronaut.jms.activemq.classic.connection-string=tcp://host:port</code></pre>
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-classic"</span>,
+]</code></pre>
+</div>
+</div>
 </p>
 </div>
 <div class="paragraph">
@@ -723,6 +819,15 @@ micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-activemq-artemis"</span>,
+]</code></pre>
+</div>
+</div>
 </p>
 </div>
 <div class="paragraph">
@@ -818,6 +923,15 @@ micronaut.jms.activemq.artemis.connection-string=tcp://host:port</code></pre>
 &lt;/dependency&gt;</code></pre>
 </div>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="title"></div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-toml hljs" data-lang="pyronaut">[tool.pyronaut.dependencies]
+runtime = [
+    <span class="hljs-string">"io.micronaut.jms:micronaut-jms-sqs"</span>,
+]</code></pre>
+</div>
+</div>
 </p>
 </div>
 <div class="paragraph">
@@ -909,6 +1023,23 @@ public class CustomizeBrokerJMSConnectionPoolListener implements BeanCreatedEven
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from jakarta.inject import Singleton
+from jakarta.jms import ConnectionFactory
+from micronaut.context.event import BeanCreatedEvent, BeanCreatedEventListener
+from org.apache.activemq import ActiveMQConnectionFactory
+
+@Singleton
+class CustomizeBrokerJMSConnectionPoolListener(BeanCreatedEventListener[ConnectionFactory]):
+
+    def onCreated(self, event: BeanCreatedEvent[ConnectionFactory]) -&gt; ConnectionFactory:
+        connection_factory = event.getBean()
+        if isinstance(connection_factory, ActiveMQConnectionFactory):
+            connection_factory.setUseAsyncSend(True)
+        return connection_factory</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
 <pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.event.BeanCreatedEvent
 import io.micronaut.context.event.BeanCreatedEventListener
 import jakarta.inject.Singleton
@@ -985,16 +1116,46 @@ class ActiveMQXAConnectionBeanFactory {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.annotation.Factory
-import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
-import io.micronaut.jms.annotations.JMSConnectionFactory
-import jakarta.inject.Singleton
-import org.apache.activemq.ActiveMQXAConnectionFactory</code></pre>
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from jakarta.inject import Singleton
+from micronaut.context.annotation import Factory, Requires
+from micronaut.jms.activemq.classic.configuration.properties import ActiveMqClassicConfigurationProperties
+from micronaut.jms.annotations import JMSConnectionFactory
+from org.apache.activemq import ActiveMQXAConnectionFactory
+
+
+@Factory
+class ActiveMQXAConnectionBeanFactory:
+
+    @JMSConnectionFactory("activeMQXAConnectionFactory")
+    @Singleton
+    def create_active_mq_xa_connection_factory(self, amq_config: ActiveMqClassicConfigurationProperties) -&gt; ActiveMQXAConnectionFactory:
+        return ActiveMQXAConnectionFactory(amq_config.getConnectionString())</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import jakarta.inject.Singleton
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.annotation.Factory
+import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
+import io.micronaut.jms.annotations.JMSConnectionFactory
+import jakarta.inject.Singleton
+import org.apache.activemq.ActiveMQXAConnectionFactory
+
+
+@Factory
+internal class ActiveMQXAConnectionBeanFactory {
+    @JMSConnectionFactory("activeMQXAConnectionFactory")
+    @Singleton
+    fun createActiveMQXAConnectionFactory(amqConfig: ActiveMqClassicConfigurationProperties): ActiveMQXAConnectionFactory {
+        return ActiveMQXAConnectionFactory(amqConfig.getConnectionString())
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import groovy.transform.CompileStatic
+import io.micronaut.jms.annotations.JMSConnectionFactory
+import jakarta.inject.Singleton
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties
@@ -1043,13 +1204,46 @@ class JmsConnectionPoolActiveMQXAConnectionFactory {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from jakarta.inject import Singleton
+from micronaut.context.annotation import EachBean, Factory, Primary
+from micronaut.jms.configuration.properties import JMSConfigurationProperties
+from micronaut.jms.pool import JMSConnectionPool
+from org.apache.activemq import ActiveMQXAConnectionFactory
+
+
+@Factory
+class JmsConnectionPoolActiveMQXAConnectionFactory:
+
+    def __init__(self, properties: JMSConfigurationProperties):
+        self.properties = properties
+
+    @EachBean(ActiveMQXAConnectionFactory)
+    @Singleton
+    @Primary
+    def create_jms_connection_pool(self, connection_factory: ActiveMQXAConnectionFactory) -&gt; JMSConnectionPool:
+        return JMSConnectionPool(connection_factory, self.properties.getInitialPoolSize(), self.properties.getMaxPoolSize())</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
 <pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.context.annotation.EachBean
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Primary
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties
 import io.micronaut.jms.pool.JMSConnectionPool
 import jakarta.inject.Singleton
-import org.apache.activemq.ActiveMQXAConnectionFactory</code></pre>
+import org.apache.activemq.ActiveMQXAConnectionFactory
+
+
+@Factory
+internal class JmsConnectionPoolActiveMQXAConnectionFactory(val properties: JMSConfigurationProperties) {
+    @EachBean(ActiveMQXAConnectionFactory::class)
+    @Singleton
+    @Primary
+    fun createJmsConnectionPool(connectionFactory: ActiveMQXAConnectionFactory): JMSConnectionPool {
+        return JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize())
+    }
+}</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -1064,7 +1258,6 @@ import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
 
 
-@Requires(property = 'spec.name', value = 'CustomBrokerSpec')
 @Factory
 @Internal
 class JmsConnectionPoolActiveMQXAConnectionFactory {
@@ -1148,6 +1341,33 @@ public interface MapProducer {
               @MessageHeader("CustomFloatHeader") float floatHeader,
               @MessageHeader("CustomDoubleHeader") double doubleHeader);
 }</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from abc import ABC, abstractmethod
+from typing import Annotated
+
+from java.lang import Byte, Float, Long, Short
+from micronaut.jms.annotations import JMSProducer, Queue
+from micronaut.messaging.annotation import MessageBody, MessageHeader
+
+@JMSProducer("activeMqConnectionFactory")
+class MapProducer(ABC):
+
+    @Queue("queue_map")
+    @abstractmethod
+    def send(self, body: Annotated[dict[str, object], MessageBody],
+             correlation_id: Annotated[str | None, MessageHeader("JMSCorrelationID")],
+             string_header: Annotated[str | None, MessageHeader("CustomStringHeader")],
+             boolean_header: Annotated[bool, MessageHeader("CustomBooleanHeader")],
+             byte_header: Annotated[Byte, MessageHeader("CustomByteHeader")],
+             short_header: Annotated[Short, MessageHeader("CustomShortHeader")],
+             int_header: Annotated[int, MessageHeader("CustomIntegerHeader")],
+             long_header: Annotated[Long, MessageHeader("CustomLongHeader")],
+             float_header: Annotated[Float, MessageHeader("CustomFloatHeader")],
+             double_header: Annotated[float, MessageHeader("CustomDoubleHeader")]) -&gt; None:
+        ...</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -1292,6 +1512,72 @@ public class MapConsumer {
         messages.add(message);
     }
 }</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from typing import Annotated
+
+from jakarta.jms import Destination
+from jakarta.jms import Message as JmsMessage
+from java.lang import Byte, Float, Long, Short
+from micronaut.jms.annotations import JMSListener, Message, Queue
+from micronaut.messaging.annotation import MessageBody, MessageHeader
+
+@JMSListener("activeMqConnectionFactory")
+class MapConsumer:
+
+    def __init__(self) -&gt; None:
+        self.message_bodies: list[dict[str, object]] = []
+        self.message_headers: list[dict[str, object]] = []
+        self.messages: list[JmsMessage] = []
+
+    @Queue("queue_map")
+    def receive(self, body: Annotated[dict[str, object], MessageBody],
+                message: Annotated[JmsMessage, Message],
+                correlation_id: Annotated[str | None, MessageHeader("JMSCorrelationID")],
+                delivery_mode: Annotated[int, MessageHeader("JMSDeliveryMode")],
+                destination: Annotated[Destination, MessageHeader("JMSDestination")],
+                expiration: Annotated[Long, MessageHeader("JMSExpiration")],
+                message_id: Annotated[str, MessageHeader("JMSMessageID")],
+                priority: Annotated[int, MessageHeader("JMSPriority")],
+                redelivered: Annotated[bool, MessageHeader("JMSRedelivered")],
+                reply_to: Annotated[Destination | None, MessageHeader("JMSReplyTo")],
+                timestamp: Annotated[Long, MessageHeader("JMSTimestamp")],
+                message_type: Annotated[str | None, MessageHeader("JMSType")],
+                string_header: Annotated[str | None, MessageHeader("CustomStringHeader")],
+                boolean_header: Annotated[bool, MessageHeader("CustomBooleanHeader")],
+                byte_header: Annotated[Byte, MessageHeader("CustomByteHeader")],
+                short_header: Annotated[Short, MessageHeader("CustomShortHeader")],
+                int_header: Annotated[int, MessageHeader("CustomIntegerHeader")],
+                long_header: Annotated[Long, MessageHeader("CustomLongHeader")],
+                float_header: Annotated[Float, MessageHeader("CustomFloatHeader")],
+                double_header: Annotated[float, MessageHeader("CustomDoubleHeader")]) -&gt; None:
+
+        header_values = {
+            "JMSCorrelationID": correlation_id,
+            "JMSDeliveryMode": delivery_mode,
+            "JMSDestination": destination,
+            "JMSExpiration": expiration,
+            "JMSMessageID": message_id,
+            "JMSPriority": priority,
+            "JMSRedelivered": redelivered,
+            "JMSReplyTo": reply_to,
+            "JMSTimestamp": timestamp,
+            "JMSType": message_type,
+            "CustomStringHeader": string_header,
+            "CustomBooleanHeader": boolean_header,
+            "CustomByteHeader": byte_header,
+            "CustomShortHeader": short_header,
+            "CustomIntegerHeader": int_header,
+            "CustomLongHeader": long_header,
+            "CustomFloatHeader": float_header,
+            "CustomDoubleHeader": double_header,
+        }
+
+        self.message_headers.append(header_values)
+        self.message_bodies.append(body)
+        self.messages.append(message)</code></pre>
 </div>
 </div>
 <div class="listingblock multi-language-sample">
@@ -1456,6 +1742,125 @@ class MapConsumer {
 <div class="paragraph">
 <p>There are multiple ways to inject custom error handling into your JMS Listeners as shown here:</p>
 </div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.annotations.Queue;
+import io.micronaut.jms.listener.JMSListenerErrorHandler;
+import io.micronaut.messaging.annotation.MessageBody;
+import jakarta.inject.Singleton;
+
+import jakarta.jms.Message;
+import jakarta.jms.Session;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
+
+@JMSListener(value = CONNECTION_FACTORY_BEAN_NAME, errorHandlers = {AccumulatingErrorHandler.class}) // <b class="conum">(1)</b>
+class ErrorThrowingConsumer {
+
+    Collection&lt;String&gt; messages = Collections.synchronizedSet(new HashSet&lt;&gt;());
+
+    @Queue(value = "error-queue", errorHandlers = {CountingErrorHandler.class}) // <b class="conum">(2)</b>
+    void receive(@MessageBody String message) {
+        if ("throw an error".equalsIgnoreCase(message)) {
+            throw new RuntimeException("this is an error"); // <b class="conum">(3)</b>
+        }
+        messages.add(message);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from typing import Annotated
+
+from jakarta.inject import Singleton
+from jakarta.jms import Message, Session
+from java.lang import RuntimeException, Throwable
+from micronaut.context.annotation import Requires
+from micronaut.jms.annotations import JMSListener, Queue
+from micronaut.jms.listener import JMSListenerErrorHandler
+from micronaut.messaging.annotation import MessageBody
+
+@JMSListener("activeMqConnectionFactory", errorHandlers=[AccumulatingErrorHandler])  # <b class="conum">(1)</b>
+class ErrorThrowingConsumer:
+
+    def __init__(self) -&gt; None:
+        self.messages: set[str] = set()
+
+    @Queue("error-queue", errorHandlers=[CountingErrorHandler])  # <b class="conum">(2)</b>
+    def receive(self, message: Annotated[str, MessageBody]) -&gt; None:
+        if message.lower() == "throw an error":
+            raise RuntimeException("this is an error")  # <b class="conum">(3)</b>
+        self.messages.add(message)</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.jms.listener.JMSListenerErrorHandler
+import io.micronaut.messaging.annotation.MessageBody
+import jakarta.inject.Singleton
+import jakarta.jms.Message
+import jakarta.jms.Session
+import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+
+
+@JMSListener(
+        CONNECTION_FACTORY_BEAN_NAME,
+        errorHandlers = [AccumulatingErrorHandler::class]) // <b class="conum">(1)</b>
+class ErrorThrowingConsumer {
+
+    val processed: MutableList&lt;String&gt; = mutableListOf()
+
+    @Queue(
+            value = "error-queue",
+            errorHandlers = [CountingErrorHandler::class]) // <b class="conum">(2)</b>
+    fun receive(@MessageBody message: String) {
+        if (message == "throw an error") {
+            throw RuntimeException("This is an unexpected error.") // <b class="conum">(3)</b>
+        }
+        processed.add(message)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.jms.listener.JMSListenerErrorHandler
+import io.micronaut.messaging.annotation.MessageBody
+import jakarta.inject.Singleton
+import jakarta.jms.Message
+import jakarta.jms.Session
+
+import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
+
+
+@JMSListener(value = CONNECTION_FACTORY_BEAN_NAME, errorHandlers = [AccumulatingErrorHandler.class]) // <b class="conum">(1)</b>
+class ErrorThrowingConsumer {
+
+    Collection&lt;String&gt; messages = Collections.synchronizedSet(new HashSet&lt;String&gt;())
+
+    @Queue(value = "error-queue", errorHandlers = [CountingErrorHandler.class]) // <b class="conum">(2)</b>
+    void receive(@MessageBody String message) {
+        if (message == "throw an error") {
+            throw new RuntimeException("this is an error") // <b class="conum">(3)</b>
+        }
+        messages.add(message)
+    }
+}</code></pre>
+</div>
+</div>
 <div class="colist arabic">
 <table>
 <tr>
@@ -1519,6 +1924,28 @@ class SuccessHandlingConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">from typing import Annotated
+
+from jakarta.inject import Singleton
+from jakarta.jms import Message, Session
+from micronaut.context.annotation import Requires
+from micronaut.jms.annotations import JMSListener, Queue
+from micronaut.jms.listener import JMSListenerSuccessHandler
+from micronaut.messaging.annotation import MessageBody
+
+@JMSListener("activeMqConnectionFactory", successHandlers=[AccumulatingSuccessHandler])  # <b class="conum">(1)</b>
+class SuccessHandlingConsumer:
+
+    def __init__(self) -&gt; None:
+        self.messages: set[str] = set()
+
+    @Queue("success-queue", successHandlers=[CountingSuccessHandler])  # <b class="conum">(2)</b>
+    def receive(self, message: Annotated[str, MessageBody]) -&gt; None:
+        self.messages.add(message)</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
 <pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
@@ -1549,7 +1976,11 @@ class SuccessHandlingConsumer {
 </div>
 <div class="listingblock multi-language-sample">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import jakarta.inject.Singleton
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">import io.micronaut.jms.annotations.JMSListener
+import io.micronaut.jms.annotations.Queue
+import io.micronaut.jms.listener.JMSListenerSuccessHandler
+import io.micronaut.messaging.annotation.MessageBody
+import jakarta.inject.Singleton
 import jakarta.jms.Message
 import jakarta.jms.Session
 
@@ -1619,6 +2050,85 @@ public class SelectorConsumer {
     @Topic(value = "selector_topic", messageSelector = "CustomBooleanHeader=true")
     public void receiveTopic(@MessageBody String body) {
         messageBodiesTopic.add(body);
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">@JMSListener("activeMqConnectionFactory")
+class SelectorConsumer:
+
+    def __init__(self) -&gt; None:
+        self.message_bodies_true: list[str] = []
+        self.message_bodies_false: list[str] = []
+        self.message_bodies_topic: list[str] = []
+
+    @Queue("selector_queue", messageSelector="CustomBooleanHeader=true")
+    def receive(self, body: Annotated[str, MessageBody]) -&gt; None:
+        self.message_bodies_true.append(body)
+
+    @Queue("selector_queue", messageSelector="CustomBooleanHeader=false")
+    def receive2(self, body: Annotated[str, MessageBody]) -&gt; None:
+        self.message_bodies_false.append(body)
+
+    @Topic("selector_topic", messageSelector="CustomBooleanHeader=true")
+    def receive_topic(self, body: Annotated[str, MessageBody]) -&gt; None:
+        self.message_bodies_topic.append(body)</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-kotlin hljs" data-lang="kotlin">@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+class SelectorConsumer {
+
+    val messageBodiesTrue: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
+
+    val messageBodiesFalse: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
+
+    val messageBodiesTopic: MutableList&lt;String&gt; = Collections.synchronizedList(ArrayList())
+
+    @Queue(value = "selector_queue", messageSelector = "CustomBooleanHeader=true")
+    fun receive(@MessageBody body: String) {
+        messageBodiesTrue.add(body)
+    }
+
+    @Queue(value = "selector_queue", messageSelector = "CustomBooleanHeader=false")
+    fun receive2(@MessageBody body: String) {
+        messageBodiesFalse.add(body)
+    }
+
+    @Topic(value = "selector_topic", messageSelector = "CustomBooleanHeader=true")
+    fun receiveTopic(@MessageBody body: String) {
+        messageBodiesTopic.add(body)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock multi-language-sample">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">@JMSListener(CONNECTION_FACTORY_BEAN_NAME)
+class SelectorConsumer {
+
+    List&lt;String&gt; messageBodiesTrue = [].asSynchronized()
+
+    List&lt;String&gt; messageBodiesFalse = [].asSynchronized()
+
+    List&lt;String&gt; messageBodiesTopic = [].asSynchronized()
+
+    @Queue(value = 'selector_queue', messageSelector = 'CustomBooleanHeader=true')
+    void receive(@MessageBody String body) {
+        messageBodiesTrue &lt;&lt; body
+    }
+
+    @Queue(value = 'selector_queue', messageSelector = 'CustomBooleanHeader=false')
+    void receive2(@MessageBody String body) {
+        messageBodiesFalse &lt;&lt; body
+    }
+
+    @Topic(value = 'selector_topic', messageSelector = 'CustomBooleanHeader=true')
+    void receiveTopic(@MessageBody String body) {
+        messageBodiesTopic &lt;&lt; body
     }
 }</code></pre>
 </div>
