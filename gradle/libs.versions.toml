@@ -1,22 +1,22 @@
 [versions]
 managed-jakarta-jms-api = '3.1.0'
-managed-activemq-jakarta = '6.2.7'
-managed-artemis-jakarta-client = '2.55.0'
-micronaut = "5.2.3"
-micronaut-platform = "5.1.5"
+managed-activemq-jakarta = '6.3.2'
+managed-artemis-jakarta-client = '2.57.0'
+micronaut = "5.2.13"
+micronaut-platform = "5.2.1"
 micronaut-test = "5.1.0"
 micronaut-logging = "2.1.0"
-micronaut-validation = "5.1.0"
+micronaut-validation = "5.2.1"
 micronaut-aws = "5.1.1"
 micronaut-gradle-plugin = "5.0.2"
 amazon-sqs-messaging = '2.1.4'
 awaitility = '4.3.0'
 commons-pool2 = '2.13.1'
-graal-svm = "25.0.3"
+graal-svm = "25.0.4.1.1"
 json-api = '1.1.4'
-jcl-slf4j = '2.0.17'
+jcl-slf4j = '2.0.20'
 jsr305 = "3.0.2"
-spotbugs = "4.9.8"
+spotbugs = "4.10.4"
 
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
