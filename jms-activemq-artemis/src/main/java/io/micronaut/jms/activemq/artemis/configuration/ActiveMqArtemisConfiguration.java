@@ -16,10 +16,14 @@
 package io.micronaut.jms.activemq.artemis.configuration;
 
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.annotation.Retain;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.artemis.configuration.properties.ActiveMqArtemisConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,22 +53,43 @@ public class ActiveMqArtemisConfiguration {
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
      * <p>
+     * The bean is a {@link ActiveMQJMSConnectionFactory} configured with the properties under
+     * {@value ActiveMqArtemisConfigurationProperties#PREFIX}. The properties are received as values rather
+     * than through {@link ActiveMqArtemisConfigurationProperties}, so that the connection factory holds
+     * nothing of the context that created it, and development mode can keep it, and the connection pool built on
+     * it, across a restart of the application. A change under {@value JMSConfigurationProperties#PREFIX} releases it.
+     *
+     * @param connectionString the broker URL
+     * @param username the username, if any
+     * @param password the password, if any
+     * @return the {@link ActiveMQJMSConnectionFactory}
+     * @since 5.2.0
+     */
+    @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Retain(invalidatedBy = JMSConfigurationProperties.PREFIX)
+    public ActiveMQJMSConnectionFactory activeMqArtemisConnectionFactory(@Property(name = PREFIX + ".connection-string") String connectionString,
+                                                                         @Property(name = PREFIX + ".username") @Nullable String username,
+                                                                         @Property(name = PREFIX + ".password") @Nullable String password) {
+        logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
+                CONNECTION_FACTORY_BEAN_NAME, connectionString);
+        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
+            return new ActiveMQJMSConnectionFactory(connectionString, username, password);
+        }
+        return new ActiveMQJMSConnectionFactory(connectionString);
+    }
+
+    /**
+     * Generates a {@link JMSConnectionFactory} bean in the application context.
+     * <p>
      * The bean is a {@link ActiveMQJMSConnectionFactory} configured with
      * properties from {@link ActiveMqArtemisConfigurationProperties}.
      *
      * @param config config settings for ActiveMQ Artemis
      * @return the {@link ActiveMQJMSConnectionFactory} defined by the {@code config}.
+     * @deprecated The bean is created by {@link #activeMqArtemisConnectionFactory(String, String, String)}, from the same properties
      */
-    @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Deprecated(since = "5.2.0")
     public ActiveMQJMSConnectionFactory activeMqArtemisConnectionFactory(ActiveMqArtemisConfigurationProperties config) {
-        logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
-                CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
-
-        String username = config.getUsername();
-        String password = config.getPassword();
-        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
-            return new ActiveMQJMSConnectionFactory(config.getConnectionString(), username, password);
-        }
-        return new ActiveMQJMSConnectionFactory(config.getConnectionString());
+        return activeMqArtemisConnectionFactory(config.getConnectionString(), config.getUsername(), config.getPassword());
     }
 }

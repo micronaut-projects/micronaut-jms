@@ -17,6 +17,7 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.PooledObject;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import jakarta.jms.Session;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -46,6 +48,7 @@ public class JMSListenerRegistry {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerRegistry.class);
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
+    private final Set<PooledObject<?>> pooledConnections = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
     private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
     private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;
 
@@ -113,6 +116,10 @@ public class JMSListenerRegistry {
         }
         listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         this.register(listener, autoStart);
+        if (connection instanceof PooledObject<?> pooled) {
+            // returned to its pool once the listeners stop, so that a pool that outlives this registry can lend it again
+            pooledConnections.add(pooled);
+        }
         return listener;
     }
 
@@ -129,5 +136,15 @@ public class JMSListenerRegistry {
             }
         });
         listeners.clear();
+        synchronized (pooledConnections) {
+            for (PooledObject<?> connection : pooledConnections) {
+                try {
+                    connection.close();
+                } catch (JMSException e) {
+                    LOGGER.error("Failed to return a listener connection to its pool", e);
+                }
+            }
+            pooledConnections.clear();
+        }
     }
 }

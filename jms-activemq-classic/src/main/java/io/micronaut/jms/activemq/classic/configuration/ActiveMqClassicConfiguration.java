@@ -16,10 +16,14 @@
 package io.micronaut.jms.activemq.classic.configuration;
 
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.annotation.Retain;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.classic.configuration.properties.ActiveMqClassicConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,21 +53,43 @@ public class ActiveMqClassicConfiguration {
     /**
      * Generates a {@link JMSConnectionFactory} bean in the application context.
      * <p>
+     * The bean is a {@link ActiveMQConnectionFactory} configured with the properties under
+     * {@value ActiveMqClassicConfigurationProperties#PREFIX}. The properties are received as values rather
+     * than through {@link ActiveMqClassicConfigurationProperties}, so that the connection factory holds
+     * nothing of the context that created it, and development mode can keep it, and the connection pool built on
+     * it, across a restart of the application. A change under {@value JMSConfigurationProperties#PREFIX} releases it.
+     *
+     * @param connectionString the broker URL
+     * @param username the username, if any
+     * @param password the password, if any
+     * @return the {@link ActiveMQConnectionFactory}
+     * @since 5.2.0
+     */
+    @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Retain(invalidatedBy = JMSConfigurationProperties.PREFIX)
+    public ActiveMQConnectionFactory activeMqConnectionFactory(@Property(name = PREFIX + ".connection-string") String connectionString,
+                                                               @Property(name = PREFIX + ".username") @Nullable String username,
+                                                               @Property(name = PREFIX + ".password") @Nullable String password) {
+        logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
+                CONNECTION_FACTORY_BEAN_NAME, connectionString);
+        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
+            return new ActiveMQConnectionFactory(username, password, connectionString);
+        }
+        return new ActiveMQConnectionFactory(connectionString);
+    }
+
+    /**
+     * Generates a {@link JMSConnectionFactory} bean in the application context.
+     * <p>
      * The bean is a {@link ActiveMQConnectionFactory} configured with
      * properties from {@link ActiveMqClassicConfigurationProperties}.
      *
      * @param config config settings for ActiveMQ Classic
      * @return the {@link ActiveMQConnectionFactory} defined by the {@code config}.
+     * @deprecated The bean is created by {@link #activeMqConnectionFactory(String, String, String)}, from the same properties
      */
-    @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Deprecated(since = "5.2.0")
     public ActiveMQConnectionFactory activeMqConnectionFactory(ActiveMqClassicConfigurationProperties config) {
-        logger.debug("created ConnectionFactory bean '{}' (ActiveMQConnectionFactory) for broker URL '{}'",
-            CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());
-        String username = config.getUsername();
-        String password = config.getPassword();
-        if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
-            return new ActiveMQConnectionFactory(username, password, config.getConnectionString());
-        }
-        return new ActiveMQConnectionFactory(config.getConnectionString());
+        return activeMqConnectionFactory(config.getConnectionString(), config.getUsername(), config.getPassword());
     }
 }

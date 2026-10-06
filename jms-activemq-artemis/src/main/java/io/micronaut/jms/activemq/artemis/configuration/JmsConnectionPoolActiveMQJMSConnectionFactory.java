@@ -17,6 +17,8 @@ package io.micronaut.jms.activemq.artemis.configuration;
 
 import io.micronaut.context.annotation.EachBean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -26,23 +28,23 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 @Factory
 @Internal
 class JmsConnectionPoolActiveMQJMSConnectionFactory {
-    private final JMSConfigurationProperties properties;
-
-    /**
-     * @param properties JMS Configuration
-     */
-    JmsConnectionPoolActiveMQJMSConnectionFactory(JMSConfigurationProperties properties) {
-        this.properties = properties;
-    }
-
     /**
      * Creates a {@link JMSConnectionPool} from each registered {@link ActiveMQJMSConnectionFactory} in the context.
+     * The pool sizes are received as values rather than through {@link JMSConfigurationProperties}, so that the pool
+     * holds nothing of the context that created it, and development mode can keep it, with its connections, across a
+     * restart of the application. A change under {@value JMSConfigurationProperties#PREFIX} releases it.
+     *
      * @param connectionFactory Connection Factory
+     * @param initialPoolSize The initial pool size, {@link JMSConfigurationProperties#getInitialPoolSize()}
+     * @param maxPoolSize The maximum pool size, {@link JMSConfigurationProperties#getMaxPoolSize()}
      * @return JMS Connection Pool
      */
     @EachBean(ActiveMQJMSConnectionFactory.class)
     @Singleton
-    JMSConnectionPool createJmsConnectionPool(ActiveMQJMSConnectionFactory connectionFactory) {
-        return new JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize());
+    @Retain(invalidatedBy = JMSConfigurationProperties.PREFIX)
+    JMSConnectionPool createJmsConnectionPool(ActiveMQJMSConnectionFactory connectionFactory,
+                                              @Property(name = JMSConfigurationProperties.PREFIX + ".initial-pool-size", defaultValue = "1") int initialPoolSize,
+                                              @Property(name = JMSConfigurationProperties.PREFIX + ".max-pool-size", defaultValue = "50") int maxPoolSize) {
+        return new JMSConnectionPool(connectionFactory, initialPoolSize, maxPoolSize);
     }
 }
