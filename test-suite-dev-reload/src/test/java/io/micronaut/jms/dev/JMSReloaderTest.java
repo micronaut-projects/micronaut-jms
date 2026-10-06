@@ -218,6 +218,21 @@ class JMSReloaderTest {
         assertEquals(List.of("one"), listener.received);
     }
 
+    @Test
+    void aPoolSizeBelowOneIsRejectedAsTheConfigurationPropertiesRejectedIt() {
+        Map<String, Object> properties = properties(Map.of("micronaut.jms.max-pool-size", "0"));
+        Throwable failure = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            try (ApplicationContext started = ApplicationContext.builder().properties(properties).start()) {
+                started.getBean(JMSConnectionPool.class);
+            }
+        });
+        StringBuilder messages = new StringBuilder();
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            messages.append(cause.getMessage()).append('\n');
+        }
+        assertTrue(messages.toString().contains("micronaut.jms.max-pool-size must be at least 1"), messages.toString());
+    }
+
     private void devContext(boolean track) {
         devContext(track, Map.of());
     }

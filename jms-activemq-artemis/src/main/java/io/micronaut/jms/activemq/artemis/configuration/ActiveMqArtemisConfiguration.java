@@ -19,6 +19,7 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Retain;
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.artemis.configuration.properties.ActiveMqArtemisConfigurationProperties;
@@ -72,6 +73,10 @@ public class ActiveMqArtemisConfiguration {
                                                                          @Property(name = PREFIX + ".password") @Nullable String password) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
                 CONNECTION_FACTORY_BEAN_NAME, connectionString);
+        if (StringUtils.isEmpty(connectionString) || connectionString.isBlank()) {
+            // the constraint of the configuration properties, which are no longer received
+            throw new ConfigurationException(PREFIX + ".connection-string must not be blank");
+        }
         if (StringUtils.isNotEmpty(username) || StringUtils.isNotEmpty(password)) {
             return new ActiveMQJMSConnectionFactory(connectionString, username, password);
         }

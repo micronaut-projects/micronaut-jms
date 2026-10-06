@@ -19,6 +19,7 @@ import io.micronaut.context.annotation.EachBean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Retain;
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -45,6 +46,15 @@ class JmsConnectionPoolActiveMQConnectionFactory {
     JMSConnectionPool createJmsConnectionPool(ActiveMQConnectionFactory connectionFactory,
                                               @Property(name = JMSConfigurationProperties.PREFIX + ".initial-pool-size", defaultValue = "1") int initialPoolSize,
                                               @Property(name = JMSConfigurationProperties.PREFIX + ".max-pool-size", defaultValue = "50") int maxPoolSize) {
+        // the constraints of JMSConfigurationProperties, which is no longer received
+        requireAtLeastOne("initial-pool-size", initialPoolSize);
+        requireAtLeastOne("max-pool-size", maxPoolSize);
         return new JMSConnectionPool(connectionFactory, initialPoolSize, maxPoolSize);
+    }
+
+    private static void requireAtLeastOne(String name, int value) {
+        if (value < 1) {
+            throw new ConfigurationException(JMSConfigurationProperties.PREFIX + "." + name + " must be at least 1, but was " + value);
+        }
     }
 }
