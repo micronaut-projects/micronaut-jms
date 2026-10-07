@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class JMSListenerRegistryTest {
@@ -38,9 +39,7 @@ class JMSListenerRegistryTest {
         register(registry, connection);
         registry.shutdown();
 
-        assertDoesNotThrow(() -> {
-            pool.createConnection();
-        });
+        assertNotNull(pool.createConnection());
         assertThrows(IllegalStateException.class, pool::createConnection);
     }
 
