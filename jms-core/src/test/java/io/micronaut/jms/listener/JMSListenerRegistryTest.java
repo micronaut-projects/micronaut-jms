@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JMSListenerRegistryTest {
 
     @Test
-    void shutdownReturnsListenerConnectionsToThePool() throws JMSException {
+    void shutdownReturnsListenerConnectionsToThePool() {
         JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(false), 0, 1);
         JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList());
         for (int i = 0; i < 3; i++) {
