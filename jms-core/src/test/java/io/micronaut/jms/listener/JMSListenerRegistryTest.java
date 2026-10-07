@@ -24,7 +24,7 @@ class JMSListenerRegistryTest {
         JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(false), 0, 1);
         JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList());
         for (int i = 0; i < 3; i++) {
-            register(registry, pool.createConnection());
+            assertDoesNotThrow(() -> register(registry, pool.createConnection()));
             registry.shutdown();
         }
     }
