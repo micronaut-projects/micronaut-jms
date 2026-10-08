@@ -9,4 +9,11 @@ dependencies {
     api(libs.managed.jakarta.jms.api)
     api(libs.commons.pool2)
     implementation(mn.micronaut.jackson.databind)
+
+    testImplementation(mnTest.micronaut.test.junit5)
+    testRuntimeOnly(mnTest.junit.jupiter.engine)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
