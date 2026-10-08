@@ -197,7 +197,7 @@ class JMSReloadTest {
      */
     private static void changedInPlace(ReloadHarness harness, String className) {
         ApplicationContext context = harness.context();
-        context.publishEvent(new ClassChangeEvent(JMSReloadTest.class, harness.generation(), Set.of(), context.getClassLoader(),
+        context.publishEvent(new ClassChangeEvent(JMSReloadTest.class, Set.of(), context.getClassLoader(),
             List.of(new ClassChange(className, ClassChange.Kind.MODIFIED)), ReloadStrategy.RELOAD));
     }
 

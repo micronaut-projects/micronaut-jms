@@ -242,7 +242,7 @@ class JMSReloaderTest {
         properties.put("micronaut.dev.enabled", "true");
         context = ApplicationContext.builder()
             .properties(properties)
-            .trackBeanDependencies(track)
+            .beanDependencyTrackingEnabled(track)
             .start();
     }
 
@@ -259,7 +259,7 @@ class JMSReloaderTest {
     }
 
     private ClassChangeEvent classChange(Set<ClassLoader> retired, List<ClassChange> changes, ReloadStrategy strategy) {
-        return new ClassChangeEvent(this, 1, retired, JMSReloaderTest.class.getClassLoader(), changes, strategy);
+        return new ClassChangeEvent(this, retired, JMSReloaderTest.class.getClassLoader(), changes, strategy);
     }
 
     private static Class<?> reloader() throws ClassNotFoundException {
