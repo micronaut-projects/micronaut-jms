@@ -42,13 +42,10 @@ class DevelopmentSqsRetentionPolicyTest {
     }
 
     @Test
-    void aBuilderThatHoldsAnApplicationInterceptorIsRefused() {
+    void aBuilderIsRefusedSinceWhatItWasGivenCannotBeReadBack() {
         try (ApplicationContext context = developmentContext(Map.of("aws.region", "us-east-1"))) {
             DevelopmentSqsRetentionPolicy policy = context.getBean(DevelopmentSqsRetentionPolicy.class);
-            SqsClientBuilder builder = context.getBean(SqsClientBuilder.class);
-            assertEquals(Decision.ABSTAIN, policy.decide(registration(context, builder)));
-            builder.overrideConfiguration(configuration -> configuration.addExecutionInterceptor(TestSqsClientFactory.applicationInterceptor()));
-            assertEquals(Decision.REFUSE, policy.decide(registration(context, builder)));
+            assertEquals(Decision.REFUSE, policy.decide(registration(context, context.getBean(SqsClientBuilder.class))));
         }
     }
 

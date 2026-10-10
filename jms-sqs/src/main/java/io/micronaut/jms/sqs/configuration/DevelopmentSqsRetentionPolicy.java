@@ -52,10 +52,12 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  * survive a restart. It refuses:
  *
  * <ul>
- *     <li>an {@link SqsClient} or {@link SqsClientBuilder}, and so the connection factory and the pool that hold it,
- *     whose class, credentials provider or execution interceptors are classes of the application, which a
+ *     <li>an {@link SqsClient}, and so the connection factory and the pool that hold it, whose class, credentials,
+ *     endpoint or auth scheme provider or execution interceptors are classes of the application, which a
  *     {@code BeanCreatedEventListener} of the application may give it: the retained client would keep running them,
  *     and the retired generation reachable, after the restart replaced them;</li>
+ *     <li>an {@link SqsClientBuilder}, and so the connection factory made from it, which builds a client from it for
+ *     each connection: a builder does not tell what providers it was given;</li>
  *     <li>the connection factory and the pool when a bean they hold, such as the credentials and region providers of
  *     micronaut-aws, received the environment or the context, which stop with the context. The context refuses them
  *     too, but warns on every restart; this is how they are made by default, so it is refused here and said at
@@ -91,8 +93,11 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         String applicationClass = null;
         if (bean instanceof SqsClient client) {
             applicationClass = applicationClassOf(client);
-        } else if (bean instanceof SqsClientBuilder builder) {
-            applicationClass = applicationClassOf(builder);
+        } else if (bean instanceof SqsClientBuilder) {
+            // a builder does not tell the credentials, endpoint or auth providers a listener of the application may
+            // have given it, and the connection factory made from it builds a client from it for each connection
+            LOG.debug("The SQS client builder [{}] is not retained across the restart: what it was given cannot be read back", bean);
+            return Decision.REFUSE;
         }
         if (applicationClass != null) {
             LOG.debug("The SQS client [{}] is not retained across the restart: it holds the class [{}] of the application", bean, applicationClass);
@@ -163,21 +168,12 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         held.add(client);
         try {
             held.add(client.serviceClientConfiguration().credentialsProvider());
+            held.add(client.serviceClientConfiguration().endpointProvider().orElse(null));
+            held.add(client.serviceClientConfiguration().authSchemeProvider());
             held.addAll(interceptors(client.serviceClientConfiguration().overrideConfiguration()));
         } catch (RuntimeException e) {
             // a client of the application that does not expose its configuration
             return client.getClass().getName();
-        }
-        return applicationClassOf(held);
-    }
-
-    private static String applicationClassOf(SqsClientBuilder builder) {
-        List<Object> held = new ArrayList<>();
-        held.add(builder);
-        try {
-            held.addAll(interceptors(builder.overrideConfiguration()));
-        } catch (RuntimeException e) {
-            return builder.getClass().getName();
         }
         return applicationClassOf(held);
     }
