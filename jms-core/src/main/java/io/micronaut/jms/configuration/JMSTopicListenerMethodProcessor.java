@@ -61,7 +61,7 @@ public class JMSTopicListenerMethodProcessor extends AbstractJMSListenerMethodPr
                     "No ExecutorService bean found with name " + executorName.get()));
         }
 
-        return Executors.newSingleThreadExecutor();
+        return created(Executors.newSingleThreadExecutor());
     }
 
     @Override
