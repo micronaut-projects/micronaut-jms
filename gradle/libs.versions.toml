@@ -2,7 +2,7 @@
 managed-jakarta-jms-api = '3.1.0'
 managed-activemq-jakarta = '6.3.2'
 managed-artemis-jakarta-client = '2.57.0'
-micronaut = "5.2.13"
+micronaut = "5.3.0-SNAPSHOT"
 micronaut-platform = "5.2.1"
 micronaut-test = "5.1.0"
 micronaut-logging = "2.1.0"
