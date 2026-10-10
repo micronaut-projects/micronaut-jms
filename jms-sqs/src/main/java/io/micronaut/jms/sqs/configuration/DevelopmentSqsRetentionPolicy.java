@@ -29,10 +29,10 @@ import io.micronaut.core.util.StringUtils;
 import io.micronaut.core.value.PropertyResolver;
 import io.micronaut.inject.BeanDefinition;
 import jakarta.inject.Singleton;
+import jakarta.jms.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
-import software.amazon.awssdk.core.interceptor.ExecutionInterceptor;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.SqsClientBuilder;
 
@@ -53,11 +53,15 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  *
  * <ul>
  *     <li>an {@link SqsClient}, and so the connection factory and the pool that hold it, whose class, credentials,
- *     endpoint or auth scheme provider or execution interceptors are classes of the application, which a
+ *     endpoint or auth scheme provider, or execution interceptors, metric publishers, retry strategy or scheduled
+ *     executor of its override configuration, are classes of the application, which a
  *     {@code BeanCreatedEventListener} of the application may give it: the retained client would keep running them,
  *     and the retired generation reachable, after the restart replaced them;</li>
- *     <li>an {@link SqsClientBuilder}, and so the connection factory made from it, which builds a client from it for
- *     each connection: a builder does not tell what providers it was given;</li>
+ *     <li>the connection factory made from an {@link SqsClientBuilder}, which builds a client from it for each
+ *     connection: a builder does not tell what providers it was given;</li>
+ *     <li>an {@link SqsClientBuilder} itself, and so the client built from it, unless the development support of
+ *     micronaut-aws is present. Its own retention policy, with this one, then checks the {@link SqsClient} it builds
+ *     from the builder, which holds what the builder was given;</li>
  *     <li>the connection factory and the pool when a bean they hold, such as the credentials and region providers of
  *     micronaut-aws, received the environment or the context, which stop with the context. The context refuses them
  *     too, but warns on every restart; this is how they are made by default, so it is refused here and said at
@@ -76,15 +80,24 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
 @Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
 
+    /**
+     * The development-only retention policy of micronaut-aws, which refuses an AWS SDK client holding a class of the
+     * application, and whose chains copy the {@code aws} configuration instead of holding the environment.
+     */
+    static final String AWS_DEVELOPMENT_POLICY = "io.micronaut.aws.sdk.v2.dev.DevelopmentAwsRetentionPolicy";
+
     private static final Logger LOG = LoggerFactory.getLogger(DevelopmentSqsRetentionPolicy.class);
 
     private final BeanContext beanContext;
+    private final boolean awsDevelopmentSupport;
 
     /**
      * @param beanContext The context, whose dependency graph tells what a retained bean holds
      */
     DevelopmentSqsRetentionPolicy(BeanContext beanContext) {
         this.beanContext = beanContext;
+        this.awsDevelopmentSupport = beanContext.getBeanDefinitions(BeanRetentionPolicy.class).stream()
+            .anyMatch(definition -> definition.getBeanType().getName().equals(AWS_DEVELOPMENT_POLICY));
     }
 
     @Override
@@ -93,14 +106,20 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         String applicationClass = null;
         if (bean instanceof SqsClient client) {
             applicationClass = applicationClassOf(client);
-        } else if (bean instanceof SqsClientBuilder) {
+        } else if (bean instanceof SqsClientBuilder && !awsDevelopmentSupport) {
             // a builder does not tell the credentials, endpoint or auth providers a listener of the application may
-            // have given it, and the connection factory made from it builds a client from it for each connection
+            // have given it. With the development support of micronaut-aws, the client it builds from the builder
+            // holds them, and is checked here and by its policy
             LOG.debug("The SQS client builder [{}] is not retained across the restart: what it was given cannot be read back", bean);
             return Decision.REFUSE;
         }
         if (applicationClass != null) {
             LOG.debug("The SQS client [{}] is not retained across the restart: it holds the class [{}] of the application", bean, applicationClass);
+            return Decision.REFUSE;
+        }
+        if (isMadeFromBuilder(registration.getBeanDefinition())) {
+            // it builds a client from the builder for each connection, which no policy sees
+            LOG.debug("The SQS connection factory [{}] is not retained across the restart: it builds its clients from a builder, whose providers cannot be read back", bean);
             return Decision.REFUSE;
         }
         if (isRetainedHere(registration.getBeanDefinition())) {
@@ -121,6 +140,16 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
     private static boolean isRetainedHere(BeanDefinition<?> definition) {
         Optional<Class<?>> declaringType = definition.getDeclaringType();
         return declaringType.filter(type -> type == SqsConfiguration.class || type == JmsConnectionPoolSQSConnectionFactory.class).isPresent();
+    }
+
+    /**
+     * Whether a definition is the connection factory {@link SqsConfiguration} makes from an {@link SqsClientBuilder},
+     * which it exposes as a {@link ConnectionFactory} rather than as the {@code SQSConnectionFactory} it makes from a
+     * client.
+     */
+    private static boolean isMadeFromBuilder(BeanDefinition<?> definition) {
+        return definition.getBeanType() == ConnectionFactory.class
+            && definition.getDeclaringType().filter(type -> type == SqsConfiguration.class).isPresent();
     }
 
     /**
@@ -170,7 +199,7 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
             held.add(client.serviceClientConfiguration().credentialsProvider());
             held.add(client.serviceClientConfiguration().endpointProvider().orElse(null));
             held.add(client.serviceClientConfiguration().authSchemeProvider());
-            held.addAll(interceptors(client.serviceClientConfiguration().overrideConfiguration()));
+            held.addAll(overrides(client.serviceClientConfiguration().overrideConfiguration()));
         } catch (RuntimeException e) {
             // a client of the application that does not expose its configuration
             return client.getClass().getName();
@@ -178,8 +207,19 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         return applicationClassOf(held);
     }
 
-    private static List<ExecutionInterceptor> interceptors(ClientOverrideConfiguration configuration) {
-        return configuration == null ? List.of() : configuration.executionInterceptors();
+    /**
+     * What the override configuration of a client holds that an application may implement: its execution
+     * interceptors, metric publishers, retry strategy and scheduled executor.
+     */
+    private static List<Object> overrides(ClientOverrideConfiguration configuration) {
+        if (configuration == null) {
+            return List.of();
+        }
+        List<Object> overrides = new ArrayList<>(configuration.executionInterceptors());
+        overrides.addAll(configuration.metricPublishers());
+        configuration.retryStrategy().ifPresent(overrides::add);
+        configuration.scheduledExecutorService().ifPresent(overrides::add);
+        return overrides;
     }
 
     private static String applicationClassOf(List<Object> held) {

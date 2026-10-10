@@ -3,8 +3,11 @@ package io.micronaut.jms.sqs.configuration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanRegistration;
+import io.micronaut.context.reload.BeanRetentionPolicy;
 import io.micronaut.context.reload.BeanRetentionPolicy.Decision;
+import io.micronaut.inject.BeanDefinition;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import jakarta.jms.ConnectionFactory;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -42,10 +45,33 @@ class DevelopmentSqsRetentionPolicyTest {
     }
 
     @Test
-    void aBuilderIsRefusedSinceWhatItWasGivenCannotBeReadBack() {
+    void aClientThatHoldsAnApplicationMetricPublisherIsRefused() {
+        try (ApplicationContext context = developmentContext(Map.of("test.sqs.client", "application-metric-publisher"))) {
+            DevelopmentSqsRetentionPolicy policy = context.getBean(DevelopmentSqsRetentionPolicy.class);
+            assertEquals(Decision.REFUSE, policy.decide(registration(context, context.getBean(SqsClient.class))));
+        }
+    }
+
+    @Test
+    void withoutTheDevelopmentSupportOfMicronautAwsABuilderIsRefusedSinceWhatItWasGivenCannotBeReadBack() {
         try (ApplicationContext context = developmentContext(Map.of("aws.region", "us-east-1"))) {
+            assertFalse(context.getBeanDefinitions(BeanRetentionPolicy.class).stream()
+                .anyMatch(definition -> definition.getBeanType().getName().equals(DevelopmentSqsRetentionPolicy.AWS_DEVELOPMENT_POLICY)),
+                "this module builds against a micronaut-aws without development support");
             DevelopmentSqsRetentionPolicy policy = context.getBean(DevelopmentSqsRetentionPolicy.class);
             assertEquals(Decision.REFUSE, policy.decide(registration(context, context.getBean(SqsClientBuilder.class))));
+        }
+    }
+
+    @Test
+    void theConnectionFactoryMadeFromABuilderIsRefusedSinceItBuildsItsClientsFromIt() {
+        try (ApplicationContext context = developmentContext(Map.of("aws.region", "us-east-1"))) {
+            DevelopmentSqsRetentionPolicy policy = context.getBean(DevelopmentSqsRetentionPolicy.class);
+            BeanDefinition<ConnectionFactory> madeFromBuilder = context.getBeanDefinitions(ConnectionFactory.class).stream()
+                .filter(definition -> definition.getBeanType() == ConnectionFactory.class)
+                .findFirst()
+                .orElseThrow();
+            assertEquals(Decision.REFUSE, policy.decide(registration(context, context.getBean(madeFromBuilder))));
         }
     }
 

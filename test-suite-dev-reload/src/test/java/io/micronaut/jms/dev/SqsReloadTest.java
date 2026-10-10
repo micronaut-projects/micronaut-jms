@@ -13,6 +13,8 @@ import jakarta.jms.Connection;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -36,9 +38,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Runs an application with an SQS listener through the development runtime, against LocalStack, and edits the
  * listener. A change applied in place restarts the listeners on the new listener. A restart stops the listeners of
  * the retired generation as its context stops, and the new generation consumes: with a client that holds nothing of
- * the context, the connection factory and the pool are retained; with the client micronaut-aws builds, whose
- * credentials and region providers read the environment, they are made again. Nothing of the retired generation
- * stays reachable.
+ * the context, the connection factory and the pool are retained. With the client micronaut-aws builds, they are
+ * retained with it when micronaut-aws has development support, whose credentials and region chains copy the
+ * {@code aws} configuration and whose retention policy checks the client built from the builder; without it, its
+ * providers read the environment and the builder is refused, so they are made again. Nothing of the retired
+ * generation stays reachable.
+ *
+ * <p>The build resolves a micronaut-aws with development support with {@code -PdevReloadAwsVersion}.</p>
  */
 class SqsReloadTest {
 
@@ -127,15 +133,51 @@ class SqsReloadTest {
     }
 
     @Test
-    void aRestartMakesTheConnectionFactoryOfTheMicronautAwsClientAgain() throws Exception {
+    @EnabledIf("awsDevelopmentSupport")
+    void aRestartKeepsTheMicronautAwsClientWithItsConnectionFactoryAndPoolWhenMicronautAwsHasDevelopmentSupport() throws Exception {
+        String queue = "dev-reload-aws-retained";
+        try (SqsClient client = LocalStackSqs.client();
+             Connection connection = producerConnection(client, queue);
+             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+             MessageProducer producer = session.createProducer(session.createQueue(queue));
+             ReloadHarness harness = ReloadHarness.inDirectory(project)) {
+            awsProperties().forEach(harness::property);
+            harness.source("example.Listener", LISTENER.formatted(queue, "first"));
+            harness.start();
+
+            send(session, producer, "one");
+            awaitTrue("the first generation receives", () -> received(harness.context()).contains("first one"));
+            SqsClient sqs = harness.context().getBean(SqsClient.class);
+            SQSConnectionFactory factory = harness.context().getBean(SQSConnectionFactory.class);
+            JMSConnectionPool pool = harness.context().getBean(JMSConnectionPool.class);
+
+            harness.source("example.Listener", LISTENER.formatted(queue, "second"));
+            harness.reload();
+            assertEquals(2, harness.generation());
+
+            ReloadTck.assertRetained(harness, sqs);
+            ReloadTck.assertRetained(harness, factory);
+            ReloadTck.assertRetained(harness, pool);
+            assertSame(sqs, harness.context().getBean(SqsClient.class));
+            assertSame(factory, harness.context().getBean(SQSConnectionFactory.class));
+            assertSame(pool, harness.context().getBean(JMSConnectionPool.class));
+            sqs = null;
+            factory = null;
+            pool = null;
+
+            send(session, producer, "two");
+            awaitTrue("the second generation receives", () -> received(harness.context()).contains("second two"));
+            assertFalse(received(harness.context()).stream().anyMatch(value -> value.startsWith("first")));
+
+            ReloadTck.assertRetiredGenerationsCollected(harness);
+        }
+    }
+
+    @Test
+    @DisabledIf("awsDevelopmentSupport")
+    void aRestartMakesTheConnectionFactoryOfTheMicronautAwsClientAgainWithoutItsDevelopmentSupport() throws Exception {
         String queue = "dev-reload-aws";
-        LocalStackContainer localStack = LocalStackSqs.container();
-        Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("micronaut.jms.sqs.enabled", "true");
-        properties.put("aws.region", localStack.getRegion());
-        properties.put("aws.access-key-id", localStack.getAccessKey());
-        properties.put("aws.secret-key", localStack.getSecretKey());
-        properties.put("aws.services.sqs.endpoint-override", localStack.getEndpoint().toString());
+        Map<String, String> properties = awsProperties();
         try (SqsClient client = LocalStackSqs.client();
              Connection connection = producerConnection(client, queue);
              Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -162,6 +204,29 @@ class SqsReloadTest {
 
             ReloadTck.assertRetiredGenerationsCollected(harness);
         }
+    }
+
+    /**
+     * Whether micronaut-aws has development support, whose retention policy checks the client it builds.
+     */
+    static boolean awsDevelopmentSupport() {
+        try {
+            Class.forName("io.micronaut.aws.sdk.v2.dev.DevelopmentAwsRetentionPolicy", false, SqsReloadTest.class.getClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private static Map<String, String> awsProperties() {
+        LocalStackContainer localStack = LocalStackSqs.container();
+        Map<String, String> properties = new LinkedHashMap<>();
+        properties.put("micronaut.jms.sqs.enabled", "true");
+        properties.put("aws.region", localStack.getRegion());
+        properties.put("aws.access-key-id", localStack.getAccessKey());
+        properties.put("aws.secret-key", localStack.getSecretKey());
+        properties.put("aws.services.sqs.endpoint-override", localStack.getEndpoint().toString());
+        return properties;
     }
 
     private static Connection producerConnection(SqsClient client, String queue) throws Exception {

@@ -9,6 +9,7 @@ import jakarta.inject.Singleton;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.interceptor.ExecutionInterceptor;
+import software.amazon.awssdk.metrics.MetricPublisher;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
@@ -36,6 +37,8 @@ class TestSqsClientFactory {
             .overrideConfiguration(configuration -> {
                 if ("application-interceptor".equals(kind)) {
                     configuration.addExecutionInterceptor(applicationInterceptor());
+                } else if ("application-metric-publisher".equals(kind)) {
+                    configuration.addMetricPublisher(applicationClass(MetricPublisher.class));
                 }
             })
             .build();
@@ -46,13 +49,20 @@ class TestSqsClientFactory {
      * application are in development mode.
      */
     static ExecutionInterceptor applicationInterceptor() {
+        return applicationClass(ExecutionInterceptor.class);
+    }
+
+    /**
+     * An implementation of an interface whose class is defined by a classloader below the one of the SQS client.
+     */
+    static <T> T applicationClass(Class<T> type) {
         ClassLoader application = new URLClassLoader(new URL[0], TestSqsClientFactory.class.getClassLoader());
-        return (ExecutionInterceptor) Proxy.newProxyInstance(application, new Class<?>[] {ExecutionInterceptor.class},
+        return type.cast(Proxy.newProxyInstance(application, new Class<?>[] {type},
             (proxy, method, args) -> switch (method.getName()) {
                 case "hashCode" -> System.identityHashCode(proxy);
                 case "equals" -> proxy == args[0];
                 case "toString" -> "applicationInterceptor";
                 default -> method.isDefault() ? InvocationHandler.invokeDefault(proxy, method, args) : null;
-            });
+            }));
     }
 }

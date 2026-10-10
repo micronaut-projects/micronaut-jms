@@ -40,7 +40,8 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  * <p>In development mode the connection factory, with the SQS client it was given, is retained across a restart
  * until a change under {@value JMSConfigurationProperties#PREFIX} or {@value #AWS_PREFIX}, unless the client holds
  * classes of the application, or reads the environment of the stopped context, as the credentials and region
- * providers of micronaut-aws do.</p>
+ * providers of micronaut-aws do without its development support. The connection factory made from an
+ * {@link SqsClientBuilder} is not retained.</p>
  *
  * @author Burt Beckwith
  * @since 1.0.0
