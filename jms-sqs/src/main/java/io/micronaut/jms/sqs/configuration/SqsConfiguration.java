@@ -19,8 +19,10 @@ import com.amazon.sqs.javamessaging.ProviderConfiguration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +37,11 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  * Generates the AWS SQS {@link JMSConnectionFactory} based on the properties
  * provided by {@link SqsConfigurationProperties}.
  *
+ * <p>In development mode the connection factory, with the SQS client it was given, is retained across a restart
+ * until a change under {@value JMSConfigurationProperties#PREFIX} or {@value #AWS_PREFIX}, unless the client holds
+ * classes of the application, or reads the environment of the stopped context, as the credentials and region
+ * providers of micronaut-aws do.</p>
+ *
  * @author Burt Beckwith
  * @since 1.0.0
  */
@@ -46,6 +53,12 @@ public class SqsConfiguration {
      * Name of the SQS {@link ConnectionFactory} bean.
      */
     public static final String CONNECTION_FACTORY_BEAN_NAME = "sqsJmsConnectionFactory";
+
+    /**
+     * The prefix of the AWS configuration the SQS client is built from, whose change releases a connection factory
+     * retained in development mode.
+     */
+    static final String AWS_PREFIX = "aws";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -61,6 +74,7 @@ public class SqsConfiguration {
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Retain(invalidatedBy = {JMSConfigurationProperties.PREFIX, AWS_PREFIX})
     public SQSConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      SqsClient sqs) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
@@ -81,6 +95,7 @@ public class SqsConfiguration {
      * @return the {@link SQSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Retain(invalidatedBy = {JMSConfigurationProperties.PREFIX, AWS_PREFIX})
     public ConnectionFactory sqsJmsConnectionFactory(SqsConfigurationProperties config,
                                                      SqsClientBuilder builder) {
         logger.debug("created ConnectionFactory bean '{}' (SQSConnectionFactory)",
