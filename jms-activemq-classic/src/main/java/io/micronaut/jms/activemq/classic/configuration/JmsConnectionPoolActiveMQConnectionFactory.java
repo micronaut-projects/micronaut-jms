@@ -17,6 +17,7 @@ package io.micronaut.jms.activemq.classic.configuration;
 
 import io.micronaut.context.annotation.EachBean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -26,23 +27,19 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 @Factory
 @Internal
 class JmsConnectionPoolActiveMQConnectionFactory {
-    private final JMSConfigurationProperties properties;
-
-    /**
-     * @param properties JMS Configuration
-     */
-    JmsConnectionPoolActiveMQConnectionFactory(JMSConfigurationProperties properties) {
-        this.properties = properties;
-    }
-
     /**
      * Creates a {@link JMSConnectionPool} from each registered {@link ActiveMQConnectionFactory} in the context.
+     * The configuration is received by the method rather than held by the factory, so that the factory and the pool
+     * keep only the pool sizes they copied, as development mode retains them across a restart until a change under
+     * {@value JMSConfigurationProperties#PREFIX}.
      * @param connectionFactory Connection Factory
+     * @param properties JMS Configuration
      * @return JMS Connection Pool
      */
     @EachBean(ActiveMQConnectionFactory.class)
     @Singleton
-    JMSConnectionPool createJmsConnectionPool(ActiveMQConnectionFactory connectionFactory) {
+    @Retain(invalidatedBy = JMSConfigurationProperties.PREFIX)
+    JMSConnectionPool createJmsConnectionPool(ActiveMQConnectionFactory connectionFactory, JMSConfigurationProperties properties) {
         return new JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize());
     }
 }

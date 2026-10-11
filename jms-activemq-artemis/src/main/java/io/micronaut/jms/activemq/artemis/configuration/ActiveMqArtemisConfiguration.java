@@ -17,9 +17,11 @@ package io.micronaut.jms.activemq.artemis.configuration;
 
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.activemq.artemis.configuration.properties.ActiveMqArtemisConfigurationProperties;
 import io.micronaut.jms.annotations.JMSConnectionFactory;
+import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,7 @@ public class ActiveMqArtemisConfiguration {
      * @return the {@link ActiveMQJMSConnectionFactory} defined by the {@code config}.
      */
     @JMSConnectionFactory(CONNECTION_FACTORY_BEAN_NAME)
+    @Retain(invalidatedBy = JMSConfigurationProperties.PREFIX)
     public ActiveMQJMSConnectionFactory activeMqArtemisConnectionFactory(ActiveMqArtemisConfigurationProperties config) {
         logger.debug("created ConnectionFactory bean '{}' (ActiveMQJMSConnectionFactory) for broker URL '{}'",
                 CONNECTION_FACTORY_BEAN_NAME, config.getConnectionString());

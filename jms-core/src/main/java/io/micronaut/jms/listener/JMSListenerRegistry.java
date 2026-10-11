@@ -118,7 +118,8 @@ public class JMSListenerRegistry {
         listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
         this.register(listener, autoStart);
         if (connection instanceof PooledObject<?> pooled) {
-            // returned to its pool on shutdown, otherwise every re-registration takes another pooled connection
+            // returned to its pool once its listener stops, so that every re-registration, also against a pool that
+            // outlives this registry in development mode, can lend it again
             pooledConnections.put(listener, pooled);
         }
         return listener;
