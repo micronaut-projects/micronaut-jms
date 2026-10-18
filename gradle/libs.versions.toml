@@ -2,7 +2,7 @@
 managed-jakarta-jms-api = '3.1.0'
 managed-activemq-jakarta = '6.3.2'
 managed-artemis-jakarta-client = '2.57.0'
-micronaut = "5.2.14"
+micronaut = "5.2.16"
 micronaut-platform = "5.2.1"
 micronaut-test = "5.1.0"
 micronaut-logging = "2.1.0"
@@ -16,7 +16,7 @@ graal-svm = "25.0.4.1.1"
 json-api = '1.1.4'
 jcl-slf4j = '2.0.20'
 jsr305 = "3.0.2"
-spotbugs = "4.10.4"
+spotbugs = "4.10.5"
 
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
