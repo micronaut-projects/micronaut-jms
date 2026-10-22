@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class JMSTopicSubscriptionTest {
 
     private final List<String> calls = new ArrayList<>();
+    private RuntimeException consumerFailure;
 
     @Test
     void unsharedDurableSubscriptionUsesADurableSubscriber() throws JMSException {
@@ -74,6 +75,29 @@ class JMSTopicSubscriptionTest {
         assertTrue(calls.contains("connection.close[]"));
     }
 
+    @Test
+    void registryClosesTheSessionAndLeavesTheDedicatedConnectionToTheCallerWhenStartingFails() {
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList());
+        consumerFailure = new IllegalStateException("invalid selector");
+
+        assertThrows(IllegalStateException.class, () -> registry.register(connection(), JMSDestinationType.TOPIC, "orders", false,
+            Session.AUTO_ACKNOWLEDGE, message -> { }, null, true, Optional.empty(), new JMSTopicSubscription("audit", true, false, null)));
+        registry.shutdown();
+
+        assertTrue(calls.contains("session.close[]"));
+        assertFalse(calls.contains("connection.close[]"), "the processor that created the connection closes it");
+    }
+
+    @Test
+    void unsupportedSharedSubscriptionsFailAsAJMSException() {
+        consumerFailure = new UnsupportedOperationException("createSharedDurableConsumer(Topic, name, messageSelector) is not supported");
+
+        JMSException e = assertThrows(JMSException.class, () -> start(new JMSTopicSubscription("audit", true, true, null), Optional.empty()));
+
+        assertTrue(e.getMessage().contains("does not support shared subscriptions"));
+        assertTrue(e.getCause() instanceof UnsupportedOperationException);
+    }
+
     private void start(JMSTopicSubscription subscription, Optional<String> selector) throws JMSException {
         new JMSListener(session(), message -> { }, JMSDestinationType.TOPIC, "orders", null, selector, subscription).start();
     }
@@ -100,7 +124,13 @@ class JMSTopicSubscriptionTest {
                     return topic((String) args[0]);
                 case "createDurableSubscriber", "createSharedDurableConsumer", "createSharedConsumer", "createConsumer":
                     calls.add(method.getName() + Arrays.toString(Arrays.copyOfRange(args, 1, args.length)));
+                    if (consumerFailure != null) {
+                        throw consumerFailure;
+                    }
                     return consumer();
+                case "close":
+                    calls.add("session.close[]");
+                    return null;
                 default:
                     return null;
             }

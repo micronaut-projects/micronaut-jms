@@ -207,9 +207,17 @@ public class JMSListener {
         Topic topic = session.createTopic(destination);
         String selector = messageSelector.filter(s -> !s.isEmpty()).orElse(null);
         if (subscription.shared()) {
-            return subscription.durable()
-                ? session.createSharedDurableConsumer(topic, subscription.name(), selector)
-                : session.createSharedConsumer(topic, subscription.name(), selector);
+            try {
+                return subscription.durable()
+                    ? session.createSharedDurableConsumer(topic, subscription.name(), selector)
+                    : session.createSharedConsumer(topic, subscription.name(), selector);
+            } catch (UnsupportedOperationException e) {
+                // for example ActiveMQ Classic, which implements JMS 1.1 subscriptions only
+                JMSException unsupported = new JMSException("The JMS provider does not support shared subscriptions (subscription '"
+                    + subscription.name() + "' on topic " + destination + ")");
+                unsupported.initCause(e);
+                throw unsupported;
+            }
         }
         if (subscription.durable()) {
             return session.createDurableSubscriber(topic, subscription.name(), selector, false);

@@ -8,7 +8,7 @@ Set `subscription` to name the subscription, then choose its kind with `durable`
 
 |`false`
 |`false`
-|Non-durable (the default). `subscription` is not used.
+|Non-durable (the default). Do not set `subscription`.
 
 |`true`
 |`false`
@@ -37,4 +37,4 @@ Set `clientId` when a broker administrator has assigned one, or to give a shared
 
 NOTE: A client ID can be in use by only one connection at a time. Do not run two instances of an application with the same unshared durable listener against one broker; use a shared durable subscription to spread the messages between instances.
 
-`durable`, `shared` and `clientId` require `subscription`; Micronaut JMS fails at startup if it is missing. Shared subscriptions need a JMS 2.0 broker, such as ActiveMQ Artemis. ActiveMQ "Classic" supports only unshared durable subscriptions.
+`durable`, `shared` and `clientId` require `subscription`, and `subscription` requires `durable` or `shared`. Micronaut JMS fails at startup if either is missing. Shared subscriptions need a JMS 2.0 broker, such as ActiveMQ Artemis. ActiveMQ "Classic" supports only unshared durable subscriptions: a shared listener on it fails to register, which is logged like any other registration failure.

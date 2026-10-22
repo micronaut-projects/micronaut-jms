@@ -133,6 +133,10 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             }
             return null;
         }
+        if (!durable && !shared) {
+            throw new IllegalStateException("The subscription '" + name + "' of topic " + destination
+                + " must set durable = true or shared = true; a plain topic listener has no named subscription");
+        }
         return new JMSTopicSubscription(name, durable, shared, clientId);
     }
 
@@ -180,9 +184,10 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
+        final boolean dedicated = subscription != null && subscription.requiresDedicatedConnection();
+        Connection connection = null;
         try {
-            Connection connection;
-            if (subscription != null && subscription.requiresDedicatedConnection()) {
+            if (dedicated) {
                 // the client ID must be set before the connection is used, so it can't come from the pool
                 connection = connectionPool.getConnectionFactory().createConnection();
                 connection.setClientID(subscription.effectiveClientId());
@@ -193,7 +198,18 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                     connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
             registeredListener.addSuccessHandlers(successHandlers);
             registeredListener.addErrorHandlers(errorHandlers);
-        } catch (JMSException e) {
+        } catch (JMSException | RuntimeException e) {
+            if (dedicated && connection != null) {
+                // the registry only owns a dedicated connection once its listener has started
+                try {
+                    connection.close();
+                } catch (JMSException | RuntimeException closeFailure) {
+                    e.addSuppressed(closeFailure);
+                }
+            }
+            if (e instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
             logger.error("Failed to register listener for destination " + destination, e);
         }
     }

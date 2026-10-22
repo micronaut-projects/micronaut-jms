@@ -108,7 +108,7 @@ public class JMSListenerRegistry {
      * Creates and registers a new listener to be managed by Micronaut JMS, optionally with a named topic
      * subscription. When the subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a
      * dedicated connection}, the given connection must not be pooled: the registry closes it when the
-     * listener shuts down.
+     * listener shuts down. If registration fails, the caller still owns the connection and must close it.
      *
      * @param connection - the {@link Connection} the listener will be linked to
      * @param destinationType - the {@link JMSDestinationType} of the target destination
@@ -138,9 +138,6 @@ public class JMSListenerRegistry {
         connection.start();
         Session session = connection.createSession(transacted, acknowledgeMode);
         JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector, subscription);
-        if (subscription != null && subscription.requiresDedicatedConnection() && !(connection instanceof PooledObject<?>)) {
-            dedicatedConnections.put(listener, connection);
-        }
         if (CollectionUtils.isNotEmpty(globalSuccessHandlers)) {
             listener.addSuccessHandlers(globalSuccessHandlers);
         }
@@ -155,7 +152,20 @@ public class JMSListenerRegistry {
             listener.addSuccessHandlers(new AcknowledgingJMSListenerSuccessHandler());
         }
         listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
-        this.register(listener, autoStart);
+        try {
+            this.register(listener, autoStart);
+        } catch (JMSException | RuntimeException e) {
+            try {
+                session.close();
+            } catch (JMSException | RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
+        if (subscription != null && subscription.requiresDedicatedConnection() && !(connection instanceof PooledObject<?>)) {
+            // only once the listener has started: the caller closes the connection if registration fails
+            dedicatedConnections.put(listener, connection);
+        }
         if (connection instanceof PooledObject<?> pooled) {
             // returned to its pool on shutdown, otherwise every re-registration takes another pooled connection
             pooledConnections.put(listener, pooled);

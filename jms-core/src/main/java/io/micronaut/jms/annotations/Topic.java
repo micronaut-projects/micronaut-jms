@@ -97,8 +97,8 @@ public @interface Topic {
     String messageSelector() default "";
 
     /**
-     * The name of the subscription. Required when {@link #durable()} or {@link #shared()} is set; ignored on
-     * producers.
+     * The name of the subscription. Required when {@link #durable()}, {@link #shared()} or {@link #clientId()}
+     * is set, and requires {@link #durable()} or {@link #shared()} in turn; ignored on producers.
      *
      * @return the subscription name
      * @since 5.2.0

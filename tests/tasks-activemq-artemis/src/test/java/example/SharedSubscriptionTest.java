@@ -20,13 +20,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.micronaut.jms.activemq.artemis.configuration.ActiveMqArtemisConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Testcontainers(disabledWithoutDocker = true)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -47,9 +47,8 @@ class SharedSubscriptionTest implements TestPropertyProvider {
         List<String> sent = IntStream.range(0, MESSAGE_COUNT).mapToObj(i -> "durable-" + i).toList();
         sent.forEach(publisher::publishDurable);
 
-        await().atMost(30, SECONDS).until(() -> listeners.durable.size() >= MESSAGE_COUNT);
-        assertEquals(MESSAGE_COUNT, listeners.durable.size());
-        assertEquals(Set.copyOf(sent), new HashSet<>(listeners.durable));
+        await().atMost(30, SECONDS).until(() -> listeners.durableA.size() + listeners.durableB.size() >= MESSAGE_COUNT);
+        assertSplitBetweenConsumers(sent, listeners.durableA, listeners.durableB);
     }
 
     @Test
@@ -57,9 +56,18 @@ class SharedSubscriptionTest implements TestPropertyProvider {
         List<String> sent = IntStream.range(0, MESSAGE_COUNT).mapToObj(i -> "non-durable-" + i).toList();
         sent.forEach(publisher::publishNonDurable);
 
-        await().atMost(30, SECONDS).until(() -> listeners.nonDurable.size() >= MESSAGE_COUNT);
-        assertEquals(MESSAGE_COUNT, listeners.nonDurable.size());
-        assertEquals(Set.copyOf(sent), listeners.nonDurable.stream().collect(Collectors.toSet()));
+        await().atMost(30, SECONDS).until(() -> listeners.nonDurableA.size() + listeners.nonDurableB.size() >= MESSAGE_COUNT);
+        assertSplitBetweenConsumers(sent, listeners.nonDurableA, listeners.nonDurableB);
+    }
+
+    private static void assertSplitBetweenConsumers(List<String> sent, Queue<String> consumerA, Queue<String> consumerB) {
+        // both consumers must take part, or a failed registration would go unnoticed
+        assertFalse(consumerA.isEmpty(), "the first consumer received no messages");
+        assertFalse(consumerB.isEmpty(), "the second consumer received no messages");
+        assertEquals(sent.size(), consumerA.size() + consumerB.size(), "every message is delivered to exactly one consumer");
+        Set<String> received = new HashSet<>(consumerA);
+        received.addAll(consumerB);
+        assertEquals(Set.copyOf(sent), received);
     }
 
     @Override
@@ -87,27 +95,29 @@ class SharedSubscriptionTest implements TestPropertyProvider {
     @JMSListener(CONNECTION_FACTORY_BEAN_NAME)
     static class InvoiceListeners {
 
-        final Queue<String> durable = new ConcurrentLinkedQueue<>();
-        final Queue<String> nonDurable = new ConcurrentLinkedQueue<>();
+        final Queue<String> durableA = new ConcurrentLinkedQueue<>();
+        final Queue<String> durableB = new ConcurrentLinkedQueue<>();
+        final Queue<String> nonDurableA = new ConcurrentLinkedQueue<>();
+        final Queue<String> nonDurableB = new ConcurrentLinkedQueue<>();
 
         @Topic(value = "invoices-durable", subscription = "invoice-billing", durable = true, shared = true)
         void durableA(@MessageBody String invoice) {
-            durable.add(invoice);
+            durableA.add(invoice);
         }
 
         @Topic(value = "invoices-durable", subscription = "invoice-billing", durable = true, shared = true)
         void durableB(@MessageBody String invoice) {
-            durable.add(invoice);
+            durableB.add(invoice);
         }
 
         @Topic(value = "invoices-non-durable", subscription = "invoice-preview", shared = true)
         void nonDurableA(@MessageBody String invoice) {
-            nonDurable.add(invoice);
+            nonDurableA.add(invoice);
         }
 
         @Topic(value = "invoices-non-durable", subscription = "invoice-preview", shared = true)
         void nonDurableB(@MessageBody String invoice) {
-            nonDurable.add(invoice);
+            nonDurableB.add(invoice);
         }
     }
 }
