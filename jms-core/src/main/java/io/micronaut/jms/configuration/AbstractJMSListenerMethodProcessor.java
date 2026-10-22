@@ -28,11 +28,13 @@ import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
+import io.micronaut.jms.listener.JMSTopicSubscription;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +122,20 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         };
     }
 
+    private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
+        String name = destinationAnnotation.stringValue("subscription").filter(s -> !s.isEmpty()).orElse(null);
+        boolean durable = destinationAnnotation.isTrue("durable");
+        boolean shared = destinationAnnotation.isTrue("shared");
+        String clientId = destinationAnnotation.stringValue("clientId").filter(s -> !s.isEmpty()).orElse(null);
+        if (name == null) {
+            if (durable || shared || clientId != null) {
+                throw new IllegalStateException("A subscription name is required for the durable, shared or client ID options of topic " + destination);
+            }
+            return null;
+        }
+        return new JMSTopicSubscription(name, durable, shared, clientId);
+    }
+
     private void registerListener(ExecutableMethod<?, ?> method,
                                   String connectionFactoryName,
                                   BeanDefinition<?> beanDefinition,
@@ -132,6 +148,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
+        final JMSTopicSubscription subscription = topicSubscription(destinationAnnotation, destination);
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)
@@ -164,9 +181,16 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .collect(Collectors.toSet());
 
         try {
-            Connection connection = connectionPool.createConnection();
+            Connection connection;
+            if (subscription != null && subscription.requiresDedicatedConnection()) {
+                // the client ID must be set before the connection is used, so it can't come from the pool
+                connection = connectionPool.getConnectionFactory().createConnection();
+                connection.setClientID(subscription.effectiveClientId());
+            } else {
+                connection = connectionPool.createConnection();
+            }
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
-                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector);
+                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
             registeredListener.addSuccessHandlers(successHandlers);
             registeredListener.addErrorHandlers(errorHandlers);
         } catch (JMSException e) {

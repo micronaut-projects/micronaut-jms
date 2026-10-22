@@ -1,0 +1,40 @@
+By default a `@Topic` listener method creates a non-durable subscription: it receives only the messages published while it is connected, and every listener receives every message.
+
+Set `subscription` to name the subscription, then choose its kind with `durable` and `shared`:
+
+[cols="1,1,3"]
+|===
+|`durable` |`shared` |Subscription
+
+|`false`
+|`false`
+|Non-durable (the default). `subscription` is not used.
+
+|`true`
+|`false`
+|Durable, unshared (`Session.createDurableSubscriber`). The broker keeps messages for the subscription while the listener is disconnected.
+
+|`false`
+|`true`
+|Shared, non-durable (`Session.createSharedConsumer`, JMS 2.0). Every consumer of the subscription, in this or another application instance, receives a share of the messages.
+
+|`true`
+|`true`
+|Shared, durable (`Session.createSharedDurableConsumer`, JMS 2.0). Messages are split between the consumers and kept while all of them are disconnected.
+|===
+
+The following listener keeps an audit of every order, including the ones published while the application was down:
+
+snippet::io.micronaut.jms.docs.subscription.AuditListener[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> `subscription` names the durable subscription, and `durable = true` asks the broker to keep its messages.
+
+== Client IDs
+
+JMS identifies an unshared durable subscription by the connection's client ID together with the subscription name, and a client ID can be set only once per connection. Micronaut JMS therefore gives each unshared durable listener its own connection, outside the connection pool, with the client ID set from `clientId`. When `clientId` is not set, the subscription name is the client ID.
+
+Set `clientId` when a broker administrator has assigned one, or to give a shared subscription a client ID. A listener with a `clientId` always gets its own connection. Shared subscriptions without one use a pooled connection.
+
+NOTE: A client ID can be in use by only one connection at a time. Do not run two instances of an application with the same unshared durable listener against one broker; use a shared durable subscription to spread the messages between instances.
+
+`durable`, `shared` and `clientId` require `subscription`; Micronaut JMS fails at startup if it is missing. Shared subscriptions need a JMS 2.0 broker, such as ActiveMQ Artemis. ActiveMQ "Classic" supports only unshared durable subscriptions.
