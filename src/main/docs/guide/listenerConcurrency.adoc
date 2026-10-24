@@ -1,0 +1,16 @@
+A listener method consumes messages on one session, one message at a time. To handle messages concurrently, set `consumers` on `@Queue` to the number of consumers to start, each with its own session and connection:
+
+snippet::io.micronaut.jms.docs.concurrency.JobListener[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> Three consumers receive the messages of the `jobs` queue, so up to three jobs run at once.
+<2> Each consumer has its own session, which a `Session` parameter receives.
+
+On a topic, every consumer of a plain subscription receives every message, so `consumers` above 1 requires a shared subscription (see <<topicSubscriptions, Durable and Shared Topic Subscriptions>>), whose consumers share the messages. An unshared durable subscription, or one with a client ID, has a single consumer.
+
+Producer methods send each message on a session of their own. With `transacted = true`, the session is transacted and the send is committed before the method returns:
+
+snippet::io.micronaut.jms.docs.concurrency.JobProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The message is sent on a transacted session and committed.
+
+To send messages in the transaction of a transacted listener, so that they are committed or rolled back with the message it received, send them with a producer of the listener's `Session`, as shown under <<binding, Parameter Binding>>.

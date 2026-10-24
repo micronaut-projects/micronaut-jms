@@ -167,6 +167,18 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
         final JMSTopicSubscription subscription = topicSubscription(destinationAnnotation, destination);
+        final int consumers = destinationAnnotation.intValue("consumers").orElse(1);
+        if (consumers < 1) {
+            throw new IllegalStateException("The listener of " + destination + " must have at least one consumer, but consumers = " + consumers);
+        }
+        if (consumers > 1 && type == JMSDestinationType.TOPIC && (subscription == null || !subscription.shared())) {
+            throw new IllegalStateException("The listener of topic " + destination + " can have more than one consumer only with a shared subscription:"
+                + " every consumer of any other topic listener receives every message");
+        }
+        if (consumers > 1 && subscription != null && subscription.requiresDedicatedConnection()) {
+            throw new IllegalStateException("The subscription '" + subscription.name() + "' of topic " + destination
+                + " has a client ID or is an unshared durable subscription, so it can have only one consumer");
+        }
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)
@@ -198,6 +210,25 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
+        for (int i = 0; i < consumers; i++) {
+            registerConsumer(connectionPool, registry, type, destination, transacted, acknowledgeMode, listener, executor,
+                messageSelector, subscription, successHandlers, errorHandlers);
+        }
+    }
+
+    @SuppressWarnings("java:S107")
+    private void registerConsumer(JMSConnectionPool connectionPool,
+                                  JMSListenerRegistry registry,
+                                  JMSDestinationType type,
+                                  String destination,
+                                  boolean transacted,
+                                  int acknowledgeMode,
+                                  MessageListener listener,
+                                  ExecutorService executor,
+                                  Optional<String> messageSelector,
+                                  @Nullable JMSTopicSubscription subscription,
+                                  Set<JMSListenerSuccessHandler> successHandlers,
+                                  Set<JMSListenerErrorHandler> errorHandlers) {
         try {
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
                     connectionPool, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);

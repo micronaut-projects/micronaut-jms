@@ -38,6 +38,7 @@ import io.micronaut.messaging.annotation.MessageBody;
 import jakarta.inject.Singleton;
 
 import jakarta.jms.Message;
+import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
@@ -122,7 +123,10 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         int priority = priority(method, annotationType, parameterValueMap);
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
-        JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
+        // a transacted producer method sends on a transacted session, committed after the send
+        boolean transacted = method.isTrue(annotationType, "transacted");
+        JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
+            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
         producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
 
         return null;
