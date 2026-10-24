@@ -1,0 +1,28 @@
+=== Health
+
+With the `micronaut-management` module, the health endpoint has a `jms` indicator. For each JMS connection factory, it opens a new connection, not one from the pool, so that an unreachable broker is reported. The indicator is `UP` when every connection factory connects, with the JMS provider name and version of each, and `DOWN` with the error otherwise:
+
+dependency:micronaut-management[groupId="io.micronaut"]
+
+Disable the indicator with:
+
+[configuration]
+----
+endpoints:
+  health:
+    jms:
+      enabled: false
+----
+
+=== Metrics
+
+With a Micrometer `MeterRegistry`, for example from the https://micronaut-projects.github.io/micronaut-micrometer/latest/guide/[Micronaut Micrometer] module, the messages that listeners handle are counted as the `jms.listener.messages` counter. It is tagged with the `destination` and the `result`: `success`, or `failure` with the `exception` class name. Disable the metrics with:
+
+[configuration]
+----
+micronaut:
+  metrics:
+    binders:
+      jms:
+        enabled: false
+----

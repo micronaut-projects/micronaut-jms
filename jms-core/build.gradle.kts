@@ -9,6 +9,8 @@ dependencies {
     api(libs.managed.jakarta.jms.api)
     api(libs.commons.pool2)
     implementation(mn.micronaut.jackson.databind)
+    compileOnly(mn.micronaut.management)
+    compileOnly(mnMicrometer.micrometer.core)
 
     testImplementation(mnTest.micronaut.test.junit5)
     testRuntimeOnly(mnTest.junit.jupiter.engine)
