@@ -175,7 +175,11 @@ public class JMSListener {
 
     private void handleMessage(Message msg) {
         try {
-            delegate.onMessage(msg);
+            if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+                sessionAwareListener.onMessage(msg, session);
+            } else {
+                delegate.onMessage(msg);
+            }
             Throwable ex = new Throwable();
             successHandlers.forEach(handler -> {
                 try {
