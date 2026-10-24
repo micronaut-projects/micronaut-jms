@@ -5,6 +5,8 @@ plugins {
 
 dependencies {
     testImplementation libs.awaitility
+    testImplementation mn.micronaut.management
+    testImplementation mnMicrometer.micrometer.core
 }
 
 micronaut {

@@ -31,4 +31,5 @@ micronautBuild {
     importMicronautCatalog()
     importMicronautCatalog("micronaut-validation")
     importMicronautCatalog("micronaut-aws")
+    importMicronautCatalog("micronaut-micrometer")
 }

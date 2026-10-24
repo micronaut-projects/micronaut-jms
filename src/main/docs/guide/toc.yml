@@ -15,6 +15,7 @@ successHandlers: Success Handlers
 messageSelector: Message Selectors
 deliveryOptions: Delivery Mode and Priority
 listenerConcurrency: Listener Concurrency and Transacted Sends
+healthAndMetrics: Health and Metrics
 topicSubscriptions: Durable and Shared Topic Subscriptions
 graalvm: GraalVM support
 repository: Repository
