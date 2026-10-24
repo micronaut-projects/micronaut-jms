@@ -13,6 +13,7 @@ binding: Parameter Binding
 errorHandlers: Error Handlers
 successHandlers: Success Handlers
 messageSelector: Message Selectors
+deliveryOptions: Delivery Mode and Priority
 topicSubscriptions: Durable and Shared Topic Subscriptions
 graalvm: GraalVM support
 repository: Repository

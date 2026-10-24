@@ -16,7 +16,9 @@
 package io.micronaut.jms.templates;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import io.micronaut.core.util.ArgumentUtils;
+import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -102,11 +104,44 @@ public class JmsProducer<T> {
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
             send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), timeToLive, headers);
+                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         body, destination, type.name(), joinedHeaders);
             }
+        } catch (JMSException | RuntimeException e) {
+            throw new MessagingClientException("Problem sending message to " + destination, e);
+        }
+    }
+
+    /**
+     * Sends a message, serializing the body, with a delivery mode and priority.
+     *
+     * @param destination  the destination name
+     * @param body         the message body
+     * @param deliveryMode the delivery mode
+     * @param priority     the priority, from 0 (lowest) to 9
+     * @param timeToLive   the time to live in milliseconds, or 0 for unlimited
+     * @param headers      the headers
+     * @since 5.2.0
+     */
+    public void send(@NonNull String destination,
+                     @NonNull T body,
+                     @NonNull JMSDeliveryMode deliveryMode,
+                     int priority,
+                     long timeToLive,
+                     MessageHeader... headers) {
+        if (priority < 0 || priority > 9) {
+            throw new IllegalArgumentException("The JMS priority must be from 0 to 9, but was " + priority);
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sending message {} to destination {} of type {} with delivery mode {} and priority {}",
+                    body, destination, type.name(), deliveryMode, priority);
+        }
+        try (Connection connection = connectionPool.createConnection();
+             Session session = createSession(connection)) {
+            send(session, lookupDestination(destination, session),
+                serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers);
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }
@@ -133,7 +168,7 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            send(session, lookupDestination(destination, session), message, timeToLive, headers);
+            send(session, lookupDestination(destination, session), message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -167,7 +202,7 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            send(session, destination, message, timeToLive, headers);
+            send(session, destination, message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -191,6 +226,8 @@ public class JmsProducer<T> {
     private void send(@NonNull Session session,
                       @NonNull Destination destination,
                       @NonNull Message message,
+                      int deliveryMode,
+                      @Nullable Integer priority,
                       @NonNull long timeToLive,
                       MessageHeader... headers) throws JMSException {
         ArgumentUtils.requireNonNull("session", session);
@@ -201,8 +238,7 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
-            // TODO support specifying delivery mode
-            producer.send(message, DEFAULT_DELIVERY_MODE, message.getJMSPriority(), timeToLive);
+            producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
 
             if (sessionTransacted) {
                 session.commit();
