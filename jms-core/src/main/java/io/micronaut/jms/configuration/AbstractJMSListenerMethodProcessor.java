@@ -20,6 +20,8 @@ import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
+import io.micronaut.core.bind.annotation.Bindable;
+import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
@@ -30,6 +32,7 @@ import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.listener.JMSTopicSubscription;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
+import io.micronaut.jms.listener.SessionAwareMessageListener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
@@ -41,8 +44,11 @@ import org.slf4j.LoggerFactory;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
+import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -113,9 +119,28 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     private MessageListener generateAndBindListener(Object bean,
                                                     Executable<?, ?> method) {
-
-        return message -> {
-            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+        // a parameter typed as the JMS session, or a provider subtype, receives the session that consumed the message
+        Argument<?>[] sessionArguments = Arrays.stream(method.getArguments())
+            .filter(argument -> Session.class.isAssignableFrom(argument.getType())
+                && !argument.getAnnotationMetadata().hasStereotype(Bindable.class))
+            .toArray(Argument[]::new);
+        if (sessionArguments.length == 0) {
+            return message -> {
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+                boundExecutable.invoke(bean);
+            };
+        }
+        return (SessionAwareMessageListener) (message, session) -> {
+            Map<Argument<?>, Object> preBound = new HashMap<>(sessionArguments.length);
+            for (Argument<?> argument : sessionArguments) {
+                if (!argument.getType().isInstance(session)) {
+                    throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                        + " cannot be bound to the session " + session.getClass().getName());
+                }
+                preBound.put(argument, session);
+            }
+            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
             BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
             boundExecutable.invoke(bean);
         };
