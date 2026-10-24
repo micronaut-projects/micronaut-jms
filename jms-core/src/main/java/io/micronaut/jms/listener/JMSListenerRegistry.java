@@ -125,6 +125,7 @@ public class JMSListenerRegistry {
      * @throws JMSException - if the listener fails to start
      * @since 5.2.0
      */
+    @SuppressWarnings("java:S107") // extends the existing register overload with the subscription
     public JMSListener register(
             Connection connection,
             JMSDestinationType destinationType,
@@ -195,6 +196,7 @@ public class JMSListenerRegistry {
      * @throws JMSException - if the connection cannot be opened or the listener fails to start
      * @since 5.2.0
      */
+    @SuppressWarnings("java:S107") // extends the existing register overload with the subscription
     public JMSListener register(
             JMSConnectionPool connectionPool,
             JMSDestinationType destinationType,
