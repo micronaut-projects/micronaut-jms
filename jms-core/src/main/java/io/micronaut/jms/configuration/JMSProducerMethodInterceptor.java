@@ -22,9 +22,12 @@ import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSProducer;
+import io.micronaut.jms.annotations.MessageDeliveryMode;
+import io.micronaut.jms.annotations.MessagePriority;
 import io.micronaut.jms.annotations.MessageTTL;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
+import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -34,6 +37,7 @@ import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.MessageBody;
 import jakarta.inject.Singleton;
 
+import jakarta.jms.Message;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Map;
@@ -114,12 +118,38 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             }).toArray(MessageHeader[]::new);
 
         long timeToLive = timeToLive(method, parameterValueMap);
+        JMSDeliveryMode deliveryMode = deliveryMode(method, annotationType, parameterValueMap);
+        int priority = priority(method, annotationType, parameterValueMap);
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
-        producer.send(destinationName, body, timeToLive, headers);
+        producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
 
         return null;
+    }
+
+    private static JMSDeliveryMode deliveryMode(ExecutableMethod<?, ?> method,
+                                                Class<? extends Annotation> annotationType,
+                                                Map<String, Object> parameterValueMap) {
+        return Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageDeliveryMode.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .filter(Objects::nonNull)
+            .map(value -> value instanceof Number n ? JMSDeliveryMode.from(n.intValue()) : (JMSDeliveryMode) value)
+            .findFirst()
+            .orElseGet(() -> method.enumValue(annotationType, "deliveryMode", JMSDeliveryMode.class).orElse(JMSDeliveryMode.PERSISTENT));
+    }
+
+    private static int priority(ExecutableMethod<?, ?> method,
+                                Class<? extends Annotation> annotationType,
+                                Map<String, Object> parameterValueMap) {
+        return Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessagePriority.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .map(value -> value instanceof Number n ? n.intValue() : null)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElseGet(() -> method.intValue(annotationType, "priority").orElse(Message.DEFAULT_PRIORITY));
     }
 
     private long timeToLive(ExecutableMethod<?, ?> method, Map<String, Object> parameterValueMap) {

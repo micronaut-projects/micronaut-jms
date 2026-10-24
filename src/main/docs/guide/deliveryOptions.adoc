@@ -1,0 +1,8 @@
+Producer methods set the delivery mode and priority of the messages they send with the `deliveryMode` and `priority` members of `@Queue` and `@Topic`. Messages are `PERSISTENT` with the JMS default priority, 4, unless a producer method sets otherwise. Listeners ignore both members.
+
+snippet::io.micronaut.jms.docs.delivery.AlertProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> Messages sent by this method are not persisted by the broker and have priority 7.
+<2> A `@MessagePriority` argument sets the priority of each call, from 0 (lowest) to 9. A `@MessageDeliveryMode` argument, a `JMSDeliveryMode` or a `jakarta.jms.DeliveryMode` value, sets the delivery mode of each call in the same way, and `@MessageTTL` the time to live in milliseconds.
+
+Listeners read both values with the `JMSPriority` and `JMSDeliveryMode` headers, as described under <<binding, Parameter Binding>>.

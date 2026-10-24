@@ -46,6 +46,14 @@ public enum JMSDeliveryMode {
         this.value = value;
     }
 
+    /**
+     * @return the {@link DeliveryMode} value of this mode
+     * @since 5.2.0
+     */
+    public int getValue() {
+        return value;
+    }
+
     public static JMSDeliveryMode from(int value) {
         for (JMSDeliveryMode mode : values()) {
             if (mode.value == value) {
