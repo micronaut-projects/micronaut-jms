@@ -28,15 +28,16 @@ import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
+import io.micronaut.jms.listener.JMSTopicSubscription;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
@@ -120,6 +121,14 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         };
     }
 
+    private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
+        return JMSTopicSubscription.of(destination,
+            destinationAnnotation.stringValue("subscription").orElse(null),
+            destinationAnnotation.isTrue("durable"),
+            destinationAnnotation.isTrue("shared"),
+            destinationAnnotation.stringValue("clientId").orElse(null));
+    }
+
     private void registerListener(ExecutableMethod<?, ?> method,
                                   String connectionFactoryName,
                                   BeanDefinition<?> beanDefinition,
@@ -132,6 +141,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
+        final JMSTopicSubscription subscription = topicSubscription(destinationAnnotation, destination);
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)
@@ -164,9 +174,8 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .collect(Collectors.toSet());
 
         try {
-            Connection connection = connectionPool.createConnection();
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
-                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector);
+                    connectionPool, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
             registeredListener.addSuccessHandlers(successHandlers);
             registeredListener.addErrorHandlers(errorHandlers);
         } catch (JMSException e) {
