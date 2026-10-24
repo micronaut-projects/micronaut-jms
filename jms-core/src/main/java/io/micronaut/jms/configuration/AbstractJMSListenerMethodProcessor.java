@@ -41,7 +41,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
@@ -148,21 +147,11 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
-        String name = destinationAnnotation.stringValue("subscription").filter(s -> !s.isEmpty()).orElse(null);
-        boolean durable = destinationAnnotation.isTrue("durable");
-        boolean shared = destinationAnnotation.isTrue("shared");
-        String clientId = destinationAnnotation.stringValue("clientId").filter(s -> !s.isEmpty()).orElse(null);
-        if (name == null) {
-            if (durable || shared || clientId != null) {
-                throw new IllegalStateException("A subscription name is required for the durable, shared or client ID options of topic " + destination);
-            }
-            return null;
-        }
-        if (!durable && !shared) {
-            throw new IllegalStateException("The subscription '" + name + "' of topic " + destination
-                + " must set durable = true or shared = true; a plain topic listener has no named subscription");
-        }
-        return new JMSTopicSubscription(name, durable, shared, clientId);
+        return JMSTopicSubscription.of(destination,
+            destinationAnnotation.stringValue("subscription").orElse(null),
+            destinationAnnotation.isTrue("durable"),
+            destinationAnnotation.isTrue("shared"),
+            destinationAnnotation.stringValue("clientId").orElse(null));
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
@@ -209,32 +198,12 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .map(Optional::get)
                 .collect(Collectors.toSet());
 
-        final boolean dedicated = subscription != null && subscription.requiresDedicatedConnection();
-        Connection connection = null;
         try {
-            if (dedicated) {
-                // the client ID must be set before the connection is used, so it can't come from the pool
-                connection = connectionPool.getConnectionFactory().createConnection();
-                connection.setClientID(subscription.effectiveClientId());
-            } else {
-                connection = connectionPool.createConnection();
-            }
             io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
-                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
+                    connectionPool, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
             registeredListener.addSuccessHandlers(successHandlers);
             registeredListener.addErrorHandlers(errorHandlers);
-        } catch (JMSException | RuntimeException e) {
-            if (dedicated && connection != null) {
-                // the registry only owns a dedicated connection once its listener has started
-                try {
-                    connection.close();
-                } catch (JMSException | RuntimeException closeFailure) {
-                    e.addSuppressed(closeFailure);
-                }
-            }
-            if (e instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
+        } catch (JMSException e) {
             logger.error("Failed to register listener for destination " + destination, e);
         }
     }
