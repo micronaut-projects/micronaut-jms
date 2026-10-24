@@ -43,6 +43,38 @@ public record JMSTopicSubscription(String name, boolean durable, boolean shared,
     }
 
     /**
+     * Creates the subscription for a topic listener from its options.
+     *
+     * @param destination the topic, used in error messages
+     * @param name        the subscription name, or {@code null} or empty for none
+     * @param durable     whether the subscription is durable
+     * @param shared      whether the subscription is shared
+     * @param clientId    the client ID, or {@code null} or empty for the default
+     * @return the subscription, or {@code null} if the listener has no named subscription
+     * @throws IllegalStateException if durable, shared or a client ID is set without a name, or a name is set
+     *                               without durable or shared
+     */
+    public static @Nullable JMSTopicSubscription of(String destination,
+                                                    @Nullable String name,
+                                                    boolean durable,
+                                                    boolean shared,
+                                                    @Nullable String clientId) {
+        String subscriptionName = name == null || name.isEmpty() ? null : name;
+        String subscriptionClientId = clientId == null || clientId.isEmpty() ? null : clientId;
+        if (subscriptionName == null) {
+            if (durable || shared || subscriptionClientId != null) {
+                throw new IllegalStateException("A subscription name is required for the durable, shared or client ID options of topic " + destination);
+            }
+            return null;
+        }
+        if (!durable && !shared) {
+            throw new IllegalStateException("The subscription '" + subscriptionName + "' of topic " + destination
+                + " must set durable = true or shared = true; a plain topic listener has no named subscription");
+        }
+        return new JMSTopicSubscription(subscriptionName, durable, shared, subscriptionClientId);
+    }
+
+    /**
      * @return whether the listener needs a connection of its own, with {@link #effectiveClientId()} as its
      * client ID: for an unshared durable subscription, or when a client ID is given
      */

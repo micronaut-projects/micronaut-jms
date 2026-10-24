@@ -17,6 +17,7 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.PooledObject;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Singleton;
@@ -171,6 +172,58 @@ public class JMSListenerRegistry {
             pooledConnections.put(listener, pooled);
         }
         return listener;
+    }
+
+    /**
+     * Creates and registers a new listener to be managed by Micronaut JMS, optionally with a named topic
+     * subscription, on a connection the registry opens. The connection comes from the pool, unless the
+     * subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a dedicated connection}:
+     * then it is a new connection from the pool's factory with the subscription's client ID, which the registry
+     * closes when the listener shuts down or when registration fails.
+     *
+     * @param connectionPool - the pool that provides the listener's connection
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param transacted - whether the listener should commit the transaction once the message is received
+     * @param acknowledgeMode - whether the message receipt should be acknowledged
+     * @param delegate - the underlying handler to delegate to
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on.
+     * @param autoStart -  whether the listener should be automatically started when registered
+     * @param messageSelector - the message selector for the listener
+     * @param subscription - the named topic subscription, or {@code null}
+     * @return the listener that has been registered
+     * @throws JMSException - if the connection cannot be opened or the listener fails to start
+     * @since 5.2.0
+     */
+    public JMSListener register(
+            JMSConnectionPool connectionPool,
+            JMSDestinationType destinationType,
+            String destination,
+            final boolean transacted,
+            final int acknowledgeMode,
+            MessageListener delegate,
+            ExecutorService executor,
+            boolean autoStart,
+            Optional<String> messageSelector,
+            @Nullable JMSTopicSubscription subscription) throws JMSException {
+        if (subscription == null || !subscription.requiresDedicatedConnection()) {
+            return register(connectionPool.createConnection(), destinationType, destination, transacted, acknowledgeMode,
+                delegate, executor, autoStart, messageSelector, subscription);
+        }
+        // the client ID must be set before the connection is used, so it can't come from the pool
+        Connection connection = connectionPool.getConnectionFactory().createConnection();
+        try {
+            connection.setClientID(subscription.effectiveClientId());
+            return register(connection, destinationType, destination, transacted, acknowledgeMode,
+                delegate, executor, autoStart, messageSelector, subscription);
+        } catch (JMSException | RuntimeException e) {
+            try {
+                connection.close();
+            } catch (JMSException | RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
     }
 
     /**
