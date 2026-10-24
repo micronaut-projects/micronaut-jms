@@ -106,6 +106,15 @@ public @interface Queue {
     String messageSelector() default "";
 
     /**
+     * The number of consumers of the listener method, each with its own session, so that messages are handled
+     * concurrently. Ignored by producers.
+     *
+     * @return the number of consumers
+     * @since 5.2.0
+     */
+    int consumers() default 1;
+
+    /**
      * The delivery mode of the messages that a producer method sends. Ignored by listeners. A
      * {@link io.micronaut.jms.annotations.MessageDeliveryMode} argument overrides it.
      *
