@@ -18,6 +18,8 @@ package io.micronaut.jms.configuration;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.core.bind.ArgumentBinder;
+import io.micronaut.core.bind.ArgumentBinderRegistry;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
 import io.micronaut.core.bind.annotation.Bindable;
@@ -27,6 +29,7 @@ import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.bind.DefaultBodyArgumentBinder;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
@@ -35,6 +38,7 @@ import io.micronaut.jms.listener.JMSListenerSuccessHandler;
 import io.micronaut.jms.listener.SessionAwareMessageListener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
 import org.jspecify.annotations.Nullable;
@@ -117,8 +121,29 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                     " or @Message"));
     }
 
+    private ArgumentBinderRegistry<Message> binderRegistry(AnnotationValue<T> destinationAnnotation) {
+        Optional<String> deserializerName = destinationAnnotation.stringValue("deserializer").filter(name -> !name.isEmpty());
+        if (deserializerName.isEmpty()) {
+            return jmsArgumentBinderRegistry;
+        }
+        Deserializer deserializer = beanContext.getBean(Deserializer.class, Qualifiers.byName(deserializerName.get()));
+        ArgumentBinder<?, Message> bodyBinder = new DefaultBodyArgumentBinder(beanContext.getConversionService(), deserializer);
+        // only the body is bound with the deserializer of the destination, the other arguments as usual
+        return new ArgumentBinderRegistry<>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <A> Optional<ArgumentBinder<A, Message>> findArgumentBinder(Argument<A> argument) {
+                if (argument.getAnnotationMetadata().hasAnnotation(MessageBody.class)) {
+                    return Optional.of((ArgumentBinder<A, Message>) bodyBinder);
+                }
+                return jmsArgumentBinderRegistry.findArgumentBinder(argument);
+            }
+        };
+    }
+
     private MessageListener generateAndBindListener(Object bean,
-                                                    Executable<?, ?> method) {
+                                                    Executable<?, ?> method,
+                                                    ArgumentBinderRegistry<Message> binderRegistry) {
         // a parameter typed as the JMS session, or a provider subtype, receives the session that consumed the message
         Argument<?>[] sessionArguments = Arrays.stream(method.getArguments())
             .filter(argument -> Session.class.isAssignableFrom(argument.getType())
@@ -127,7 +152,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         if (sessionArguments.length == 0) {
             return message -> {
                 DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
-                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+                BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
                 boundExecutable.invoke(bean);
             };
         }
@@ -141,7 +166,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 preBound.put(argument, session);
             }
             DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
-            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+            BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
             boundExecutable.invoke(bean);
         };
     }
@@ -188,7 +213,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method);
+        MessageListener listener = generateAndBindListener(bean, method, binderRegistry(destinationAnnotation));
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),

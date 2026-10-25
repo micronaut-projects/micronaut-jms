@@ -16,6 +16,7 @@
 package io.micronaut.jms.serdes;
 
 import io.micronaut.context.BeanLocator;
+import io.micronaut.context.annotation.Primary;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.jms.model.MessageType;
@@ -41,12 +42,15 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Default implementation of {@link Serializer} and {@link Deserializer}.
+ * Default implementation of {@link Serializer} and {@link Deserializer}. It is the primary bean of both types, so
+ * applications can add named serializers and deserializers for the {@code serializer} and {@code deserializer}
+ * members of {@code @Queue} and {@code @Topic}.
  *
  * @author Elliott Pope
  * @since 1.0.0
  */
 @Singleton
+@Primary
 public final class DefaultSerializerDeserializer implements Serializer, Deserializer {
 
     private final Supplier<JsonMapper> objectMapperSupplier;

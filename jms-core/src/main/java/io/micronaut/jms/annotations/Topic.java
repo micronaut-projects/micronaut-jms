@@ -79,6 +79,17 @@ public @interface Topic {
     String serializer() default "";
 
     /**
+     * The name of a {@link io.micronaut.jms.serdes.Deserializer} in the bean
+     * context that a listener method uses to convert the {@link jakarta.jms.Message}
+     * into its {@code @MessageBody} argument. If not specified, defaults to
+     * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
+     *
+     * @return the deserializer bean name
+     * @since 5.2.0
+     */
+    String deserializer() default "";
+
+    /**
      * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
      * @see jakarta.jms.Session
      */

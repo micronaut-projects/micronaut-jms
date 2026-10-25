@@ -10,6 +10,7 @@ configuration:
   otherBrokers: Configuring Unsupported Brokers
   customizing: Customizing Brokers
 binding: Parameter Binding
+serdes: Serializers and Deserializers
 errorHandlers: Error Handlers
 successHandlers: Success Handlers
 messageSelector: Message Selectors
