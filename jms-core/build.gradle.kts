@@ -11,6 +11,8 @@ dependencies {
     implementation(mn.micronaut.jackson.databind)
     compileOnly(mn.micronaut.management)
     compileOnly(mnMicrometer.micrometer.core)
+    compileOnly(platform(mnTracing.boms.opentelemetry))
+    compileOnly(libs.opentelemetry.api)
 
     testImplementation(mnTest.micronaut.test.junit5)
     testRuntimeOnly(mnTest.junit.jupiter.engine)

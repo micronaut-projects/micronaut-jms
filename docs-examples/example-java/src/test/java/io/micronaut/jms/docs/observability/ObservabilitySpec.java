@@ -2,6 +2,7 @@ package io.micronaut.jms.docs.observability;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Requires;
@@ -10,7 +11,7 @@ import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.health.JMSHealthIndicator;
-import io.micronaut.jms.metrics.JMSListenerMetrics;
+import io.micronaut.jms.metrics.JMSMetrics;
 import io.micronaut.management.health.indicator.HealthResult;
 import io.micronaut.messaging.annotation.MessageBody;
 import org.junit.jupiter.api.AfterEach;
@@ -56,7 +57,7 @@ class ObservabilitySpec {
     }
 
     @Test
-    void listenerMessagesAreCountedByDestinationAndResult() {
+    void listenerMessagesAreCountedAndTimedByDestinationAndResult() {
         context = start(Map.of());
         MeterRegistry registry = context.getBean(MeterRegistry.class);
         ObservedProducer producer = context.getBean(ObservedProducer.class);
@@ -64,18 +65,34 @@ class ObservabilitySpec {
         producer.send("ok");
         producer.sendFailing("boom");
 
-        await().atMost(20, SECONDS).until(() -> count(registry, "observed", "success") == 1
-            && count(registry, "observed_failing", "failure") == 1);
-        assertEquals("IllegalStateException", registry.get(JMSListenerMetrics.MESSAGES)
+        await().atMost(20, SECONDS).until(() -> count(registry, JMSMetrics.LISTENER_MESSAGES, "observed", "success") == 1
+            && count(registry, JMSMetrics.LISTENER_MESSAGES, "observed_failing", "failure") == 1);
+        assertEquals("IllegalStateException", registry.get(JMSMetrics.LISTENER_MESSAGES)
             .tag("destination", "observed_failing").counter().getId().getTag("exception"));
+        Timer timer = registry.get(JMSMetrics.LISTENER_DURATION).tag("destination", "observed").tag("result", "success").timer();
+        assertEquals(1, timer.count());
+        assertTrue(timer.totalTime(SECONDS) > 0);
+    }
+
+    @Test
+    void producerMessagesAreCountedAndTimedByDestination() {
+        context = start(Map.of());
+        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        ObservedProducer producer = context.getBean(ObservedProducer.class);
+
+        producer.send("one");
+        producer.send("two");
+
+        assertEquals(2, count(registry, JMSMetrics.PRODUCER_MESSAGES, "observed", "success"));
+        assertEquals(2, registry.get(JMSMetrics.PRODUCER_DURATION).tag("destination", "observed").timer().count());
     }
 
     @Test
     void bothCanBeDisabled() {
-        context = start(Map.of(JMSHealthIndicator.ENABLED, false, JMSListenerMetrics.ENABLED, false));
+        context = start(Map.of(JMSHealthIndicator.ENABLED, false, JMSMetrics.ENABLED, false));
 
         assertFalse(context.containsBean(JMSHealthIndicator.class));
-        assertFalse(context.containsBean(JMSListenerMetrics.class));
+        assertFalse(context.containsBean(JMSMetrics.class));
     }
 
     private static <T> T first(Publisher<T> publisher) {
@@ -104,8 +121,8 @@ class ObservabilitySpec {
         return result.join();
     }
 
-    private static double count(MeterRegistry registry, String destination, String result) {
-        Counter counter = registry.find(JMSListenerMetrics.MESSAGES).tag("destination", destination).tag("result", result).counter();
+    private static double count(MeterRegistry registry, String name, String destination, String result) {
+        Counter counter = registry.find(name).tag("destination", destination).tag("result", result).counter();
         return counter == null ? 0 : counter.count();
     }
 

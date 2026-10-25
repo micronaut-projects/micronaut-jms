@@ -30,6 +30,7 @@ import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
@@ -41,6 +42,7 @@ import jakarta.jms.Message;
 import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -60,6 +62,7 @@ import static jakarta.jms.Message.DEFAULT_TIME_TO_LIVE;
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {
 
     private final BeanContext beanContext;
+    private volatile Collection<JMSMessageObserver> observers;
 
     public JMSProducerMethodInterceptor(BeanContext beanContext) {
         this.beanContext = beanContext;
@@ -127,9 +130,20 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         boolean transacted = method.isTrue(annotationType, "transacted");
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
             transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+        producer.addObservers(observers());
         producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
 
         return null;
+    }
+
+    private Collection<JMSMessageObserver> observers() {
+        Collection<JMSMessageObserver> result = observers;
+        if (result == null) {
+            // looked up on the first send rather than injected, so the meter registry or tracer of an observer is not created with the interceptor
+            result = beanContext.getBeansOfType(JMSMessageObserver.class);
+            observers = result;
+        }
+        return result;
     }
 
     private static JMSDeliveryMode deliveryMode(ExecutableMethod<?, ?> method,

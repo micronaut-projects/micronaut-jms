@@ -21,6 +21,9 @@ import io.micronaut.core.util.ArgumentUtils;
 import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.observation.JMSMessageObserver;
+import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.jms.observation.JMSObservations;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
@@ -34,9 +37,13 @@ import jakarta.jms.Destination;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageProducer;
+import jakarta.jms.Queue;
 import jakarta.jms.Session;
+import jakarta.jms.Topic;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
@@ -62,6 +69,7 @@ public class JmsProducer<T> {
     private final Serializer serializer;
     private final boolean sessionTransacted;
     private final int sessionAcknowledgeMode;
+    private final JMSObservations observations = new JMSObservations();
 
     @SuppressWarnings("unchecked")
     public JmsProducer(JMSDestinationType type,
@@ -212,6 +220,15 @@ public class JmsProducer<T> {
         }
     }
 
+    /**
+     * @param observers The observers of the messages that this producer sends. They are called in
+     *                  {@link JMSMessageObserver#getOrder()} order before each message is sent.
+     * @since 5.2.0
+     */
+    public void addObservers(Collection<? extends JMSMessageObserver> observers) {
+        this.observations.add(observers);
+    }
+
     @Override
     public String toString() {
         return "JmsProducer{" +
@@ -238,10 +255,20 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
-            producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
+            List<JMSObservation> started = observations.isEmpty() ? List.of()
+                : observations.send(type, destinationName(destination), message);
+            Throwable error = null;
+            try {
+                producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
 
-            if (sessionTransacted) {
-                session.commit();
+                if (sessionTransacted) {
+                    session.commit();
+                }
+            } catch (JMSException | RuntimeException e) {
+                error = e;
+                throw e;
+            } finally {
+                JMSObservations.complete(started, error);
             }
         } catch (JMSException | RuntimeException e) {
             if (sessionTransacted) {
@@ -254,6 +281,16 @@ public class JmsProducer<T> {
             }
             throw new MessagingClientException("Problem sending the message", e);
         }
+    }
+
+    private static String destinationName(Destination destination) throws JMSException {
+        if (destination instanceof Queue queue) {
+            return queue.getQueueName();
+        }
+        if (destination instanceof Topic topic) {
+            return topic.getTopicName();
+        }
+        return destination.toString();
     }
 
     private Destination lookupDestination(String destination, Session session) {

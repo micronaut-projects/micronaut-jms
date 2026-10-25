@@ -17,6 +17,9 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.core.order.OrderUtil;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.observation.JMSMessageObserver;
+import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.jms.observation.JMSObservations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +71,7 @@ public class JMSListener {
     private final ExecutorService executor;
     private final List<JMSListenerSuccessHandler> successHandlers = new ArrayList<>();
     private final List<JMSListenerErrorHandler> errorHandlers = new ArrayList<>();
+    private final JMSObservations observations = new JMSObservations();
     private final Optional<String> messageSelector;
     private final @Nullable JMSTopicSubscription subscription;
 
@@ -148,6 +152,15 @@ public class JMSListener {
     }
 
     /**
+     * @param observers - add the given observers of the messages that this listener processes. They are called in
+     *                  {@link JMSMessageObserver#getOrder()} order before the message is processed.
+     * @since 5.2.0
+     */
+    public void addObservers(Collection<? extends JMSMessageObserver> observers) {
+        this.observations.add(observers);
+    }
+
+    /**
      * Configures the listener to begin listening for messages and processing them.
      *
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
@@ -174,6 +187,8 @@ public class JMSListener {
     }
 
     private void handleMessage(Message msg) {
+        List<JMSObservation> started = observations.process(destinationType, destination, msg);
+        Throwable error = null;
         try {
             if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
                 sessionAwareListener.onMessage(msg, session);
@@ -190,10 +205,14 @@ public class JMSListener {
                 }
             });
             if (ex.getSuppressed().length > 0) {
+                error = ex;
                 errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
             }
         } catch (Exception e) {
+            error = e;
             errorHandlers.forEach(handler -> handler.handle(session, msg, e));
+        } finally {
+            JMSObservations.complete(started, error);
         }
     }
 

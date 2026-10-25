@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * Metrics of the JMS listeners.
+ * Metrics of the JMS listeners and producers.
  *
  * @since 5.2.0
  */
