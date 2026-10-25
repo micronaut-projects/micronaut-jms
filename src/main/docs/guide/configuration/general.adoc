@@ -9,3 +9,5 @@ micronaut:
     initialPoolSize: 10
     maxPoolSize: 100
 ----
+
+The pool registers a JMS `ExceptionListener` on each of its connections. When the provider reports that a connection failed, the connection is closed and leaves the pool: it is no longer handed out, and is not returned once in use, so the next request opens a new connection. An `ExceptionListener` that the application sets on a pooled connection still receives the failure.

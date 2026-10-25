@@ -36,6 +36,9 @@ import jakarta.jms.Topic;
  */
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 
+    private volatile boolean broken;
+    private volatile ExceptionListener exceptionListener;
+
     public PooledConnection(Connection connection,
                             AbstractPool<PooledObject<Connection>> connectionPool) {
         super(connectionPool, connection);
@@ -78,12 +81,35 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
 
     @Override
     public ExceptionListener getExceptionListener() throws JMSException {
-        return get().getExceptionListener();
+        return exceptionListener;
     }
 
     @Override
     public void setExceptionListener(ExceptionListener listener) throws JMSException {
-        get().setExceptionListener(listener);
+        // the pool listens for the failures of the connection, and forwards them to this listener
+        this.exceptionListener = listener;
+    }
+
+    /**
+     * @return whether the JMS provider reported that the connection failed, so it is no longer used
+     * @since 5.2.0
+     */
+    public boolean isBroken() {
+        return broken;
+    }
+
+    /**
+     * Marks the connection as broken and forwards the failure to the exception listener of the application.
+     *
+     * @param exception the failure that the JMS provider reported
+     * @since 5.2.0
+     */
+    void onException(JMSException exception) {
+        broken = true;
+        ExceptionListener listener = exceptionListener;
+        if (listener != null) {
+            listener.onException(exception);
+        }
     }
 
     @Override

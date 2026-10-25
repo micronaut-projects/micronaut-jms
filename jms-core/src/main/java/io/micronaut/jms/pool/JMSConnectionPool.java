@@ -16,6 +16,8 @@
 package io.micronaut.jms.pool;
 
 import io.micronaut.messaging.exceptions.MessagingSystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
@@ -32,6 +34,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> implements ConnectionFactory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JMSConnectionPool.class);
+
     private final ConnectionFactory connectionFactory;
 
     public JMSConnectionPool(ConnectionFactory connectionFactory,
@@ -47,8 +51,14 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     private PooledConnection doCreate() {
         try {
             Connection connection = connectionFactory.createConnection();
+            PooledConnection pooled = new PooledConnection(connection, this);
+            try {
+                connection.setExceptionListener(pooled::onException);
+            } catch (JMSException | RuntimeException e) {
+                LOGGER.debug("The JMS provider does not report connection failures: {}", e.getMessage());
+            }
             connection.start(); // TODO config autostart
-            return new PooledConnection(connection, this);
+            return pooled;
         } catch (JMSException | RuntimeException e) {
             throw new MessagingSystemException("Problem creating pooled Connection", e);
         }
@@ -66,6 +76,21 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
     @Override
     protected void reset(PooledObject<Connection> pooledObject) {
         doReset(PooledConnection.of(pooledObject));
+    }
+
+    @Override
+    protected boolean isValid(PooledObject<Connection> pooledObject) {
+        return !PooledConnection.of(pooledObject).isBroken();
+    }
+
+    @Override
+    protected void discard(PooledObject<Connection> pooledObject) {
+        LOGGER.warn("Closing a JMS connection that failed: {}", pooledObject.get());
+        try {
+            pooledObject.get().close();
+        } catch (JMSException | RuntimeException e) {
+            LOGGER.debug("Unable to close a failed JMS connection: {}", e.getMessage(), e);
+        }
     }
 
     @Override
