@@ -25,6 +25,7 @@ import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.observation.JMSObservation;
 import io.micronaut.jms.observation.JMSObservations;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.pool.ProducerSessionPool;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.messaging.exceptions.MessageListenerException;
 import io.micronaut.messaging.exceptions.MessagingClientException;
@@ -69,6 +70,7 @@ public class JmsProducer<T> {
     private final Serializer serializer;
     private final boolean sessionTransacted;
     private final int sessionAcknowledgeMode;
+    private final @Nullable ProducerSessionPool sessionPool;
     private final JMSObservations observations = new JMSObservations();
 
     @SuppressWarnings("unchecked")
@@ -83,11 +85,31 @@ public class JmsProducer<T> {
                        Serializer serializer,
                        boolean sessionTransacted,
                        int sessionAcknowledgeMode) {
+        this(type, connectionPool, serializer, sessionTransacted, sessionAcknowledgeMode, null);
+    }
+
+    /**
+     * @param type                   The type of the destinations
+     * @param connectionPool         The connection pool, used for each send when there is no session pool
+     * @param serializer             The serializer of message bodies
+     * @param sessionTransacted      Whether the session is transacted, and committed after each send
+     * @param sessionAcknowledgeMode The acknowledge mode of the session
+     * @param sessionPool            The pool of sessions to send with, or {@code null} to open a connection and a
+     *                               session for each send
+     * @since 5.2.0
+     */
+    public JmsProducer(JMSDestinationType type,
+                       JMSConnectionPool connectionPool,
+                       Serializer serializer,
+                       boolean sessionTransacted,
+                       int sessionAcknowledgeMode,
+                       @Nullable ProducerSessionPool sessionPool) {
         this.type = type;
         this.connectionPool = connectionPool;
         this.serializer = serializer;
         this.sessionTransacted = sessionTransacted;
         this.sessionAcknowledgeMode = sessionAcknowledgeMode;
+        this.sessionPool = sessionPool;
     }
 
     /**
@@ -109,10 +131,9 @@ public class JmsProducer<T> {
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     body, destination, type.name(), joinedHeaders);
         }
-        try (Connection connection = connectionPool.createConnection();
-             Session session = createSession(connection)) {
-            send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
+        try {
+            withSession(session -> send(session, lookupDestination(destination, session),
+                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, null, timeToLive, headers));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         body, destination, type.name(), joinedHeaders);
@@ -146,10 +167,9 @@ public class JmsProducer<T> {
             LOGGER.debug("Sending message {} to destination {} of type {} with delivery mode {} and priority {}",
                     body, destination, type.name(), deliveryMode, priority);
         }
-        try (Connection connection = connectionPool.createConnection();
-             Session session = createSession(connection)) {
-            send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers);
+        try {
+            withSession(session -> send(session, lookupDestination(destination, session),
+                serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers));
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }
@@ -174,9 +194,8 @@ public class JmsProducer<T> {
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     message, destination, type.name(), joinedHeaders);
         }
-        try (Connection connection = connectionPool.createConnection();
-             Session session = createSession(connection)) {
-            send(session, lookupDestination(destination, session), message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
+        try {
+            withSession(session -> send(session, lookupDestination(destination, session), message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -208,9 +227,8 @@ public class JmsProducer<T> {
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     message, destination, type.name(), joinedHeaders);
         }
-        try (Connection connection = connectionPool.createConnection();
-             Session session = createSession(connection)) {
-            send(session, destination, message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
+        try {
+            withSession(session -> send(session, destination, message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         message, destination, type.name(), joinedHeaders);
@@ -306,5 +324,28 @@ public class JmsProducer<T> {
 
     private Session createSession(Connection connection) throws JMSException {
         return connection.createSession(sessionTransacted, sessionAcknowledgeMode);
+    }
+
+    private void withSession(SessionWork work) throws JMSException {
+        if (sessionPool == null) {
+            try (Connection connection = connectionPool.createConnection();
+                 Session session = createSession(connection)) {
+                work.run(session);
+            }
+            return;
+        }
+        Session session = sessionPool.borrow(sessionTransacted, sessionAcknowledgeMode);
+        boolean broken = true;
+        try {
+            work.run(session);
+            broken = false;
+        } finally {
+            sessionPool.release(session, broken);
+        }
+    }
+
+    @FunctionalInterface
+    private interface SessionWork {
+        void run(Session session) throws JMSException;
     }
 }

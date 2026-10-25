@@ -1,0 +1,25 @@
+=== Asynchronous producer methods
+
+Producer methods can return a `CompletableFuture` or another `CompletionStage`, or a Reactive Streams `Publisher` such as a Reactor `Mono`, instead of `void`:
+
+snippet::io.micronaut.jms.docs.producer.ReceiptProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The message is sent on the `blocking` executor, since JMS sends block. The future completes once the message is sent, or completes exceptionally if the send fails.
+<2> The message is sent when the publisher is subscribed to. The publisher then completes without emitting an item, or signals the error.
+
+The propagated context of the caller, for example the current trace with Micronaut Tracing, follows the send to the executor.
+
+=== Producer sessions
+
+Producer methods reuse their sessions. For each connection factory, they open one connection and keep up to `max-idle` idle sessions for each session mode, plain or transacted. Each send borrows a session, so concurrent sends use different sessions, and a session on which a send failed is closed rather than reused. If a session cannot be created, the connection is replaced. The connection and its sessions are closed with the application context.
+
+[configuration]
+----
+micronaut:
+  jms:
+    producer-sessions:
+      enabled: true
+      max-idle: 8
+----
+
+With `enabled: false`, each send takes a connection from the connection pool and opens a session for that message, as in earlier releases. A `JmsProducer` created by the application reuses sessions when it is given a `ProducerSessionPool`.

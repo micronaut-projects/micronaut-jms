@@ -16,11 +16,15 @@
 package io.micronaut.jms.configuration;
 
 import io.micronaut.aop.MethodInterceptor;
+import io.micronaut.aop.InterceptedMethod;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.exceptions.ConfigurationException;
+import io.micronaut.core.async.publisher.Publishers;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
+import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.MessageDeliveryMode;
 import io.micronaut.jms.annotations.MessagePriority;
@@ -45,6 +49,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
@@ -63,6 +69,8 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
     private final BeanContext beanContext;
     private volatile Collection<JMSMessageObserver> observers;
+    private volatile JMSProducerSessionPools sessionPools;
+    private volatile ExecutorService executor;
 
     public JMSProducerMethodInterceptor(BeanContext beanContext) {
         this.beanContext = beanContext;
@@ -129,11 +137,49 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         // a transacted producer method sends on a transacted session, committed after the send
         boolean transacted = method.isTrue(annotationType, "transacted");
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
-            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE,
+            sessionPools().get(connectionFactory, pool));
         producer.addObservers(observers());
-        producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
+        Runnable send = () -> producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
 
-        return null;
+        InterceptedMethod interceptedMethod = InterceptedMethod.of(context, beanContext.getConversionService());
+        try {
+            return switch (interceptedMethod.resultType()) {
+                // sent on the blocking executor, since JMS sends block
+                case COMPLETION_STAGE -> interceptedMethod.handleResult(sendAsync(send));
+                case PUBLISHER -> interceptedMethod.handleResult(Publishers.fromCompletableFuture(() -> sendAsync(send)));
+                case SYNCHRONOUS -> {
+                    send.run();
+                    yield null;
+                }
+                default -> interceptedMethod.unsupported();
+            };
+        } catch (Exception e) {
+            return interceptedMethod.handleException(e);
+        }
+    }
+
+    private CompletableFuture<Void> sendAsync(Runnable send) {
+        // the propagated context, for example the current trace, follows the send to the executor
+        return CompletableFuture.runAsync(PropagatedContext.getOrEmpty().wrap(send), executor());
+    }
+
+    private JMSProducerSessionPools sessionPools() {
+        JMSProducerSessionPools result = sessionPools;
+        if (result == null) {
+            result = beanContext.getBean(JMSProducerSessionPools.class);
+            sessionPools = result;
+        }
+        return result;
+    }
+
+    private ExecutorService executor() {
+        ExecutorService result = executor;
+        if (result == null) {
+            result = beanContext.getBean(ExecutorService.class, Qualifiers.byName(TaskExecutors.BLOCKING));
+            executor = result;
+        }
+        return result;
     }
 
     private Collection<JMSMessageObserver> observers() {
