@@ -52,6 +52,7 @@ import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -149,6 +150,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
             .filter(argument -> Session.class.isAssignableFrom(argument.getType())
                 && !argument.getAnnotationMetadata().hasStereotype(Bindable.class))
             .toArray(Argument[]::new);
+        checkBinders(method, sessionArguments);
         if (sessionArguments.length == 0) {
             return message -> {
                 DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
@@ -159,7 +161,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         return new SessionAwareMessageListener() {
             @Override
             public void onMessage(Message message, Session session) {
-                Map<Argument<?>, Object> preBound = new HashMap<>(sessionArguments.length);
+                Map<Argument<?>, Object> preBound = HashMap.newHashMap(sessionArguments.length);
                 for (Argument<?> argument : sessionArguments) {
                     preBound.put(argument, session);
                 }
@@ -179,6 +181,26 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 }
             }
         };
+    }
+
+    /**
+     * Checks at registration that every argument other than the session can be bound, since one that can't, such as a
+     * parameter of type {@code oracle.jms.AQjmsSession}, which is a {@code javax.jms.Session}, would fail every message.
+     */
+    private void checkBinders(Executable<?, ?> method, Argument<?>[] sessionArguments) {
+        List<Argument<?>> bound = Arrays.asList(sessionArguments);
+        for (Argument<?> argument : method.getArguments()) {
+            if (bound.contains(argument)) {
+                continue;
+            }
+            try {
+                jmsArgumentBinderRegistry.findArgumentBinder(argument);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                    + " of a @" + clazz.getSimpleName() + " listener method cannot be bound: annotate it with a binding annotation"
+                    + " such as @MessageBody or @MessageHeader, or type it as a jakarta.jms.Session", e);
+            }
+        }
     }
 
     private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
