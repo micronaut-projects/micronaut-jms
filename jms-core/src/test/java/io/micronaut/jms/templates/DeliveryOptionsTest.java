@@ -7,6 +7,7 @@ import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.MessageDeliveryMode;
 import io.micronaut.jms.annotations.MessagePriority;
 import io.micronaut.jms.annotations.Queue;
+import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -77,16 +78,37 @@ class DeliveryOptionsTest {
     }
 
     @Test
+    void theQueueAndTopicAnnotationsSetTheDeliveryModeAndPriorityThatArgumentsOverride() {
+        producer.sendUrgent("alert");
+        producer.sendUrgentWithPriority("alert", 2);
+        producer.sendUrgentWithPriority("alert", null);
+        producer.broadcast("alert");
+        producer.broadcastWithMode("alert", JMSDeliveryMode.PERSISTENT);
+
+        assertEquals(List.of(
+            new Sent(DeliveryMode.NON_PERSISTENT, 8),
+            new Sent(DeliveryMode.NON_PERSISTENT, 2),
+            new Sent(DeliveryMode.NON_PERSISTENT, 8),
+            new Sent(DeliveryMode.NON_PERSISTENT, 1),
+            new Sent(DeliveryMode.PERSISTENT, 1)), broker.sent);
+        assertEquals(List.of("alerts", "alerts", "alerts", "broadcasts", "broadcasts"), broker.destinations);
+    }
+
+    @Test
     void invalidDeliveryOptionsFailTheCallWithAMessagingClientException() {
         MessagingClientException invalidMode = assertThrows(MessagingClientException.class, () -> producer.sendWithModeValue("alert", 3));
         MessagingClientException invalidName = assertThrows(MessagingClientException.class, () -> producer.sendWithModeName("alert", "SOMETIMES"));
         MessagingClientException invalidType = assertThrows(MessagingClientException.class, () -> producer.sendWithModeObject("alert", true));
         MessagingClientException invalidPriority = assertThrows(MessagingClientException.class, () -> producer.sendWithPriority("alert", 10));
+        MessagingClientException negativePriority = assertThrows(MessagingClientException.class, () -> producer.sendWithPriority("alert", -1));
+        MessagingClientException blankName = assertThrows(MessagingClientException.class, () -> producer.sendWithModeName("alert", " "));
 
         assertTrue(invalidMode.getMessage().contains("No JMSDeliveryMode defined for 3"), invalidMode.getMessage());
         assertTrue(invalidName.getMessage().contains("expected NON_PERSISTENT or PERSISTENT"), invalidName.getMessage());
         assertTrue(invalidType.getMessage().contains("must be a JMSDeliveryMode, a jakarta.jms.DeliveryMode int or the name"), invalidType.getMessage());
         assertInstanceOf(IllegalArgumentException.class, invalidPriority.getCause());
+        assertInstanceOf(IllegalArgumentException.class, negativePriority.getCause());
+        assertTrue(blankName.getMessage().contains("expected NON_PERSISTENT or PERSISTENT"), blankName.getMessage());
         assertEquals(List.of(), broker.sent, "nothing is sent");
     }
 
@@ -132,6 +154,18 @@ class DeliveryOptionsTest {
 
         @Queue("alerts")
         void sendWithPriority(@MessageBody String body, @MessagePriority int priority);
+
+        @Queue(value = "alerts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 8)
+        void sendUrgent(@MessageBody String body);
+
+        @Queue(value = "alerts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 8)
+        void sendUrgentWithPriority(@MessageBody String body, @MessagePriority Integer priority);
+
+        @Topic(value = "broadcasts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 1)
+        void broadcast(@MessageBody String body);
+
+        @Topic(value = "broadcasts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 1)
+        void broadcastWithMode(@MessageBody String body, @MessageDeliveryMode JMSDeliveryMode mode);
     }
 
     /**
@@ -143,19 +177,27 @@ class DeliveryOptionsTest {
     static class StubBroker {
 
         final List<Sent> sent = new CopyOnWriteArrayList<>();
+        final List<String> destinations = new CopyOnWriteArrayList<>();
         final jakarta.jms.Queue queue = stub(jakarta.jms.Queue.class, (name, args) -> null);
+        final jakarta.jms.Topic topic = stub(jakarta.jms.Topic.class, (name, args) -> null);
         final ConnectionFactory connectionFactory;
 
         StubBroker() {
-            MessageProducer producer = stub(MessageProducer.class, (name, args) -> {
-                if ("send".equals(name) && args.length == 4) {
-                    sent.add(new Sent((int) args[1], (int) args[2]));
-                }
-                return null;
-            });
             Session session = stub(Session.class, (name, args) -> switch (name) {
-                case "createQueue" -> queue;
-                case "createProducer" -> producer;
+                case "createQueue" -> {
+                    destinations.add((String) args[0]);
+                    yield queue;
+                }
+                case "createTopic" -> {
+                    destinations.add((String) args[0]);
+                    yield topic;
+                }
+                case "createProducer" -> stub(MessageProducer.class, (method, sendArgs) -> {
+                    if ("send".equals(method) && sendArgs.length == 4) {
+                        sent.add(new Sent((int) sendArgs[1], (int) sendArgs[2]));
+                    }
+                    return null;
+                });
                 case "createTextMessage" -> textMessage((String) args[0], 0);
                 default -> null;
             });
