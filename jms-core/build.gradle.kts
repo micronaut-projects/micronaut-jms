@@ -16,6 +16,7 @@ dependencies {
 
     testAnnotationProcessor(mn.micronaut.inject.java)
     testImplementation(mnTest.micronaut.test.junit5)
+    testImplementation(mn.micronaut.management)
     testImplementation(mnMicrometer.micrometer.core)
     testImplementation(platform(mnTracing.boms.opentelemetry))
     testImplementation(libs.opentelemetry.sdk.testing)
