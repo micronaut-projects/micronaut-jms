@@ -16,7 +16,7 @@ class OrderListener:
     def __init__(self) -> None:
         self.confirmations: list[str] = []
 
-    @Queue("orders")
+    @Queue("orders", transacted=True)
     def receive(self, order: Annotated[str, MessageBody], session: Session) -> None:  # <1>
         producer = session.createProducer(session.createQueue("order_confirmations"))  # <2>
         try:
