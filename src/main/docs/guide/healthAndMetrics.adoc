@@ -1,6 +1,6 @@
 === Health
 
-With the `micronaut-management` module, the health endpoint has a `jms` indicator. For each JMS connection factory, it opens a new connection, not one from the pool, so that an unreachable broker is reported. The indicator is `UP` when every connection factory connects, with the JMS provider name and version of each, and `DOWN` with the error otherwise:
+With the `micronaut-management` module, the health endpoint has a `jms` indicator. For each JMS connection factory, it opens a new connection, not one from the pool, on the blocking executor. The indicator is `UP` when every connection factory connects, with the JMS provider name and version of each, and `DOWN` with the error otherwise. It only checks that a connection can be opened, which doesn't reach the broker with every provider: an ActiveMQ Classic `failover:` URL connects in the background, and the SQS connection factory makes no AWS call, so the indicator reports `UP` for them while the broker is unreachable:
 
 dependency:micronaut-management[groupId="io.micronaut"]
 
