@@ -23,6 +23,7 @@ import java.util.List;
 public class CsvSerdes implements Serializer, Deserializer {
 
     @Override
+    @SuppressWarnings("unchecked")
     public Message serialize(Session session, Object body) {
         try {
             return session.createTextMessage(String.join(",", (List<String>) body));
