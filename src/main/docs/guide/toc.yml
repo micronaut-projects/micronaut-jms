@@ -19,5 +19,6 @@ producers: Asynchronous Producers and Producer Sessions
 listenerConcurrency: Listener Concurrency and Transacted Sends
 healthAndMetrics: Health, Metrics and Tracing
 topicSubscriptions: Durable and Shared Topic Subscriptions
+listenerRecovery: Listener Session Recovery
 graalvm: GraalVM support
 repository: Repository
