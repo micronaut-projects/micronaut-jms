@@ -89,7 +89,7 @@ public final class JMSListenerMetrics implements GlobalJMSListenerSuccessHandler
                 return topic.getTopicName();
             }
             return destination == null ? "unknown" : destination.toString();
-        } catch (JMSException e) {
+        } catch (JMSException _) {
             return "unknown";
         }
     }
