@@ -30,9 +30,8 @@ import jakarta.jms.Session;
  * {@code MessageListener}: {@link #onMessage(Message)} throws, so a decorator that delegates to it or
  * {@code MessageConsumer.setMessageListener} would fail on every message.</p>
  *
- * <p>A JMS session is single threaded: use the session only inside {@code onMessage}, on the calling thread. When the
- * listener is registered with an executor, {@code JMSListener} calls it on the executor's threads, which must then not
- * use the session concurrently.</p>
+ * <p>A JMS session is single threaded: use the session only inside {@code onMessage}, on the calling thread. For that
+ * reason, {@code JMSListener} rejects this listener when it is registered with an executor.</p>
  *
  * @since 5.2.0
  */

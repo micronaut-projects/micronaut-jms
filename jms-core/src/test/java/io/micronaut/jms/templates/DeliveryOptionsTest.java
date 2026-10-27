@@ -95,6 +95,23 @@ class DeliveryOptionsTest {
     }
 
     @Test
+    void aPriorityArgumentCanBeAStringOfDigits() {
+        producer.sendUrgentWithPriorityName("alert", " 7 ");
+
+        assertEquals(List.of(new Sent(DeliveryMode.NON_PERSISTENT, 7)), broker.sent);
+    }
+
+    @Test
+    void aPriorityArgumentOfAnotherTypeFailsTheCall() {
+        MessagingClientException notDigits = assertThrows(MessagingClientException.class, () -> producer.sendUrgentWithPriorityName("alert", "high"));
+        MessagingClientException otherType = assertThrows(MessagingClientException.class, () -> producer.sendUrgentWithPriorityObject("alert", true));
+
+        assertTrue(notDigits.getMessage().contains("must be a number from 0 to 9, but was high"), notDigits.getMessage());
+        assertTrue(otherType.getMessage().contains("must be a number or a String of digits, but was a java.lang.Boolean"), otherType.getMessage());
+        assertEquals(List.of(), broker.sent, "nothing is sent, rather than the priority of the annotation");
+    }
+
+    @Test
     void invalidDeliveryOptionsFailTheCallWithAMessagingClientException() {
         MessagingClientException invalidMode = assertThrows(MessagingClientException.class, () -> producer.sendWithModeValue("alert", 3));
         MessagingClientException invalidName = assertThrows(MessagingClientException.class, () -> producer.sendWithModeName("alert", "SOMETIMES"));
@@ -160,6 +177,12 @@ class DeliveryOptionsTest {
 
         @Queue(value = "alerts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 8)
         void sendUrgentWithPriority(@MessageBody String body, @MessagePriority Integer priority);
+
+        @Queue(value = "alerts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 8)
+        void sendUrgentWithPriorityName(@MessageBody String body, @MessagePriority String priority);
+
+        @Queue(value = "alerts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 8)
+        void sendUrgentWithPriorityObject(@MessageBody String body, @MessagePriority Object priority);
 
         @Topic(value = "broadcasts", deliveryMode = JMSDeliveryMode.NON_PERSISTENT, priority = 1)
         void broadcast(@MessageBody String body);

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -54,6 +56,31 @@ class SessionParameterTest {
             "spec.listener", "other")).close());
 
         assertTrue(messages(e).contains("cannot be bound to the session"), messages(e));
+    }
+
+    @Test
+    void anArgumentThatCannotBeBoundFailsTheApplicationAtStartup() {
+        Exception e = assertThrows(Exception.class, () -> ApplicationContext.run(Map.of(
+            "spec.name", "SessionParameterTest",
+            "spec.listener", "unbound")).close());
+
+        assertTrue(messages(e).contains("The argument 'note' of type java.lang.String of a @Queue listener method cannot be bound"), messages(e));
+    }
+
+    @Test
+    void aSessionAwareListenerCannotBeRegisteredWithAnExecutor() {
+        StubBroker broker = new StubBroker();
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of());
+        SessionAwareMessageListener listener = (message, session) -> { };
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> registry.register(broker.connection,
+                JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE, listener, executor, true, Optional.empty()));
+
+            assertTrue(e.getMessage().contains("cannot be registered with an executor"), e.getMessage());
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
@@ -181,6 +208,16 @@ class SessionParameterTest {
         void receive(@MessageBody String body, ProviderSession session) {
             bodies.add(body);
             sessions.add(session);
+        }
+    }
+
+    @JMSListener("stub")
+    @Requires(property = "spec.listener", value = "unbound")
+    static class UnboundArgumentListener {
+
+        @Queue("orders")
+        void receive(@MessageBody String body, String note) {
+            // never called: note has no binding annotation
         }
     }
 
