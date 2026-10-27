@@ -17,14 +17,35 @@ import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JMSHealthIndicatorTest {
+
+    static final List<Thread> CONNECTING_THREADS = new CopyOnWriteArrayList<>();
+
+    @Test
+    void connectsOnlyWhenSubscribedAndNotOnTheCallingThread() throws Exception {
+        try (ApplicationContext context = ApplicationContext.run(Map.of("spec.name", "JMSHealthIndicatorTest"))) {
+            CONNECTING_THREADS.clear();
+            var publisher = context.getBean(JMSHealthIndicator.class).getResult();
+
+            assertTrue(CONNECTING_THREADS.isEmpty(), "no connection is opened before the result is subscribed");
+
+            await(publisher);
+
+            assertEquals(1, CONNECTING_THREADS.size());
+            assertNotSame(Thread.currentThread(), CONNECTING_THREADS.get(0));
+        }
+    }
 
     @Test
     void reportsUpWithTheProviderOfEachConnectionFactory() {
@@ -66,8 +87,16 @@ class JMSHealthIndicatorTest {
     }
 
     private static HealthResult result(ApplicationContext context) {
-        List<HealthResult> results = new ArrayList<>();
-        context.getBean(JMSHealthIndicator.class).getResult().subscribe(new Subscriber<>() {
+        try {
+            return await(context.getBean(JMSHealthIndicator.class).getResult());
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static HealthResult await(org.reactivestreams.Publisher<HealthResult> publisher) throws Exception {
+        CompletableFuture<HealthResult> result = new CompletableFuture<>();
+        publisher.subscribe(new Subscriber<>() {
             @Override
             public void onSubscribe(Subscription subscription) {
                 subscription.request(1);
@@ -75,20 +104,20 @@ class JMSHealthIndicatorTest {
 
             @Override
             public void onNext(HealthResult healthResult) {
-                results.add(healthResult);
+                result.complete(healthResult);
             }
 
             @Override
             public void onError(Throwable throwable) {
-                throw new AssertionError(throwable);
+                result.completeExceptionally(throwable);
             }
 
             @Override
             public void onComplete() {
+                result.completeExceptionally(new AssertionError("completed without a result"));
             }
         });
-        assertEquals(1, results.size());
-        return results.get(0);
+        return result.get(10, TimeUnit.SECONDS);
     }
 
     @Factory
@@ -105,7 +134,10 @@ class JMSHealthIndicatorTest {
                 default -> null;
             });
             Connection connection = stub(Connection.class, name -> "getMetaData".equals(name) ? metaData : null);
-            return new JMSConnectionPool(stub(ConnectionFactory.class, name -> connection), 0, 1);
+            return new JMSConnectionPool(stub(ConnectionFactory.class, name -> {
+                CONNECTING_THREADS.add(Thread.currentThread());
+                return connection;
+            }), 0, 1);
         }
 
         @Singleton
