@@ -180,7 +180,8 @@ public class JMSListenerRegistry {
      * subscription, on a connection the registry opens. The connection comes from the pool, unless the
      * subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a dedicated connection}:
      * then it is a new connection from the pool's factory with the subscription's client ID, which the registry
-     * closes when the listener shuts down or when registration fails.
+     * closes when the listener shuts down or when registration fails. A pooled connection goes back to its pool when
+     * registration fails.
      *
      * @param connectionPool - the pool that provides the listener's connection
      * @param destinationType - the {@link JMSDestinationType} of the target destination
@@ -208,18 +209,20 @@ public class JMSListenerRegistry {
             boolean autoStart,
             Optional<String> messageSelector,
             @Nullable JMSTopicSubscription subscription) throws JMSException {
-        if (subscription == null || !subscription.requiresDedicatedConnection()) {
-            return register(connectionPool.createConnection(), destinationType, destination, transacted, acknowledgeMode,
-                delegate, executor, autoStart, messageSelector, subscription);
-        }
-        // the client ID must be set before the connection is used, so it can't come from the pool
-        Connection connection = connectionPool.getConnectionFactory().createConnection();
+        boolean dedicated = subscription != null && subscription.requiresDedicatedConnection();
+        // the client ID must be set before the connection is used, so a dedicated connection can't come from the pool
+        Connection connection = dedicated
+            ? connectionPool.getConnectionFactory().createConnection()
+            : connectionPool.createConnection();
         try {
-            connection.setClientID(subscription.effectiveClientId());
+            if (dedicated) {
+                connection.setClientID(subscription.effectiveClientId());
+            }
             return register(connection, destinationType, destination, transacted, acknowledgeMode,
                 delegate, executor, autoStart, messageSelector, subscription);
         } catch (JMSException | RuntimeException e) {
             try {
+                // closing a pooled connection returns it to its pool
                 connection.close();
             } catch (JMSException | RuntimeException closeFailure) {
                 e.addSuppressed(closeFailure);
