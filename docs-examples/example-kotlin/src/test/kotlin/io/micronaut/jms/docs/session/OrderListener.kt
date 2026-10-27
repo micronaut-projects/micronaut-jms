@@ -17,7 +17,7 @@ class OrderListener {
 
     val confirmations: MutableList<String> = Collections.synchronizedList(ArrayList())
 
-    @Queue("orders")
+    @Queue(value = "orders", transacted = true)
     fun receive(@MessageBody order: String, session: Session) { // <1>
         session.createProducer(session.createQueue("order_confirmations")).use { producer -> // <2>
             producer.send(session.createTextMessage("confirmed $order"))
