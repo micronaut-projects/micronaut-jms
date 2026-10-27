@@ -14,6 +14,7 @@ dependencies {
     compileOnly(platform(mnTracing.boms.opentelemetry))
     compileOnly(libs.opentelemetry.api)
 
+    testAnnotationProcessor(mn.micronaut.inject.java)
     testImplementation(mnTest.micronaut.test.junit5)
     testRuntimeOnly(mnTest.junit.jupiter.engine)
 }

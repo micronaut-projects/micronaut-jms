@@ -17,7 +17,7 @@ class OrderListener {
 
     final List<String> confirmations = Collections.synchronizedList([])
 
-    @Queue('orders')
+    @Queue(value = 'orders', transacted = true)
     void receive(@MessageBody String order, Session session) { // <1>
         session.createProducer(session.createQueue('order_confirmations')).withCloseable { producer -> // <2>
             producer.send(session.createTextMessage("confirmed ${order}".toString()))

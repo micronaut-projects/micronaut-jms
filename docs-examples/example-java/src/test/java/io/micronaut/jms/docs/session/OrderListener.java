@@ -23,7 +23,7 @@ public class OrderListener {
 
     final List<String> confirmations = Collections.synchronizedList(new ArrayList<>());
 
-    @Queue("orders")
+    @Queue(value = "orders", transacted = true)
     public void receive(@MessageBody String order, Session session) throws JMSException { // <1>
         try (MessageProducer producer = session.createProducer(session.createQueue("order_confirmations"))) { // <2>
             producer.send(session.createTextMessage("confirmed " + order));

@@ -156,18 +156,28 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 boundExecutable.invoke(bean);
             };
         }
-        return (SessionAwareMessageListener) (message, session) -> {
-            Map<Argument<?>, Object> preBound = new HashMap<>(sessionArguments.length);
-            for (Argument<?> argument : sessionArguments) {
-                if (!argument.getType().isInstance(session)) {
-                    throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
-                        + " cannot be bound to the session " + session.getClass().getName());
+        return new SessionAwareMessageListener() {
+            @Override
+            public void onMessage(Message message, Session session) {
+                Map<Argument<?>, Object> preBound = new HashMap<>(sessionArguments.length);
+                for (Argument<?> argument : sessionArguments) {
+                    preBound.put(argument, session);
                 }
-                preBound.put(argument, session);
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
+                BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
+                boundExecutable.invoke(bean);
             }
-            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
-            BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
-            boundExecutable.invoke(bean);
+
+            @Override
+            public void checkSession(Session session) {
+                for (Argument<?> argument : sessionArguments) {
+                    if (!argument.getType().isInstance(session)) {
+                        throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                            + " cannot be bound to the session "
+                            + session.getClass().getName());
+                    }
+                }
+            }
         };
     }
 
