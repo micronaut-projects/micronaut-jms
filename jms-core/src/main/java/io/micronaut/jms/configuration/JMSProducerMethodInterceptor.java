@@ -129,13 +129,14 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
 
         long timeToLive = timeToLive(method, parameterValueMap);
         JMSDeliveryMode deliveryMode;
+        int priority;
         try {
             deliveryMode = deliveryMode(method, annotationType, parameterValueMap);
+            priority = priority(method, annotationType, parameterValueMap);
         } catch (IllegalArgumentException e) {
-            // like an invalid priority, which the producer rejects
+            // like a priority out of range, which the producer rejects
             throw new MessagingClientException("Problem sending message to " + destinationName + ": " + e.getMessage(), e);
         }
-        int priority = priority(method, annotationType, parameterValueMap);
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
         // a transacted producer method sends on a transacted session, committed after the send
@@ -189,10 +190,26 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         return Arrays.stream(method.getArguments())
             .filter(arg -> arg.isDeclaredAnnotationPresent(MessagePriority.class))
             .map(arg -> parameterValueMap.get(arg.getName()))
-            .map(value -> value instanceof Number n ? n.intValue() : null)
             .filter(Objects::nonNull)
+            .map(JMSProducerMethodInterceptor::toPriority)
             .findFirst()
             .orElseGet(() -> method.intValue(annotationType, "priority").orElse(Message.DEFAULT_PRIORITY));
+    }
+
+    private static int toPriority(Object value) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value instanceof CharSequence text) {
+            String digits = text.toString().trim();
+            try {
+                return Integer.parseInt(digits);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("A @MessagePriority argument must be a number from 0 to 9, but was " + digits, e);
+            }
+        }
+        throw new IllegalArgumentException("A @MessagePriority argument must be a number or a String of digits, but was a "
+            + value.getClass().getName());
     }
 
     private long timeToLive(ExecutableMethod<?, ?> method, Map<String, Object> parameterValueMap) {
