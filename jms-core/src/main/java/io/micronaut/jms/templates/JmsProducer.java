@@ -103,8 +103,9 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
+            // the message was just created, so its own priority is not one the caller chose
             send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, null, timeToLive, headers);
+                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
                         body, destination, type.name(), joinedHeaders);
@@ -131,17 +132,23 @@ public class JmsProducer<T> {
                      int priority,
                      long timeToLive,
                      MessageHeader... headers) {
-        if (priority < 0 || priority > 9) {
-            throw new IllegalArgumentException("The JMS priority must be from 0 to 9, but was " + priority);
-        }
+        String joinedHeaders = "";
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Sending message {} to destination {} of type {} with delivery mode {} and priority {}",
-                    body, destination, type.name(), deliveryMode, priority);
+            joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
+            LOGGER.debug("Sending message {} to destination {} of type {} with delivery mode {}, priority {} and headers [{}]",
+                    body, destination, type.name(), deliveryMode, priority, joinedHeaders);
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
+            if (priority < 0 || priority > 9) {
+                throw new IllegalArgumentException("The JMS priority must be from 0 to 9, but was " + priority);
+            }
             send(session, lookupDestination(destination, session),
                 serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sent message {} to destination {} of type {} with delivery mode {}, priority {} and headers [{}]",
+                        body, destination, type.name(), deliveryMode, priority, joinedHeaders);
+            }
         } catch (JMSException | RuntimeException e) {
             throw new MessagingClientException("Problem sending message to " + destination, e);
         }

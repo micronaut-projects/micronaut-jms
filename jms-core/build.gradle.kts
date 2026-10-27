@@ -10,6 +10,7 @@ dependencies {
     api(libs.commons.pool2)
     implementation(mn.micronaut.jackson.databind)
 
+    testAnnotationProcessor(mn.micronaut.inject.java)
     testImplementation(mnTest.micronaut.test.junit5)
     testRuntimeOnly(mnTest.junit.jupiter.engine)
 }
