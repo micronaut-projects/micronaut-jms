@@ -103,7 +103,7 @@ public final class JMSTracing implements JMSMessageObserver {
                     keys.add(name.toString().replace(DASH, "-"));
                 }
                 return keys;
-            } catch (JMSException e) {
+            } catch (JMSException | RuntimeException _) {
                 return List.of();
             }
         }
@@ -115,7 +115,7 @@ public final class JMSTracing implements JMSMessageObserver {
             }
             try {
                 return message.getStringProperty(key.replace("-", DASH));
-            } catch (JMSException | RuntimeException e) {
+            } catch (JMSException | RuntimeException _) {
                 return null;
             }
         }
@@ -175,7 +175,7 @@ public final class JMSTracing implements JMSMessageObserver {
             if (id != null) {
                 span.setAttribute(MESSAGE_ID, id);
             }
-        } catch (JMSException | RuntimeException e) {
+        } catch (JMSException | RuntimeException _) {
             // the message ID is optional
         }
     }
