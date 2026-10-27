@@ -24,12 +24,12 @@ class InvalidConsumersSpec {
 
     @Test
     void severalConsumersOfAPlainTopicFailAtStartup() {
-        assertStartupFails("PlainTopicConsumers", "only with a shared subscription");
+        assertStartupFails("PlainTopicConsumers", "has no subscription, so every consumer would receive every message");
     }
 
     @Test
-    void severalConsumersOfASubscriptionWithAClientIdFailAtStartup() {
-        assertStartupFails("DurableTopicConsumers", "can have only one consumer");
+    void severalConsumersOfAnUnsharedDurableSubscriptionFailAtStartup() {
+        assertStartupFails("DurableTopicConsumers", "is an unshared durable subscription, which allows only one consumer");
     }
 
     private static void assertStartupFails(String spec, String message) {
@@ -64,7 +64,7 @@ class InvalidConsumersSpec {
     @Requires(property = "spec.name", value = "DurableTopicConsumers")
     @JMSListener(CONNECTION_FACTORY_BEAN_NAME)
     static class DurableTopicConsumers {
-        @Topic(value = "audit", subscription = "audit-log", durable = true, shared = true, clientId = "audit-app", consumers = 2)
+        @Topic(value = "audit", subscription = "audit-log", durable = true, consumers = 2)
         void receive(@MessageBody String body) {
         }
     }
