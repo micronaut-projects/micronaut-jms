@@ -24,6 +24,7 @@ import jakarta.jms.JMSException;
 import jakarta.jms.ServerSessionPool;
 import jakarta.jms.Session;
 import jakarta.jms.Topic;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Wrapper for {@link Connection} that returns it to the
@@ -37,7 +38,7 @@ import jakarta.jms.Topic;
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 
     private volatile boolean broken;
-    private volatile ExceptionListener exceptionListener;
+    private final AtomicReference<ExceptionListener> exceptionListener = new AtomicReference<>();
 
     public PooledConnection(Connection connection,
                             AbstractPool<PooledObject<Connection>> connectionPool) {
@@ -81,13 +82,13 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
 
     @Override
     public ExceptionListener getExceptionListener() throws JMSException {
-        return exceptionListener;
+        return exceptionListener.get();
     }
 
     @Override
     public void setExceptionListener(ExceptionListener listener) throws JMSException {
         // the pool listens for the failures of the connection, and forwards them to this listener
-        this.exceptionListener = listener;
+        exceptionListener.set(listener);
     }
 
     /**
@@ -106,7 +107,7 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
      */
     void onException(JMSException exception) {
         broken = true;
-        ExceptionListener listener = exceptionListener;
+        ExceptionListener listener = exceptionListener.get();
         if (listener != null) {
             listener.onException(exception);
         }

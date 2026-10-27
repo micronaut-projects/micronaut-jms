@@ -52,15 +52,19 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
         try {
             Connection connection = connectionFactory.createConnection();
             PooledConnection pooled = new PooledConnection(connection, this);
-            try {
-                connection.setExceptionListener(pooled::onException);
-            } catch (JMSException | RuntimeException e) {
-                LOGGER.debug("The JMS provider does not report connection failures: {}", e.getMessage());
-            }
+            listenForFailures(connection, pooled);
             connection.start(); // TODO config autostart
             return pooled;
         } catch (JMSException | RuntimeException e) {
             throw new MessagingSystemException("Problem creating pooled Connection", e);
+        }
+    }
+
+    private static void listenForFailures(Connection connection, PooledConnection pooled) {
+        try {
+            connection.setExceptionListener(pooled::onException);
+        } catch (JMSException | RuntimeException e) {
+            LOGGER.debug("The JMS provider does not report connection failures: {}", e.getMessage());
         }
     }
 
