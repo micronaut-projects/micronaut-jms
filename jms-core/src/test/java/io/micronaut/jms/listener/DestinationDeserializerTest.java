@@ -2,12 +2,16 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
+import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Deserializer;
+import io.micronaut.core.annotation.Order;
 import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.annotation.MessageHeader;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import jakarta.jms.Connection;
@@ -21,6 +25,7 @@ import jakarta.jms.TextMessage;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Proxy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +52,49 @@ class DestinationDeserializerTest {
             assertEquals(1, listener.messages.size());
             assertSame(tags, listener.messages.get(0));
             assertEquals(List.of("alice"), listener.names, "a queue without a deserializer uses the default one");
+        }
+    }
+
+    @Test
+    void theDeserializerOfATopicConvertsTheBodyAndHeadersAreBoundByTheDefaultBinders() {
+        try (ApplicationContext context = ApplicationContext.run(Map.of("spec.name", "DestinationDeserializerTest"))) {
+            StubBroker broker = context.getBean(StubBroker.class);
+            TagListener listener = context.getBean(TagListener.class);
+
+            broker.deliver("tag-events", "blue,amber", Map.of("tenant", "acme"));
+
+            assertEquals(List.of(List.of("BLUE", "AMBER")), listener.tagEvents);
+            assertEquals(List.of("acme"), listener.tenants);
+        }
+    }
+
+    @Test
+    void aPrimaryDeserializerStillReplacesTheGlobalOne() {
+        try (ApplicationContext context = ApplicationContext.run(Map.of(
+            "spec.name", "DestinationDeserializerTest",
+            "spec.global", "primary"))) {
+            StubBroker broker = context.getBean(StubBroker.class);
+            TagListener listener = context.getBean(TagListener.class);
+
+            broker.deliver("names", "alice");
+            broker.deliver("tags", "red");
+
+            assertEquals(List.of("primary:alice"), listener.names);
+            assertEquals(List.of(List.of("RED")), listener.tags, "a named deserializer is still used for its destination");
+        }
+    }
+
+    @Test
+    void aDeserializerWithAHigherPrecedenceOrderStillReplacesTheGlobalOne() {
+        try (ApplicationContext context = ApplicationContext.run(Map.of(
+            "spec.name", "DestinationDeserializerTest",
+            "spec.global", "ordered"))) {
+            StubBroker broker = context.getBean(StubBroker.class);
+            TagListener listener = context.getBean(TagListener.class);
+
+            broker.deliver("names", "alice");
+
+            assertEquals(List.of("ordered:alice"), listener.names);
         }
     }
 
@@ -87,7 +135,44 @@ class DestinationDeserializerTest {
     }
 
     /**
-     * A broker of stubs: one connection and one session, whose consumers keep their message listeners by queue.
+     * Replaces the global deserializer as a primary bean, as applications did before named deserializers.
+     */
+    @Singleton
+    @Primary
+    @Requires(property = "spec.global", value = "primary")
+    static class PrimaryDeserializer implements Deserializer {
+
+        @Override
+        public <T> T deserialize(Message message, Class<T> clazz) {
+            return clazz.cast("primary:" + text(message));
+        }
+    }
+
+    /**
+     * Replaces the global deserializer with a higher precedence order.
+     */
+    @Singleton
+    @Order(-100)
+    @Requires(property = "spec.global", value = "ordered")
+    static class OrderedDeserializer implements Deserializer {
+
+        @Override
+        public <T> T deserialize(Message message, Class<T> clazz) {
+            return clazz.cast("ordered:" + text(message));
+        }
+    }
+
+    private static String text(Message message) {
+        try {
+            return ((TextMessage) message).getText();
+        } catch (JMSException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * A broker of stubs: one connection and one session, whose consumers keep their message listeners by queue or
+     * topic name.
      */
     @Singleton
     @Requires(property = "spec.name", value = "DestinationDeserializerTest")
@@ -102,11 +187,17 @@ class DestinationDeserializerTest {
                     String queueName = (String) args[0];
                     yield stub(jakarta.jms.Queue.class, (method, queueArgs) -> "getQueueName".equals(method) ? queueName : null);
                 }
+                case "createTopic" -> {
+                    String topicName = (String) args[0];
+                    yield stub(jakarta.jms.Topic.class, (method, topicArgs) -> "getTopicName".equals(method) ? topicName : null);
+                }
                 case "createConsumer" -> {
-                    String queueName = ((jakarta.jms.Queue) args[0]).getQueueName();
+                    String destinationName = args[0] instanceof jakarta.jms.Topic topic
+                        ? topic.getTopicName()
+                        : ((jakarta.jms.Queue) args[0]).getQueueName();
                     yield stub(MessageConsumer.class, (method, consumerArgs) -> {
                         if ("setMessageListener".equals(method)) {
-                            listeners.put(queueName, (MessageListener) consumerArgs[0]);
+                            listeners.put(destinationName, (MessageListener) consumerArgs[0]);
                         }
                         return null;
                     });
@@ -117,13 +208,20 @@ class DestinationDeserializerTest {
             connectionFactory = stub(ConnectionFactory.class, (name, args) -> "createConnection".equals(name) ? connection : null);
         }
 
-        TextMessage deliver(String queue, String body) {
+        TextMessage deliver(String destination, String body) {
+            return deliver(destination, body, Map.of());
+        }
+
+        TextMessage deliver(String destination, String body, Map<String, String> properties) {
             TextMessage message = stub(TextMessage.class, (name, args) -> switch (name) {
                 case "getText", "getBody" -> body;
                 case "isBodyAssignableTo" -> true;
+                case "getObjectProperty", "getStringProperty" -> properties.get((String) args[0]);
+                case "propertyExists" -> properties.containsKey((String) args[0]);
+                case "getPropertyNames" -> Collections.enumeration(properties.keySet());
                 default -> null;
             });
-            listeners.get(queue).onMessage(message);
+            listeners.get(destination).onMessage(message);
             return message;
         }
     }
@@ -147,6 +245,8 @@ class DestinationDeserializerTest {
         final List<List<?>> tags = new CopyOnWriteArrayList<>();
         final List<Message> messages = new CopyOnWriteArrayList<>();
         final List<String> names = new CopyOnWriteArrayList<>();
+        final List<List<?>> tagEvents = new CopyOnWriteArrayList<>();
+        final List<String> tenants = new CopyOnWriteArrayList<>();
 
         @Queue(value = "tags", deserializer = "tags")
         void receiveTags(@MessageBody List<?> body, @io.micronaut.jms.annotations.Message Message message) {
@@ -157,6 +257,12 @@ class DestinationDeserializerTest {
         @Queue("names")
         void receiveName(@MessageBody String body) {
             names.add(body);
+        }
+
+        @Topic(value = "tag-events", deserializer = "tags")
+        void receiveTagEvent(@MessageBody List<?> body, @MessageHeader("tenant") String tenant) {
+            tagEvents.add(body);
+            tenants.add(tenant);
         }
     }
 

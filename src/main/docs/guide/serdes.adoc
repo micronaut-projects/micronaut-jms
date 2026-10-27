@@ -1,4 +1,4 @@
-By default, message bodies are converted by `DefaultSerializerDeserializer`: strings become text messages, maps map messages, byte arrays bytes messages, object arrays stream messages, serializable objects object messages, and other objects JSON text messages. A destination can use another conversion with a named `Serializer` or `Deserializer` bean:
+By default, message bodies are converted by `DefaultSerializerDeserializer`: strings become text messages, maps map messages, byte arrays bytes messages, other serializable objects (lists and object arrays included) object messages, and other objects JSON text messages. A destination can use another conversion with a named `Serializer` or `Deserializer` bean:
 
 snippet::io.micronaut.jms.docs.serdes.CsvSerdes[tags="imports,clazz", project-base="docs-examples/example"]
 
