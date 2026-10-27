@@ -113,6 +113,10 @@ public class JMSListener {
         if (subscription != null && destinationType == QUEUE) {
             throw new IllegalArgumentException("A subscription can only be used with a topic, not with queue " + destination);
         }
+        if (executor != null && delegate instanceof SessionAwareMessageListener) {
+            // the executor's threads would use the session concurrently, and not on the thread that delivers its messages
+            throw new IllegalArgumentException("A SessionAwareMessageListener cannot be registered with an executor, for destination " + destination);
+        }
         this.session = session;
         this.delegate = delegate;
         this.destinationType = destinationType;

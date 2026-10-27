@@ -9,7 +9,7 @@ Before setting `consumers` above 1, note that:
 
 * The listener bean is still a single instance, and its method now runs on several threads at once, one per consumer. The listener must be thread-safe: the example guards its state with a synchronized set and an atomic counter (a lock in Python).
 * Messages are no longer processed in the order they were sent, since each consumer handles the next message it receives while the others are still busy.
-* If a consumer fails to start, the method keeps none of its consumers: the consumers already started are stopped and their connection is returned to the pool before the failure is logged.
+* If a consumer fails to start, the method keeps none of its consumers: the consumers already started are stopped and their connection is given back (returned to the pool, or closed if it is dedicated). A `JMSException` is logged and the application starts without the method's consumers; any other failure stops startup.
 
 On a topic, every consumer of a plain subscription receives every message, so `consumers` above 1 requires a shared subscription (see <<topicSubscriptions, Durable and Shared Topic Subscriptions>>), whose consumers share the messages. An unshared durable subscription allows only one consumer. A shared subscription with a client ID can have several consumers: they share the one connection that holds the client ID.
 

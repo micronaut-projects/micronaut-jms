@@ -5,7 +5,7 @@ snippet::io.micronaut.jms.docs.delivery.AlertProducer[tags="imports,clazz", proj
 <1> Messages sent by this method are not persisted by the broker and have priority 7.
 <2> A `@MessagePriority` argument sets the priority of each call, from 0 (lowest) to 9. A `@MessageDeliveryMode` argument, a `JMSDeliveryMode` or a `jakarta.jms.DeliveryMode` value, sets the delivery mode of each call in the same way, and `@MessageTTL` the time to live in milliseconds.
 
-A `@MessageDeliveryMode` argument can also be the name of a delivery mode, such as `"NON_PERSISTENT"`. An invalid delivery mode or a priority outside 0 to 9 fails the call with a `MessagingClientException`.
+A `@MessageDeliveryMode` argument can also be the name of a delivery mode, such as `"NON_PERSISTENT"`, and a `@MessagePriority` argument a `String` of digits, such as `"7"`. Arguments of other types fail the call. An invalid delivery mode or a priority outside 0 to 9 fails the call with a `MessagingClientException`.
 
 Listeners read both values with the `JMSPriority` and `JMSDeliveryMode` headers, as described under <<binding, Parameter Binding>>.
 
