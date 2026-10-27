@@ -62,6 +62,8 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
 
     private static void listenForFailures(Connection connection, PooledConnection pooled) {
         try {
+            // keeps a listener that the provider already set, such as the one of ActiveMQConnectionFactory#setExceptionListener
+            pooled.setExceptionListener(connection.getExceptionListener());
             connection.setExceptionListener(pooled::onException);
         } catch (JMSException | RuntimeException e) {
             LOGGER.debug("The JMS provider does not report connection failures: {}", e.getMessage());
@@ -89,7 +91,8 @@ public class JMSConnectionPool extends AbstractPool<PooledObject<Connection>> im
 
     @Override
     protected void discard(PooledObject<Connection> pooledObject) {
-        LOGGER.warn("Closing a JMS connection that failed: {}", pooledObject.get());
+        LOGGER.warn("Closing a JMS connection that the provider reported an error on: {}", pooledObject.get(),
+            PooledConnection.of(pooledObject).getFailure());
         try {
             pooledObject.get().close();
         } catch (JMSException | RuntimeException e) {

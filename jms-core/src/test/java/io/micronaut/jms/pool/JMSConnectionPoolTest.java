@@ -23,6 +23,7 @@ class JMSConnectionPoolTest {
 
     final List<FakeConnection> connections = new ArrayList<>();
     boolean rejectExceptionListener;
+    ExceptionListener providerListener;
 
     @Test
     void healthyConnectionsAreReused() throws JMSException {
@@ -72,6 +73,21 @@ class JMSConnectionPoolTest {
         assertSame(listener, connection.getExceptionListener());
         assertEquals(1, reported.size());
         assertTrue(((PooledConnection) connection).isBroken());
+    }
+
+    @Test
+    void theExceptionListenerThatTheProviderSetIsKeptAndCalled() throws JMSException {
+        List<JMSException> reported = new ArrayList<>();
+        providerListener = reported::add;
+        JMSConnectionPool pool = new JMSConnectionPool(factory(), 0, 1);
+        Connection connection = pool.createConnection();
+
+        assertSame(providerListener, connection.getExceptionListener());
+
+        connections.get(0).fail();
+
+        assertEquals(1, reported.size());
+        assertSame(reported.get(0), ((PooledConnection) connection).getFailure(), "the reported error is kept for the warning");
     }
 
     @Test
@@ -164,6 +180,7 @@ class JMSConnectionPoolTest {
             (proxy, method, args) -> {
                 if ("createConnection".equals(method.getName())) {
                     FakeConnection connection = new FakeConnection(rejectExceptionListener);
+                    connection.listener = providerListener;
                     connections.add(connection);
                     return connection.proxy;
                 }
@@ -186,6 +203,7 @@ class JMSConnectionPoolTest {
                     listener = (ExceptionListener) args[0];
                     yield null;
                 }
+                case "getExceptionListener" -> listener;
                 case "close" -> {
                     if (failClose) {
                         throw new JMSException("already closed");

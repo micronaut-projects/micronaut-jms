@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PooledConnection extends PooledObject<Connection> implements Connection {
 
-    private volatile boolean broken;
+    private final AtomicReference<JMSException> failure = new AtomicReference<>();
     private final AtomicReference<ExceptionListener> exceptionListener = new AtomicReference<>();
 
     public PooledConnection(Connection connection,
@@ -92,21 +92,29 @@ public class PooledConnection extends PooledObject<Connection> implements Connec
     }
 
     /**
-     * @return whether the JMS provider reported that the connection failed, so it is no longer used
+     * @return whether the JMS provider reported an error on the connection, so it is no longer used
      * @since 5.2.0
      */
     public boolean isBroken() {
-        return broken;
+        return failure.get() != null;
     }
 
     /**
-     * Marks the connection as broken and forwards the failure to the exception listener of the application.
+     * @return the first error that the JMS provider reported on the connection, or {@code null}
+     */
+    JMSException getFailure() {
+        return failure.get();
+    }
+
+    /**
+     * Marks the connection as broken and forwards the error to the exception listener of the application, or to the
+     * one the connection factory of the provider had set.
      *
-     * @param exception the failure that the JMS provider reported
+     * @param exception the error that the JMS provider reported
      * @since 5.2.0
      */
     void onException(JMSException exception) {
-        broken = true;
+        failure.compareAndSet(null, exception);
         ExceptionListener listener = exceptionListener.get();
         if (listener != null) {
             listener.onException(exception);
