@@ -12,6 +12,7 @@ dependencies {
     compileOnly(mn.micronaut.management)
     compileOnly(mnMicrometer.micrometer.core)
 
+    testAnnotationProcessor(mn.micronaut.inject.java)
     testImplementation(mnTest.micronaut.test.junit5)
     testRuntimeOnly(mnTest.junit.jupiter.engine)
 }
