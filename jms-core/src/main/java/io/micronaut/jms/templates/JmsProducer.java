@@ -262,21 +262,7 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
-            List<JMSObservation> started = observations.isEmpty() ? List.of()
-                : observations.send(type, destinationName(destination), message);
-            Throwable error = null;
-            try {
-                producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
-
-                if (sessionTransacted) {
-                    session.commit();
-                }
-            } catch (JMSException | RuntimeException e) {
-                error = e;
-                throw e;
-            } finally {
-                JMSObservations.complete(started, error);
-            }
+            observedSend(session, producer, destination, message, deliveryMode, priority, timeToLive);
         } catch (JMSException | RuntimeException e) {
             if (sessionTransacted) {
                 try {
@@ -287,6 +273,30 @@ public class JmsProducer<T> {
                 }
             }
             throw new MessagingClientException("Problem sending the message", e);
+        }
+    }
+
+    private void observedSend(Session session,
+                              MessageProducer producer,
+                              Destination destination,
+                              Message message,
+                              int deliveryMode,
+                              @Nullable Integer priority,
+                              long timeToLive) throws JMSException {
+        List<JMSObservation> started = observations.isEmpty() ? List.of()
+            : observations.send(type, destinationName(destination), message);
+        Throwable error = null;
+        try {
+            producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
+
+            if (sessionTransacted) {
+                session.commit();
+            }
+        } catch (JMSException | RuntimeException e) {
+            error = e;
+            throw e;
+        } finally {
+            JMSObservations.complete(started, error);
         }
     }
 
