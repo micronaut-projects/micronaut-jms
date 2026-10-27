@@ -18,7 +18,7 @@ snippet::io.micronaut.jms.docs.binding.MapConsumer[tags="imports,clazz", project
 
 === Session
 
-A listener method can declare a parameter of type `jakarta.jms.Session`, without a binding annotation, to receive the session that consumed the message, for example to reply on that session. A parameter typed as a provider subtype of `Session`, such as Oracle's `oracle.jakarta.jms.AQjmsSession` from `aqapi-jakarta`, receives the session when it is of that type. When it is not, the application fails to start. Oracle's `oracle.jms.AQjmsSession`, from `aqapi`, implements `javax.jms.Session` instead, and is not recognised as a session.
+A listener method can declare a parameter of type `jakarta.jms.Session`, without a binding annotation, to receive the session that consumed the message, for example to reply on that session. A parameter typed as a provider subtype of `Session`, such as Oracle's `oracle.jakarta.jms.AQjmsSession` from `aqapi-jakarta`, receives the session when it is of that type. When it is not, the application fails to start. Oracle's `oracle.jms.AQjmsSession`, from `aqapi`, implements `javax.jms.Session` instead, and is not recognised as a session: like any other listener parameter without a binding annotation, it fails the application at startup.
 
 With `transacted = true`, the listener commits the session when the method returns and rolls it back when the method throws, so messages sent on the session commit together with the receipt of the message. With Oracle Transactional Event Queues, SQL run on the session's database connection commits with them too. The following listener confirms each order in the same transaction as its receipt:
 
