@@ -7,11 +7,15 @@ snippet::io.micronaut.jms.docs.producer.ReceiptProducer[tags="imports,clazz", pr
 <1> The message is sent on the `blocking` executor, since JMS sends block. The future completes once the message is sent, or completes exceptionally if the send fails.
 <2> The message is sent when the publisher is subscribed to. The publisher then completes without emitting an item, or signals the error.
 
-The propagated context of the caller, for example the current trace with Micronaut Tracing, follows the send to the executor.
+The propagated context of the caller, for example the current trace with Micronaut Tracing, follows the send to the executor. It is the context of the code that called the method, also when a returned publisher is subscribed to on another thread. Invalid arguments, such as an unknown delivery mode, complete the future exceptionally or make the publisher signal the error, rather than being thrown by the call.
 
 === Producer sessions
 
-Producer methods reuse their sessions. For each connection factory, they open one connection and keep up to `max-idle` idle sessions for each session mode, plain or transacted. Each send borrows a session, so concurrent sends use different sessions, and a session on which a send failed is closed rather than reused. If a session cannot be created, the connection is replaced. The connection and its sessions are closed with the application context.
+Producer methods reuse their sessions. For each connection factory, they open one connection and keep up to `max-idle` idle sessions for each session mode, plain or transacted. Each send borrows a session, so concurrent sends use different sessions, and a session on which a send failed is closed rather than reused. The connection and its sessions are closed with the application context.
+
+At most `max-active` sessions of a connection factory are open at once, borrowed or idle. When all of them are borrowed, for example during a burst of asynchronous sends, a send waits up to `max-wait` for another send to release its session. If none is released in time, the send fails with a `MessagingClientException`: a synchronous method throws it, a returned future completes exceptionally and a returned publisher signals the error. Nothing is sent in that case.
+
+If a session cannot be created, or the JMS provider reports to the connection's `ExceptionListener` that the connection failed, the connection is replaced. Its idle sessions are closed, and sessions that sends are still using are closed when they are released, rather than reused. The old connection is closed once the last of its sessions is, so sends in progress on it are not interrupted.
 
 [configuration]
 ----
@@ -20,6 +24,8 @@ micronaut:
     producer-sessions:
       enabled: true
       max-idle: 8
+      max-active: 32
+      max-wait: 10s
 ----
 
 With `enabled: false`, each send takes a connection from the connection pool and opens a session for that message, as in earlier releases. A `JmsProducer` created by the application reuses sessions when it is given a `ProducerSessionPool`.

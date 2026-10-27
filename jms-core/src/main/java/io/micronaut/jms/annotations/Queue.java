@@ -38,21 +38,17 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <pre>
  * &#64;JMSListener("myConnectionFactory")
  * public class Listener {
- *      &#64;Queue(
- *          destination = "my-queue",
- *          executor = "micronaut-executor-service"
- *      )
- *      public &lt;T&gt; void handle(T body, @Header(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
+ *      &#64;Queue("my-queue")
+ *      public &lt;T&gt; void handle(@MessageBody T body, @MessageHeader(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
  *          // do some logic with body and messageID
  *      }
  *
  *      &#64;Queue(
- *          destination = "my-queue-2",
- *          concurrency = "1-5",
- *          transacted = true,
- *          acknowledgeMode = Session.CLIENT_ACKNOWLEDGE
+ *          value = "my-queue-2",
+ *          consumers = 5,
+ *          transacted = true
  *      )
- *      public &lt;T&gt; void handle(T body, @Header("X-Arbitrary-Header") String arbitraryHeader) {
+ *      public &lt;T&gt; void handleConcurrently(@MessageBody T body, @MessageHeader("X-Arbitrary-Header") String arbitraryHeader) {
  *          // do some logic with body and arbitraryHeader
  *      }
  * }
@@ -92,8 +88,13 @@ public @interface Queue {
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
 
     /**
-     * Whether message receipt is transacted. The broker must support
-     * transacted sessions.
+     * Whether the session is transacted. The broker must support transacted sessions.
+     * <p>
+     * On a listener, message receipt is transacted: the session is committed once the method returns and rolled
+     * back if it fails. On a producer method, each message is sent on a transacted session of its own, committed
+     * after the send. That transaction is the producer's own: a producer method called from a transacted listener
+     * does not join the listener's transaction, so its message is committed even if the listener's transaction is
+     * rolled back. To send in the listener's transaction, send with the listener's {@link jakarta.jms.Session}.
      *
      * @return true if transacted
      * @see jakarta.jms.Session
@@ -107,7 +108,9 @@ public @interface Queue {
 
     /**
      * The number of consumers of the listener method, each with its own session, so that messages are handled
-     * concurrently. Ignored by producers.
+     * concurrently. The consumers share one connection. The listener bean is a single instance whose method is
+     * then called on several threads at once, so it must be thread-safe, and messages are no longer processed in
+     * the order they were sent. Ignored by producers.
      *
      * @return the number of consumers
      * @since 5.2.0

@@ -19,6 +19,8 @@ import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.core.bind.annotation.Bindable;
 import jakarta.validation.constraints.Min;
 
+import java.time.Duration;
+
 /**
  * The configuration of the sessions that producer methods send with.
  *
@@ -45,4 +47,22 @@ public interface JMSProducerSessionConfiguration {
     @Min(0)
     @Bindable(defaultValue = "8")
     int getMaxIdle();
+
+    /**
+     * @return The maximum number of open sessions for each connection factory, borrowed or idle, of all session
+     * modes. When all of them are borrowed, a send waits up to {@link #getMaxWait()} for one to be released.
+     * Defaults to 32.
+     * @since 5.2.0
+     */
+    @Min(1)
+    @Bindable(defaultValue = "32")
+    int getMaxActive();
+
+    /**
+     * @return How long a send waits for a session when {@link #getMaxActive()} sessions are borrowed, after which the
+     * send fails. Defaults to 10 seconds.
+     * @since 5.2.0
+     */
+    @Bindable(defaultValue = "10s")
+    Duration getMaxWait();
 }

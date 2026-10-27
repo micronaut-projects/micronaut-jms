@@ -52,7 +52,8 @@ final class JMSProducerSessionPools {
             return null;
         }
         return pools.computeIfAbsent(connectionFactory,
-            name -> new ProducerSessionPool(connectionPool, configuration.getMaxIdle()));
+            name -> new ProducerSessionPool(connectionPool, configuration.getMaxIdle(),
+                configuration.getMaxActive(), configuration.getMaxWait()));
     }
 
     @PreDestroy
