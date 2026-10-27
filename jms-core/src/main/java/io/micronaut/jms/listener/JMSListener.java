@@ -154,6 +154,10 @@ public class JMSListener {
      */
     @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
     public void start() throws JMSException {
+        if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+            // before any message is consumed: a session the listener cannot use would fail every message
+            sessionAwareListener.checkSession(session);
+        }
         MessageConsumer messageConsumer;
         if (subscription != null) {
             messageConsumer = createSubscriptionConsumer(subscription);
