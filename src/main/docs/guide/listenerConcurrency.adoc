@@ -1,11 +1,17 @@
-A listener method consumes messages on one session, one message at a time. To handle messages concurrently, set `consumers` on `@Queue` to the number of consumers to start, each with its own session and connection:
+A listener method consumes messages on one session, one message at a time. To handle messages concurrently, set `consumers` on `@Queue` to the number of consumers to start, each with its own session. The consumers of a listener method share one connection, so the method takes a single connection from the pool however many consumers it has:
 
 snippet::io.micronaut.jms.docs.concurrency.JobListener[tags="imports,clazz", project-base="docs-examples/example"]
 
 <1> Three consumers receive the messages of the `jobs` queue, so up to three jobs run at once.
 <2> Each consumer has its own session, which a `Session` parameter receives.
 
-On a topic, every consumer of a plain subscription receives every message, so `consumers` above 1 requires a shared subscription (see <<topicSubscriptions, Durable and Shared Topic Subscriptions>>), whose consumers share the messages. An unshared durable subscription, or one with a client ID, has a single consumer.
+Before setting `consumers` above 1, note that:
+
+* The listener bean is still a single instance, and its method now runs on several threads at once, one per consumer. The listener must be thread-safe: the example guards its state with a synchronized set and an atomic counter (a lock in Python).
+* Messages are no longer processed in the order they were sent, since each consumer handles the next message it receives while the others are still busy.
+* If a consumer fails to start, the method keeps none of its consumers: the consumers already started are stopped and their connection is returned to the pool before the failure is logged.
+
+On a topic, every consumer of a plain subscription receives every message, so `consumers` above 1 requires a shared subscription (see <<topicSubscriptions, Durable and Shared Topic Subscriptions>>), whose consumers share the messages. An unshared durable subscription allows only one consumer. A shared subscription with a client ID can have several consumers: they share the one connection that holds the client ID.
 
 Producer methods send each message on a session of their own. With `transacted = true`, the session is transacted and the send is committed before the method returns:
 
