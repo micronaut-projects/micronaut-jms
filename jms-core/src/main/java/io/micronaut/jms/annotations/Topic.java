@@ -40,12 +40,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * &#64;JMSListener("myConnectionFactory")
  * public class Listener {
  *      &#64;Topic("my-topic")
- *      public &lt;T&gt; void handle(@Body T body, @Header(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
+ *      public &lt;T&gt; void handle(@MessageBody T body, @MessageHeader(JMSHeaders.JMS_MESSAGE_ID) String messageID) {
  *          // do some logic with body and messageID
  *      }
  *
- *      &#64;Topic("my-topic-2")
- *      public &lt;T&gt; void handle(@Body T body, @Header("X-Arbitrary-Header") String arbitraryHeader) {
+ *      &#64;Topic(value = "my-topic-2", subscription = "my-subscription", shared = true, consumers = 3)
+ *      public &lt;T&gt; void handleConcurrently(@MessageBody T body, @MessageHeader("X-Arbitrary-Header") String arbitraryHeader) {
  *          // do some logic with body and arbitraryHeader
  *      }
  * }
@@ -79,25 +79,19 @@ public @interface Topic {
     String serializer() default "";
 
     /**
-     * The name of a {@link io.micronaut.jms.serdes.Deserializer} in the bean
-     * context that a listener method uses to convert the {@link jakarta.jms.Message}
-     * into its {@code @MessageBody} argument. If not specified, defaults to
-     * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
-     *
-     * @return the deserializer bean name
-     * @since 5.2.0
-     */
-    String deserializer() default "";
-
-    /**
      * @return the acknowledge mode for the {@link io.micronaut.jms.listener.JMSListener}.
      * @see jakarta.jms.Session
      */
     int acknowledgeMode() default AUTO_ACKNOWLEDGE;
 
     /**
-     * Whether message receipt is transacted. The broker must support
-     * transacted sessions.
+     * Whether the session is transacted. The broker must support transacted sessions.
+     * <p>
+     * On a listener, message receipt is transacted: the session is committed once the method returns and rolled
+     * back if it fails. On a producer method, each message is sent on a transacted session of its own, committed
+     * after the send. That transaction is the producer's own: a producer method called from a transacted listener
+     * does not join the listener's transaction, so its message is committed even if the listener's transaction is
+     * rolled back. To send in the listener's transaction, send with the listener's {@link jakarta.jms.Session}.
      *
      * @return true if transacted
      * @see jakarta.jms.Session
@@ -111,8 +105,12 @@ public @interface Topic {
 
     /**
      * The number of consumers of the listener method, each with its own session, so that messages are handled
-     * concurrently. More than one consumer requires a {@link #shared()} subscription: the consumers of any other
-     * topic listener would each receive every message. Ignored by producers.
+     * concurrently. The consumers share one connection. The listener bean is a single instance whose method is
+     * then called on several threads at once, so it must be thread-safe, and messages are no longer processed in
+     * the order they were sent.
+     * More than one consumer requires a {@link #shared()} subscription: every consumer of a topic listener without a
+     * subscription would receive every message, and an unshared durable subscription allows only one consumer.
+     * Ignored by producers.
      *
      * @return the number of consumers
      * @since 5.2.0
@@ -173,6 +171,17 @@ public @interface Topic {
      * @since 5.2.0
      */
     String clientId() default "";
+
+    /**
+     * The name of a {@link io.micronaut.jms.serdes.Deserializer} in the bean
+     * context that a listener method uses to convert each {@link jakarta.jms.Message} of the topic
+     * into its {@code @MessageBody} argument. If not specified, defaults to
+     * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
+     *
+     * @return the deserializer bean name
+     * @since 5.2.0
+     */
+    String deserializer() default "";
 
     /**
      * The success handlers to be injected into the message handling logic.
