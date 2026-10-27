@@ -35,11 +35,13 @@ import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 import jakarta.inject.Singleton;
 
 import jakarta.jms.Message;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -118,7 +120,13 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             }).toArray(MessageHeader[]::new);
 
         long timeToLive = timeToLive(method, parameterValueMap);
-        JMSDeliveryMode deliveryMode = deliveryMode(method, annotationType, parameterValueMap);
+        JMSDeliveryMode deliveryMode;
+        try {
+            deliveryMode = deliveryMode(method, annotationType, parameterValueMap);
+        } catch (IllegalArgumentException e) {
+            // like an invalid priority, which the producer rejects
+            throw new MessagingClientException("Problem sending message to " + destinationName + ": " + e.getMessage(), e);
+        }
         int priority = priority(method, annotationType, parameterValueMap);
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
@@ -135,9 +143,32 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .filter(arg -> arg.isDeclaredAnnotationPresent(MessageDeliveryMode.class))
             .map(arg -> parameterValueMap.get(arg.getName()))
             .filter(Objects::nonNull)
-            .map(value -> value instanceof Number n ? JMSDeliveryMode.from(n.intValue()) : (JMSDeliveryMode) value)
+            .map(JMSProducerMethodInterceptor::toDeliveryMode)
             .findFirst()
             .orElseGet(() -> method.enumValue(annotationType, "deliveryMode", JMSDeliveryMode.class).orElse(JMSDeliveryMode.PERSISTENT));
+    }
+
+    private static JMSDeliveryMode toDeliveryMode(Object value) {
+        if (value instanceof JMSDeliveryMode mode) {
+            return mode;
+        }
+        if (value instanceof Number number) {
+            return JMSDeliveryMode.from(number.intValue());
+        }
+        if (value instanceof CharSequence text) {
+            // the name, as listeners accept for the JMSDeliveryMode header, or the DeliveryMode int
+            String name = text.toString().trim();
+            if (!name.isEmpty() && name.chars().allMatch(Character::isDigit)) {
+                return JMSDeliveryMode.from(Integer.parseInt(name));
+            }
+            try {
+                return JMSDeliveryMode.valueOf(name.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("No JMSDeliveryMode named " + name + ", expected NON_PERSISTENT or PERSISTENT", e);
+            }
+        }
+        throw new IllegalArgumentException("A @MessageDeliveryMode argument must be a JMSDeliveryMode, a jakarta.jms.DeliveryMode int "
+            + "or the name of a delivery mode, but was a " + value.getClass().getName());
     }
 
     private static int priority(ExecutableMethod<?, ?> method,
