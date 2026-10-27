@@ -5,4 +5,10 @@ snippet::io.micronaut.jms.docs.delivery.AlertProducer[tags="imports,clazz", proj
 <1> Messages sent by this method are not persisted by the broker and have priority 7.
 <2> A `@MessagePriority` argument sets the priority of each call, from 0 (lowest) to 9. A `@MessageDeliveryMode` argument, a `JMSDeliveryMode` or a `jakarta.jms.DeliveryMode` value, sets the delivery mode of each call in the same way, and `@MessageTTL` the time to live in milliseconds.
 
+A `@MessageDeliveryMode` argument can also be the name of a delivery mode, such as `"NON_PERSISTENT"`. An invalid delivery mode or a priority outside 0 to 9 fails the call with a `MessagingClientException`.
+
 Listeners read both values with the `JMSPriority` and `JMSDeliveryMode` headers, as described under <<binding, Parameter Binding>>.
+
+NOTE: Before 5.2.0, producer methods sent the priority of the message that was just created, which some brokers, such as ActiveMQ Classic, report as 0. They now send 4 unless they set another priority. On a broker that orders messages by priority, these messages are now delivered ahead of messages still sent with priority 0.
+
+NOTE: Amazon SQS has no delivery modes or priorities, and the SQS JMS client ignores them: `jms-sqs` producers send their messages without the delivery mode, the priority or the `@MessageTTL` time to live.
