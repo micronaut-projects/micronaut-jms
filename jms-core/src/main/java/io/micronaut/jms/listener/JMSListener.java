@@ -16,6 +16,7 @@
 package io.micronaut.jms.listener;
 
 import io.micronaut.core.order.OrderUtil;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.observation.JMSObservation;
@@ -195,8 +196,29 @@ public class JMSListener {
     }
 
     private void handleMessage(Message msg) {
+        // an observer that fails with an error has completed the observations started before it
         List<JMSObservation> started = observations.process(destinationType, destination, msg);
         Throwable error = null;
+        try {
+            PropagatedContext current = PropagatedContext.getOrEmpty();
+            PropagatedContext context = JMSObservations.propagatedContext(started, current);
+            error = context == current ? process(msg) : context.propagate(() -> process(msg));
+        } catch (Throwable e) {
+            // an error is not given to the error handlers, but the observations still complete with it
+            error = e;
+            throw e;
+        } finally {
+            JMSObservations.complete(started, error);
+        }
+    }
+
+    /**
+     * Calls the listener and the success or error handlers.
+     *
+     * @param msg The message
+     * @return The exception to complete the observations with, or {@code null}
+     */
+    private @Nullable Throwable process(Message msg) {
         try {
             if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
                 sessionAwareListener.onMessage(msg, session);
@@ -213,14 +235,14 @@ public class JMSListener {
                 }
             });
             if (ex.getSuppressed().length > 0) {
-                error = ex;
                 errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
+                // the handler's exception rather than the placeholder that collects them
+                return ex.getSuppressed()[0];
             }
+            return null;
         } catch (Exception e) {
-            error = e;
             errorHandlers.forEach(handler -> handler.handle(session, msg, e));
-        } finally {
-            JMSObservations.complete(started, error);
+            return e;
         }
     }
 

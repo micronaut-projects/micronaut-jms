@@ -31,7 +31,7 @@ class JMSMetricsTest {
             metrics.process(JMSDestinationType.QUEUE, "orders", message("a", null, null)).complete(null);
             metrics.process(JMSDestinationType.QUEUE, "orders", message("b", null, null)).complete(null);
             metrics.process(JMSDestinationType.QUEUE, "orders", message("c", null, null)).complete(new IllegalStateException());
-            metrics.send(JMSDestinationType.TOPIC, "prices", message("d", null, null)).complete(null);
+            metrics.send(JMSDestinationType.TOPIC, "prices").complete(null);
 
             assertEquals(2, registry.get(JMSMetrics.LISTENER_MESSAGES)
                 .tags("destination", "orders", "result", "success").counter().count());

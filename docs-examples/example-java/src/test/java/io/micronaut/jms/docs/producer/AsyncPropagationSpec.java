@@ -8,7 +8,6 @@ import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.observation.JMSObservation;
 import jakarta.inject.Singleton;
-import jakarta.jms.Message;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -54,7 +53,7 @@ class AsyncPropagationSpec extends AbstractJmsSpec {
         volatile Thread thread;
 
         @Override
-        public JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
+        public JMSObservation send(JMSDestinationType destinationType, String destination) {
             caller = PropagatedContext.getOrEmpty().find(Caller.class).map(Caller::name).orElse(null);
             thread = Thread.currentThread();
             return null;

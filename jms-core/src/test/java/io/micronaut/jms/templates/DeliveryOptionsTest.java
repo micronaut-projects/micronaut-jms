@@ -32,9 +32,9 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -95,6 +95,19 @@ class DeliveryOptionsTest {
     }
 
     @Test
+    void aProducerRejectsAPriorityOutOfRangeBeforeTakingAConnection() {
+        JmsProducer<Object> jmsProducer = new JmsProducer<>(JMSDestinationType.QUEUE, context.getBean(JMSConnectionPool.class),
+            context.getBean(DefaultSerializerDeserializer.class));
+
+        MessagingClientException e = assertThrows(MessagingClientException.class,
+            () -> jmsProducer.send("alerts", "alert", JMSDeliveryMode.PERSISTENT, 12, 0L));
+
+        assertEquals("Problem sending message to alerts: the JMS priority must be from 0 to 9, but was 12", e.getMessage());
+        assertEquals(0, broker.connections.get(), "no connection is taken");
+        assertEquals(List.of(), broker.sent);
+    }
+
+    @Test
     void aPriorityArgumentCanBeAStringOfDigits() {
         producer.sendUrgentWithPriorityName("alert", " 7 ");
 
@@ -123,8 +136,8 @@ class DeliveryOptionsTest {
         assertTrue(invalidMode.getMessage().contains("No JMSDeliveryMode defined for 3"), invalidMode.getMessage());
         assertTrue(invalidName.getMessage().contains("expected NON_PERSISTENT or PERSISTENT"), invalidName.getMessage());
         assertTrue(invalidType.getMessage().contains("must be a JMSDeliveryMode, a jakarta.jms.DeliveryMode int or the name"), invalidType.getMessage());
-        assertInstanceOf(IllegalArgumentException.class, invalidPriority.getCause());
-        assertInstanceOf(IllegalArgumentException.class, negativePriority.getCause());
+        assertEquals("Problem sending message to alerts: the JMS priority must be from 0 to 9, but was 10", invalidPriority.getMessage());
+        assertEquals("Problem sending message to alerts: the JMS priority must be from 0 to 9, but was -1", negativePriority.getMessage());
         assertTrue(blankName.getMessage().contains("expected NON_PERSISTENT or PERSISTENT"), blankName.getMessage());
         assertEquals(List.of(), broker.sent, "nothing is sent");
     }
@@ -200,6 +213,7 @@ class DeliveryOptionsTest {
     static class StubBroker {
 
         final List<Sent> sent = new CopyOnWriteArrayList<>();
+        final AtomicInteger connections = new AtomicInteger();
         final List<String> destinations = new CopyOnWriteArrayList<>();
         final jakarta.jms.Queue queue = stub(jakarta.jms.Queue.class, (name, args) -> null);
         final jakarta.jms.Topic topic = stub(jakarta.jms.Topic.class, (name, args) -> null);
@@ -225,7 +239,13 @@ class DeliveryOptionsTest {
                 default -> null;
             });
             Connection connection = stub(Connection.class, (name, args) -> "createSession".equals(name) ? session : null);
-            connectionFactory = stub(ConnectionFactory.class, (name, args) -> "createConnection".equals(name) ? connection : null);
+            connectionFactory = stub(ConnectionFactory.class, (name, args) -> {
+                if ("createConnection".equals(name)) {
+                    connections.incrementAndGet();
+                    return connection;
+                }
+                return null;
+            });
         }
 
         TextMessage textMessage(String text, int priority) {

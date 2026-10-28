@@ -13,12 +13,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,6 +44,10 @@ class ProducerSessionPoolTest {
     volatile CyclicBarrier sessionBarrier;
     volatile ExceptionListener factoryListener;
     volatile boolean listenersUnsupported;
+    // when set, createConnection counts down connectStarted and waits for connectGate
+    volatile CountDownLatch connectGate;
+    volatile CountDownLatch connectStarted;
+    volatile boolean connectFails;
 
     @Test
     void sessionsAreReusedAcrossSends() throws JMSException {
@@ -256,15 +263,174 @@ class ProducerSessionPoolTest {
     }
 
     @Test
-    void theMaximumIsSharedBySessionModes() throws JMSException {
+    void theMaximumIsSharedBySessionModes() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
         try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8, 1, Duration.ofSeconds(10))) {
             Session plain = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+            Future<Session> transacted = executor.submit(() -> pool.borrow(true, Session.SESSION_TRANSACTED));
+            assertThrows(TimeoutException.class, () -> transacted.get(200, TimeUnit.MILLISECONDS));
+
             pool.release(plain, false);
 
-            Session transacted = pool.borrow(true, Session.SESSION_TRANSACTED);
+            assertNotSame(plain, transacted.get(5, TimeUnit.SECONDS));
+            assertFalse(closed.contains(plain), "the idle session of the other mode is kept");
+            assertEquals(1, pool.getIdleCount());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
 
-            assertTrue(closed.contains(plain), "the idle session makes room for the other mode");
-            assertNotSame(plain, transacted);
+    @Test
+    void aBurstOfSendsReusesItsSessionsAndKeepsMaxIdleAfterwards() throws Exception {
+        int maxActive = 8;
+        int maxIdle = 2;
+        int threads = 32;
+        int sends = 400;
+        ExecutorService executor = Executors.newFixedThreadPool(threads);
+        try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), maxIdle, maxActive, Duration.ofSeconds(10), Duration.ofMillis(200))) {
+            CountDownLatch start = new CountDownLatch(1);
+            AtomicInteger remaining = new AtomicInteger(sends);
+            AtomicInteger inUse = new AtomicInteger();
+            AtomicInteger maxInUse = new AtomicInteger();
+            List<Future<?>> workers = new CopyOnWriteArrayList<>();
+            for (int i = 0; i < threads; i++) {
+                workers.add(executor.submit(() -> {
+                    start.await();
+                    while (remaining.getAndDecrement() > 0) {
+                        Session session = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+                        maxInUse.accumulateAndGet(inUse.incrementAndGet(), Math::max);
+                        Thread.sleep(ThreadLocalRandom.current().nextInt(1, 3));
+                        inUse.decrementAndGet();
+                        pool.release(session, false);
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            for (Future<?> worker : workers) {
+                worker.get(30, TimeUnit.SECONDS);
+            }
+
+            assertEquals(maxActive, maxInUse.get());
+            // a session is closed only when no send waits, which keeps maxIdle sessions for the sends that follow
+            assertTrue(created.size() <= maxActive + maxIdle, "created " + created.size() + " sessions");
+            assertEquals(0, pool.getBorrowedCount());
+            // concurrent releases can keep a session each for the same waiting send, which the periodic check closes
+            awaitIdle(pool, maxIdle);
+            assertEquals(created.size() - maxIdle, closed.size());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void idleSessionsAboveMaxIdleAreClosedPeriodically() throws Exception {
+        Thread waiting = null;
+        try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 0, 2, Duration.ofSeconds(10), Duration.ofSeconds(1))) {
+            Session first = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+            Session second = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+            List<Session> transacted = new CopyOnWriteArrayList<>();
+            waiting = new Thread(() -> {
+                try {
+                    transacted.add(pool.borrow(true, Session.SESSION_TRANSACTED));
+                } catch (JMSException e) {
+                    throw new IllegalStateException(e);
+                }
+            });
+            waiting.start();
+            while (waiting.getState() != Thread.State.TIMED_WAITING) {
+                Thread.onSpinWait();
+            }
+
+            // kept for the waiting send, which needs a session of the other mode
+            pool.release(first, false);
+            waiting.join(5000);
+            pool.release(second, false);
+            pool.release(transacted.get(0), false);
+            assertFalse(closed.contains(first));
+            assertEquals(1, pool.getIdleCount());
+
+            awaitIdle(pool, 0);
+            assertTrue(closed.contains(first));
+        } finally {
+            if (waiting != null) {
+                waiting.interrupt();
+            }
+        }
+    }
+
+    @Test
+    void releasingAndClosingDoNotWaitForAConnect() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8);
+        try {
+            Session inFlight = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+            connections.get(0).listener.onException(new JMSException("connection lost"));
+            connectGate = new CountDownLatch(1);
+            connectStarted = new CountDownLatch(1);
+            Future<Session> connecting = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertTrue(connectStarted.await(5, TimeUnit.SECONDS));
+
+            // the session of the replaced connection is closed, with its connection, during the connect
+            executor.submit(() -> pool.release(inFlight, false)).get(2, TimeUnit.SECONDS);
+            assertTrue(closed.contains(inFlight));
+            assertTrue(connections.get(0).closed);
+            executor.submit(pool::close).get(2, TimeUnit.SECONDS);
+
+            connectGate.countDown();
+            ExecutionException failure = assertThrows(ExecutionException.class, () -> connecting.get(5, TimeUnit.SECONDS));
+            assertTrue(failure.getCause().getMessage().contains("closed"), failure.getCause().getMessage());
+            assertTrue(connections.get(1).closed, "the connection opened after the pool closed is closed");
+        } finally {
+            connectGate.countDown();
+            pool.close();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void sendsThatNeedAConnectionWaitForTheOneBeingOpened() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        connectGate = new CountDownLatch(1);
+        connectStarted = new CountDownLatch(1);
+        try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8)) {
+            Future<Session> first = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertTrue(connectStarted.await(5, TimeUnit.SECONDS));
+            Future<Session> second = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertThrows(TimeoutException.class, () -> second.get(100, TimeUnit.MILLISECONDS));
+
+            connectGate.countDown();
+
+            assertSame(sessionConnections.get(first.get(5, TimeUnit.SECONDS)), sessionConnections.get(second.get(5, TimeUnit.SECONDS)));
+            assertEquals(1, connections.size());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void aFailedConnectFailsTheSendsWaitingForIt() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        connectGate = new CountDownLatch(1);
+        connectStarted = new CountDownLatch(1);
+        connectFails = true;
+        try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8)) {
+            Future<Session> first = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertTrue(connectStarted.await(5, TimeUnit.SECONDS));
+            Future<Session> second = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertThrows(TimeoutException.class, () -> second.get(100, TimeUnit.MILLISECONDS));
+
+            connectGate.countDown();
+
+            assertEquals("broker unavailable", assertThrows(ExecutionException.class, () -> first.get(5, TimeUnit.SECONDS)).getCause().getMessage());
+            assertEquals("broker unavailable", assertThrows(ExecutionException.class, () -> second.get(5, TimeUnit.SECONDS)).getCause().getMessage());
+
+            connectFails = false;
+            connectGate = null;
+            pool.release(pool.borrow(false, Session.AUTO_ACKNOWLEDGE), false);
+            assertEquals(1, connections.size(), "the next send connects again");
+        } finally {
+            executor.shutdownNow();
         }
     }
 
@@ -306,10 +472,30 @@ class ProducerSessionPoolTest {
         }
     }
 
+    private static void awaitIdle(ProducerSessionPool pool, int idle) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (pool.getIdleCount() > idle && System.nanoTime() < deadline) {
+            Thread.sleep(10);
+        }
+        assertEquals(idle, pool.getIdleCount());
+    }
+
     private ConnectionFactory factory() {
         return stub(ConnectionFactory.class, (name, args) -> {
             if (!"createConnection".equals(name)) {
                 return null;
+            }
+            CountDownLatch gate = connectGate;
+            if (gate != null) {
+                connectStarted.countDown();
+                try {
+                    gate.await(10, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+            if (connectFails) {
+                throw new JMSException("broker unavailable");
             }
             StubConnection connection = new StubConnection();
             connection.listener = factoryListener;

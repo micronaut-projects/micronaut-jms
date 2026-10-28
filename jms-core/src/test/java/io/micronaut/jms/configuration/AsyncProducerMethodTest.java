@@ -20,7 +20,6 @@ import jakarta.inject.Singleton;
 import jakarta.jms.Connection;
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.JMSException;
-import jakarta.jms.Message;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
 import jakarta.jms.TextMessage;
@@ -219,7 +218,7 @@ class AsyncProducerMethodTest {
         final List<String> callers = new CopyOnWriteArrayList<>();
 
         @Override
-        public JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
+        public JMSObservation send(JMSDestinationType destinationType, String destination) {
             callers.add(PropagatedContext.getOrEmpty().find(Caller.class).map(Caller::name).orElse("none"));
             return null;
         }
