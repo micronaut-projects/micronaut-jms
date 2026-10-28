@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -48,6 +49,8 @@ class ProducerSessionPoolTest {
     volatile CountDownLatch connectGate;
     volatile CountDownLatch connectStarted;
     volatile boolean connectFails;
+    // thrown once by the next createConnection
+    final AtomicReference<Error> connectError = new AtomicReference<>();
 
     @Test
     void sessionsAreReusedAcrossSends() throws JMSException {
@@ -435,6 +438,35 @@ class ProducerSessionPoolTest {
     }
 
     @Test
+    void anErrorWhileConnectingFailsTheWaitingSendsAndTheNextSendConnectsAgain() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        connectGate = new CountDownLatch(1);
+        connectStarted = new CountDownLatch(1);
+        OutOfMemoryError error = new OutOfMemoryError("unable to create native thread");
+        connectError.set(error);
+        try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8, 2, Duration.ofSeconds(2))) {
+            Future<Session> first = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertTrue(connectStarted.await(5, TimeUnit.SECONDS));
+            Future<Session> second = executor.submit(() -> pool.borrow(false, Session.AUTO_ACKNOWLEDGE));
+            assertThrows(TimeoutException.class, () -> second.get(100, TimeUnit.MILLISECONDS));
+
+            connectGate.countDown();
+
+            assertSame(error, assertThrows(ExecutionException.class, () -> first.get(5, TimeUnit.SECONDS)).getCause());
+            Throwable waiting = assertThrows(ExecutionException.class, () -> second.get(5, TimeUnit.SECONDS)).getCause();
+            assertTrue(waiting instanceof JMSException && waiting.getCause() == error, String.valueOf(waiting));
+
+            connectGate = null;
+            Session session = pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
+            assertEquals(1, connections.size(), "the next send connects again");
+            pool.release(session, false);
+            assertEquals(0, pool.getBorrowedCount(), "the failed sends gave their permits back");
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
     void aSendFailsWhenNoSessionIsReleasedInTime() throws JMSException {
         try (ProducerSessionPool pool = new ProducerSessionPool(new JMSConnectionPool(factory(), 0, 1), 8, 1, Duration.ofMillis(50))) {
             pool.borrow(false, Session.AUTO_ACKNOWLEDGE);
@@ -496,6 +528,10 @@ class ProducerSessionPoolTest {
             }
             if (connectFails) {
                 throw new JMSException("broker unavailable");
+            }
+            Error error = connectError.getAndSet(null);
+            if (error != null) {
+                throw error;
             }
             StubConnection connection = new StubConnection();
             connection.listener = factoryListener;

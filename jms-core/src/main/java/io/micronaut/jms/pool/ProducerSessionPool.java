@@ -177,6 +177,8 @@ public final class ProducerSessionPool implements AutoCloseable {
             throw failure;
         } catch (JMSException | RuntimeException e) {
             throw e;
+        } catch (SessionCreationError e) {
+            throw e.error;
         } catch (Exception e) {
             JMSException failure = new JMSException("Unable to create a producer session: " + e.getMessage());
             failure.initCause(e);
@@ -304,10 +306,20 @@ public final class ProducerSessionPool implements AutoCloseable {
         }
 
         @Override
-        public PooledObject<Session> makeObject(SessionMode mode) throws JMSException {
+        public PooledObject<Session> makeObject(SessionMode mode) throws Exception {
+            try {
+                return createPooledSession(mode);
+            } catch (Error e) {
+                // pool2 only gives back its count of the object being created for an Exception, so an Error would
+                // take one of the maximum sessions for good: borrow throws the Error itself again
+                throw new SessionCreationError(e);
+            }
+        }
+
+        private PooledSession createPooledSession(SessionMode mode) throws JMSException {
             PoolConnection connection = openSession();
             try {
-                return new PooledSession(connection.connection.createSession(mode.transacted(), mode.acknowledgeMode()), connection);
+                return createSession(connection, mode);
             } catch (JMSException | RuntimeException e) {
                 // the connection may have failed: the next attempt uses a new one
                 LOGGER.debug("Unable to create a producer session, retrying on a new connection: {}", e.getMessage());
@@ -315,12 +327,22 @@ public final class ProducerSessionPool implements AutoCloseable {
                 replace(connection);
                 PoolConnection retry = openSession();
                 try {
-                    return new PooledSession(retry.connection.createSession(mode.transacted(), mode.acknowledgeMode()), retry);
+                    return createSession(retry, mode);
                 } catch (JMSException | RuntimeException retryFailure) {
                     sessionClosed(retry);
                     retryFailure.addSuppressed(e);
                     throw retryFailure;
                 }
+            }
+        }
+
+        private PooledSession createSession(PoolConnection connection, SessionMode mode) throws JMSException {
+            try {
+                return new PooledSession(connection.connection.createSession(mode.transacted(), mode.acknowledgeMode()), connection);
+            } catch (Error e) {
+                // the session counted on the connection was not created
+                sessionClosed(connection);
+                throw e;
             }
         }
 
@@ -384,26 +406,32 @@ public final class ProducerSessionPool implements AutoCloseable {
         }
 
         private void connect(CompletableFuture<PoolConnection> opening) throws JMSException {
-            PoolConnection connection;
+            PoolConnection connection = null;
+            boolean installed;
             try {
                 connection = new PoolConnection(connectionPool.getConnectionFactory().createConnection());
-            } catch (JMSException | RuntimeException e) {
+                listen(connection);
+                synchronized (this) {
+                    connecting = null;
+                    // the pool may have been closed while connecting
+                    installed = !closed && current == null;
+                    if (installed) {
+                        connections.add(connection);
+                        current = connection;
+                    }
+                }
+            } catch (Throwable e) {
+                // an Error too, such as an OutOfMemoryError when the provider can't start a thread, which is often
+                // temporary: the sends waiting for this connect fail, and the next send connects again
                 synchronized (this) {
                     connecting = null;
                 }
+                if (connection != null) {
+                    connection.closed = true;
+                    closeQuietly(connection);
+                }
                 opening.completeExceptionally(e);
                 throw e;
-            }
-            listen(connection);
-            boolean installed;
-            synchronized (this) {
-                connecting = null;
-                // the pool may have been closed while connecting
-                installed = !closed && current == null;
-                if (installed) {
-                    connections.add(connection);
-                    current = connection;
-                }
             }
             if (!installed) {
                 connection.closed = true;
@@ -505,6 +533,22 @@ public final class ProducerSessionPool implements AutoCloseable {
             } catch (JMSException | RuntimeException e) {
                 LOGGER.debug("Unable to close the producer connection: {}", e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * Carries an {@link Error} thrown while creating a session through pool2 as an {@link Exception}.
+     */
+    private static final class SessionCreationError extends Exception {
+
+        @java.io.Serial
+        private static final long serialVersionUID = 1L;
+
+        private final transient Error error;
+
+        SessionCreationError(Error error) {
+            super(error);
+            this.error = error;
         }
     }
 }
