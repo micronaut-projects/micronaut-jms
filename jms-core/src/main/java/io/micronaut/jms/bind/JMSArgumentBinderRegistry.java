@@ -16,6 +16,7 @@
 package io.micronaut.jms.bind;
 
 import io.micronaut.context.BeanContext;
+import io.micronaut.context.annotation.Replaces;
 import io.micronaut.core.annotation.AnnotationMetadata;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.bind.ArgumentBinder;
@@ -84,7 +85,9 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
      * {@link Deserializer}. These are the rules an unqualified injection follows, but the default is recognised by its
      * type: Micronaut reads {@code @DefaultImplementation} from the metadata of one of the candidates, which beans
      * defined in other languages, such as Python, may not inherit from the interface. Named deserializers of
-     * {@code @Queue} and {@code @Topic} are candidates too, and must not replace the default.
+     * {@code @Queue} and {@code @Topic} are candidates too, and must not replace the default. A bean that
+     * {@code @Replaces} the default, or {@link Deserializer} itself, which {@code @DefaultImplementation} makes a
+     * replacement of the default, takes the default's place.
      *
      * @param beanContext the bean context
      * @return the global deserializer
@@ -102,13 +105,20 @@ public class JMSArgumentBinderRegistry implements ArgumentBinderRegistry<Message
                 return beanContext.getBean(ordered.get(0));
             }
             for (BeanDefinition<Deserializer> candidate : ordered) {
-                if (DefaultSerializerDeserializer.class.equals(candidate.getBeanType())) {
+                if (isDefault(candidate)) {
                     return beanContext.getBean(candidate);
                 }
             }
         }
         // anything else, such as several primary beans, resolves and fails as an injection would
         return beanContext.getBean(Deserializer.class);
+    }
+
+    private static boolean isDefault(BeanDefinition<Deserializer> candidate) {
+        return DefaultSerializerDeserializer.class.equals(candidate.getBeanType())
+            || candidate.classValue(Replaces.class)
+                .filter(replaced -> replaced == DefaultSerializerDeserializer.class || replaced == Deserializer.class)
+                .isPresent();
     }
 
     /**

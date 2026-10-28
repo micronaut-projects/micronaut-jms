@@ -3,11 +3,13 @@ package io.micronaut.jms.listener;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Primary;
+import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.core.annotation.Order;
 import io.micronaut.messaging.annotation.MessageBody;
@@ -81,6 +83,24 @@ class DestinationDeserializerTest {
 
             assertEquals(List.of("primary:alice"), listener.names);
             assertEquals(List.of(List.of("RED")), listener.tags, "a named deserializer is still used for its destination");
+        }
+    }
+
+    @Test
+    void aDeserializerThatReplacesTheDefaultIsTheGlobalOneNextToANamedOne() {
+        for (String replacing : List.of("default", "interface")) {
+            try (ApplicationContext context = ApplicationContext.run(Map.of(
+                "spec.name", "DestinationDeserializerTest",
+                "spec.global", "replaces-" + replacing))) {
+                StubBroker broker = context.getBean(StubBroker.class);
+                TagListener listener = context.getBean(TagListener.class);
+
+                broker.deliver("names", "alice");
+                broker.deliver("tags", "red");
+
+                assertEquals(List.of("replaced-" + replacing + ":alice"), listener.names);
+                assertEquals(List.of(List.of("RED")), listener.tags, "the named deserializer is still used for its destination");
+            }
         }
     }
 
@@ -159,6 +179,34 @@ class DestinationDeserializerTest {
         @Override
         public <T> T deserialize(Message message, Class<T> clazz) {
             return clazz.cast("ordered:" + text(message));
+        }
+    }
+
+    /**
+     * Replaces the default deserializer.
+     */
+    @Singleton
+    @Replaces(DefaultSerializerDeserializer.class)
+    @Requires(property = "spec.global", value = "replaces-default")
+    static class ReplacingDeserializer implements Deserializer {
+
+        @Override
+        public <T> T deserialize(Message message, Class<T> clazz) {
+            return clazz.cast("replaced-default:" + text(message));
+        }
+    }
+
+    /**
+     * Replaces the deserializer interface, which its default implementation makes a replacement of the default.
+     */
+    @Singleton
+    @Replaces(Deserializer.class)
+    @Requires(property = "spec.global", value = "replaces-interface")
+    static class InterfaceReplacingDeserializer implements Deserializer {
+
+        @Override
+        public <T> T deserialize(Message message, Class<T> clazz) {
+            return clazz.cast("replaced-interface:" + text(message));
         }
     }
 
