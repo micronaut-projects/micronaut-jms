@@ -132,6 +132,11 @@ public class JmsProducer<T> {
                      int priority,
                      long timeToLive,
                      MessageHeader... headers) {
+        if (priority < 0 || priority > 9) {
+            // before a connection is taken, and with the reason in the message, like the other invalid delivery options
+            throw new MessagingClientException("Problem sending message to " + destination
+                + ": the JMS priority must be from 0 to 9, but was " + priority);
+        }
         String joinedHeaders = "";
         if (LOGGER.isDebugEnabled()) {
             joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
@@ -140,9 +145,6 @@ public class JmsProducer<T> {
         }
         try (Connection connection = connectionPool.createConnection();
              Session session = createSession(connection)) {
-            if (priority < 0 || priority > 9) {
-                throw new IllegalArgumentException("The JMS priority must be from 0 to 9, but was " + priority);
-            }
             send(session, lookupDestination(destination, session),
                 serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers);
             if (LOGGER.isDebugEnabled()) {
