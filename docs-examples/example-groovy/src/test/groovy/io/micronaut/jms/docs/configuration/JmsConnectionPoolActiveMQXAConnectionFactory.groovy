@@ -12,10 +12,10 @@ import io.micronaut.jms.pool.JMSConnectionPool
 import jakarta.inject.Singleton
 import org.apache.activemq.ActiveMQXAConnectionFactory
 
-//tag::imports[]
+//end::imports[]
 
 @Requires(property = 'spec.name', value = 'CustomBrokerSpec')
-//tag::class[]
+//tag::clazz[]
 @Factory
 @Internal
 class JmsConnectionPoolActiveMQXAConnectionFactory {
@@ -40,4 +40,4 @@ class JmsConnectionPoolActiveMQXAConnectionFactory {
         return new JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize())
     }
 }
-//end::class[]
+//end::clazz[]

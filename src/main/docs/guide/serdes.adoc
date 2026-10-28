@@ -1,0 +1,17 @@
+By default, message bodies are converted by `DefaultSerializerDeserializer`: strings become text messages, maps map messages, byte arrays bytes messages, other serializable objects (lists and object arrays included) object messages, and other objects JSON text messages. A destination can use another conversion with a named `Serializer` or `Deserializer` bean:
+
+snippet::io.micronaut.jms.docs.serdes.CsvSerdes[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The bean name is the name given to the `serializer` and `deserializer` members of `@Queue` and `@Topic`. A bean can implement either interface, or both.
+
+The `serializer` member of a producer method names the bean that creates the messages it sends:
+
+snippet::io.micronaut.jms.docs.serdes.TagProducer[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The messages of this method are created by the `csv` serializer.
+
+The `deserializer` member of a listener method names the bean that converts the messages it receives into its `@MessageBody` argument. The other arguments are bound as usual:
+
+snippet::io.micronaut.jms.docs.serdes.TagListener[tags="imports,clazz", project-base="docs-examples/example"]
+
+<1> The bodies of the messages of this method are read by the `csv` deserializer.

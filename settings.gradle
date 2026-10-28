@@ -6,7 +6,7 @@ pluginManagement {
 }
 
 plugins {
-    id("io.micronaut.build.shared.settings") version "8.0.0-M17"
+    id("io.micronaut.build.shared.settings") version "8.1.5"
 }
 
 rootProject.name = 'jms-parent'
@@ -16,9 +16,11 @@ include 'jms-core'
 include 'jms-activemq-classic'
 include 'jms-activemq-artemis'
 include 'jms-sqs'
+include 'jms-tracing-opentelemetry'
 include 'docs-examples:example-groovy'
 include 'docs-examples:example-java'
 include 'docs-examples:example-kotlin'
+include 'docs-examples:example-python'
 include 'tests:tasks-sqs'
 include 'tests:tasks-activemq-artemis'
 include 'tests:tasks-activemq-classic'
@@ -30,4 +32,6 @@ micronautBuild {
     importMicronautCatalog()
     importMicronautCatalog("micronaut-validation")
     importMicronautCatalog("micronaut-aws")
+    importMicronautCatalog("micronaut-micrometer")
+    importMicronautCatalog("micronaut-tracing")
 }

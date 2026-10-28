@@ -1,13 +1,13 @@
 package io.micronaut.jms.docs.quickstart
 
 // tag::imports[]
-// end::imports[]
-import io.micronaut.context.annotation.Requires
 import io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME
 import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 import java.util.*
+// end::imports[]
+import io.micronaut.context.annotation.Requires
 
 @Requires(property = "spec.name", value = "QuickstartSpec")
 // tag::clazz[]

@@ -13,7 +13,7 @@ import org.apache.activemq.ActiveMQXAConnectionFactory
 //end::imports[]
 
 @Requires(property = "spec.name", value = "CustomBrokerSpec")
-//tag::class[]
+//tag::clazz[]
 @Factory
 internal class JmsConnectionPoolActiveMQXAConnectionFactory(val properties: JMSConfigurationProperties) {
     @EachBean(ActiveMQXAConnectionFactory::class)
@@ -22,4 +22,5 @@ internal class JmsConnectionPoolActiveMQXAConnectionFactory(val properties: JMSC
     fun createJmsConnectionPool(connectionFactory: ActiveMQXAConnectionFactory): JMSConnectionPool {
         return JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize())
     }
-} //end::clazz[]
+}
+//end::clazz[]

@@ -1,0 +1,37 @@
+A listener recovers when the JMS provider reports that the session of one of its consumers died, so that the consumer doesn't stop receiving messages until the application restarts.
+
+=== What Triggers Recovery
+
+When the JMS provider reports an error through the `ExceptionListener` of a listener's connection, each consumer of that connection checks its session by looking up its destination. Only a consumer whose session fails that check recovers. Errors that leave the session usable don't recreate anything, such as the rejected asynchronous send that ActiveMQ "Classic" reports while its connection still works.
+
+For example, when the database session of an Oracle AQ listener is disconnected, AQ reports `JMS-120: Dequeue failed`, and later `JMS-112: Connection is invalid` on each of its pings. A new session on the same connection still works, so the listener recovers.
+
+=== What Is Recreated
+
+The consumer closes its session and `MessageConsumer` and creates them again on the same connection, with the same message selector and subscription. A durable or shared subscription resumes on the same subscription, and the provider redelivers the messages that weren't acknowledged.
+
+If the session or consumer can't be created, the consumer tries again after a delay that doubles after each attempt, up to a maximum. It keeps trying until it succeeds or the application shuts down, since the provider may report nothing more once the failed session is closed. `io.micronaut.jms.listener.JMSListenerRegistry` logs the first attempts as warnings and later ones as errors.
+
+[configuration]
+----
+micronaut:
+  jms:
+    listener-recovery:
+      enabled: true
+      warn-attempts: 10
+      initial-delay: 1s
+      max-delay: 1m
+----
+
+* `enabled` turns recovery on or off.
+* `warn-attempts` is the number of failed attempts logged as warnings. Later attempts are logged as errors.
+* `initial-delay` is the delay after the first failed attempt. It must be positive.
+* `max-delay` is the longest delay between two attempts. It must not be shorter than `initial-delay`.
+
+An invalid value fails the registration of the listeners with a `ConfigurationException`. Only the first attempt logged as an error includes the stack trace, unless debug logging is enabled for `io.micronaut.jms.listener.JMSListenerRegistry`.
+
+=== Limits
+
+* A non-durable subscription loses the messages published while its consumer is recreated.
+* A connection that fails as a whole isn't replaced. For example, when an ActiveMQ broker restarts without a failover transport, only the session is recreated, on the same connection.
+* A consumer that is still recovering doesn't change the `jms` health indicator.

@@ -16,28 +16,45 @@
 package io.micronaut.jms.configuration;
 
 import io.micronaut.aop.MethodInterceptor;
+import io.micronaut.aop.InterceptedMethod;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.exceptions.ConfigurationException;
+import io.micronaut.core.async.publisher.Publishers;
+import io.micronaut.core.propagation.PropagatedContext;
+import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
+import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.jms.annotations.JMSProducer;
+import io.micronaut.jms.annotations.MessageDeliveryMode;
+import io.micronaut.jms.annotations.MessagePriority;
 import io.micronaut.jms.annotations.MessageTTL;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.annotations.Topic;
+import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
 import io.micronaut.jms.templates.JmsProducer;
 import io.micronaut.messaging.annotation.MessageBody;
+import io.micronaut.messaging.exceptions.MessagingClientException;
 import jakarta.inject.Singleton;
 
+import jakarta.jms.Message;
+import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
@@ -55,9 +72,16 @@ import static jakarta.jms.Message.DEFAULT_TIME_TO_LIVE;
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {
 
     private final BeanContext beanContext;
+    // looked up on the first send rather than injected, so the meter registry or tracer of an observer is not created with the interceptor
+    private final Supplier<Collection<JMSMessageObserver>> observers;
+    private final Supplier<JMSProducerSessionPools> sessionPools;
+    private final Supplier<ExecutorService> executor;
 
     public JMSProducerMethodInterceptor(BeanContext beanContext) {
         this.beanContext = beanContext;
+        this.observers = SupplierUtil.memoized(() -> beanContext.getBeansOfType(JMSMessageObserver.class));
+        this.sessionPools = SupplierUtil.memoized(() -> beanContext.getBean(JMSProducerSessionPools.class));
+        this.executor = SupplierUtil.memoized(() -> beanContext.getBean(ExecutorService.class, Qualifiers.byName(TaskExecutors.BLOCKING)));
     }
 
     @Override
@@ -89,6 +113,33 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .orElseThrow(() -> new ConfigurationException(
                 "@" + annotationType.getSimpleName() + " must specify a destination."));
 
+        // created first, so that methods returning a future or a publisher signal invalid arguments through them
+        InterceptedMethod interceptedMethod = InterceptedMethod.of(context, beanContext.getConversionService());
+        // captured on the calling thread, since a publisher may be subscribed to on another one
+        PropagatedContext propagatedContext = PropagatedContext.getOrEmpty();
+        try {
+            Runnable send = send(context, method, annotationType, destinationType, connectionFactory, destinationName);
+            return switch (interceptedMethod.resultType()) {
+                // sent on the blocking executor, since JMS sends block
+                case COMPLETION_STAGE -> interceptedMethod.handleResult(sendAsync(send, propagatedContext));
+                case PUBLISHER -> interceptedMethod.handleResult(Publishers.fromCompletableFuture(() -> sendAsync(send, propagatedContext)));
+                case SYNCHRONOUS -> {
+                    send.run();
+                    yield null;
+                }
+                default -> interceptedMethod.unsupported();
+            };
+        } catch (Exception e) {
+            return interceptedMethod.handleException(e);
+        }
+    }
+
+    private Runnable send(MethodInvocationContext<Object, Object> context,
+                          ExecutableMethod<?, ?> method,
+                          Class<? extends Annotation> annotationType,
+                          JMSDestinationType destinationType,
+                          String connectionFactory,
+                          String destinationName) {
         Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
         Object body = Arrays.stream(method.getArguments())
@@ -114,12 +165,92 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             }).toArray(MessageHeader[]::new);
 
         long timeToLive = timeToLive(method, parameterValueMap);
+        JMSDeliveryMode deliveryMode;
+        int priority;
+        try {
+            deliveryMode = deliveryMode(method, annotationType, parameterValueMap);
+            priority = priority(method, annotationType, parameterValueMap);
+        } catch (IllegalArgumentException e) {
+            // like a priority out of range, which the producer rejects
+            throw new MessagingClientException("Problem sending message to " + destinationName + ": " + e.getMessage(), e);
+        }
         JMSConnectionPool pool = beanContext.getBean(JMSConnectionPool.class, Qualifiers.byName(connectionFactory));
 
-        JmsProducer producer = new JmsProducer(destinationType, pool, serializer);
-        producer.send(destinationName, body, timeToLive, headers);
+        // a transacted producer method sends on a transacted session, committed after the send
+        boolean transacted = method.isTrue(annotationType, "transacted");
+        JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
+            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE,
+            sessionPools.get().get(connectionFactory, pool));
+        producer.addObservers(observers.get());
+        return () -> producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
+    }
 
-        return null;
+    private CompletableFuture<Void> sendAsync(Runnable send, PropagatedContext propagatedContext) {
+        // the propagated context of the caller, for example the current trace, follows the send to the executor
+        return CompletableFuture.runAsync(propagatedContext.wrap(send), executor.get());
+    }
+
+    private static JMSDeliveryMode deliveryMode(ExecutableMethod<?, ?> method,
+                                                Class<? extends Annotation> annotationType,
+                                                Map<String, Object> parameterValueMap) {
+        return Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessageDeliveryMode.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .filter(Objects::nonNull)
+            .map(JMSProducerMethodInterceptor::toDeliveryMode)
+            .findFirst()
+            .orElseGet(() -> method.enumValue(annotationType, "deliveryMode", JMSDeliveryMode.class).orElse(JMSDeliveryMode.PERSISTENT));
+    }
+
+    private static JMSDeliveryMode toDeliveryMode(Object value) {
+        if (value instanceof JMSDeliveryMode mode) {
+            return mode;
+        }
+        if (value instanceof Number number) {
+            return JMSDeliveryMode.from(number.intValue());
+        }
+        if (value instanceof CharSequence text) {
+            // the name, as listeners accept for the JMSDeliveryMode header, or the DeliveryMode int
+            String name = text.toString().trim();
+            if (!name.isEmpty() && name.chars().allMatch(Character::isDigit)) {
+                return JMSDeliveryMode.from(Integer.parseInt(name));
+            }
+            try {
+                return JMSDeliveryMode.valueOf(name.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("No JMSDeliveryMode named " + name + ", expected NON_PERSISTENT or PERSISTENT", e);
+            }
+        }
+        throw new IllegalArgumentException("A @MessageDeliveryMode argument must be a JMSDeliveryMode, a jakarta.jms.DeliveryMode int "
+            + "or the name of a delivery mode, but was a " + value.getClass().getName());
+    }
+
+    private static int priority(ExecutableMethod<?, ?> method,
+                                Class<? extends Annotation> annotationType,
+                                Map<String, Object> parameterValueMap) {
+        return Arrays.stream(method.getArguments())
+            .filter(arg -> arg.isDeclaredAnnotationPresent(MessagePriority.class))
+            .map(arg -> parameterValueMap.get(arg.getName()))
+            .filter(Objects::nonNull)
+            .map(JMSProducerMethodInterceptor::toPriority)
+            .findFirst()
+            .orElseGet(() -> method.intValue(annotationType, "priority").orElse(Message.DEFAULT_PRIORITY));
+    }
+
+    private static int toPriority(Object value) {
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        if (value instanceof CharSequence text) {
+            String digits = text.toString().trim();
+            try {
+                return Integer.parseInt(digits);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("A @MessagePriority argument must be a number from 0 to 9, but was " + digits, e);
+            }
+        }
+        throw new IllegalArgumentException("A @MessagePriority argument must be a number or a String of digits, but was a "
+            + value.getClass().getName());
     }
 
     private long timeToLive(ExecutableMethod<?, ?> method, Map<String, Object> parameterValueMap) {

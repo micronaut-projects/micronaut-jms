@@ -1,22 +1,24 @@
 [versions]
 managed-jakarta-jms-api = '3.1.0'
-managed-activemq-jakarta = '6.2.4'
-managed-artemis-jakarta-client = '2.53.0'
-micronaut = "5.0.0-M22"
-micronaut-platform = "4.10.8"
-micronaut-test = "5.0.0-M6"
-micronaut-logging = "2.0.0-M2"
-micronaut-validation = "5.0.0-M1"
-micronaut-aws = "5.0.0-M1"
-micronaut-gradle-plugin = "4.6.2"
+managed-activemq-jakarta = '6.3.2'
+managed-artemis-jakarta-client = '2.57.0'
+micronaut = "5.2.16"
+micronaut-platform = "5.2.1"
+micronaut-test = "5.1.0"
+micronaut-logging = "2.1.0"
+micronaut-validation = "5.2.1"
+micronaut-aws = "5.1.1"
+micronaut-micrometer = "6.1.0"
+micronaut-tracing = "8.3.0"
+micronaut-gradle-plugin = "5.0.2"
 amazon-sqs-messaging = '2.1.4'
 awaitility = '4.3.0'
 commons-pool2 = '2.13.1'
-graal-svm = "25.0.2"
+graal-svm = "25.0.4.1.1"
 json-api = '1.1.4'
-jcl-slf4j = '2.0.17'
+jcl-slf4j = '2.0.20'
 jsr305 = "3.0.2"
-spotbugs = "4.9.8"
+spotbugs = "4.10.5"
 
 [libraries]
 managed-artemis-jakarta-client = { module = 'org.apache.activemq:artemis-jakarta-client', version.ref = 'managed-artemis-jakarta-client' }
@@ -27,18 +29,18 @@ micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'mi
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 micronaut-platform = { module = "io.micronaut.platform:micronaut-platform-bom", version.ref = "micronaut-platform" }
 micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
+micronaut-micrometer = { module = "io.micronaut.micrometer:micronaut-micrometer-bom", version.ref = "micronaut-micrometer" }
+micronaut-tracing = { module = "io.micronaut.tracing:micronaut-tracing-bom", version.ref = "micronaut-tracing" }
 
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'managed-activemq-jakarta' }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
 awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
 aws-sqs = { module = 'software.amazon.awssdk:sqs' }
+opentelemetry-sdk-testing = { module = 'io.opentelemetry:opentelemetry-sdk-testing' }
 commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'commons-pool2' }
 graal-svm = { module = "org.graalvm.nativeimage:svm", version.ref = "graal-svm" }
 jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }
 jsr305 = {group = "com.google.code.findbugs", name = "jsr305", version.ref = "jsr305" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 spotbugs = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs" }
 javax-json-api = { module = 'javax.json:javax.json-api', version.ref = 'json-api' }
 

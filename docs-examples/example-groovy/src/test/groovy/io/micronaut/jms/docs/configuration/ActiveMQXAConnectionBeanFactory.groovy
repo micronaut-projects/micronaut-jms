@@ -1,9 +1,8 @@
 package io.micronaut.jms.docs.configuration
 
+// tag::imports[]
 import groovy.transform.CompileStatic
 import io.micronaut.jms.annotations.JMSConnectionFactory
-
-// tag::imports[]
 import jakarta.inject.Singleton
 import io.micronaut.context.annotation.Factory
 import io.micronaut.context.annotation.Requires

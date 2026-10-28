@@ -1,10 +1,9 @@
 package io.micronaut.jms.docs.quickstart
 
 import io.micronaut.context.annotation.Requires
-import io.micronaut.jms.annotations.JMSListener
 
 // tag::imports[]
-
+import io.micronaut.jms.annotations.JMSListener
 import io.micronaut.jms.annotations.Queue
 import io.micronaut.messaging.annotation.MessageBody
 

@@ -16,7 +16,11 @@
 package io.micronaut.jms.listener;
 
 import io.micronaut.core.order.OrderUtil;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.observation.JMSMessageObserver;
+import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.jms.observation.JMSObservations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +30,8 @@ import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageListener;
 import jakarta.jms.Session;
+import jakarta.jms.Topic;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,15 +64,21 @@ public class JMSListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListener.class);
 
-    private final Session session;
+    // only used under the lock of the listener: each consumer hands its own session to the messages it receives
+    private Session session;
     private final MessageListener delegate;
     private MessageConsumer consumer;
+    private @Nullable SessionFactory sessionFactory;
+    private boolean started;
+    private boolean stopped;
     private final JMSDestinationType destinationType;
     private final String destination;
     private final ExecutorService executor;
     private final List<JMSListenerSuccessHandler> successHandlers = new ArrayList<>();
     private final List<JMSListenerErrorHandler> errorHandlers = new ArrayList<>();
+    private final JMSObservations observations = new JMSObservations();
     private final Optional<String> messageSelector;
+    private final @Nullable JMSTopicSubscription subscription;
 
     /**
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
@@ -83,12 +95,37 @@ public class JMSListener {
      * @param messageSelector the message selector for the listener
      */
     public JMSListener(Session session, MessageListener delegate, JMSDestinationType destinationType, String destination, ExecutorService executor, Optional<String> messageSelector) {
+        this(session, delegate, destinationType, destination, executor, messageSelector, null);
+    }
+
+    /**
+     * Creates a {@link JMSListener} instance, optionally with a named topic subscription. This instance will
+     * not begin listening for messages until {@link JMSListener#start()} is called.
+     *
+     * @param session - the {@link Session} for the messages to be consumed on
+     * @param delegate - the listener logic to be invoked
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on, or {@code null}
+     * @param messageSelector the message selector for the listener
+     * @param subscription the named subscription to consume from, only for topics, or {@code null}
+     * @since 5.2.0
+     */
+    public JMSListener(Session session, MessageListener delegate, JMSDestinationType destinationType, String destination, ExecutorService executor, Optional<String> messageSelector, @Nullable JMSTopicSubscription subscription) {
+        if (subscription != null && destinationType == QUEUE) {
+            throw new IllegalArgumentException("A subscription can only be used with a topic, not with queue " + destination);
+        }
+        if (executor != null && delegate instanceof SessionAwareMessageListener) {
+            // the executor's threads would use the session concurrently, and not on the thread that delivers its messages
+            throw new IllegalArgumentException("A SessionAwareMessageListener cannot be registered with an executor, for destination " + destination);
+        }
         this.session = session;
         this.delegate = delegate;
         this.destinationType = destinationType;
         this.destination = destination;
         this.executor = executor;
         this.messageSelector = messageSelector;
+        this.subscription = subscription;
     }
 
     /**
@@ -124,46 +161,176 @@ public class JMSListener {
     }
 
     /**
+     * @param observers - add the given observers of the messages that this listener processes. They are called in
+     *                  {@link JMSMessageObserver#getOrder()} order before the message is processed.
+     * @since 5.2.0
+     */
+    public void addObservers(Collection<? extends JMSMessageObserver> observers) {
+        this.observations.add(observers);
+    }
+
+    /**
      * Configures the listener to begin listening for messages and processing them.
      *
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
      */
-    @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
-    public void start() throws JMSException {
-        MessageConsumer messageConsumer;
-        if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
-            messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session), messageSelector.get());
-        } else {
-            messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session));
-        }
-
-        if (executor == null) {
-            messageConsumer.setMessageListener(this::handleMessage);
-        } else {
-            messageConsumer.setMessageListener(msg -> executor.submit(
-                () -> handleMessage(msg)));
-        }
-
-        this.consumer = messageConsumer;
+    public synchronized void start() throws JMSException {
+        this.consumer = startConsumer(session);
+        started = true;
     }
 
-    private void handleMessage(Message msg) {
+    @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
+    private MessageConsumer startConsumer(Session consumerSession) throws JMSException {
+        if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+            // before any message is consumed: a session the listener cannot use would fail every message
+            sessionAwareListener.checkSession(consumerSession);
+        }
+        MessageConsumer messageConsumer;
+        if (subscription != null) {
+            messageConsumer = createSubscriptionConsumer(consumerSession, subscription);
+        } else if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
+            messageConsumer = consumerSession.createConsumer(lookupDestination(destinationType, destination, consumerSession), messageSelector.get());
+        } else {
+            messageConsumer = consumerSession.createConsumer(lookupDestination(destinationType, destination, consumerSession));
+        }
+
+        // each message is handled with the session of the consumer that received it, even once it is recreated
+        if (executor == null) {
+            messageConsumer.setMessageListener(msg -> handleMessage(consumerSession, msg));
+        } else {
+            messageConsumer.setMessageListener(msg -> executor.submit(
+                () -> handleMessage(consumerSession, msg)));
+        }
+        return messageConsumer;
+    }
+
+    /**
+     * Lets the listener recreate its session, with the given factory, when its session fails.
+     *
+     * @param sessionFactory creates a session like the one the listener was created with, on the same connection
+     */
+    synchronized void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    /**
+     * Checks whether the session of the listener still works, after the JMS provider reported an error on its
+     * connection. JMS has no operation to validate a session, so this looks up the destination of the listener: Oracle
+     * AQ, for example, queries the database through the session, while ActiveMQ creates the destination locally and
+     * so only fails once the session is closed.
+     *
+     * @return whether the session no longer works and can be recreated
+     */
+    synchronized boolean isSessionBroken() {
+        if (stopped || !started || sessionFactory == null) {
+            return false;
+        }
+        if (consumer == null) {
+            // the last attempt to recreate the session failed
+            return true;
+        }
         try {
-            delegate.onMessage(msg);
+            lookupDestination(destinationType, destination, session);
+            return false;
+        } catch (JMSException | RuntimeException e) {
+            LOGGER.debug("The session of the listener of {} no longer works: {}", this, e.getMessage(), e);
+            return true;
+        }
+    }
+
+    /**
+     * Closes the session and consumer of the listener and creates them again, on the same connection and with the
+     * same subscription. Does nothing once the listener is stopped.
+     *
+     * @return whether the session was recreated
+     * @throws JMSException if the session or the consumer cannot be created
+     */
+    synchronized boolean recreateSession() throws JMSException {
+        if (stopped || sessionFactory == null) {
+            return false;
+        }
+        // the provider may already have closed them, or fail to close them since their session died
+        if (consumer != null) {
+            closeQuietly(consumer);
+            consumer = null;
+        }
+        closeQuietly(session);
+        Session newSession = sessionFactory.createSession();
+        try {
+            consumer = startConsumer(newSession);
+        } catch (JMSException | RuntimeException e) {
+            closeQuietly(newSession);
+            throw e;
+        }
+        session = newSession;
+        return true;
+    }
+
+    private void closeQuietly(AutoCloseable closeable) {
+        try {
+            closeable.close();
+        } catch (Exception e) {
+            LOGGER.debug("Unable to close the failed {} of the listener of {}: {}", closeable, this, e.getMessage());
+        }
+    }
+
+    /**
+     * @return the type and name of the destination of the listener, such as {@code queue orders}
+     */
+    @Override
+    public String toString() {
+        return (destinationType == QUEUE ? "queue " : "topic ") + destination;
+    }
+
+    private void handleMessage(Session messageSession, Message msg) {
+        // an observer that fails with an error has completed the observations started before it
+        List<JMSObservation> started = observations.process(destinationType, destination, msg);
+        Throwable error = null;
+        try {
+            PropagatedContext current = PropagatedContext.getOrEmpty();
+            PropagatedContext context = JMSObservations.propagatedContext(started, current);
+            error = context == current ? process(messageSession, msg) : context.propagate(() -> process(messageSession, msg));
+        } catch (Throwable e) {
+            // an error is not given to the error handlers, but the observations still complete with it
+            error = e;
+            throw e;
+        } finally {
+            JMSObservations.complete(started, error);
+        }
+    }
+
+    /**
+     * Calls the listener and the success or error handlers.
+     *
+     * @param messageSession The session that delivered the message, which a recreated session may have replaced since
+     * @param msg            The message
+     * @return The exception to complete the observations with, or {@code null}
+     */
+    private @Nullable Throwable process(Session messageSession, Message msg) {
+        try {
+            if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+                sessionAwareListener.onMessage(msg, messageSession);
+            } else {
+                delegate.onMessage(msg);
+            }
             Throwable ex = new Throwable();
             successHandlers.forEach(handler -> {
                 try {
-                    handler.handle(session, msg);
+                    handler.handle(messageSession, msg);
                 } catch (JMSException e) {
                     LOGGER.error("Failed to handle successful message receive: " + e.getMessage(), e);
                     ex.addSuppressed(e);
                 }
             });
             if (ex.getSuppressed().length > 0) {
-                errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
+                errorHandlers.forEach(handler -> handler.handle(messageSession, msg, ex));
+                // the handler's exception rather than the placeholder that collects them
+                return ex.getSuppressed()[0];
             }
+            return null;
         } catch (Exception e) {
-            errorHandlers.forEach(handler -> handler.handle(session, msg, e));
+            errorHandlers.forEach(handler -> handler.handle(messageSession, msg, e));
+            return e;
         }
     }
 
@@ -172,9 +339,36 @@ public class JMSListener {
      *
      * @throws JMSException - if any error occurs while shutting down the listener.
      */
-    public void stop() throws JMSException {
-        consumer.close();
+    public synchronized void stop() throws JMSException {
+        stopped = true;
+        if (consumer != null) {
+            // null when the last attempt to recreate the session failed
+            consumer.close();
+        }
         session.close();
+    }
+
+    private MessageConsumer createSubscriptionConsumer(Session consumerSession, JMSTopicSubscription subscription) throws JMSException {
+        Topic topic = consumerSession.createTopic(destination);
+        String selector = messageSelector.filter(s -> !s.isEmpty()).orElse(null);
+        if (subscription.shared()) {
+            try {
+                return subscription.durable()
+                    ? consumerSession.createSharedDurableConsumer(topic, subscription.name(), selector)
+                    : consumerSession.createSharedConsumer(topic, subscription.name(), selector);
+            } catch (UnsupportedOperationException e) {
+                // for example ActiveMQ Classic, which implements JMS 1.1 subscriptions only
+                JMSException unsupported = new JMSException("The JMS provider does not support shared subscriptions (subscription '"
+                    + subscription.name() + "' on topic " + destination + ")");
+                unsupported.initCause(e);
+                throw unsupported;
+            }
+        }
+        if (subscription.durable()) {
+            return consumerSession.createDurableSubscriber(topic, subscription.name(), selector, false);
+        }
+        // a named subscription that is neither durable nor shared is an ordinary consumer
+        return selector == null ? consumerSession.createConsumer(topic) : consumerSession.createConsumer(topic, selector);
     }
 
     private static Destination lookupDestination(JMSDestinationType destinationType,
@@ -188,6 +382,19 @@ public class JMSListener {
     private static <T> void orderedInsert(List<T> existingList, T element) {
         existingList.add(element);
         existingList.sort(OrderUtil.REVERSE_COMPARATOR);
+    }
+
+    /**
+     * Creates the sessions of a listener.
+     */
+    @FunctionalInterface
+    interface SessionFactory {
+
+        /**
+         * @return a new session on the connection of the listener
+         * @throws JMSException if the session cannot be created
+         */
+        Session createSession() throws JMSException;
     }
 
 }

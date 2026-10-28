@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.serdes;
 
+import io.micronaut.context.annotation.DefaultImplementation;
 import io.micronaut.core.type.Argument;
 import jakarta.jms.Message;
 
@@ -25,6 +26,7 @@ import jakarta.jms.Message;
  * @since 1.0.0
  */
 @FunctionalInterface
+@DefaultImplementation(DefaultSerializerDeserializer.class)
 public interface Deserializer {
 
     /**
@@ -49,7 +51,7 @@ public interface Deserializer {
      * {@link Argument#getType()}, so it does not preserve type variables. Implementers should
      * override this method to support generic-aware deserialization.
      *
-     * @since 5.0.0
+     * @since 5.2.0
      */
     default <T> T deserialize(Message message, Argument<T> argument) {
         return deserialize(message, argument.getType());

@@ -41,7 +41,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Default implementation of {@link Serializer} and {@link Deserializer}.
+ * Default implementation of {@link Serializer} and {@link Deserializer}. It is the
+ * {@link io.micronaut.context.annotation.DefaultImplementation default implementation} of both types, so applications
+ * can add named serializers and deserializers for the {@code serializer} and {@code deserializer} members of
+ * {@code @Queue} and {@code @Topic}, and can still replace the global one with a {@code @Primary} bean, a bean with a
+ * higher precedence {@code @Order}, or {@code @Replaces(DefaultSerializerDeserializer.class)}.
  *
  * @author Elliott Pope
  * @since 1.0.0

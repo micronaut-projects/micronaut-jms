@@ -1,6 +1,7 @@
 package io.micronaut.jms.docs.exceptions;
 
 import io.micronaut.context.annotation.Requires;
+// tag::imports[]
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.Queue;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
