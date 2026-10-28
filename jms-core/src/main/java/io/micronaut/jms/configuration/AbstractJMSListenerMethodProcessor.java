@@ -144,13 +144,14 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     private MessageListener generateAndBindListener(Object bean,
                                                     Executable<?, ?> method,
-                                                    ArgumentBinderRegistry<Message> binderRegistry) {
+                                                    ArgumentBinderRegistry<Message> binderRegistry,
+                                                    String listenerName) {
         // a parameter typed as the JMS session, or a provider subtype, receives the session that consumed the message
         Argument<?>[] sessionArguments = Arrays.stream(method.getArguments())
             .filter(argument -> Session.class.isAssignableFrom(argument.getType())
                 && !argument.getAnnotationMetadata().hasStereotype(Bindable.class))
             .toArray(Argument[]::new);
-        checkBinders(method, sessionArguments);
+        checkBinders(method, sessionArguments, binderRegistry, listenerName);
         if (sessionArguments.length == 0) {
             return message -> {
                 DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
@@ -175,7 +176,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 for (Argument<?> argument : sessionArguments) {
                     if (!argument.getType().isInstance(session)) {
                         throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
-                            + " cannot be bound to the session "
+                            + " of the listener method " + listenerName + " cannot be bound to the session "
                             + session.getClass().getName());
                     }
                 }
@@ -187,17 +188,18 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
      * Checks at registration that every argument other than the session can be bound, since one that can't, such as a
      * parameter of type {@code oracle.jms.AQjmsSession}, which is a {@code javax.jms.Session}, would fail every message.
      */
-    private void checkBinders(Executable<?, ?> method, Argument<?>[] sessionArguments) {
+    private void checkBinders(Executable<?, ?> method, Argument<?>[] sessionArguments,
+                              ArgumentBinderRegistry<Message> binderRegistry, String listenerName) {
         List<Argument<?>> bound = Arrays.asList(sessionArguments);
         for (Argument<?> argument : method.getArguments()) {
             if (bound.contains(argument)) {
                 continue;
             }
             try {
-                jmsArgumentBinderRegistry.findArgumentBinder(argument);
+                binderRegistry.findArgumentBinder(argument);
             } catch (IllegalArgumentException e) {
                 throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
-                    + " of a @" + clazz.getSimpleName() + " listener method cannot be bound: annotate it with a binding annotation"
+                    + " of the @" + clazz.getSimpleName() + " listener method " + listenerName + " cannot be bound: annotate it with a binding annotation"
                     + " such as @MessageBody or @MessageHeader, or type it as a jakarta.jms.Session", e);
             }
         }
@@ -245,7 +247,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method, binderRegistry(destinationAnnotation));
+        // the bean type rather than the declaring type, which may be a superclass of several listeners
+        MessageListener listener = generateAndBindListener(bean, method, binderRegistry(destinationAnnotation),
+            beanDefinition.getBeanType().getSimpleName() + "#" + method.getMethodName());
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),

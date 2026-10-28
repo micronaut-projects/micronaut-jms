@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.micronaut.jms.tracing;
+package io.micronaut.jms.tracing.opentelemetry;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.tracing.opentelemetry.OpenTelemetryPropagationContext;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Span;
@@ -28,7 +30,6 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.context.propagation.TextMapSetter;
@@ -44,17 +45,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Traces the messages that JMS listeners process and that JMS producers send with OpenTelemetry, for example with
- * the OpenTelemetry bean of Micronaut Tracing. A producer span ({@code send <destination>}) propagates its context in
- * message properties, and a consumer span ({@code process <destination>}) continues it and is the current span while
- * the listener method runs. Property names that are not Java identifiers, such as those of B3 headers, have their
+ * Traces the messages that JMS listeners process and that JMS producers send with the OpenTelemetry bean of Micronaut
+ * Tracing. A producer span ({@code send <destination>}) starts before the connection is taken and propagates its
+ * context in message properties. A consumer span ({@code process <destination>}) continues it and is the current span
+ * while the listener method runs, also in the {@link PropagatedContext}, so it follows the thread hops of Micronaut's
+ * context propagation. Property names that are not Java identifiers, such as those of B3 headers, have their
  * dashes replaced with {@value #DASH}, as the OpenTelemetry Java agent does. Disable it with
  * {@code micronaut.jms.tracing.enabled: false}.
  *
  * @since 5.2.0
  */
 @Singleton
-@Requires(classes = OpenTelemetry.class)
 @Requires(beans = OpenTelemetry.class)
 @Requires(property = JMSTracing.ENABLED, notEquals = StringUtils.FALSE)
 public final class JMSTracing implements JMSMessageObserver {
@@ -139,25 +140,16 @@ public final class JMSTracing implements JMSMessageObserver {
             .setParent(parent)
             .startSpan();
         setMessageId(span, message);
-        Scope scope = span.makeCurrent();
-        return error -> {
-            try {
-                end(span, error);
-            } finally {
-                scope.close();
-            }
-        };
+        return new ProcessObservation(parent.with(span), span);
     }
 
     @Override
-    public JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
-        Span span = spanBuilder("send", destination, SpanKind.PRODUCER).startSpan();
-        propagator.inject(Context.current().with(span), message, SETTER);
-        return error -> {
-            // the provider assigns the message ID when it sends the message
-            setMessageId(span, message);
-            end(span, error);
-        };
+    public JMSObservation send(JMSDestinationType destinationType, String destination) {
+        Context parent = Context.current();
+        Span span = spanBuilder("send", destination, SpanKind.PRODUCER)
+            .setParent(parent)
+            .startSpan();
+        return new SendObservation(parent.with(span), span);
     }
 
     private SpanBuilder spanBuilder(String operation, String destination, SpanKind kind) {
@@ -187,5 +179,61 @@ public final class JMSTracing implements JMSMessageObserver {
             span.setAttribute(ERROR_TYPE, error.getClass().getName());
         }
         span.end();
+    }
+
+    /**
+     * The observation of a message that a listener processes, whose span is current in the propagated context that
+     * the listener method runs in.
+     */
+    private static final class ProcessObservation implements JMSObservation {
+
+        private final Context context;
+        private final Span span;
+
+        ProcessObservation(Context context, Span span) {
+            this.context = context;
+            this.span = span;
+        }
+
+        @Override
+        public PropagatedContext propagatedContext(PropagatedContext propagatedContext) {
+            // the element makes the context current on the threads that the propagated context is propagated to
+            return propagatedContext.plus(new OpenTelemetryPropagationContext(context));
+        }
+
+        @Override
+        public void complete(@Nullable Throwable error) {
+            end(span, error);
+        }
+    }
+
+    /**
+     * The observation of a send, which propagates its context in the message once the message is created.
+     */
+    private final class SendObservation implements JMSObservation {
+
+        private final Context context;
+        private final Span span;
+        private @Nullable Message message;
+
+        SendObservation(Context context, Span span) {
+            this.context = context;
+            this.span = span;
+        }
+
+        @Override
+        public void beforeSend(Message message) {
+            this.message = message;
+            propagator.inject(context, message, SETTER);
+        }
+
+        @Override
+        public void complete(@Nullable Throwable error) {
+            if (message != null) {
+                // the provider assigns the message ID when it sends the message
+                setMessageId(span, message);
+            }
+            end(span, error);
+        }
     }
 }

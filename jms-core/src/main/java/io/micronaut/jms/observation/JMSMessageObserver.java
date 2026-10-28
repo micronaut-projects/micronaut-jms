@@ -24,7 +24,8 @@ import org.jspecify.annotations.Nullable;
  * Observes the messages that JMS listeners process and that JMS producers send, for example to record metrics or
  * traces. Each observer bean is called before a message is processed or sent, and completes the observation that it
  * returns afterwards. Observers are called in {@link #getOrder() order} and their observations are completed in the
- * reverse order.
+ * reverse order. An observer that throws an exception is logged and skipped. One that throws an {@link Error} stops
+ * the processing or the send: the observations already started are completed with the error, which is rethrown.
  *
  * @since 5.2.0
  */
@@ -43,15 +44,16 @@ public interface JMSMessageObserver extends Ordered {
     }
 
     /**
-     * Called before a producer sends a message, once its headers are set, so properties added to the message are
-     * sent with it.
+     * Called before a producer sends a message, before the connection is taken from the pool and the message is
+     * created, so a send that fails to connect is observed too. Once the message is created and its headers are set,
+     * the observation's {@link JMSObservation#beforeSend(Message)} is called with it, so properties added to the
+     * message are sent with it.
      *
      * @param destinationType The type of the destination
      * @param destination     The name of the destination the message is sent to
-     * @param message         The message
-     * @return The observation to complete once the message is sent, or {@code null}
+     * @return The observation to complete once the message is sent or the send failed, or {@code null}
      */
-    default @Nullable JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
+    default @Nullable JMSObservation send(JMSDestinationType destinationType, String destination) {
         return null;
     }
 }

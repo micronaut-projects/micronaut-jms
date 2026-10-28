@@ -42,14 +42,16 @@ public interface JMSProducerSessionConfiguration {
     boolean isEnabled();
 
     /**
-     * @return The maximum number of idle sessions kept for each connection factory and session mode. Defaults to 8.
+     * @return The maximum number of idle sessions kept for each connection factory and session mode. While sends wait
+     * for a session, released sessions are kept for them up to {@link #getMaxActive()}; the idle sessions above this
+     * number are closed once no send waits. Defaults to 8.
      */
     @Min(0)
     @Bindable(defaultValue = "8")
     int getMaxIdle();
 
     /**
-     * @return The maximum number of open sessions for each connection factory, borrowed or idle, of all session
+     * @return The maximum number of sessions of each connection factory that sends use at once, of all session
      * modes. When all of them are borrowed, a send waits up to {@link #getMaxWait()} for one to be released.
      * Defaults to 32.
      * @since 5.2.0

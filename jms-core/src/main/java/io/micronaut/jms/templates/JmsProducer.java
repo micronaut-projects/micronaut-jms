@@ -45,6 +45,7 @@ import jakarta.jms.Topic;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
@@ -125,23 +126,26 @@ public class JmsProducer<T> {
                      @NonNull T body,
                      @NonNull long timeToLive,
                      MessageHeader... headers) {
-        String joinedHeaders = "";
+        String joinedHeaders = joinHeaders(headers);
         if (LOGGER.isDebugEnabled()) {
-            joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     body, destination, type.name(), joinedHeaders);
         }
-        try {
-            // the message was just created, so its own priority is not one the caller chose
-            withSession(session -> send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, timeToLive, headers));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
-                        body, destination, type.name(), joinedHeaders);
+        observe(destination, observed -> {
+            try {
+                // the message was just created, so its own priority is not one the caller chose
+                withSession(session -> send(session, lookupDestination(destination, session),
+                    serializer.serialize(session, body), DEFAULT_DELIVERY_MODE, Message.DEFAULT_PRIORITY, timeToLive,
+                    observed, headers));
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                            body, destination, type.name(), joinedHeaders);
+                }
+            } catch (JMSException | RuntimeException e) {
+                observed.failed(e);
+                throw new MessagingClientException("Problem sending message to " + destination, e);
             }
-        } catch (JMSException | RuntimeException e) {
-            throw new MessagingClientException("Problem sending message to " + destination, e);
-        }
+        });
     }
 
     /**
@@ -161,25 +165,29 @@ public class JmsProducer<T> {
                      int priority,
                      long timeToLive,
                      MessageHeader... headers) {
-        String joinedHeaders = "";
+        if (priority < 0 || priority > 9) {
+            // before a connection is taken, and with the reason in the message, like the other invalid delivery options
+            throw new MessagingClientException("Problem sending message to " + destination
+                + ": the JMS priority must be from 0 to 9, but was " + priority);
+        }
+        String joinedHeaders = joinHeaders(headers);
         if (LOGGER.isDebugEnabled()) {
-            joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
             LOGGER.debug("Sending message {} to destination {} of type {} with delivery mode {}, priority {} and headers [{}]",
                     body, destination, type.name(), deliveryMode, priority, joinedHeaders);
         }
-        try {
-            if (priority < 0 || priority > 9) {
-                throw new IllegalArgumentException("The JMS priority must be from 0 to 9, but was " + priority);
+        observe(destination, observed -> {
+            try {
+                withSession(session -> send(session, lookupDestination(destination, session),
+                    serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, observed, headers));
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sent message {} to destination {} of type {} with delivery mode {}, priority {} and headers [{}]",
+                            body, destination, type.name(), deliveryMode, priority, joinedHeaders);
+                }
+            } catch (JMSException | RuntimeException e) {
+                observed.failed(e);
+                throw new MessagingClientException("Problem sending message to " + destination, e);
             }
-            withSession(session -> send(session, lookupDestination(destination, session),
-                serializer.serialize(session, body), deliveryMode.getValue(), priority, timeToLive, headers));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sent message {} to destination {} of type {} with delivery mode {}, priority {} and headers [{}]",
-                        body, destination, type.name(), deliveryMode, priority, joinedHeaders);
-            }
-        } catch (JMSException | RuntimeException e) {
-            throw new MessagingClientException("Problem sending message to " + destination, e);
-        }
+        });
     }
 
     /**
@@ -195,21 +203,24 @@ public class JmsProducer<T> {
                      @NonNull Message message,
                      @NonNull long timeToLive,
                      MessageHeader... headers) {
-        String joinedHeaders = "";
+        String joinedHeaders = joinHeaders(headers);
         if (LOGGER.isDebugEnabled()) {
-            joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     message, destination, type.name(), joinedHeaders);
         }
-        try {
-            withSession(session -> send(session, lookupDestination(destination, session), message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
-                        message, destination, type.name(), joinedHeaders);
+        observe(destination, observed -> {
+            try {
+                withSession(session -> send(session, lookupDestination(destination, session), message, DEFAULT_DELIVERY_MODE,
+                    null, timeToLive, observed, headers));
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                            message, destination, type.name(), joinedHeaders);
+                }
+            } catch (JMSException | RuntimeException e) {
+                observed.failed(e);
+                throw new MessagingClientException("Problem sending message to " + destination, e);
             }
-        } catch (JMSException | RuntimeException e) {
-            throw new MessagingClientException("Problem sending message to " + destination, e);
-        }
+        });
     }
 
     /**
@@ -228,26 +239,29 @@ public class JmsProducer<T> {
         ArgumentUtils.requireNonNull("destination", destination);
         ArgumentUtils.requireNonNull("message", message);
 
-        String joinedHeaders = "";
+        String joinedHeaders = joinHeaders(headers);
         if (LOGGER.isDebugEnabled()) {
-            joinedHeaders = Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","));
             LOGGER.debug("Sending message {} to destination {} of type {} with headers [{}]",
                     message, destination, type.name(), joinedHeaders);
         }
-        try {
-            withSession(session -> send(session, destination, message, DEFAULT_DELIVERY_MODE, null, timeToLive, headers));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
-                        message, destination, type.name(), joinedHeaders);
+        observe(destinationName(destination), observed -> {
+            try {
+                withSession(session -> send(session, destination, message, DEFAULT_DELIVERY_MODE, null, timeToLive, observed,
+                    headers));
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sent message {} to destination {} of type {} with headers [{}]",
+                            message, destination, type.name(), joinedHeaders);
+                }
+            } catch (JMSException | RuntimeException e) {
+                observed.failed(e);
+                throw new MessagingClientException("Problem sending message ", e);
             }
-        } catch (JMSException | RuntimeException e) {
-            throw new MessagingClientException("Problem sending message ", e);
-        }
+        });
     }
 
     /**
      * @param observers The observers of the messages that this producer sends. They are called in
-     *                  {@link JMSMessageObserver#getOrder()} order before each message is sent.
+     *                  {@link JMSMessageObserver#getOrder()} order before the connection of each send is taken.
      * @since 5.2.0
      */
     public void addObservers(Collection<? extends JMSMessageObserver> observers) {
@@ -271,6 +285,7 @@ public class JmsProducer<T> {
                       int deliveryMode,
                       @Nullable Integer priority,
                       @NonNull long timeToLive,
+                      ObservedSend observed,
                       MessageHeader... headers) throws JMSException {
         ArgumentUtils.requireNonNull("session", session);
 
@@ -280,8 +295,14 @@ public class JmsProducer<T> {
                 header.apply(message);
             }
 
-            observedSend(session, producer, destination, message, deliveryMode, priority, timeToLive);
+            observed.beforeSend(message);
+            producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
+
+            if (sessionTransacted) {
+                session.commit();
+            }
         } catch (JMSException | RuntimeException e) {
+            observed.failed(e);
             if (sessionTransacted) {
                 try {
                     session.rollback();
@@ -294,36 +315,43 @@ public class JmsProducer<T> {
         }
     }
 
-    private void observedSend(Session session,
-                              MessageProducer producer,
-                              Destination destination,
-                              Message message,
-                              int deliveryMode,
-                              @Nullable Integer priority,
-                              long timeToLive) throws JMSException {
-        List<JMSObservation> started = observations.isEmpty() ? List.of()
-            : observations.send(type, destinationName(destination), message);
-        Throwable error = null;
+    /**
+     * Observes a send from before its connection is taken until the connection is closed, so a send that fails to
+     * connect or to create the message is observed too.
+     *
+     * @param destination The name of the destination
+     * @param send        The send
+     */
+    private void observe(String destination, Consumer<ObservedSend> send) {
+        // an observer that fails with an error has completed the observations started before it
+        ObservedSend observed = new ObservedSend(observations.send(type, destination));
         try {
-            producer.send(message, deliveryMode, priority == null ? message.getJMSPriority() : priority, timeToLive);
-
-            if (sessionTransacted) {
-                session.commit();
-            }
-        } catch (JMSException | RuntimeException e) {
-            error = e;
+            send.accept(observed);
+        } catch (Throwable e) {
+            // also an error, so that no observation is left unfinished
+            observed.failed(e);
             throw e;
         } finally {
-            JMSObservations.complete(started, error);
+            JMSObservations.complete(observed.started, observed.error);
         }
     }
 
-    private static String destinationName(Destination destination) throws JMSException {
-        if (destination instanceof Queue queue) {
-            return queue.getQueueName();
-        }
-        if (destination instanceof Topic topic) {
-            return topic.getTopicName();
+    private static String joinHeaders(MessageHeader... headers) {
+        return LOGGER.isDebugEnabled()
+            ? Arrays.stream(headers).map(MessageHeader::toString).collect(Collectors.joining(","))
+            : "";
+    }
+
+    private static String destinationName(Destination destination) {
+        try {
+            if (destination instanceof Queue queue) {
+                return queue.getQueueName();
+            }
+            if (destination instanceof Topic topic) {
+                return topic.getTopicName();
+            }
+        } catch (JMSException e) {
+            LOGGER.debug("Unable to name destination {}: {}", destination, e.getMessage());
         }
         return destination.toString();
     }
@@ -364,5 +392,29 @@ public class JmsProducer<T> {
     @FunctionalInterface
     private interface SessionWork {
         void run(Session session) throws JMSException;
+    }
+
+    /**
+     * The observations of a send and the first failure of the send.
+     */
+    private static final class ObservedSend {
+
+        private final List<JMSObservation> started;
+        private @Nullable Throwable error;
+
+        ObservedSend(List<JMSObservation> started) {
+            this.started = started;
+        }
+
+        void beforeSend(Message message) {
+            JMSObservations.beforeSend(started, message);
+        }
+
+        void failed(Throwable error) {
+            // the cause rather than the exceptions that wrap it on the way out
+            if (this.error == null) {
+                this.error = error;
+            }
+        }
     }
 }
