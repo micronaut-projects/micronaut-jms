@@ -1,8 +1,11 @@
-package io.micronaut.jms.tracing;
+package io.micronaut.jms.tracing.opentelemetry;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.core.propagation.PropagatedContext;
+import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.tracing.opentelemetry.OpenTelemetryPropagationContext;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.trace.Span;
@@ -24,27 +27,29 @@ import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.TextMessage;
 import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import static io.micronaut.jms.observation.ObservationStubs.message;
-import static io.micronaut.jms.observation.ObservationStubs.stub;
+import static io.micronaut.jms.tracing.opentelemetry.MessageStubs.message;
+import static io.micronaut.jms.tracing.opentelemetry.MessageStubs.stub;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JMSTracingTest {
 
     private static final ContextKey<String> REQUEST_ID = ContextKey.named("request-id");
 
     private final InMemorySpanExporter exporter = InMemorySpanExporter.create();
-    private ApplicationContext context;
     private JMSTracing tracing;
 
     @BeforeEach
@@ -54,27 +59,25 @@ class JMSTracingTest {
             .setPropagators(ContextPropagators.create(TextMapPropagator.composite(
                 W3CTraceContextPropagator.getInstance(), new RequestIdPropagator())))
             .build();
-        context = ApplicationContext.builder().singletons(openTelemetry).start();
-        tracing = context.getBean(JMSTracing.class);
-    }
-
-    @AfterEach
-    void stop() {
-        context.close();
+        tracing = new JMSTracing(openTelemetry);
     }
 
     @Test
     void theConsumerSpanContinuesTheTraceThatTheProducerSpanPropagatesInMessageProperties() throws JMSException {
-        TextMessage message = message("order", null, "ID:1");
+        TextMessage message = message("order", "ID:1");
 
         try (var ignored = Context.root().with(REQUEST_ID, "r-1").makeCurrent()) {
-            tracing.send(JMSDestinationType.QUEUE, "orders", message).complete(null);
+            JMSObservation sending = tracing.send(JMSDestinationType.QUEUE, "orders");
+            assertNull(message.getStringProperty("traceparent"), "the context is injected once the message is created");
+            sending.beforeSend(message);
+            sending.complete(null);
         }
         assertNotNull(message.getStringProperty("traceparent"));
         assertEquals("r-1", message.getStringProperty("x" + JMSTracing.DASH + "request" + JMSTracing.DASH + "id"));
 
         JMSObservation processing = tracing.process(JMSDestinationType.QUEUE, "orders", message);
-        String processSpanId = Span.current().getSpanContext().getSpanId();
+        String processSpanId = processing.propagatedContext(PropagatedContext.empty())
+            .propagate(() -> Span.current().getSpanContext().getSpanId());
         processing.complete(null);
         assertFalse(Span.current().getSpanContext().isValid(), "the span is current only while processing");
 
@@ -99,8 +102,9 @@ class JMSTracingTest {
 
     @Test
     void failuresAreRecordedOnTheSpans() {
-        tracing.send(JMSDestinationType.TOPIC, "prices", message("up", null, null)).complete(new IllegalStateException("send failed"));
-        tracing.process(JMSDestinationType.TOPIC, "prices", message("up", null, null)).complete(new IllegalArgumentException("bad"));
+        // a send that fails before the message is created, for example to connect
+        tracing.send(JMSDestinationType.TOPIC, "prices").complete(new IllegalStateException("send failed"));
+        tracing.process(JMSDestinationType.TOPIC, "prices", message("up", null)).complete(new IllegalArgumentException("bad"));
 
         List<SpanData> spans = exporter.getFinishedSpanItems();
         assertEquals(List.of(IllegalStateException.class.getName(), IllegalArgumentException.class.getName()),
@@ -122,22 +126,63 @@ class JMSTracingTest {
             throw new IllegalStateException(name + " failed");
         });
 
-        tracing.send(JMSDestinationType.QUEUE, "orders", readOnly).complete(null);
-        tracing.process(JMSDestinationType.QUEUE, "orders", readOnly).complete(null);
-        tracing.send(JMSDestinationType.QUEUE, "orders", broken).complete(null);
-        tracing.process(JMSDestinationType.QUEUE, "orders", broken).complete(null);
-        tracing.send(JMSDestinationType.QUEUE, "orders", null).complete(null);
+        for (Message message : List.of(readOnly, broken)) {
+            JMSObservation sending = tracing.send(JMSDestinationType.QUEUE, "orders");
+            sending.beforeSend(message);
+            sending.complete(null);
+            tracing.process(JMSDestinationType.QUEUE, "orders", message).complete(null);
+        }
         tracing.process(JMSDestinationType.QUEUE, "orders", null).complete(null);
 
-        assertEquals(6, exporter.getFinishedSpanItems().size());
+        assertEquals(5, exporter.getFinishedSpanItems().size());
         assertFalse(Span.current().getSpanContext().isValid());
     }
 
     @Test
-    void canBeDisabled() {
+    void theConsumerSpanIsCurrentInThePropagatedContextWhileTheMessageIsProcessed() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            JMSObservation processing = tracing.process(JMSDestinationType.QUEUE, "orders", message("order", "ID:1"));
+            PropagatedContext context = processing.propagatedContext(PropagatedContext.getOrEmpty());
+            Callable<String> currentSpanId = () -> Span.current().getSpanContext().getSpanId();
+
+            String processSpanId = context.propagateCall(() -> {
+                OpenTelemetryPropagationContext element = PropagatedContext.get().find(OpenTelemetryPropagationContext.class).orElseThrow();
+                assertEquals(currentSpanId.call(), Span.fromContext(element.context()).getSpanContext().getSpanId());
+                assertEquals(currentSpanId.call(), executor.submit(PropagatedContext.get().wrap(currentSpanId)).get(),
+                    "the span follows the context to another thread");
+                return currentSpanId.call();
+            });
+            assertFalse(Span.fromContext(executor.submit(Context::current).get()).getSpanContext().isValid());
+            processing.complete(null);
+
+            assertFalse(PropagatedContext.getOrEmpty().find(OpenTelemetryPropagationContext.class).isPresent());
+            assertFalse(Span.current().getSpanContext().isValid());
+            assertEquals(processSpanId, exporter.getFinishedSpanItems().get(0).getSpanId());
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void tracesWithTheOpenTelemetryOfMicronautTracingAndCanBeDisabled() {
+        InMemorySpanExporter tracingExporter = InMemorySpanExporter.create();
+        try (ApplicationContext context = ApplicationContext.builder()
+            .properties(Map.of("otel.traces.exporter", "none"))
+            .singletons(SimpleSpanProcessor.create(tracingExporter))
+            .start()) {
+            JMSTracing bean = context.getBean(JMSTracing.class);
+            assertTrue(context.getBeansOfType(JMSMessageObserver.class).contains(bean));
+
+            JMSObservation sending = bean.send(JMSDestinationType.QUEUE, "orders");
+            TextMessage message = message("order", "ID:1");
+            sending.beforeSend(message);
+            sending.complete(null);
+
+            assertEquals(List.of("send orders"), tracingExporter.getFinishedSpanItems().stream().map(SpanData::getName).toList());
+        }
         try (ApplicationContext disabled = ApplicationContext.builder()
-            .properties(Map.of(JMSTracing.ENABLED, "false"))
-            .singletons(OpenTelemetry.noop())
+            .properties(Map.of(JMSTracing.ENABLED, "false", "otel.traces.exporter", "none"))
             .start()) {
             assertFalse(disabled.containsBean(JMSTracing.class));
         }

@@ -22,6 +22,8 @@ import jakarta.jms.Session;
 import org.apache.commons.pool2.KeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.EvictionConfig;
+import org.apache.commons.pool2.impl.EvictionPolicy;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 import org.jspecify.annotations.Nullable;
@@ -35,14 +37,24 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Reuses the sessions of producers across sends, instead of opening a connection and a session for each message.
  * The sessions are created on one connection from the connection factory of a {@link JMSConnectionPool}, which this
  * pool opens on the first send and closes with itself. A session is used by one send at a time, and a session that
- * failed is closed rather than reused. At most {@code maxActive} sessions are open: when all of them are borrowed, a
- * send waits up to {@code maxWait} for one to be released.
+ * failed is closed rather than reused. At most {@code maxActive} sessions are borrowed at once, of all session modes:
+ * when all of them are borrowed, a send waits up to {@code maxWait} for one to be released.
+ *
+ * <p>A session released while sends are waiting is kept for them, so a burst of sends reuses at most
+ * {@code maxActive} sessions of each session mode instead of closing and opening sessions. Once no send waits, a
+ * released session is closed if {@code maxIdle} sessions of its mode are idle already, and a periodic check closes
+ * the oldest idle sessions above {@code maxIdle} that remain, for example sessions kept for a send that took one of
+ * another mode.</p>
  *
  * <p>When a session cannot be created, or the provider reports a failure of the connection to its
  * {@link ExceptionListener}, the connection is replaced. Its idle sessions are closed, its borrowed sessions are
@@ -53,7 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class ProducerSessionPool implements AutoCloseable {
 
     /**
-     * The default maximum number of open sessions.
+     * The default maximum number of sessions that are borrowed at once.
      */
     public static final int DEFAULT_MAX_ACTIVE = 32;
 
@@ -64,10 +76,17 @@ public final class ProducerSessionPool implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProducerSessionPool.class);
 
+    // how often idle sessions above maxIdle are closed, when no release did so
+    private static final Duration TRIM_INTERVAL = Duration.ofSeconds(30);
+
     private final SessionFactory factory;
     private final GenericKeyedObjectPool<SessionMode, Session> sessions;
     private final Map<Session, SessionMode> borrowed = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Duration maxWait;
+    private final int maxIdle;
+    private final int maxActive;
+    // a permit for each session that can be borrowed, shared by all session modes
+    private final Semaphore permits;
     // set when a connection is replaced, so that its idle sessions are closed
     private final AtomicBoolean clearIdle = new AtomicBoolean();
 
@@ -81,20 +100,39 @@ public final class ProducerSessionPool implements AutoCloseable {
 
     /**
      * @param connectionPool The pool of the connection that the sessions are created on
-     * @param maxIdle        The maximum number of idle sessions kept for each session mode
-     * @param maxActive      The maximum number of open sessions, borrowed or idle, of all session modes
+     * @param maxIdle        The maximum number of idle sessions kept for each session mode once no send waits
+     * @param maxActive      The maximum number of sessions borrowed at once, of all session modes
      * @param maxWait        How long a send waits for a session when {@code maxActive} sessions are borrowed
      */
     public ProducerSessionPool(JMSConnectionPool connectionPool, int maxIdle, int maxActive, Duration maxWait) {
+        this(connectionPool, maxIdle, maxActive, maxWait, TRIM_INTERVAL);
+    }
+
+    /**
+     * @param connectionPool The pool of the connection that the sessions are created on
+     * @param maxIdle        The maximum number of idle sessions kept for each session mode once no send waits
+     * @param maxActive      The maximum number of sessions borrowed at once, of all session modes
+     * @param maxWait        How long a send waits for a session when {@code maxActive} sessions are borrowed
+     * @param trimInterval   How often the idle sessions above {@code maxIdle} are closed
+     */
+    ProducerSessionPool(JMSConnectionPool connectionPool, int maxIdle, int maxActive, Duration maxWait, Duration trimInterval) {
         this.factory = new SessionFactory(connectionPool);
         this.maxWait = maxWait;
+        this.maxIdle = maxIdle;
+        this.maxActive = maxActive;
+        this.permits = new Semaphore(maxActive, true);
         GenericKeyedObjectPoolConfig<Session> config = new GenericKeyedObjectPoolConfig<>();
-        // when maxActive sessions are borrowed, a send waits for one instead of opening another
+        // the permits limit the borrowed sessions of all modes, so that pool2 never closes idle sessions to make room
+        // for new ones, and released sessions are kept while sends wait for them
         config.setMaxTotalPerKey(maxActive);
-        config.setMaxTotal(maxActive);
-        config.setMaxIdlePerKey(maxIdle);
+        config.setMaxTotal(-1);
+        config.setMaxIdlePerKey(maxActive);
         config.setBlockWhenExhausted(true);
         config.setMaxWait(maxWait);
+        // closes the oldest idle sessions above maxIdle of each mode
+        config.setEvictionPolicy(new TrimPolicy(maxIdle));
+        config.setTimeBetweenEvictionRuns(trimInterval);
+        config.setNumTestsPerEvictionRun(-1);
         // the sessions of a replaced connection are closed rather than handed out or kept
         config.setTestOnBorrow(true);
         config.setTestOnReturn(true);
@@ -113,16 +151,28 @@ public final class ProducerSessionPool implements AutoCloseable {
      */
     public Session borrow(boolean transacted, int acknowledgeMode) throws JMSException {
         SessionMode mode = new SessionMode(transacted, acknowledgeMode);
-        long start = System.nanoTime();
+        if (sessions.isClosed()) {
+            throw new IllegalStateException("The producer session pool is closed");
+        }
+        try {
+            if (!permits.tryAcquire(maxWait.toNanos(), TimeUnit.NANOSECONDS)) {
+                throw new JMSException("No producer session was released within " + maxWait + ", all " + maxActive + " sessions are in use");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            JMSException failure = new JMSException("Interrupted while waiting for a producer session");
+            failure.initCause(e);
+            throw failure;
+        }
+        boolean done = false;
         try {
             Session session = sessions.borrowObject(mode);
             borrowed.put(session, mode);
+            done = true;
             return session;
         } catch (NoSuchElementException e) {
-            String message = System.nanoTime() - start >= maxWait.toNanos()
-                ? "No producer session was released within " + maxWait + ", all " + sessions.getMaxTotal() + " sessions are in use"
-                : "Unable to create a producer session: " + e.getMessage();
-            JMSException failure = new JMSException(message);
+            // for example a new session whose connection was replaced meanwhile
+            JMSException failure = new JMSException("Unable to create a producer session: " + e.getMessage());
             failure.initCause(e);
             throw failure;
         } catch (JMSException | RuntimeException e) {
@@ -132,6 +182,9 @@ public final class ProducerSessionPool implements AutoCloseable {
             failure.initCause(e);
             throw failure;
         } finally {
+            if (!done) {
+                permits.release();
+            }
             clearIdleSessions();
         }
     }
@@ -148,13 +201,16 @@ public final class ProducerSessionPool implements AutoCloseable {
             throw new IllegalArgumentException("The session was not borrowed from this pool: " + session);
         }
         try {
-            if (broken) {
+            // a session is kept above maxIdle only for the sends that wait for one
+            if (broken || (!permits.hasQueuedThreads() && sessions.getNumIdle(mode) >= maxIdle)) {
                 sessions.invalidateObject(mode, session);
             } else {
                 sessions.returnObject(mode, session);
             }
         } catch (Exception e) {
             LOGGER.debug("Unable to return a producer session: {}", e.getMessage(), e);
+        } finally {
+            permits.release();
         }
     }
 
@@ -188,6 +244,19 @@ public final class ProducerSessionPool implements AutoCloseable {
     }
 
     private record SessionMode(boolean transacted, int acknowledgeMode) {
+    }
+
+    /**
+     * Evicts the oldest idle sessions of a session mode above the maximum number of idle sessions.
+     *
+     * @param maxIdle The maximum number of idle sessions of each session mode
+     */
+    private record TrimPolicy(int maxIdle) implements EvictionPolicy<Session> {
+
+        @Override
+        public boolean evict(EvictionConfig config, PooledObject<Session> underTest, int idleCount) {
+            return idleCount > maxIdle;
+        }
     }
 
     /**
@@ -226,6 +295,8 @@ public final class ProducerSessionPool implements AutoCloseable {
         private final JMSConnectionPool connectionPool;
         private final List<PoolConnection> connections = new ArrayList<>();
         private @Nullable PoolConnection current;
+        // the connection being opened, outside the lock, which the other sends that need one wait for
+        private @Nullable CompletableFuture<PoolConnection> connecting;
         private boolean closed;
 
         private SessionFactory(JMSConnectionPool connectionPool) {
@@ -280,21 +351,83 @@ public final class ProducerSessionPool implements AutoCloseable {
         }
 
         /**
+         * Opens the connection without holding the lock, so that releasing sessions and closing the pool do not wait
+         * for a connect.
+         *
          * @return The current connection, opened if there is none, counting the session about to be created on it
          */
-        private synchronized PoolConnection openSession() throws JMSException {
-            if (closed) {
-                throw new JMSException("The producer session pool is closed");
+        private PoolConnection openSession() throws JMSException {
+            while (true) {
+                CompletableFuture<PoolConnection> pending;
+                CompletableFuture<PoolConnection> opening = null;
+                synchronized (this) {
+                    if (closed) {
+                        throw new JMSException("The producer session pool is closed");
+                    }
+                    if (current != null) {
+                        current.openSessions++;
+                        return current;
+                    }
+                    pending = connecting;
+                    if (pending == null) {
+                        opening = new CompletableFuture<>();
+                        connecting = opening;
+                    }
+                }
+                if (opening != null) {
+                    connect(opening);
+                } else {
+                    await(pending);
+                }
+                // counts the session on the connection, if it is still the current one
             }
-            PoolConnection connection = current;
-            if (connection == null) {
+        }
+
+        private void connect(CompletableFuture<PoolConnection> opening) throws JMSException {
+            PoolConnection connection;
+            try {
                 connection = new PoolConnection(connectionPool.getConnectionFactory().createConnection());
-                listen(connection);
-                connections.add(connection);
-                current = connection;
+            } catch (JMSException | RuntimeException e) {
+                synchronized (this) {
+                    connecting = null;
+                }
+                opening.completeExceptionally(e);
+                throw e;
             }
-            connection.openSessions++;
-            return connection;
+            listen(connection);
+            boolean installed;
+            synchronized (this) {
+                connecting = null;
+                // the pool may have been closed while connecting
+                installed = !closed && current == null;
+                if (installed) {
+                    connections.add(connection);
+                    current = connection;
+                }
+            }
+            if (!installed) {
+                connection.closed = true;
+                closeQuietly(connection);
+            }
+            opening.complete(connection);
+        }
+
+        private void await(CompletableFuture<PoolConnection> pending) throws JMSException {
+            try {
+                pending.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                JMSException failure = new JMSException("Interrupted while opening the producer connection");
+                failure.initCause(e);
+                throw failure;
+            } catch (ExecutionException e) {
+                if (e.getCause() instanceof JMSException jmsException) {
+                    throw jmsException;
+                }
+                JMSException failure = new JMSException("Unable to open the producer connection: " + e.getCause().getMessage());
+                failure.initCause(e.getCause());
+                throw failure;
+            }
         }
 
         private void listen(PoolConnection connection) {
@@ -363,6 +496,10 @@ public final class ProducerSessionPool implements AutoCloseable {
                 connection.closed = true;
                 connections.remove(connection);
             }
+            closeQuietly(connection);
+        }
+
+        private void closeQuietly(PoolConnection connection) {
             try {
                 connection.connection.close();
             } catch (JMSException | RuntimeException e) {
