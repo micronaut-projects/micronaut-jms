@@ -352,12 +352,12 @@ public class JMSListenerRegistry {
             recovering.remove(listener);
         } catch (JMSException | RuntimeException e) {
             Duration delay = delay(attempt);
-            if (attempt < recoveryConfiguration.getWarnAttempts()) {
+            if (attempt <= recoveryConfiguration.getWarnAttempts()) {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("Unable to recreate the session of the listener of {} (attempt {}), retrying in {}: {}",
                         listener, attempt, delay, describe(e));
                 }
-            } else if (attempt == recoveryConfiguration.getWarnAttempts() || LOGGER.isDebugEnabled()) {
+            } else if (attempt == recoveryConfiguration.getWarnAttempts() + 1 || LOGGER.isDebugEnabled()) {
                 // the stack trace once, since the attempts continue for as long as the provider fails
                 LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
                     + "until the session is recreated, retrying in {}", listener, attempt, delay, e);
