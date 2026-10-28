@@ -24,7 +24,8 @@ import java.time.Duration;
 /**
  * The configuration of how listeners recover when the JMS provider reports that the session of a consumer failed.
  * When the connection of a listener reports an error, each of its consumers checks its session, and a consumer whose
- * session no longer works closes its session and consumer and creates them again on the same connection.
+ * session no longer works closes its session and consumer and creates them again on the same connection. A failed
+ * attempt is retried, with a growing delay, until it succeeds or the listener shuts down.
  *
  * @since 5.2.0
  */
@@ -37,29 +38,50 @@ public interface JMSListenerRecoveryConfiguration {
     String PREFIX = JMSConfigurationProperties.PREFIX + ".listener-recovery";
 
     /**
+     * Whether recovery is enabled by default.
+     */
+    boolean DEFAULT_ENABLED = true;
+
+    /**
+     * The default number of failed attempts logged as warnings.
+     */
+    int DEFAULT_WARN_ATTEMPTS = 10;
+
+    /**
+     * The default delay after the first failed attempt.
+     */
+    String DEFAULT_INITIAL_DELAY = "PT1S";
+
+    /**
+     * The default longest delay between two attempts.
+     */
+    String DEFAULT_MAX_DELAY = "PT1M";
+
+    /**
      * @return Whether listeners recreate a session that the JMS provider reports as failed. Defaults to {@code true}.
      */
-    @Bindable(defaultValue = "true")
+    @Bindable(defaultValue = "" + DEFAULT_ENABLED)
     boolean isEnabled();
 
     /**
-     * @return The number of times a consumer tries to recreate its session before it gives up until the provider
-     * reports another error. Defaults to 10.
+     * @return The number of failed attempts to recreate a session that are logged as warnings. Later attempts are
+     * logged as errors, and continue until one succeeds or the listener shuts down. Defaults to 10.
      */
     @Min(1)
-    @Bindable(defaultValue = "10")
-    int getMaxAttempts();
+    @Bindable(defaultValue = "" + DEFAULT_WARN_ATTEMPTS)
+    int getWarnAttempts();
 
     /**
      * @return How long a consumer waits after a failed attempt before the next one. The wait doubles after each
      * attempt, up to {@link #getMaxDelay()}. Defaults to 1 second.
      */
-    @Bindable(defaultValue = "1s")
+    @Bindable(defaultValue = DEFAULT_INITIAL_DELAY)
     Duration getInitialDelay();
 
     /**
-     * @return The longest wait between two attempts. Defaults to 1 minute.
+     * @return The longest wait between two attempts, which every attempt waits once the doubling reaches it. Defaults
+     * to 1 minute.
      */
-    @Bindable(defaultValue = "1m")
+    @Bindable(defaultValue = DEFAULT_MAX_DELAY)
     Duration getMaxDelay();
 }

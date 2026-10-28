@@ -32,7 +32,7 @@ class JMSListenerObservationTest {
                 throw new JMSException("acknowledge failed");
             }
         };
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer));
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> {
             if ("failing".equals(text(message))) {
                 throw new IllegalStateException("listener failed");

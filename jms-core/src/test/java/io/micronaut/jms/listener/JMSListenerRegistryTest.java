@@ -23,7 +23,7 @@ class JMSListenerRegistryTest {
     @Test
     void shutdownReturnsListenerConnectionsToThePool() {
         JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(false), 0, 1);
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         for (int i = 0; i < 3; i++) {
             assertDoesNotThrow(() -> register(registry, pool.createConnection()));
             registry.shutdown();
@@ -33,7 +33,7 @@ class JMSListenerRegistryTest {
     @Test
     void sharedConnectionIsReturnedOnce() throws JMSException {
         JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(false), 0, 1);
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         Connection connection = pool.createConnection();
         register(registry, connection);
         register(registry, connection);
@@ -46,7 +46,7 @@ class JMSListenerRegistryTest {
     @Test
     void connectionOfListenerThatFailsToStopStaysOutOfThePool() throws JMSException {
         JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(true), 0, 1);
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         register(registry, pool.createConnection());
         registry.shutdown();
 

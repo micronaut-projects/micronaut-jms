@@ -63,9 +63,10 @@ public class JMSListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListener.class);
 
-    private volatile Session session;
+    // only used under the lock of the listener: each consumer hands its own session to the messages it receives
+    private Session session;
     private final MessageListener delegate;
-    private volatile MessageConsumer consumer;
+    private MessageConsumer consumer;
     private @Nullable SessionFactory sessionFactory;
     private boolean started;
     private boolean stopped;
@@ -231,7 +232,7 @@ public class JMSListener {
             lookupDestination(destinationType, destination, session);
             return false;
         } catch (JMSException | RuntimeException e) {
-            LOGGER.debug("The session of the listener of {} {} no longer works: {}", destinationType, destination, e.getMessage(), e);
+            LOGGER.debug("The session of the listener of {} no longer works: {}", this, e.getMessage(), e);
             return true;
         }
     }
@@ -268,14 +269,15 @@ public class JMSListener {
         try {
             closeable.close();
         } catch (Exception e) {
-            LOGGER.debug("Unable to close the failed {} of the listener of {} {}: {}", closeable, destinationType, destination, e.getMessage());
+            LOGGER.debug("Unable to close the failed {} of the listener of {}: {}", closeable, this, e.getMessage());
         }
     }
 
     /**
-     * @return the type and name of the destination of the listener, for log messages
+     * @return the type and name of the destination of the listener, such as {@code queue orders}
      */
-    String describe() {
+    @Override
+    public String toString() {
         return (destinationType == QUEUE ? "queue " : "topic ") + destination;
     }
 

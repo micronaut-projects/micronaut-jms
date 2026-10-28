@@ -71,7 +71,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void registryClosesADedicatedConnectionOnShutdown() throws JMSException {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         Connection connection = connection();
         registry.register(connection, JMSDestinationType.TOPIC, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> { },
             null, true, Optional.empty(), new JMSTopicSubscription("audit", true, false, null));
@@ -83,7 +83,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void registryClosesTheSessionAndLeavesTheDedicatedConnectionToTheCallerWhenStartingFails() {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         consumerFailure = new IllegalStateException("invalid selector");
 
         assertThrows(IllegalStateException.class, () -> registry.register(connection(), JMSDestinationType.TOPIC, "orders", false,
@@ -131,7 +131,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void registryOpensADedicatedConnectionWithTheSubscriptionClientId() throws JMSException {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(pool(), JMSDestinationType.TOPIC, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> { },
             null, true, Optional.empty(), new JMSTopicSubscription("audit", true, false, null));
 
@@ -145,7 +145,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void registryTakesAPooledConnectionWhenNoDedicatedConnectionIsNeeded() throws JMSException {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(pool(), JMSDestinationType.TOPIC, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> { },
             null, true, Optional.empty(), new JMSTopicSubscription("workers", false, true, null));
         registry.register(pool(), JMSDestinationType.TOPIC, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> { },
@@ -158,7 +158,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void registryClosesADedicatedConnectionItOpenedWhenStartingFails() {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         consumerFailure = new IllegalStateException("invalid selector");
         connectionCloseFailure = new JMSException("broker gone");
 
@@ -173,7 +173,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void aSessionCloseFailureIsSuppressedWhenStartingFails() {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         consumerFailure = new IllegalStateException("invalid selector");
         sessionCloseFailure = new IllegalStateException("session gone");
 
@@ -185,7 +185,7 @@ class JMSTopicSubscriptionTest {
 
     @Test
     void aDedicatedConnectionThatFailsToCloseOnShutdownIsSkipped() throws JMSException {
-        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.TOPIC, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> { },
             null, true, Optional.empty(), new JMSTopicSubscription("audit", true, false, null));
         connectionCloseFailure = new JMSException("broker gone");

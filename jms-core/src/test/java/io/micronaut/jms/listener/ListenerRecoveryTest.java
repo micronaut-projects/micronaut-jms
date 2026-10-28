@@ -118,9 +118,44 @@ class ListenerRecoveryTest {
     }
 
     @Test
-    void aConsumerGivesUpAfterTheLastAttemptUntilTheNextError() throws JMSException {
+    void aConsumerKeepsRetryingAfterTheWarnAttemptsWithoutAnotherError() throws JMSException {
+        StubBroker broker = new StubBroker();
+        JMSListenerRegistry registry = registry(recovery(true, 2, Duration.ofMillis(1)));
+        registry.register(broker.connection, JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE,
+            message -> { }, null, true, Optional.empty(), null);
+        broker.sessions.get(0).broken = true;
+        // like Oracle AQ, whose ping no longer reports anything once the failed session is closed
+        broker.failedSessions.set(5);
+
+        broker.reportError(SESSION_DIED);
+
+        await(() -> broker.sessions.size() == 2 && broker.sessions.get(1).consumers.size() == 1);
+        assertEquals(7, broker.sessionAttempts.get(), "the registration, five failed attempts and the one that worked");
+        registry.shutdown();
+    }
+
+    @Test
+    void theRetriesStopWhenTheRegistryShutsDown() throws JMSException {
         StubBroker broker = new StubBroker();
         JMSListenerRegistry registry = registry(recovery(true, 1, Duration.ofMillis(1)));
+        registry.register(broker.connection, JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE,
+            message -> { }, null, true, Optional.empty(), null);
+        broker.sessions.get(0).broken = true;
+        broker.failedSessions.set(Integer.MAX_VALUE);
+        broker.reportError(SESSION_DIED);
+        await(() -> broker.sessionAttempts.get() >= 3);
+
+        registry.shutdown();
+        int attempts = broker.sessionAttempts.get();
+        sleep(Duration.ofMillis(50));
+
+        assertTrue(broker.sessionAttempts.get() <= attempts + 1, "at most the attempt in progress completes");
+    }
+
+    @Test
+    void aListenerWhoseLastAttemptFailedReportsItsSessionAsBroken() throws JMSException {
+        StubBroker broker = new StubBroker();
+        JMSListenerRegistry registry = registry(recovery(true, 1, Duration.ofHours(1)));
         JMSListener listener = registry.register(broker.connection, JMSDestinationType.QUEUE, "orders", false,
             Session.AUTO_ACKNOWLEDGE, message -> { }, null, true, Optional.empty(), null);
         StubSession failed = broker.sessions.get(0);
@@ -131,12 +166,7 @@ class ListenerRecoveryTest {
 
         assertEquals(1, broker.sessions.size(), "no session was created");
         assertTrue(failed.closed);
-        assertTrue(listener.isSessionBroken(), "a listener without a consumer recovers on the next error");
-
-        registry.recover(listener, SESSION_DIED, 1);
-
-        assertEquals(2, broker.sessions.size());
-        assertFalse(listener.isSessionBroken());
+        assertTrue(listener.isSessionBroken(), "a listener without a consumer still needs its session recreated");
         registry.shutdown();
     }
 
@@ -151,7 +181,7 @@ class ListenerRecoveryTest {
 
         registry.recover(listener, SESSION_DIED, 1);
 
-        assertEquals(2, broker.sessions.size());
+        await(() -> broker.sessions.size() == 3 && broker.sessions.get(2).consumers.size() == 1);
         assertTrue(broker.sessions.get(1).closed, "the session whose consumer failed is closed");
         registry.shutdown();
     }
@@ -276,12 +306,12 @@ class ListenerRecoveryTest {
     @Test
     void theRecoveryIsConfigurable() {
         try (ApplicationContext context = ApplicationContext.run(Map.of(
-            "micronaut.jms.listener-recovery.max-attempts", "4",
+            "micronaut.jms.listener-recovery.warn-attempts", "4",
             "micronaut.jms.listener-recovery.initial-delay", "250ms"))) {
             JMSListenerRecoveryConfiguration configuration = context.getBean(JMSListenerRecoveryConfiguration.class);
 
             assertTrue(configuration.isEnabled());
-            assertEquals(4, configuration.getMaxAttempts());
+            assertEquals(4, configuration.getWarnAttempts());
             assertEquals(Duration.ofMillis(250), configuration.getInitialDelay());
             assertEquals(Duration.ofMinutes(1), configuration.getMaxDelay());
             assertEquals(Duration.ofMillis(500), context.getBean(JMSListenerRegistry.class).delay(2));
@@ -290,7 +320,10 @@ class ListenerRecoveryTest {
 
     @Test
     void theDefaultRecoveryConfigurationMatchesTheConfigurationDefaults() {
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of());
+        JMSListenerRegistry registry = registry(JMSListenerRegistry.DEFAULT_RECOVERY);
+
+        assertTrue(JMSListenerRegistry.DEFAULT_RECOVERY.isEnabled());
+        assertEquals(10, JMSListenerRegistry.DEFAULT_RECOVERY.getWarnAttempts());
 
         assertEquals(Duration.ofSeconds(1), registry.delay(1));
         assertEquals(Duration.ofMinutes(1), registry.delay(10));
@@ -300,7 +333,7 @@ class ListenerRecoveryTest {
         return new JMSListenerRegistry(List.of(), List.of(), List.of(), configuration);
     }
 
-    private static JMSListenerRecoveryConfiguration recovery(boolean enabled, int maxAttempts, Duration initialDelay) {
+    private static JMSListenerRecoveryConfiguration recovery(boolean enabled, int warnAttempts, Duration initialDelay) {
         return new JMSListenerRecoveryConfiguration() {
             @Override
             public boolean isEnabled() {
@@ -308,8 +341,8 @@ class ListenerRecoveryTest {
             }
 
             @Override
-            public int getMaxAttempts() {
-                return maxAttempts;
+            public int getWarnAttempts() {
+                return warnAttempts;
             }
 
             @Override
@@ -330,7 +363,16 @@ class ListenerRecoveryTest {
             if (System.nanoTime() > deadline) {
                 throw new AssertionError("timed out");
             }
-            Thread.onSpinWait();
+            sleep(Duration.ofMillis(5));
+        }
+    }
+
+    private static void sleep(Duration duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError(e);
         }
     }
 
