@@ -55,7 +55,7 @@ class SessionParameterTest {
             "spec.name", "SessionParameterTest",
             "spec.listener", "other")).close());
 
-        assertTrue(messages(e).contains("cannot be bound to the session"), messages(e));
+        assertTrue(messages(e).contains("of the listener method OtherSessionListener#receive cannot be bound to the session"), messages(e));
     }
 
     @Test
@@ -64,7 +64,7 @@ class SessionParameterTest {
             "spec.name", "SessionParameterTest",
             "spec.listener", "unbound")).close());
 
-        assertTrue(messages(e).contains("The argument 'note' of type java.lang.String of a @Queue listener method cannot be bound"), messages(e));
+        assertTrue(messages(e).contains("The argument 'note' of type java.lang.String of the @Queue listener method UnboundArgumentListener#receive cannot be bound"), messages(e));
     }
 
     @Test
@@ -78,6 +78,7 @@ class SessionParameterTest {
                 JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE, listener, executor, true, Optional.empty()));
 
             assertTrue(e.getMessage().contains("cannot be registered with an executor"), e.getMessage());
+            assertTrue(broker.sessionClosed, "the session of the rejected listener is closed");
         } finally {
             executor.shutdownNow();
         }
@@ -153,6 +154,7 @@ class SessionParameterTest {
         final Connection connection;
         final ConnectionFactory connectionFactory;
         volatile MessageListener consumerListener;
+        volatile boolean sessionClosed;
 
         StubBroker() {
             MessageConsumer consumer = stub(MessageConsumer.class, (name, args) -> {
@@ -165,6 +167,10 @@ class SessionParameterTest {
             session = stub(ProviderSession.class, (name, args) -> switch (name) {
                 case "createQueue" -> queue;
                 case "createConsumer" -> consumer;
+                case "close" -> {
+                    sessionClosed = true;
+                    yield null;
+                }
                 default -> null;
             });
             connection = stub(Connection.class, (name, args) -> "createSession".equals(name) ? session : null);
