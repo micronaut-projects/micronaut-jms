@@ -18,4 +18,4 @@
  *
  * @since 5.2.0
  */
-package io.micronaut.jms.tracing;
+package io.micronaut.jms.tracing.opentelemetry;

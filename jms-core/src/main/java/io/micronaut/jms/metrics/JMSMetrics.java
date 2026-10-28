@@ -31,7 +31,8 @@ import org.jspecify.annotations.Nullable;
  * Records the messages that JMS listeners process and that JMS producers send. Listener messages are counted as
  * {@value #LISTENER_MESSAGES} and timed as {@value #LISTENER_DURATION}, from the start of the listener method to the
  * end of the success or error handlers. Producer messages are counted as {@value #PRODUCER_MESSAGES} and timed as
- * {@value #PRODUCER_DURATION}, including the commit of a transacted send. The meters are tagged with the
+ * {@value #PRODUCER_DURATION}, from taking the connection to the commit of a transacted send, so a send that fails
+ * to connect is counted as a failure too. The meters are tagged with the
  * {@code destination} and the {@code result}, {@code success} or {@code failure}, and failures with the
  * {@code exception} class. Disable them with {@code micronaut.metrics.binders.jms.enabled: false}.
  *
@@ -83,7 +84,7 @@ public final class JMSMetrics implements JMSMessageObserver {
     }
 
     @Override
-    public JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
+    public JMSObservation send(JMSDestinationType destinationType, String destination) {
         return observe(PRODUCER_MESSAGES, PRODUCER_DURATION, destination);
     }
 

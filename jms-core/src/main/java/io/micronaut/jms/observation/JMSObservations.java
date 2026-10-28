@@ -17,6 +17,7 @@ package io.micronaut.jms.observation;
 
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.order.OrderUtil;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.jms.model.JMSDestinationType;
 import jakarta.jms.Message;
 import org.jspecify.annotations.Nullable;
@@ -29,8 +30,9 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * The observers of the messages of a listener or a producer. A failing observer is logged, so that it does not stop
- * a message from being processed or sent.
+ * The observers of the messages of a listener or a producer. An observer that fails with an exception is logged, so
+ * that it does not stop a message from being processed or sent. One that fails with an {@link Error} completes the
+ * observations already started with it and rethrows it.
  *
  * @since 5.2.0
  */
@@ -69,30 +71,75 @@ public final class JMSObservations {
     }
 
     /**
-     * Starts the observations of a message that a producer sends.
+     * Starts the observations of a message that a producer sends, before its connection is taken.
      *
      * @param destinationType The type of the destination
      * @param destination     The name of the destination
-     * @param message         The message
-     * @return The started observations, to complete with {@link #complete(List, Throwable)}
+     * @return The started observations, to pass the message to with {@link #beforeSend(List, Message)} and to
+     * complete with {@link #complete(List, Throwable)}
      */
-    public List<JMSObservation> send(JMSDestinationType destinationType, String destination, Message message) {
-        return start(observer -> observer.send(destinationType, destination, message));
+    public List<JMSObservation> send(JMSDestinationType destinationType, String destination) {
+        return start(observer -> observer.send(destinationType, destination));
     }
 
     /**
-     * Completes observations in the reverse order of their start.
+     * Passes the message that is about to be sent to observations, in the order of their start.
+     *
+     * @param observations The observations
+     * @param message      The message
+     */
+    public static void beforeSend(List<JMSObservation> observations, Message message) {
+        for (JMSObservation observation : observations) {
+            try {
+                observation.beforeSend(message);
+            } catch (RuntimeException e) {
+                LOGGER.warn("JMS message observation failed before the send: {}", e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Gives observations of a message that a listener processes, in the order of their start, the propagated context
+     * to process the message in.
+     *
+     * @param observations The observations
+     * @param context      The current propagated context
+     * @return The propagated context to process the message in, the given one if no observation changes it
+     */
+    public static PropagatedContext propagatedContext(List<JMSObservation> observations, PropagatedContext context) {
+        PropagatedContext result = context;
+        for (JMSObservation observation : observations) {
+            try {
+                result = observation.propagatedContext(result);
+            } catch (RuntimeException e) {
+                LOGGER.warn("JMS message observation failed to propagate its context: {}", e.getMessage(), e);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Completes observations in the reverse order of their start. An {@link Error} of an observation is rethrown once
+     * the others are completed.
      *
      * @param observations The observations
      * @param error        The error, or {@code null}
      */
     public static void complete(List<JMSObservation> observations, @Nullable Throwable error) {
-        for (int i = observations.size() - 1; i >= 0; i--) {
-            try {
-                observations.get(i).complete(error);
-            } catch (RuntimeException e) {
-                LOGGER.warn("JMS message observation failed to complete: {}", e.getMessage(), e);
-            }
+        complete(observations, observations.size() - 1, error);
+    }
+
+    private static void complete(List<JMSObservation> observations, int index, @Nullable Throwable error) {
+        if (index < 0) {
+            return;
+        }
+        try {
+            observations.get(index).complete(error);
+        } catch (RuntimeException e) {
+            LOGGER.warn("JMS message observation failed to complete: {}", e.getMessage(), e);
+        } finally {
+            // also when the observation failed with an error, which propagates once the others are completed
+            complete(observations, index - 1, error);
         }
     }
 
@@ -109,6 +156,10 @@ public final class JMSObservations {
                 }
             } catch (RuntimeException e) {
                 LOGGER.warn("JMS message observer {} failed: {}", observer, e.getMessage(), e);
+            } catch (Error e) {
+                // the message is not processed or sent, so the observations already started end with the error
+                complete(observations, e);
+                throw e;
             }
         }
         return observations;
