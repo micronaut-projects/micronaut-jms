@@ -73,14 +73,14 @@ public interface JMSListenerRecoveryConfiguration {
 
     /**
      * @return How long a consumer waits after a failed attempt before the next one. The wait doubles after each
-     * attempt, up to {@link #getMaxDelay()}. Defaults to 1 second.
+     * attempt, up to {@link #getMaxDelay()}. It must be positive. Defaults to 1 second.
      */
     @Bindable(defaultValue = DEFAULT_INITIAL_DELAY)
     Duration getInitialDelay();
 
     /**
-     * @return The longest wait between two attempts, which every attempt waits once the doubling reaches it. Defaults
-     * to 1 minute.
+     * @return The longest wait between two attempts, which every attempt waits once the doubling reaches it. It must not
+     * be shorter than {@link #getInitialDelay()}. Defaults to 1 minute.
      */
     @Bindable(defaultValue = DEFAULT_MAX_DELAY)
     Duration getMaxDelay();

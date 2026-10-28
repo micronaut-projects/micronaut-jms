@@ -1,6 +1,7 @@
 package io.micronaut.jms.listener;
 
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ListenerRecoveryTest {
@@ -304,6 +306,25 @@ class ListenerRecoveryTest {
     }
 
     @Test
+    void delaysThatAreNotPositiveOrOutOfOrderAreRejected() {
+        assertInvalid(recovery(true, 3, Duration.ZERO), "initial-delay must be positive");
+        assertInvalid(recovery(true, 3, Duration.ofSeconds(-1)), "initial-delay must be positive");
+        assertInvalid(recovery(true, 3, Duration.ofSeconds(2), Duration.ofSeconds(1)), "max-delay must not be shorter");
+        assertInvalid(recovery(true, 3, Duration.ofSeconds(1), Duration.ZERO), "max-delay must not be shorter");
+        assertInvalid(recovery(true, 0, Duration.ofSeconds(1)), "warn-attempts must be at least 1");
+    }
+
+    @Test
+    void anInvalidConfiguredDelayFailsTheRegistry() {
+        try (ApplicationContext context = ApplicationContext.run(Map.of(
+            "micronaut.jms.listener-recovery.max-delay", "0s"))) {
+            Exception e = assertThrows(Exception.class, () -> context.getBean(JMSListenerRegistry.class));
+
+            assertTrue(messages(e).contains("max-delay must not be shorter"), messages(e));
+        }
+    }
+
+    @Test
     void theRecoveryIsConfigurable() {
         try (ApplicationContext context = ApplicationContext.run(Map.of(
             "micronaut.jms.listener-recovery.warn-attempts", "4",
@@ -333,7 +354,25 @@ class ListenerRecoveryTest {
         return new JMSListenerRegistry(List.of(), List.of(), List.of(), configuration);
     }
 
+    private static void assertInvalid(JMSListenerRecoveryConfiguration configuration, String message) {
+        ConfigurationException e = assertThrows(ConfigurationException.class, () -> registry(configuration));
+        assertTrue(e.getMessage().contains(message), e.getMessage());
+    }
+
+    private static String messages(Throwable e) {
+        StringBuilder messages = new StringBuilder();
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            messages.append(t.getMessage()).append('\n');
+        }
+        return messages.toString();
+    }
+
     private static JMSListenerRecoveryConfiguration recovery(boolean enabled, int warnAttempts, Duration initialDelay) {
+        return recovery(enabled, warnAttempts, initialDelay, initialDelay.multipliedBy(5));
+    }
+
+    private static JMSListenerRecoveryConfiguration recovery(boolean enabled, int warnAttempts, Duration initialDelay,
+                                                             Duration maxDelay) {
         return new JMSListenerRecoveryConfiguration() {
             @Override
             public boolean isEnabled() {
@@ -352,7 +391,7 @@ class ListenerRecoveryTest {
 
             @Override
             public Duration getMaxDelay() {
-                return initialDelay.multipliedBy(5);
+                return maxDelay;
             }
         };
     }

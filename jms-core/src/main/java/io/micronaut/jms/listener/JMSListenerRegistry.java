@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration;
 import io.micronaut.jms.model.JMSDestinationType;
@@ -120,6 +121,8 @@ public class JMSListenerRegistry {
      * @param globalErrorHandlers   The error handlers of every listener
      * @param observers             The observers of the messages of every listener
      * @param recoveryConfiguration How listeners recover from a failed session
+     * @throws ConfigurationException if a recovery delay isn't positive, the maximum delay is shorter than the
+     *                                initial delay, or the number of warning attempts is less than 1
      * @since 5.2.0
      */
     @Inject
@@ -131,7 +134,25 @@ public class JMSListenerRegistry {
         this.globalSuccessHandlers = globalSuccessHandlers;
         this.globalErrorHandlers = globalErrorHandlers;
         this.observers = observers;
-        this.recoveryConfiguration = recoveryConfiguration;
+        this.recoveryConfiguration = validate(recoveryConfiguration);
+    }
+
+    private static JMSListenerRecoveryConfiguration validate(JMSListenerRecoveryConfiguration configuration) {
+        String prefix = JMSListenerRecoveryConfiguration.PREFIX;
+        Duration initialDelay = configuration.getInitialDelay();
+        Duration maxDelay = configuration.getMaxDelay();
+        // retries never stop, so a delay that isn't positive would retry back to back or overflow
+        if (initialDelay == null || initialDelay.isNegative() || initialDelay.isZero()) {
+            throw new ConfigurationException(prefix + ".initial-delay must be positive, but is " + initialDelay);
+        }
+        if (maxDelay == null || maxDelay.compareTo(initialDelay) < 0) {
+            throw new ConfigurationException(prefix + ".max-delay must not be shorter than " + prefix
+                + ".initial-delay (" + initialDelay + "), but is " + maxDelay);
+        }
+        if (configuration.getWarnAttempts() < 1) {
+            throw new ConfigurationException(prefix + ".warn-attempts must be at least 1, but is " + configuration.getWarnAttempts());
+        }
+        return configuration;
     }
 
     /**
@@ -336,9 +357,13 @@ public class JMSListenerRegistry {
                     LOGGER.warn("Unable to recreate the session of the listener of {} (attempt {}), retrying in {}: {}",
                         listener, attempt, delay, describe(e));
                 }
-            } else {
+            } else if (attempt == recoveryConfiguration.getWarnAttempts() || LOGGER.isDebugEnabled()) {
+                // the stack trace once, since the attempts continue for as long as the provider fails
                 LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
                     + "until the session is recreated, retrying in {}", listener, attempt, delay, e);
+            } else if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
+                    + "until the session is recreated, retrying in {}: {}", listener, attempt, delay, describe(e));
             }
             schedule(() -> recover(listener, error, attempt + 1), delay, listener);
         }

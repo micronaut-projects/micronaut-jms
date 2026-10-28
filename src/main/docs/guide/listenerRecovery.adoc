@@ -25,8 +25,10 @@ micronaut:
 
 * `enabled` turns recovery on or off.
 * `warn-attempts` is the number of failed attempts logged as warnings. Later attempts are logged as errors.
-* `initial-delay` is the delay after the first failed attempt.
-* `max-delay` is the longest delay between two attempts.
+* `initial-delay` is the delay after the first failed attempt. It must be positive.
+* `max-delay` is the longest delay between two attempts. It must not be shorter than `initial-delay`.
+
+An invalid value fails the registration of the listeners with a `ConfigurationException`. Only the first attempt logged as an error includes the stack trace, unless debug logging is enabled for `io.micronaut.jms.listener.JMSListenerRegistry`.
 
 === Limits
 
