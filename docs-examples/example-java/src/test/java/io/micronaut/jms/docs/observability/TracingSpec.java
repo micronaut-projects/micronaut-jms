@@ -2,22 +2,19 @@ package io.micronaut.jms.docs.observability;
 
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.jms.annotations.JMSListener;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.Queue;
-import io.micronaut.jms.tracing.JMSTracing;
+import io.micronaut.jms.tracing.opentelemetry.JMSTracing;
 import io.micronaut.messaging.annotation.MessageBody;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
-import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import org.junit.jupiter.api.AfterEach;
@@ -27,8 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Supplier;
 
 import static io.micronaut.jms.activemq.classic.configuration.ActiveMqClassicConfiguration.CONNECTION_FACTORY_BEAN_NAME;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -40,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class TracingSpec {
 
     static final BlockingQueue<SpanContext> CURRENT_SPANS = new LinkedBlockingQueue<>();
+    static final BlockingQueue<SpanContext> PROPAGATED_SPANS = new LinkedBlockingQueue<>();
 
     final InMemorySpanExporter exporter = InMemorySpanExporter.create();
     ApplicationContext context;
@@ -50,6 +50,7 @@ class TracingSpec {
             context.close();
         }
         CURRENT_SPANS.clear();
+        PROPAGATED_SPANS.clear();
     }
 
     @Test
@@ -67,6 +68,7 @@ class TracingSpec {
 
         SpanContext current = CURRENT_SPANS.poll(20, SECONDS);
         assertNotNull(current);
+        assertEquals(current, PROPAGATED_SPANS.poll(20, SECONDS));
         await().atMost(20, SECONDS).until(() -> spans("process traced").size() == 1);
         SpanData send = spans("send traced").get(0);
         SpanData process = spans("process traced").get(0);
@@ -115,11 +117,10 @@ class TracingSpec {
         config.put("micronaut.jms.activemq.classic.username", "activemq");
         config.put("micronaut.jms.activemq.classic.password", "activemq");
         config.put("spec.name", "TracingSpec");
-        OpenTelemetry openTelemetry = OpenTelemetrySdk.builder()
-            .setTracerProvider(SdkTracerProvider.builder().addSpanProcessor(SimpleSpanProcessor.create(exporter)).build())
-            .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
-            .build();
-        return ApplicationContext.builder().properties(config).environments("test").singletons(openTelemetry).start();
+        // the OpenTelemetry bean of Micronaut Tracing, with the spans kept in memory
+        config.put("otel.traces.exporter", "none");
+        return ApplicationContext.builder().properties(config).environments("test")
+            .singletons(SimpleSpanProcessor.create(exporter)).start();
     }
 
     @Requires(property = "spec.name", value = "TracingSpec")
@@ -138,6 +139,9 @@ class TracingSpec {
         @Queue("traced")
         void receive(@MessageBody String body) {
             CURRENT_SPANS.add(Span.current().getSpanContext());
+            // the span is also in Micronaut's propagated context, so it follows the listener to other threads
+            Supplier<SpanContext> currentSpan = () -> Span.current().getSpanContext();
+            PROPAGATED_SPANS.add(CompletableFuture.supplyAsync(PropagatedContext.get().wrap(currentSpan)).join());
         }
 
         @Queue("traced_failing")

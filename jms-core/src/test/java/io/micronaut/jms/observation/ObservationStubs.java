@@ -86,7 +86,7 @@ public final class ObservationStubs {
     }
 
     /**
-     * Records the start and the completion of each observation.
+     * Records the start, the message before the send and the completion of each observation.
      */
     public static class RecordingObserver implements JMSMessageObserver {
 
@@ -105,7 +105,7 @@ public final class ObservationStubs {
         }
 
         @Override
-        public JMSObservation send(JMSDestinationType destinationType, String destination, Message message) {
+        public JMSObservation send(JMSDestinationType destinationType, String destination) {
             return observe("send", destinationType, destination);
         }
 
@@ -117,7 +117,17 @@ public final class ObservationStubs {
         private JMSObservation observe(String operation, JMSDestinationType destinationType, String destination) {
             String observation = name + " " + operation + " " + destinationType + " " + destination;
             events.add(observation);
-            return error -> events.add(observation + " completed" + (error == null ? "" : " with " + error.getClass().getSimpleName()));
+            return new JMSObservation() {
+                @Override
+                public void beforeSend(Message message) {
+                    events.add(observation + " before send");
+                }
+
+                @Override
+                public void complete(@Nullable Throwable error) {
+                    events.add(observation + " completed" + (error == null ? "" : " with " + error.getClass().getSimpleName()));
+                }
+            };
         }
     }
 }
