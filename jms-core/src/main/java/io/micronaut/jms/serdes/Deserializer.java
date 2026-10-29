@@ -16,6 +16,7 @@
 package io.micronaut.jms.serdes;
 
 import io.micronaut.context.annotation.DefaultImplementation;
+import io.micronaut.core.type.Argument;
 import jakarta.jms.Message;
 
 /**
@@ -35,7 +36,24 @@ public interface Deserializer {
      * @return the extracted message body as an instance of a sensible type
      */
     default Object deserialize(Message message) {
-        return deserialize(message, Object.class);
+        return deserialize(message, Argument.of(Object.class));
+    }
+
+    /**
+     * Extract the body of the message into the specified type.
+     *
+     * <p>The default implementation delegates to {@link #deserialize(Message, Class)} and only uses
+     * {@link Argument#getType()}, so it does not preserve type variables. Implementers should
+     * override this method to support generic-aware deserialization.</p>
+     *
+     * @param message the message
+     * @param argument the argument
+     * @param <T> the type
+     * @return the extracted message body as an instance of the specified type
+     * @since 5.2.0
+     */
+    default <T> T deserialize(Message message, Argument<T> argument) {
+        return deserialize(message, argument.getType());
     }
 
     /**

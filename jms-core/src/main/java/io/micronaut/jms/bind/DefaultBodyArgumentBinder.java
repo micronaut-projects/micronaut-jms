@@ -46,7 +46,7 @@ public class DefaultBodyArgumentBinder extends AbstractJmsArgumentBinder<Message
 
     @Override
     public BindingResult<Object> bind(ArgumentConversionContext<Object> context, Message source) {
-        return () -> Optional.of(deserializer.deserialize(source, context.getArgument().getType()));
+        return () -> Optional.of(deserializer.deserialize(source, context.getArgument()));
     }
 
     @Override
