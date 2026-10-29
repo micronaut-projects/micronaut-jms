@@ -29,10 +29,12 @@ import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.MessageListener;
 import jakarta.jms.Session;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -182,8 +184,8 @@ public class JMSListenerRegistry {
      * subscription, on a connection the registry opens. The connection comes from the pool, unless the
      * subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a dedicated connection}:
      * then it is a new connection from the pool's factory with the subscription's client ID, which the registry
-     * closes when the listener shuts down or when registration fails. A pooled connection goes back to its pool when
-     * registration fails.
+     * closes when the listener shuts down or when registration fails. A pooled connection is returned to its pool
+     * when registration fails.
      *
      * @param connectionPool - the pool that provides the listener's connection
      * @param destinationType - the {@link JMSDestinationType} of the target destination
@@ -211,37 +213,124 @@ public class JMSListenerRegistry {
             boolean autoStart,
             Optional<String> messageSelector,
             @Nullable JMSTopicSubscription subscription) throws JMSException {
-        boolean dedicated = subscription != null && subscription.requiresDedicatedConnection();
-        // the client ID must be set before the connection is used, so a dedicated connection can't come from the pool
-        Connection connection = dedicated
-            ? connectionPool.getConnectionFactory().createConnection()
-            : connectionPool.createConnection();
+        return register(connectionPool, destinationType, destination, transacted, acknowledgeMode, delegate, executor,
+            autoStart, messageSelector, subscription, 1).get(0);
+    }
+
+    /**
+     * Creates and registers the consumers of a destination, each a listener with its own session, on one
+     * connection that the registry opens: a connection from the pool, unless the subscription
+     * {@link JMSTopicSubscription#requiresDedicatedConnection() requires a dedicated connection}, in which case it
+     * is a new connection from the pool's factory with the subscription's client ID. All the consumers share that
+     * connection, so they take a single pooled connection however many there are.
+     *
+     * <p>Registration stops at the first consumer that fails: the consumers already registered are stopped, the
+     * connection is returned to its pool or closed, and the failure is thrown, so that either every consumer is
+     * registered or none is.</p>
+     *
+     * @param connectionPool - the pool that provides the listeners' connection
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param transacted - whether the listener should commit the transaction once the message is received
+     * @param acknowledgeMode - whether the message receipt should be acknowledged
+     * @param delegate - the underlying handler to delegate to, called by every consumer
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on.
+     * @param autoStart -  whether the listeners should be automatically started when registered
+     * @param messageSelector - the message selector for the listeners
+     * @param subscription - the named topic subscription, or {@code null}
+     * @param consumers - the number of consumers, at least 1
+     * @return the listeners that have been registered, one per consumer
+     * @throws JMSException - if the connection cannot be opened or a listener fails to start
+     * @throws IllegalArgumentException - if {@code consumers} is less than 1
+     * @since 5.2.0
+     */
+    @SuppressWarnings("java:S107") // extends the register overload with the number of consumers
+    public List<JMSListener> register(
+            JMSConnectionPool connectionPool,
+            JMSDestinationType destinationType,
+            String destination,
+            final boolean transacted,
+            final int acknowledgeMode,
+            MessageListener delegate,
+            ExecutorService executor,
+            boolean autoStart,
+            Optional<String> messageSelector,
+            @Nullable JMSTopicSubscription subscription,
+            int consumers) throws JMSException {
+        if (consumers < 1) {
+            throw new IllegalArgumentException("The listener of " + destination + " must have at least one consumer, but consumers = " + consumers);
+        }
+        Connection connection = openConnection(connectionPool, subscription);
+        List<JMSListener> registered = new ArrayList<>(consumers);
         try {
-            if (dedicated) {
-                connection.setClientID(subscription.effectiveClientId());
+            for (int i = 0; i < consumers; i++) {
+                registered.add(register(connection, destinationType, destination, transacted, acknowledgeMode,
+                    delegate, executor, autoStart, messageSelector, subscription));
             }
-            return register(connection, destinationType, destination, transacted, acknowledgeMode,
-                delegate, executor, autoStart, messageSelector, subscription);
+            return registered;
         } catch (JMSException | RuntimeException e) {
-            try {
-                // closing a pooled connection returns it to its pool
-                connection.close();
-            } catch (JMSException | RuntimeException closeFailure) {
-                e.addSuppressed(closeFailure);
-            }
+            unregister(registered, connection, e);
+            throw e;
+        }
+    }
+
+    private static Connection openConnection(JMSConnectionPool connectionPool,
+                                             @Nullable JMSTopicSubscription subscription) throws JMSException {
+        if (subscription == null || !subscription.requiresDedicatedConnection()) {
+            return connectionPool.createConnection();
+        }
+        // the client ID must be set before the connection is used, so it can't come from the pool
+        Connection connection = connectionPool.getConnectionFactory().createConnection();
+        try {
+            connection.setClientID(subscription.effectiveClientId());
+            return connection;
+        } catch (JMSException | RuntimeException e) {
+            close(connection, e);
             throw e;
         }
     }
 
     /**
-     * Shuts down all registered {@link JMSListener}s and returns the pooled connections they were
-     * registered with to their pool. If a listener fails to shut down then it is logged and skipped, and its
-     * connection is not returned to the pool, since it may still hold the listener's session.
+     * Stops the given listeners after a failed registration and gives back their connection. As on shutdown, a
+     * pooled connection stays out of the pool if a listener fails to stop, since it may still hold its session.
+     */
+    private void unregister(List<JMSListener> registered, Connection connection, Exception failure) {
+        boolean stopped = true;
+        for (JMSListener listener : registered) {
+            listeners.remove(listener);
+            pooledConnections.remove(listener);
+            dedicatedConnections.remove(listener);
+            try {
+                listener.stop();
+            } catch (JMSException | RuntimeException stopFailure) {
+                failure.addSuppressed(stopFailure);
+                stopped = false;
+            }
+        }
+        if (stopped || !(connection instanceof PooledObject<?>)) {
+            close(connection, failure);
+        }
+    }
+
+    private static void close(Connection connection, Exception failure) {
+        try {
+            connection.close();
+        } catch (JMSException | RuntimeException closeFailure) {
+            failure.addSuppressed(closeFailure);
+        }
+    }
+
+    /**
+     * Shuts down all registered {@link JMSListener}s, returns the pooled connections they were registered with
+     * to their pool and closes their dedicated connections, each connection once however many listeners share it.
+     * If a listener fails to shut down then it is logged and skipped, and its pooled connection is not returned
+     * to the pool, since it may still hold the listener's session.
      */
     @PreDestroy
     public void shutdown() {
         Set<PooledObject<?>> stopped = Collections.newSetFromMap(new IdentityHashMap<>());
         Set<PooledObject<?>> failed = Collections.newSetFromMap(new IdentityHashMap<>());
+        Set<Connection> dedicated = Collections.newSetFromMap(new IdentityHashMap<>());
         listeners.forEach(listener -> {
             PooledObject<?> connection = pooledConnections.get(listener);
             try {
@@ -255,18 +344,21 @@ public class JMSListenerRegistry {
                     failed.add(connection);
                 }
             }
-            Connection dedicated = dedicatedConnections.get(listener);
-            if (dedicated != null) {
-                try {
-                    dedicated.close();
-                } catch (JMSException e) {
-                    LOGGER.error("Failed to close a dedicated listener connection", e);
-                }
+            Connection dedicatedConnection = dedicatedConnections.get(listener);
+            if (dedicatedConnection != null) {
+                dedicated.add(dedicatedConnection);
             }
         });
         listeners.clear();
         pooledConnections.clear();
         dedicatedConnections.clear();
+        for (Connection connection : dedicated) {
+            try {
+                connection.close();
+            } catch (JMSException e) {
+                LOGGER.error("Failed to close a dedicated listener connection", e);
+            }
+        }
         stopped.removeAll(failed);
         for (PooledObject<?> connection : stopped) {
             try {

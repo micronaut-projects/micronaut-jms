@@ -200,6 +200,18 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
         final JMSTopicSubscription subscription = topicSubscription(destinationAnnotation, destination);
+        final int consumers = destinationAnnotation.intValue("consumers").orElse(1);
+        if (consumers < 1) {
+            throw new IllegalStateException("The listener of " + destination + " must have at least one consumer, but consumers = " + consumers);
+        }
+        if (consumers > 1 && type == JMSDestinationType.TOPIC && subscription == null) {
+            throw new IllegalStateException("The listener of topic " + destination + " has no subscription, so every consumer would receive"
+                + " every message: more than one consumer requires a shared subscription");
+        }
+        if (consumers > 1 && subscription != null && !subscription.shared()) {
+            throw new IllegalStateException("The subscription '" + subscription.name() + "' of topic " + destination
+                + " is an unshared durable subscription, which allows only one consumer: more than one consumer requires a shared subscription");
+        }
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)
@@ -234,10 +246,12 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .collect(Collectors.toSet());
 
         try {
-            io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
-                    connectionPool, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription);
-            registeredListener.addSuccessHandlers(successHandlers);
-            registeredListener.addErrorHandlers(errorHandlers);
+            // the consumers share one connection, each with its own session; either all of them are registered or none
+            for (io.micronaut.jms.listener.JMSListener registeredListener : registry.register(connectionPool, type, destination,
+                    transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription, consumers)) {
+                registeredListener.addSuccessHandlers(successHandlers);
+                registeredListener.addErrorHandlers(errorHandlers);
+            }
         } catch (JMSException e) {
             logger.error("Failed to register listener for destination " + destination, e);
         }
