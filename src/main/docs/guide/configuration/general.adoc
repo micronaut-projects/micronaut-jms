@@ -9,3 +9,5 @@ micronaut:
     initialPoolSize: 10
     maxPoolSize: 100
 ----
+
+The pool registers a JMS `ExceptionListener` on each of its connections. When the provider reports an error on a connection, the pool closes the connection once it is no longer in use, and the next request opens a new one. The warning it logs includes the reported error. Some providers also report errors that leave the connection usable, such as ActiveMQ Classic for a rejected asynchronous send, so such a connection is replaced as well. A `@JMSListener` consumer keeps the connection it was registered with until shutdown, so the pool doesn't replace it. An `ExceptionListener` that the application sets on a pooled connection, or that the provider's connection factory sets on its connections, still receives the error.
