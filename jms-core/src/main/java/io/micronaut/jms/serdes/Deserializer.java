@@ -15,6 +15,7 @@
  */
 package io.micronaut.jms.serdes;
 
+import io.micronaut.context.annotation.DefaultImplementation;
 import jakarta.jms.Message;
 
 /**
@@ -24,6 +25,7 @@ import jakarta.jms.Message;
  * @since 1.0.0
  */
 @FunctionalInterface
+@DefaultImplementation(DefaultSerializerDeserializer.class)
 public interface Deserializer {
 
     /**

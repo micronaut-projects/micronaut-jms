@@ -173,6 +173,17 @@ public @interface Topic {
     String clientId() default "";
 
     /**
+     * The name of a {@link io.micronaut.jms.serdes.Deserializer} in the bean
+     * context that a listener method uses to convert each {@link jakarta.jms.Message} of the topic
+     * into its {@code @MessageBody} argument. If not specified, defaults to
+     * {@link io.micronaut.jms.serdes.DefaultSerializerDeserializer}.
+     *
+     * @return the deserializer bean name
+     * @since 5.2.0
+     */
+    String deserializer() default "";
+
+    /**
      * The success handlers to be injected into the message handling logic.
      * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
      *  instances.
