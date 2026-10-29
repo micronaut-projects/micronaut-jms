@@ -19,8 +19,10 @@ import io.micronaut.context.annotation.AliasFor;
 import io.micronaut.context.annotation.Executable;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
+import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.messaging.annotation.MessageMapping;
 
+import jakarta.jms.Message;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -95,6 +97,24 @@ public @interface Topic {
      * @return the message selector for the topic
      */
     String messageSelector() default "";
+
+    /**
+     * The delivery mode of the messages that a producer method sends. Ignored by listeners. A
+     * {@link io.micronaut.jms.annotations.MessageDeliveryMode} argument overrides it.
+     *
+     * @return the delivery mode
+     * @since 5.2.0
+     */
+    JMSDeliveryMode deliveryMode() default JMSDeliveryMode.PERSISTENT;
+
+    /**
+     * The priority, from 0 (lowest) to 9, of the messages that a producer method sends. Ignored by listeners. A
+     * {@link io.micronaut.jms.annotations.MessagePriority} argument overrides it.
+     *
+     * @return the priority
+     * @since 5.2.0
+     */
+    int priority() default Message.DEFAULT_PRIORITY;
 
     /**
      * The name of the subscription. Required when {@link #durable()}, {@link #shared()} or {@link #clientId()}
