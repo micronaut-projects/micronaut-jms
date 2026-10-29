@@ -15,7 +15,9 @@
  */
 package io.micronaut.jms.listener;
 
+import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.core.util.CollectionUtils;
+import io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -28,11 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.jms.Connection;
+import jakarta.jms.ExceptionListener;
 import jakarta.jms.JMSException;
 import jakarta.jms.MessageListener;
 import jakarta.jms.Session;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -41,17 +45,51 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Registry for all {@link JMSListener}s managed by Micronaut JMS. Listeners can be dynamically registered
  *  using the {@link JMSListenerRegistry#register(Connection, JMSDestinationType, String, boolean, int, MessageListener, ExecutorService, boolean, Optional)}
  *  method. When the application context closes, all open connections, listeners, and sessions, are closed.
  *
+ * <p>The registry listens for the errors that the JMS provider reports on the connections of the listeners it creates.
+ * After an error, each listener of the connection checks its session, and one whose session no longer works closes
+ * its session and consumer and creates them again on the same connection, retrying with a growing delay as
+ * {@link JMSListenerRecoveryConfiguration configured} until it succeeds or the listener shuts down.</p>
+ *
  * @author Elliott Pope
  * @since 2.1.1
  */
 @Singleton
 public class JMSListenerRegistry {
+
+    /**
+     * The {@link JMSListenerRecoveryConfiguration} defaults, for a registry created without a configuration.
+     */
+    static final JMSListenerRecoveryConfiguration DEFAULT_RECOVERY = new JMSListenerRecoveryConfiguration() {
+        @Override
+        public boolean isEnabled() {
+            return JMSListenerRecoveryConfiguration.DEFAULT_ENABLED;
+        }
+
+        @Override
+        public int getWarnAttempts() {
+            return JMSListenerRecoveryConfiguration.DEFAULT_WARN_ATTEMPTS;
+        }
+
+        @Override
+        public Duration getInitialDelay() {
+            return Duration.parse(JMSListenerRecoveryConfiguration.DEFAULT_INITIAL_DELAY);
+        }
+
+        @Override
+        public Duration getMaxDelay() {
+            return Duration.parse(JMSListenerRecoveryConfiguration.DEFAULT_MAX_DELAY);
+        }
+    };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerRegistry.class);
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
@@ -60,33 +98,61 @@ public class JMSListenerRegistry {
     private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
     private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;
     private final Collection<JMSMessageObserver> observers;
+    private final JMSListenerRecoveryConfiguration recoveryConfiguration;
+    private final Map<Connection, ConnectionErrors> connectionErrors = Collections.synchronizedMap(new IdentityHashMap<>());
+    private final Set<JMSListener> recovering = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+    private @Nullable ScheduledExecutorService recoveryExecutor;
+    private boolean shutdown;
 
     /**
      * @param globalSuccessHandlers The success handlers of every listener
      * @param globalErrorHandlers   The error handlers of every listener
-     * @deprecated Use {@link #JMSListenerRegistry(Collection, Collection, Collection)} instead
+     * @deprecated Use {@link #JMSListenerRegistry(Collection, Collection, Collection, JMSListenerRecoveryConfiguration)} instead
      */
     @Deprecated(since = "5.2.0", forRemoval = true)
     public JMSListenerRegistry(
         Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers,
         Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers) {
-        this(globalSuccessHandlers, globalErrorHandlers, List.of());
+        this(globalSuccessHandlers, globalErrorHandlers, List.of(), DEFAULT_RECOVERY);
     }
 
     /**
      * @param globalSuccessHandlers The success handlers of every listener
      * @param globalErrorHandlers   The error handlers of every listener
      * @param observers             The observers of the messages of every listener
+     * @param recoveryConfiguration How listeners recover from a failed session
+     * @throws ConfigurationException if a recovery delay isn't positive, the maximum delay is shorter than the
+     *                                initial delay, or the number of warning attempts is less than 1
      * @since 5.2.0
      */
     @Inject
     public JMSListenerRegistry(
         Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers,
         Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers,
-        Collection<JMSMessageObserver> observers) {
+        Collection<JMSMessageObserver> observers,
+        JMSListenerRecoveryConfiguration recoveryConfiguration) {
         this.globalSuccessHandlers = globalSuccessHandlers;
         this.globalErrorHandlers = globalErrorHandlers;
         this.observers = observers;
+        this.recoveryConfiguration = validate(recoveryConfiguration);
+    }
+
+    private static JMSListenerRecoveryConfiguration validate(JMSListenerRecoveryConfiguration configuration) {
+        String prefix = JMSListenerRecoveryConfiguration.PREFIX;
+        Duration initialDelay = configuration.getInitialDelay();
+        Duration maxDelay = configuration.getMaxDelay();
+        // retries never stop, so a delay that isn't positive would retry back to back or overflow
+        if (initialDelay == null || initialDelay.isNegative() || initialDelay.isZero()) {
+            throw new ConfigurationException(prefix + ".initial-delay must be positive, but is " + initialDelay);
+        }
+        if (maxDelay == null || maxDelay.compareTo(initialDelay) < 0) {
+            throw new ConfigurationException(prefix + ".max-delay must not be shorter than " + prefix
+                + ".initial-delay (" + initialDelay + "), but is " + maxDelay);
+        }
+        if (configuration.getWarnAttempts() < 1) {
+            throw new ConfigurationException(prefix + ".warn-attempts must be at least 1, but is " + configuration.getWarnAttempts());
+        }
+        return configuration;
     }
 
     /**
@@ -203,7 +269,152 @@ public class JMSListenerRegistry {
             // returned to its pool on shutdown, otherwise every re-registration takes another pooled connection
             pooledConnections.put(listener, pooled);
         }
+        if (recoveryConfiguration.isEnabled()) {
+            listener.setSessionFactory(() -> connection.createSession(transacted, acknowledgeMode));
+            listenForErrors(connection, listener);
+        }
         return listener;
+    }
+
+    /**
+     * Adds the listener to those that check their session when the provider reports an error on the connection. The
+     * first listener of a connection sets its exception listener, which still forwards the errors to the exception
+     * listener that was set before.
+     */
+    private void listenForErrors(Connection connection, JMSListener listener) {
+        ConnectionErrors errors;
+        synchronized (connectionErrors) {
+            errors = connectionErrors.get(connection);
+            if (errors == null) {
+                try {
+                    errors = new ConnectionErrors(connection, connection.getExceptionListener());
+                    connection.setExceptionListener(errors);
+                } catch (JMSException | RuntimeException e) {
+                    LOGGER.debug("The JMS provider does not report the errors of connection {}, so the listener of {} "
+                        + "can't recover a failed session: {}", connection, listener, e.getMessage());
+                    return;
+                }
+                connectionErrors.put(connection, errors);
+            }
+            errors.consumers.add(listener);
+        }
+    }
+
+    /**
+     * Removes the listener from those that check their session when the provider reports an error on the connection,
+     * and gives the connection its previous exception listener back once it has no more listeners.
+     */
+    private void stopListeningForErrors(JMSListener listener) {
+        recovering.remove(listener);
+        synchronized (connectionErrors) {
+            for (ConnectionErrors errors : connectionErrors.values()) {
+                if (errors.consumers.remove(listener) && errors.consumers.isEmpty()) {
+                    connectionErrors.remove(errors.connection);
+                    errors.restore();
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks the session of the listener, unless a previous attempt already found it broken, and recreates it. A
+     * failed attempt is retried after {@link #delay(int)}, without limit: the provider may not report another error,
+     * since Oracle AQ, for example, only checks the sessions that are still open, so a listener that stopped retrying
+     * would never receive messages again.
+     *
+     * @param listener the listener
+     * @param error    the error that the provider reported
+     * @param attempt  the attempt, from 1
+     */
+    void recover(JMSListener listener, JMSException error, int attempt) {
+        if (!listeners.contains(listener)) {
+            recovering.remove(listener);
+            return;
+        }
+        if (attempt == 1) {
+            if (!listener.isSessionBroken()) {
+                // for example a rejected asynchronous send, which ActiveMQ reports on a connection that still works
+                LOGGER.debug("The session of the listener of {} still works after the JMS provider reported: {}",
+                    listener, error.getMessage());
+                recovering.remove(listener);
+                return;
+            }
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("The session of the listener of {} failed after the JMS provider reported: {}. Recreating it",
+                    listener, describe(error));
+            }
+        }
+        try {
+            if (listener.recreateSession()) {
+                LOGGER.info("Recreated the session of the listener of {} (attempt {})", listener, attempt);
+            }
+            recovering.remove(listener);
+        } catch (JMSException | RuntimeException e) {
+            Duration delay = delay(attempt);
+            logFailedAttempt(listener, attempt, delay, e);
+            schedule(() -> recover(listener, error, attempt + 1), delay, listener);
+        }
+    }
+
+    private void logFailedAttempt(JMSListener listener, int attempt, Duration delay, Exception failure) {
+        if (attempt <= recoveryConfiguration.getWarnAttempts()) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unable to recreate the session of the listener of {} (attempt {}), retrying in {}: {}",
+                    listener, attempt, delay, describe(failure));
+            }
+        } else if (attempt == recoveryConfiguration.getWarnAttempts() + 1 || LOGGER.isDebugEnabled()) {
+            // the stack trace once, since the attempts continue for as long as the provider fails
+            LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
+                + "until the session is recreated, retrying in {}", listener, attempt, delay, failure);
+        } else if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
+                + "until the session is recreated, retrying in {}: {}", listener, attempt, delay, describe(failure));
+        }
+    }
+
+    /**
+     * @param attempt the attempt that failed, from 1
+     * @return the delay before the next attempt: the initial delay, doubled after each attempt up to the maximum
+     */
+    Duration delay(int attempt) {
+        Duration initial = recoveryConfiguration.getInitialDelay();
+        Duration max = recoveryConfiguration.getMaxDelay();
+        Duration delay = initial;
+        for (int i = 1; i < attempt && delay.compareTo(max) < 0; i++) {
+            delay = delay.multipliedBy(2);
+        }
+        return delay.compareTo(max) > 0 ? max : delay;
+    }
+
+    private void schedule(Runnable recovery, Duration delay, JMSListener listener) {
+        try {
+            recoveryExecutor().schedule(recovery, delay.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException _) {
+            // the registry shut down
+            recovering.remove(listener);
+        }
+    }
+
+    private synchronized ScheduledExecutorService recoveryExecutor() {
+        if (shutdown) {
+            throw new RejectedExecutionException("The listener registry shut down");
+        }
+        if (recoveryExecutor == null) {
+            recoveryExecutor = Executors.newSingleThreadScheduledExecutor(runnable -> {
+                Thread thread = new Thread(runnable, "jms-listener-recovery");
+                thread.setDaemon(true);
+                return thread;
+            });
+        }
+        return recoveryExecutor;
+    }
+
+    private static String describe(Exception error) {
+        Throwable cause = error instanceof JMSException jmsException && jmsException.getLinkedException() != null
+            ? jmsException.getLinkedException()
+            : error.getCause();
+        return cause == null || cause == error ? String.valueOf(error) : error + " (caused by " + cause + ")";
     }
 
     /**
@@ -327,6 +538,7 @@ public class JMSListenerRegistry {
             listeners.remove(listener);
             pooledConnections.remove(listener);
             dedicatedConnections.remove(listener);
+            stopListeningForErrors(listener);
             try {
                 listener.stop();
             } catch (JMSException | RuntimeException stopFailure) {
@@ -355,30 +567,27 @@ public class JMSListenerRegistry {
      */
     @PreDestroy
     public void shutdown() {
+        synchronized (this) {
+            shutdown = true;
+            if (recoveryExecutor != null) {
+                recoveryExecutor.shutdownNow();
+                recoveryExecutor = null;
+            }
+        }
         Set<PooledObject<?>> stopped = Collections.newSetFromMap(new IdentityHashMap<>());
         Set<PooledObject<?>> failed = Collections.newSetFromMap(new IdentityHashMap<>());
         Set<Connection> dedicated = Collections.newSetFromMap(new IdentityHashMap<>());
-        listeners.forEach(listener -> {
-            PooledObject<?> connection = pooledConnections.get(listener);
-            try {
-                listener.stop();
-                if (connection != null) {
-                    stopped.add(connection);
-                }
-            } catch (JMSException e) {
-                LOGGER.error("Failed to shutdown listener", e);
-                if (connection != null) {
-                    failed.add(connection);
-                }
-            }
-            Connection dedicatedConnection = dedicatedConnections.get(listener);
-            if (dedicatedConnection != null) {
-                dedicated.add(dedicatedConnection);
-            }
-        });
+        listeners.forEach(listener -> stop(listener, stopped, failed, dedicated));
         listeners.clear();
         pooledConnections.clear();
         dedicatedConnections.clear();
+        recovering.clear();
+        List<ConnectionErrors> listened;
+        synchronized (connectionErrors) {
+            listened = new ArrayList<>(connectionErrors.values());
+            connectionErrors.clear();
+        }
+        listened.forEach(ConnectionErrors::restore);
         for (Connection connection : dedicated) {
             try {
                 connection.close();
@@ -392,6 +601,73 @@ public class JMSListenerRegistry {
                 connection.close();
             } catch (JMSException e) {
                 LOGGER.error("Failed to return a listener connection to its pool", e);
+            }
+        }
+    }
+
+    private void stop(JMSListener listener, Set<PooledObject<?>> stopped, Set<PooledObject<?>> failed, Set<Connection> dedicated) {
+        PooledObject<?> connection = pooledConnections.get(listener);
+        try {
+            listener.stop();
+            if (connection != null) {
+                stopped.add(connection);
+            }
+        } catch (JMSException e) {
+            LOGGER.error("Failed to shutdown listener", e);
+            if (connection != null) {
+                failed.add(connection);
+            }
+        }
+        Connection dedicatedConnection = dedicatedConnections.get(listener);
+        if (dedicatedConnection != null) {
+            dedicated.add(dedicatedConnection);
+        }
+    }
+
+    /**
+     * The exception listener of a connection, which forwards the errors to the exception listener that was set before
+     * and lets the listeners of the connection check their session.
+     */
+    private final class ConnectionErrors implements ExceptionListener {
+
+        private final Connection connection;
+        private final @Nullable ExceptionListener previous;
+        private final Set<JMSListener> consumers = Collections.synchronizedSet(Collections.newSetFromMap(new IdentityHashMap<>()));
+
+        private ConnectionErrors(Connection connection, @Nullable ExceptionListener previous) {
+            this.connection = connection;
+            this.previous = previous;
+        }
+
+        @Override
+        public void onException(JMSException exception) {
+            try {
+                if (previous != null) {
+                    previous.onException(exception);
+                }
+            } finally {
+                checkSessions(exception);
+            }
+        }
+
+        private void checkSessions(JMSException error) {
+            List<JMSListener> affected;
+            synchronized (consumers) {
+                affected = new ArrayList<>(consumers);
+            }
+            for (JMSListener listener : affected) {
+                if (recovering.add(listener)) {
+                    // off the thread of the provider, which may be the one that delivers messages to the listener
+                    schedule(() -> recover(listener, error, 1), Duration.ZERO, listener);
+                }
+            }
+        }
+
+        private void restore() {
+            try {
+                connection.setExceptionListener(previous);
+            } catch (JMSException | RuntimeException e) {
+                LOGGER.debug("Unable to restore the exception listener of connection {}: {}", connection, e.getMessage());
             }
         }
     }

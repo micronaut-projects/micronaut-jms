@@ -39,7 +39,7 @@ class JMSListenerObservationTest {
                 throw new JMSException("acknowledge failed");
             }
         };
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer));
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> {
             if ("failing".equals(text(message))) {
                 throw new IllegalStateException("listener failed");
@@ -79,7 +79,7 @@ class JMSListenerObservationTest {
             }
         };
         List<Object> elements = new CopyOnWriteArrayList<>();
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(propagating));
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(propagating), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE,
             message -> elements.addAll(PropagatedContext.get().getAllElements()), null, true, Optional.empty())
             .addSuccessHandlers((session, message) -> elements.add(PropagatedContext.get().get(Element.class).name()));
@@ -95,7 +95,7 @@ class JMSListenerObservationTest {
         RecordingObserver observer = new RecordingObserver("recording", 0);
         List<Throwable> handled = new CopyOnWriteArrayList<>();
         AssertionError failure = new AssertionError("listener failed");
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer));
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(observer), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE, message -> {
             throw failure;
         }, null, true, Optional.empty()).addErrorHandlers((session, message, error) -> handled.add(error));
@@ -125,7 +125,7 @@ class JMSListenerObservationTest {
             }
         };
         List<String> received = new CopyOnWriteArrayList<>();
-        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(failing, observer));
+        JMSListenerRegistry registry = new JMSListenerRegistry(List.of(), List.of(), List.of(failing, observer), JMSListenerRegistry.DEFAULT_RECOVERY);
         registry.register(connection(), JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE,
             message -> received.add(text(message)), null, true, Optional.empty());
 
