@@ -16,6 +16,7 @@
 package io.micronaut.jms.serdes;
 
 import io.micronaut.context.BeanLocator;
+import io.micronaut.core.reflect.ReflectionUtils;
 import io.micronaut.core.type.Argument;
 import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.jms.model.MessageType;
@@ -129,8 +130,11 @@ public final class DefaultSerializerDeserializer implements Serializer, Deserial
                 return (T) body;
             }
         }
-        if (clazz.isInstance(body)) {
-            return clazz.cast(body);
+        if (body == null) {
+            return null;
+        }
+        if (ReflectionUtils.getWrapperType(clazz).isInstance(body)) {
+            return (T) body;
         }
         throw new ClassCastException("Cannot deserialize ObjectMessage body to type " + clazz.getName()
             + "; actual body type is " + (body == null ? "null" : body.getClass().getName()));
