@@ -53,17 +53,37 @@ class JMSListenerRegistryTest {
         assertThrows(IllegalStateException.class, pool::createConnection);
     }
 
+    @Test
+    void aPooledConnectionGoesBackToThePoolWhenRegistrationFails() throws JMSException {
+        JMSConnectionPool pool = new JMSConnectionPool(connectionFactory(false, true), 0, 1);
+        JMSListenerRegistry registry = new JMSListenerRegistry(Collections.emptyList(), Collections.emptyList());
+
+        assertThrows(JMSException.class, () -> registry.register(pool, JMSDestinationType.QUEUE, "queue", false,
+            Session.AUTO_ACKNOWLEDGE, message -> { }, null, true, Optional.empty(), null));
+
+        assertNotNull(pool.createConnection(), "the failed registration did not keep the pool's only connection");
+    }
+
     private static void register(JMSListenerRegistry registry, Connection connection) throws JMSException {
         registry.register(connection, JMSDestinationType.QUEUE, "queue", false, Session.AUTO_ACKNOWLEDGE,
             message -> { }, null, true, Optional.empty());
     }
 
     private static ConnectionFactory connectionFactory(boolean sessionFailsToClose) {
+        return connectionFactory(sessionFailsToClose, false);
+    }
+
+    private static ConnectionFactory connectionFactory(boolean sessionFailsToClose, boolean consumerFails) {
         MessageConsumer consumer = stub(MessageConsumer.class, null);
         Queue queue = stub(Queue.class, null);
         Session session = stub(Session.class, (name, args) -> switch (name) {
             case "createQueue" -> queue;
-            case "createConsumer" -> consumer;
+            case "createConsumer" -> {
+                if (consumerFails) {
+                    throw new JMSException("consumer rejected");
+                }
+                yield consumer;
+            }
             case "close" -> {
                 if (sessionFailsToClose) {
                     throw new JMSException("session failed to close");

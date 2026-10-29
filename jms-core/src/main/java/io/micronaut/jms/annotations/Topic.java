@@ -97,6 +97,43 @@ public @interface Topic {
     String messageSelector() default "";
 
     /**
+     * The name of the subscription. Required when {@link #durable()}, {@link #shared()} or {@link #clientId()}
+     * is set, and requires {@link #durable()} or {@link #shared()} in turn; ignored on producers.
+     *
+     * @return the subscription name
+     * @since 5.2.0
+     */
+    String subscription() default "";
+
+    /**
+     * Whether the subscription is durable, so messages published while the listener is not connected are
+     * kept for it. An unshared durable subscription gets a connection of its own, with the
+     * {@link #clientId()} as its client ID.
+     *
+     * @return whether the subscription is durable
+     * @since 5.2.0
+     */
+    boolean durable() default false;
+
+    /**
+     * Whether the subscription is shared, so its messages are spread over every listener with the same
+     * subscription name. Requires a JMS 2.0 provider.
+     *
+     * @return whether the subscription is shared
+     * @since 5.2.0
+     */
+    boolean shared() default false;
+
+    /**
+     * The client ID of the listener's connection. Defaults to the {@link #subscription()} name for an
+     * unshared durable subscription. When set, the listener gets a connection of its own.
+     *
+     * @return the client ID
+     * @since 5.2.0
+     */
+    String clientId() default "";
+
+    /**
      * The success handlers to be injected into the message handling logic.
      * @return the classes of the success handlers to be added. These handlers must be present as {@link jakarta.inject.Singleton}
      *  instances.

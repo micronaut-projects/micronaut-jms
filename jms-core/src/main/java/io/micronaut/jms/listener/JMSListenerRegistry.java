@@ -17,9 +17,11 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.PooledObject;
 import jakarta.annotation.PreDestroy;
 import jakarta.inject.Singleton;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,7 @@ public class JMSListenerRegistry {
     private static final Logger LOGGER = LoggerFactory.getLogger(JMSListenerRegistry.class);
     private final Set<JMSListener> listeners = Collections.synchronizedSet(new HashSet<>());
     private final Map<JMSListener, PooledObject<?>> pooledConnections = Collections.synchronizedMap(new IdentityHashMap<>());
+    private final Map<JMSListener, Connection> dedicatedConnections = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
     private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;
 
@@ -99,9 +102,44 @@ public class JMSListenerRegistry {
             ExecutorService executor,
             boolean autoStart,
             Optional<String> messageSelector) throws JMSException {
+        return register(connection, destinationType, destination, transacted, acknowledgeMode, delegate, executor, autoStart, messageSelector, null);
+    }
+
+    /**
+     * Creates and registers a new listener to be managed by Micronaut JMS, optionally with a named topic
+     * subscription. When the subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a
+     * dedicated connection}, the given connection must not be pooled: the registry closes it when the
+     * listener shuts down. If registration fails, the caller still owns the connection and must close it.
+     *
+     * @param connection - the {@link Connection} the listener will be linked to
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param transacted - whether the listener should commit the transaction once the message is received
+     * @param acknowledgeMode - whether the message receipt should be acknowledged
+     * @param delegate - the underlying handler to delegate to
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on.
+     * @param autoStart -  whether the listener should be automatically started when registered
+     * @param messageSelector - the message selector for the listener
+     * @param subscription - the named topic subscription, or {@code null}
+     * @return the listener that has been registered
+     * @throws JMSException - if the listener fails to start
+     * @since 5.2.0
+     */
+    @SuppressWarnings("java:S107") // extends the existing register overload with the subscription
+    public JMSListener register(
+            Connection connection,
+            JMSDestinationType destinationType,
+            String destination,
+            final boolean transacted,
+            final int acknowledgeMode,
+            MessageListener delegate,
+            ExecutorService executor,
+            boolean autoStart,
+            Optional<String> messageSelector,
+            @Nullable JMSTopicSubscription subscription) throws JMSException {
         connection.start();
         Session session = connection.createSession(transacted, acknowledgeMode);
-        JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector);
+        JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector, subscription);
         if (CollectionUtils.isNotEmpty(globalSuccessHandlers)) {
             listener.addSuccessHandlers(globalSuccessHandlers);
         }
@@ -116,12 +154,81 @@ public class JMSListenerRegistry {
             listener.addSuccessHandlers(new AcknowledgingJMSListenerSuccessHandler());
         }
         listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
-        this.register(listener, autoStart);
+        try {
+            this.register(listener, autoStart);
+        } catch (JMSException | RuntimeException e) {
+            try {
+                session.close();
+            } catch (JMSException | RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
+        if (subscription != null && subscription.requiresDedicatedConnection() && !(connection instanceof PooledObject<?>)) {
+            // only once the listener has started: the caller closes the connection if registration fails
+            dedicatedConnections.put(listener, connection);
+        }
         if (connection instanceof PooledObject<?> pooled) {
             // returned to its pool on shutdown, otherwise every re-registration takes another pooled connection
             pooledConnections.put(listener, pooled);
         }
         return listener;
+    }
+
+    /**
+     * Creates and registers a new listener to be managed by Micronaut JMS, optionally with a named topic
+     * subscription, on a connection the registry opens. The connection comes from the pool, unless the
+     * subscription {@link JMSTopicSubscription#requiresDedicatedConnection() requires a dedicated connection}:
+     * then it is a new connection from the pool's factory with the subscription's client ID, which the registry
+     * closes when the listener shuts down or when registration fails. A pooled connection goes back to its pool when
+     * registration fails.
+     *
+     * @param connectionPool - the pool that provides the listener's connection
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param transacted - whether the listener should commit the transaction once the message is received
+     * @param acknowledgeMode - whether the message receipt should be acknowledged
+     * @param delegate - the underlying handler to delegate to
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on.
+     * @param autoStart -  whether the listener should be automatically started when registered
+     * @param messageSelector - the message selector for the listener
+     * @param subscription - the named topic subscription, or {@code null}
+     * @return the listener that has been registered
+     * @throws JMSException - if the connection cannot be opened or the listener fails to start
+     * @since 5.2.0
+     */
+    @SuppressWarnings("java:S107") // extends the existing register overload with the subscription
+    public JMSListener register(
+            JMSConnectionPool connectionPool,
+            JMSDestinationType destinationType,
+            String destination,
+            final boolean transacted,
+            final int acknowledgeMode,
+            MessageListener delegate,
+            ExecutorService executor,
+            boolean autoStart,
+            Optional<String> messageSelector,
+            @Nullable JMSTopicSubscription subscription) throws JMSException {
+        boolean dedicated = subscription != null && subscription.requiresDedicatedConnection();
+        // the client ID must be set before the connection is used, so a dedicated connection can't come from the pool
+        Connection connection = dedicated
+            ? connectionPool.getConnectionFactory().createConnection()
+            : connectionPool.createConnection();
+        try {
+            if (dedicated) {
+                connection.setClientID(subscription.effectiveClientId());
+            }
+            return register(connection, destinationType, destination, transacted, acknowledgeMode,
+                delegate, executor, autoStart, messageSelector, subscription);
+        } catch (JMSException | RuntimeException e) {
+            try {
+                // closing a pooled connection returns it to its pool
+                connection.close();
+            } catch (JMSException | RuntimeException closeFailure) {
+                e.addSuppressed(closeFailure);
+            }
+            throw e;
+        }
     }
 
     /**
@@ -146,9 +253,18 @@ public class JMSListenerRegistry {
                     failed.add(connection);
                 }
             }
+            Connection dedicated = dedicatedConnections.get(listener);
+            if (dedicated != null) {
+                try {
+                    dedicated.close();
+                } catch (JMSException e) {
+                    LOGGER.error("Failed to close a dedicated listener connection", e);
+                }
+            }
         });
         listeners.clear();
         pooledConnections.clear();
+        dedicatedConnections.clear();
         stopped.removeAll(failed);
         for (PooledObject<?> connection : stopped) {
             try {

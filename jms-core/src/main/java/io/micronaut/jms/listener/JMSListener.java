@@ -26,6 +26,8 @@ import jakarta.jms.Message;
 import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageListener;
 import jakarta.jms.Session;
+import jakarta.jms.Topic;
+import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,6 +69,7 @@ public class JMSListener {
     private final List<JMSListenerSuccessHandler> successHandlers = new ArrayList<>();
     private final List<JMSListenerErrorHandler> errorHandlers = new ArrayList<>();
     private final Optional<String> messageSelector;
+    private final @Nullable JMSTopicSubscription subscription;
 
     /**
      * Creates a {@link JMSListener} instance. This instance will not begin listening for messages until
@@ -83,12 +86,33 @@ public class JMSListener {
      * @param messageSelector the message selector for the listener
      */
     public JMSListener(Session session, MessageListener delegate, JMSDestinationType destinationType, String destination, ExecutorService executor, Optional<String> messageSelector) {
+        this(session, delegate, destinationType, destination, executor, messageSelector, null);
+    }
+
+    /**
+     * Creates a {@link JMSListener} instance, optionally with a named topic subscription. This instance will
+     * not begin listening for messages until {@link JMSListener#start()} is called.
+     *
+     * @param session - the {@link Session} for the messages to be consumed on
+     * @param delegate - the listener logic to be invoked
+     * @param destinationType - the {@link JMSDestinationType} of the target destination
+     * @param destination - the name of the target destination
+     * @param executor - the {@link ExecutorService} to perform the message handling logic on, or {@code null}
+     * @param messageSelector the message selector for the listener
+     * @param subscription the named subscription to consume from, only for topics, or {@code null}
+     * @since 5.2.0
+     */
+    public JMSListener(Session session, MessageListener delegate, JMSDestinationType destinationType, String destination, ExecutorService executor, Optional<String> messageSelector, @Nullable JMSTopicSubscription subscription) {
+        if (subscription != null && destinationType == QUEUE) {
+            throw new IllegalArgumentException("A subscription can only be used with a topic, not with queue " + destination);
+        }
         this.session = session;
         this.delegate = delegate;
         this.destinationType = destinationType;
         this.destination = destination;
         this.executor = executor;
         this.messageSelector = messageSelector;
+        this.subscription = subscription;
     }
 
     /**
@@ -131,7 +155,9 @@ public class JMSListener {
     @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
     public void start() throws JMSException {
         MessageConsumer messageConsumer;
-        if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
+        if (subscription != null) {
+            messageConsumer = createSubscriptionConsumer(subscription);
+        } else if (messageSelector.isPresent() && !messageSelector.get().isEmpty()) {
             messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session), messageSelector.get());
         } else {
             messageConsumer = session.createConsumer(lookupDestination(destinationType, destination, session));
@@ -175,6 +201,29 @@ public class JMSListener {
     public void stop() throws JMSException {
         consumer.close();
         session.close();
+    }
+
+    private MessageConsumer createSubscriptionConsumer(JMSTopicSubscription subscription) throws JMSException {
+        Topic topic = session.createTopic(destination);
+        String selector = messageSelector.filter(s -> !s.isEmpty()).orElse(null);
+        if (subscription.shared()) {
+            try {
+                return subscription.durable()
+                    ? session.createSharedDurableConsumer(topic, subscription.name(), selector)
+                    : session.createSharedConsumer(topic, subscription.name(), selector);
+            } catch (UnsupportedOperationException e) {
+                // for example ActiveMQ Classic, which implements JMS 1.1 subscriptions only
+                JMSException unsupported = new JMSException("The JMS provider does not support shared subscriptions (subscription '"
+                    + subscription.name() + "' on topic " + destination + ")");
+                unsupported.initCause(e);
+                throw unsupported;
+            }
+        }
+        if (subscription.durable()) {
+            return session.createDurableSubscriber(topic, subscription.name(), selector, false);
+        }
+        // a named subscription that is neither durable nor shared is an ordinary consumer
+        return selector == null ? session.createConsumer(topic) : session.createConsumer(topic, selector);
     }
 
     private static Destination lookupDestination(JMSDestinationType destinationType,
