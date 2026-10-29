@@ -29,6 +29,7 @@ loadScripts(document, 'script');</script>
 <ul id="navbar-top-firstrow" class="nav-list" title="Navigation">
 <li><a href="index.html">Overview</a></li>
 <li><a href="overview-tree.html">Tree</a></li>
+<li><a href="deprecated-list.html">Deprecated</a></li>
 <li><a href="index-all.html">Index</a></li>
 <li><a href="search.html">Search</a></li>
 <li><a href="help-doc.html#all-classes">Help</a></li>
@@ -50,7 +51,7 @@ loadScripts(document, 'script');</script>
 <h1 title="All Classes and Interfaces" class="title">All Classes and Interfaces</h1>
 </div>
 <div id="all-classes-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab1" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab1', 2)" class="table-tab">Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button><button id="all-classes-table-tab6" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab6', 2)" class="table-tab">Annotation Interfaces</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab1" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab1', 2)" class="table-tab">Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button><button id="all-classes-table-tab4" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab4', 2)" class="table-tab">Record Classes</button><button id="all-classes-table-tab6" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab6', 2)" class="table-tab">Annotation Interfaces</button></div>
 <div id="all-classes-table.tabpanel" role="tabpanel" aria-labelledby="all-classes-table-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
@@ -165,18 +166,26 @@ etc.</div>
 <div class="block">Utility class for access to the supported JMS Headers, and methods to
 extract those values from a given <code>Message</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/JMSListener.html" title="annotation interface in io.micronaut.jms.annotations">JMSListener</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/health/JMSHealthIndicator.html" title="class in io.micronaut.jms.health">JMSHealthIndicator</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Reports whether a connection can be opened with each JMS connection factory, and the JMS provider of each.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/JMSListener.html" title="annotation interface in io.micronaut.jms.annotations">JMSListener</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Declares a class for post-processing.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener">JMSListener</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener">JMSListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Sets up and manages <code>MessageListener</code>s created by the <a href="io/micronaut/jms/annotations/JMSListener.html" title="annotation interface in io.micronaut.jms.annotations"><code>JMSListener</code></a> and
  <a href="io/micronaut/jms/configuration/AbstractJMSListenerMethodProcessor.html" title="class in io.micronaut.jms.configuration"><code>AbstractJMSListenerMethodProcessor</code></a> processing.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Handles any errors thrown when handling a message on a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/configuration/properties/JMSListenerRecoveryConfiguration.html" title="interface in io.micronaut.jms.configuration.properties">JMSListenerRecoveryConfiguration</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">The configuration of how listeners recover when the JMS provider reports that the session of a consumer failed.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/listener/JMSListenerRegistry.html" title="class in io.micronaut.jms.listener">JMSListenerRegistry</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -185,6 +194,23 @@ extract those values from a given <code>Message</code>.</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/listener/JMSListenerSuccessHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerSuccessHandler</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Handles an action after a message has been received and processed by a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/observation/JMSMessageObserver.html" title="interface in io.micronaut.jms.observation">JMSMessageObserver</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="block">Observes the messages that JMS listeners process and that JMS producers send, for example to record metrics or
+traces.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/metrics/JMSMetrics.html" title="class in io.micronaut.jms.metrics">JMSMetrics</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Records the messages that JMS listeners process and that JMS producers send.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/observation/JMSObservation.html" title="interface in io.micronaut.jms.observation">JMSObservation</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="block">The observation of a message that a <a href="io/micronaut/jms/observation/JMSMessageObserver.html" title="interface in io.micronaut.jms.observation"><code>JMSMessageObserver</code></a> started.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/observation/JMSObservations.html" title="class in io.micronaut.jms.observation">JMSObservations</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The observers of the messages of a listener or a producer.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/templates/JmsProducer.html" title="class in io.micronaut.jms.templates">JmsProducer&lt;T&gt;</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -199,28 +225,46 @@ etc.</div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Sends messages to a broker.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/configuration/JMSQueueListenerMethodProcessor.html" title="class in io.micronaut.jms.configuration">JMSQueueListenerMethodProcessor</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/configuration/properties/JMSProducerSessionConfiguration.html" title="interface in io.micronaut.jms.configuration.properties">JMSProducerSessionConfiguration</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">The configuration of the sessions that producer methods send with.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/configuration/JMSQueueListenerMethodProcessor.html" title="class in io.micronaut.jms.configuration">JMSQueueListenerMethodProcessor</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registers a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a> for
 methods annotated with <a href="io/micronaut/jms/annotations/Queue.html" title="annotation interface in io.micronaut.jms.annotations"><code>Queue</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/configuration/JMSTopicListenerMethodProcessor.html" title="class in io.micronaut.jms.configuration">JMSTopicListenerMethodProcessor</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/configuration/JMSTopicListenerMethodProcessor.html" title="class in io.micronaut.jms.configuration">JMSTopicListenerMethodProcessor</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registers a <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a> for
 methods annotated with <a href="io/micronaut/jms/annotations/Topic.html" title="annotation interface in io.micronaut.jms.annotations"><code>Topic</code></a>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/listener/LoggingJMSListenerErrorHandler.html" title="class in io.micronaut.jms.listener">LoggingJMSListenerErrorHandler</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="io/micronaut/jms/listener/JMSTopicSubscription.html" title="class in io.micronaut.jms.listener">JMSTopicSubscription</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">A named subscription to a topic: durable, shared, or both.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/tracing/opentelemetry/JMSTracing.html" title="class in io.micronaut.jms.tracing.opentelemetry">JMSTracing</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Traces the messages that JMS listeners process and that JMS producers send with the OpenTelemetry bean of Micronaut
+Tracing.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/listener/LoggingJMSListenerErrorHandler.html" title="class in io.micronaut.jms.listener">LoggingJMSListenerErrorHandler</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Default logger for all <a href="io/micronaut/jms/listener/JMSListener.html" title="class in io.micronaut.jms.listener"><code>JMSListener</code></a>s.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/Message.html" title="annotation interface in io.micronaut.jms.annotations">Message</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/Message.html" title="annotation interface in io.micronaut.jms.annotations">Message</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">An annotation that can be applied to method argument to indicate that the
 argument is bound from the JMS <code>Message</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/bind/MessageBodyHeaderArgumentBinder.html" title="class in io.micronaut.jms.bind">MessageBodyHeaderArgumentBinder</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/bind/MessageBodyHeaderArgumentBinder.html" title="class in io.micronaut.jms.bind">MessageBodyHeaderArgumentBinder</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Binds the <code>MessageBody</code> annotation.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/MessageDeliveryMode.html" title="annotation interface in io.micronaut.jms.annotations">MessageDeliveryMode</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
+<div class="block">An annotation that can be applied to a producer method argument to indicate that the
+argument is the delivery mode, a <a href="io/micronaut/jms/model/JMSDeliveryMode.html" title="enum class in io.micronaut.jms.model"><code>JMSDeliveryMode</code></a> or a <code>DeliveryMode</code> value, passed to <code>MessageProducer.send(Message, int, int, long)</code>.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/listener/MessageHandler.html" title="interface in io.micronaut.jms.listener">MessageHandler&lt;T&gt;</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
@@ -239,30 +283,37 @@ argument is bound from the JMS <code>Message</code>.</div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Binds the <code>MessageHeader</code> annotation.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/MessageProducerPool.html" title="class in io.micronaut.jms.pool">MessageProducerPool</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/MessagePriority.html" title="annotation interface in io.micronaut.jms.annotations">MessagePriority</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="block">An annotation that can be applied to a producer method argument to indicate that the
+argument is the priority, from 0 (lowest) to 9, passed to <code>MessageProducer.send(Message, int, int, long)</code>.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/MessageProducerPool.html" title="class in io.micronaut.jms.pool">MessageProducerPool</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Pool for ensuring maximum reuse of <code>MessageProducer</code>s.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/MessageProducerPoolFactory.html" title="class in io.micronaut.jms.pool">MessageProducerPoolFactory</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/MessageProducerPoolFactory.html" title="class in io.micronaut.jms.pool">MessageProducerPoolFactory</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Factory for generating <a href="io/micronaut/jms/pool/MessageProducerPool.html" title="class in io.micronaut.jms.pool"><code>MessageProducerPool</code></a> from a <code>Session</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/MessageTTL.html" title="annotation interface in io.micronaut.jms.annotations">MessageTTL</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/MessageTTL.html" title="annotation interface in io.micronaut.jms.annotations">MessageTTL</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">An annotation that can be applied to method argument to indicate that the
 argument is bound from the JMS TTL attribute on <code>MessageProducer.send(Message, int, int, long)</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="io/micronaut/jms/model/MessageType.html" title="enum class in io.micronaut.jms.model">MessageType</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="io/micronaut/jms/model/MessageType.html" title="enum class in io.micronaut.jms.model">MessageType</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block">The underlying type of a <code>Message</code> mapped to the corresponding class.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsActivemqArtemisModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsActivemqArtemisModuleInfo</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsActivemqClassicModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsActivemqClassicModuleInfo</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsActivemqArtemisModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsActivemqArtemisModuleInfo</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsCoreModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsCoreModuleInfo</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsActivemqClassicModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsActivemqClassicModuleInfo</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsSqsModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsSqsModuleInfo</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsCoreModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsCoreModuleInfo</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsSqsModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsSqsModuleInfo</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/info/MicronautJmsTracingOpentelemetryModuleInfo.html" title="class in io.micronaut.jms.info">MicronautJmsTracingOpentelemetryModuleInfo</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/PooledConnection.html" title="class in io.micronaut.jms.pool">PooledConnection</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -282,13 +333,22 @@ argument is bound from the JMS TTL attribute on <code>MessageProducer.send(Messa
 <div class="block">Wrapper for <code>Session</code> that returns it to the pool with a call to
 <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="external-link"><code>AutoCloseable.close()</code></a>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/Queue.html" title="annotation interface in io.micronaut.jms.annotations">Queue</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab6">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/ProducerSessionPool.html" title="class in io.micronaut.jms.pool">ProducerSessionPool</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Reuses the sessions of producers across sends, instead of opening a connection and a session for each message.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab6"><a href="io/micronaut/jms/annotations/Queue.html" title="annotation interface in io.micronaut.jms.annotations">Queue</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab6">
 <div class="block">Binds a <code>Queue</code> to a method for receiving or sending a <code>Message</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/serdes/Serializer.html" title="interface in io.micronaut.jms.serdes">Serializer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/serdes/Serializer.html" title="interface in io.micronaut.jms.serdes">Serializer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Serializes an object into a <code>Message</code>.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="io/micronaut/jms/listener/SessionAwareMessageListener.html" title="interface in io.micronaut.jms.listener">SessionAwareMessageListener</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">A <code>MessageListener</code> that also receives the <code>Session</code> that consumed the message, so that it can reply,
+commit or roll back on that session.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="io/micronaut/jms/pool/SessionPool.html" title="class in io.micronaut.jms.pool">SessionPool</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">

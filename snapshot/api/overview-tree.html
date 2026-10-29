@@ -29,6 +29,7 @@ loadScripts(document, 'script');</script>
 <ul id="navbar-top-firstrow" class="nav-list" title="Navigation">
 <li><a href="index.html">Overview</a></li>
 <li class="nav-bar-cell1-rev">Tree</li>
+<li><a href="deprecated-list.html">Deprecated</a></li>
 <li><a href="index-all.html">Index</a></li>
 <li><a href="search.html">Search</a></li>
 <li><a href="help-doc.html#tree">Help</a></li>
@@ -59,14 +60,18 @@ loadScripts(document, 'script');</script>
 <li><a href="io/micronaut/jms/bind/package-tree.html">io.micronaut.jms.bind</a>, </li>
 <li><a href="io/micronaut/jms/configuration/package-tree.html">io.micronaut.jms.configuration</a>, </li>
 <li><a href="io/micronaut/jms/configuration/properties/package-tree.html">io.micronaut.jms.configuration.properties</a>, </li>
+<li><a href="io/micronaut/jms/health/package-tree.html">io.micronaut.jms.health</a>, </li>
 <li><a href="io/micronaut/jms/info/package-tree.html">io.micronaut.jms.info</a>, </li>
 <li><a href="io/micronaut/jms/listener/package-tree.html">io.micronaut.jms.listener</a>, </li>
+<li><a href="io/micronaut/jms/metrics/package-tree.html">io.micronaut.jms.metrics</a>, </li>
 <li><a href="io/micronaut/jms/model/package-tree.html">io.micronaut.jms.model</a>, </li>
+<li><a href="io/micronaut/jms/observation/package-tree.html">io.micronaut.jms.observation</a>, </li>
 <li><a href="io/micronaut/jms/pool/package-tree.html">io.micronaut.jms.pool</a>, </li>
 <li><a href="io/micronaut/jms/serdes/package-tree.html">io.micronaut.jms.serdes</a>, </li>
 <li><a href="io/micronaut/jms/sqs/configuration/package-tree.html">io.micronaut.jms.sqs.configuration</a>, </li>
 <li><a href="io/micronaut/jms/sqs/configuration/properties/package-tree.html">io.micronaut.jms.sqs.configuration.properties</a>, </li>
 <li><a href="io/micronaut/jms/templates/package-tree.html">io.micronaut.jms.templates</a>, </li>
+<li><a href="io/micronaut/jms/tracing/opentelemetry/package-tree.html">io.micronaut.jms.tracing.opentelemetry</a>, </li>
 <li><a href="io/micronaut/jms/util/package-tree.html">io.micronaut.jms.util</a></li>
 </ul>
 <section class="hierarchy">
@@ -99,6 +104,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.info.<a href="io/micronaut/jms/info/MicronautJmsActivemqClassicModuleInfo.html" class="type-name-link" title="class in io.micronaut.jms.info">MicronautJmsActivemqClassicModuleInfo</a></li>
 <li class="circle">io.micronaut.jms.info.<a href="io/micronaut/jms/info/MicronautJmsCoreModuleInfo.html" class="type-name-link" title="class in io.micronaut.jms.info">MicronautJmsCoreModuleInfo</a></li>
 <li class="circle">io.micronaut.jms.info.<a href="io/micronaut/jms/info/MicronautJmsSqsModuleInfo.html" class="type-name-link" title="class in io.micronaut.jms.info">MicronautJmsSqsModuleInfo</a></li>
+<li class="circle">io.micronaut.jms.info.<a href="io/micronaut/jms/info/MicronautJmsTracingOpentelemetryModuleInfo.html" class="type-name-link" title="class in io.micronaut.jms.info">MicronautJmsTracingOpentelemetryModuleInfo</a></li>
 </ul>
 </li>
 <li class="circle">io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/AbstractPool.html" class="type-name-link" title="class in io.micronaut.jms.pool">AbstractPool</a>&lt;T&gt;
@@ -117,10 +123,14 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.bind.<a href="io/micronaut/jms/bind/JMSArgumentBinderRegistry.html" class="type-name-link" title="class in io.micronaut.jms.bind">JMSArgumentBinderRegistry</a> (implements io.micronaut.core.bind.ArgumentBinderRegistry&lt;S&gt;)</li>
 <li class="circle">io.micronaut.jms.templates.<a href="io/micronaut/jms/templates/JmsConsumer.html" class="type-name-link" title="class in io.micronaut.jms.templates">JmsConsumer</a></li>
 <li class="circle">io.micronaut.jms.model.<a href="io/micronaut/jms/model/JMSHeaders.html" class="type-name-link" title="class in io.micronaut.jms.model">JMSHeaders</a></li>
+<li class="circle">io.micronaut.jms.health.<a href="io/micronaut/jms/health/JMSHealthIndicator.html" class="type-name-link" title="class in io.micronaut.jms.health">JMSHealthIndicator</a> (implements io.micronaut.management.health.indicator.HealthIndicator)</li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListener.html" class="type-name-link" title="class in io.micronaut.jms.listener">JMSListener</a></li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerRegistry.html" class="type-name-link" title="class in io.micronaut.jms.listener">JMSListenerRegistry</a></li>
+<li class="circle">io.micronaut.jms.metrics.<a href="io/micronaut/jms/metrics/JMSMetrics.html" class="type-name-link" title="class in io.micronaut.jms.metrics">JMSMetrics</a> (implements io.micronaut.jms.observation.<a href="io/micronaut/jms/observation/JMSMessageObserver.html" title="interface in io.micronaut.jms.observation">JMSMessageObserver</a>)</li>
+<li class="circle">io.micronaut.jms.observation.<a href="io/micronaut/jms/observation/JMSObservations.html" class="type-name-link" title="class in io.micronaut.jms.observation">JMSObservations</a></li>
 <li class="circle">io.micronaut.jms.templates.<a href="io/micronaut/jms/templates/JmsProducer.html" class="type-name-link" title="class in io.micronaut.jms.templates">JmsProducer</a>&lt;T&gt;</li>
 <li class="circle">io.micronaut.jms.configuration.<a href="io/micronaut/jms/configuration/JMSProducerMethodInterceptor.html" class="type-name-link" title="class in io.micronaut.jms.configuration">JMSProducerMethodInterceptor</a> (implements io.micronaut.aop.MethodInterceptor&lt;T,<wbr>R&gt;)</li>
+<li class="circle">io.micronaut.jms.tracing.opentelemetry.<a href="io/micronaut/jms/tracing/opentelemetry/JMSTracing.html" class="type-name-link" title="class in io.micronaut.jms.tracing.opentelemetry">JMSTracing</a> (implements io.micronaut.jms.observation.<a href="io/micronaut/jms/observation/JMSMessageObserver.html" title="interface in io.micronaut.jms.observation">JMSMessageObserver</a>)</li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/LoggingJMSListenerErrorHandler.html" class="type-name-link" title="class in io.micronaut.jms.listener">LoggingJMSListenerErrorHandler</a> (implements io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>)</li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/MessageHandlerAdapter.html" class="type-name-link" title="class in io.micronaut.jms.listener">MessageHandlerAdapter</a>&lt;T&gt; (implements jakarta.jms.MessageListener)</li>
 <li class="circle">io.micronaut.jms.model.<a href="io/micronaut/jms/model/MessageHeader.html" class="type-name-link" title="class in io.micronaut.jms.model">MessageHeader</a></li>
@@ -132,6 +142,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/PooledSession.html" class="type-name-link" title="class in io.micronaut.jms.pool">PooledSession</a> (implements jakarta.jms.Session)</li>
 </ul>
 </li>
+<li class="circle">io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/ProducerSessionPool.html" class="type-name-link" title="class in io.micronaut.jms.pool">ProducerSessionPool</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a>)</li>
 <li class="circle">io.micronaut.jms.pool.<a href="io/micronaut/jms/pool/SessionPoolFactory.html" class="type-name-link" title="class in io.micronaut.jms.pool">SessionPoolFactory</a></li>
 <li class="circle">io.micronaut.jms.sqs.configuration.<a href="io/micronaut/jms/sqs/configuration/SqsConfiguration.html" class="type-name-link" title="class in io.micronaut.jms.sqs.configuration">SqsConfiguration</a></li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/TransactionalJMSListenerErrorHandler.html" class="type-name-link" title="class in io.micronaut.jms.listener">TransactionalJMSListenerErrorHandler</a> (implements io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>)</li>
@@ -147,7 +158,15 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.activemq.classic.configuration.properties.<a href="io/micronaut/jms/activemq/classic/configuration/properties/ActiveMqClassicConfigurationProperties.html" class="type-name-link" title="interface in io.micronaut.jms.activemq.classic.configuration.properties">ActiveMqClassicConfigurationProperties</a></li>
 <li class="circle">io.micronaut.jms.serdes.<a href="io/micronaut/jms/serdes/Deserializer.html" class="type-name-link" title="interface in io.micronaut.jms.serdes">Deserializer</a></li>
 <li class="circle">io.micronaut.jms.configuration.properties.<a href="io/micronaut/jms/configuration/properties/JMSConfigurationProperties.html" class="type-name-link" title="interface in io.micronaut.jms.configuration.properties">JMSConfigurationProperties</a></li>
+<li class="circle">io.micronaut.jms.configuration.properties.<a href="io/micronaut/jms/configuration/properties/JMSListenerRecoveryConfiguration.html" class="type-name-link" title="interface in io.micronaut.jms.configuration.properties">JMSListenerRecoveryConfiguration</a></li>
+<li class="circle">io.micronaut.jms.observation.<a href="io/micronaut/jms/observation/JMSObservation.html" class="type-name-link" title="interface in io.micronaut.jms.observation">JMSObservation</a></li>
+<li class="circle">io.micronaut.jms.configuration.properties.<a href="io/micronaut/jms/configuration/properties/JMSProducerSessionConfiguration.html" class="type-name-link" title="interface in io.micronaut.jms.configuration.properties">JMSProducerSessionConfiguration</a></li>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/MessageHandler.html" class="type-name-link" title="interface in io.micronaut.jms.listener">MessageHandler</a>&lt;T&gt;</li>
+<li class="circle">jakarta.jms.MessageListener
+<ul>
+<li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/SessionAwareMessageListener.html" class="type-name-link" title="interface in io.micronaut.jms.listener">SessionAwareMessageListener</a></li>
+</ul>
+</li>
 <li class="circle">io.micronaut.core.order.Ordered
 <ul>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSListenerErrorHandler.html" class="type-name-link" title="interface in io.micronaut.jms.listener">JMSListenerErrorHandler</a>
@@ -160,6 +179,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/GlobalJMSListenerSuccessHandler.html" class="type-name-link" title="interface in io.micronaut.jms.listener">GlobalJMSListenerSuccessHandler</a></li>
 </ul>
 </li>
+<li class="circle">io.micronaut.jms.observation.<a href="io/micronaut/jms/observation/JMSMessageObserver.html" class="type-name-link" title="interface in io.micronaut.jms.observation">JMSMessageObserver</a></li>
 </ul>
 </li>
 <li class="circle">io.micronaut.jms.serdes.<a href="io/micronaut/jms/serdes/Serializer.html" class="type-name-link" title="interface in io.micronaut.jms.serdes">Serializer</a></li>
@@ -173,6 +193,8 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/JMSListener.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">JMSListener</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/JMSProducer.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">JMSProducer</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Message.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">Message</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/MessageDeliveryMode.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">MessageDeliveryMode</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
+<li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/MessagePriority.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">MessagePriority</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/MessageTTL.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">MessageTTL</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Queue.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">Queue</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
 <li class="circle">io.micronaut.jms.annotations.<a href="io/micronaut/jms/annotations/Topic.html" class="type-name-link" title="annotation interface in io.micronaut.jms.annotations">Topic</a> (implements java.lang.annotation.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="external-link">Annotation</a>)</li>
@@ -188,6 +210,20 @@ loadScripts(document, 'script');</script>
 <li class="circle">io.micronaut.jms.model.<a href="io/micronaut/jms/model/JMSDeliveryMode.html" class="type-name-link" title="enum class in io.micronaut.jms.model">JMSDeliveryMode</a></li>
 <li class="circle">io.micronaut.jms.model.<a href="io/micronaut/jms/model/JMSDestinationType.html" class="type-name-link" title="enum class in io.micronaut.jms.model">JMSDestinationType</a></li>
 <li class="circle">io.micronaut.jms.model.<a href="io/micronaut/jms/model/MessageType.html" class="type-name-link" title="enum class in io.micronaut.jms.model">MessageType</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section class="hierarchy">
+<h2 title="Record Class Hierarchy">Record Class Hierarchy</h2>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Record.html" class="type-name-link external-link" title="class or interface in java.lang">Record</a>
+<ul>
+<li class="circle">io.micronaut.jms.listener.<a href="io/micronaut/jms/listener/JMSTopicSubscription.html" class="type-name-link" title="class in io.micronaut.jms.listener">JMSTopicSubscription</a></li>
 </ul>
 </li>
 </ul>

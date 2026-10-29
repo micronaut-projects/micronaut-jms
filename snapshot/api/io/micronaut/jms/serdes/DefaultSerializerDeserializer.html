@@ -30,6 +30,7 @@ loadScripts(document, 'script');</script>
 <li><a href="../../../../index.html">Overview</a></li>
 <li class="nav-bar-cell1-rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../deprecated-list.html">Deprecated</a></li>
 <li><a href="../../../../index-all.html">Index</a></li>
 <li><a href="../../../../search.html">Search</a></li>
 <li><a href="../../../../help-doc.html#class">Help</a></li>
@@ -87,7 +88,11 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">DefaultSerializerDeserializer</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="Serializer.html" title="interface in io.micronaut.jms.serdes">Serializer</a>, <a href="Deserializer.html" title="interface in io.micronaut.jms.serdes">Deserializer</a></span></div>
-<div class="block">Default implementation of <a href="Serializer.html" title="interface in io.micronaut.jms.serdes"><code>Serializer</code></a> and <a href="Deserializer.html" title="interface in io.micronaut.jms.serdes"><code>Deserializer</code></a>.</div>
+<div class="block">Default implementation of <a href="Serializer.html" title="interface in io.micronaut.jms.serdes"><code>Serializer</code></a> and <a href="Deserializer.html" title="interface in io.micronaut.jms.serdes"><code>Deserializer</code></a>. It is the
+<code>default implementation</code> of both types, so applications
+can add named serializers and deserializers for the <code>serializer</code> and <code>deserializer</code> members of
+<code>@Queue</code> and <code>@Topic</code>, and can still replace the global one with a <code>@Primary</code> bean, a bean with a
+higher precedence <code>@Order</code>, or <code>@Replaces(DefaultSerializerDeserializer.class)</code>.</div>
 <dl class="notes">
 <dt>Since:</dt>
 <dd>1.0.0</dd>
