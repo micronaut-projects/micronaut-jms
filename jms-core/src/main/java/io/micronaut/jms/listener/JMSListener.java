@@ -106,6 +106,10 @@ public class JMSListener {
         if (subscription != null && destinationType == QUEUE) {
             throw new IllegalArgumentException("A subscription can only be used with a topic, not with queue " + destination);
         }
+        if (executor != null && delegate instanceof SessionAwareMessageListener) {
+            // the executor's threads would use the session concurrently, and not on the thread that delivers its messages
+            throw new IllegalArgumentException("A SessionAwareMessageListener cannot be registered with an executor, for destination " + destination);
+        }
         this.session = session;
         this.delegate = delegate;
         this.destinationType = destinationType;
@@ -154,6 +158,10 @@ public class JMSListener {
      */
     @SuppressWarnings("java:S2095") // The consumer is closed in the stop method
     public void start() throws JMSException {
+        if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+            // before any message is consumed: a session the listener cannot use would fail every message
+            sessionAwareListener.checkSession(session);
+        }
         MessageConsumer messageConsumer;
         if (subscription != null) {
             messageConsumer = createSubscriptionConsumer(subscription);
@@ -175,7 +183,11 @@ public class JMSListener {
 
     private void handleMessage(Message msg) {
         try {
-            delegate.onMessage(msg);
+            if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
+                sessionAwareListener.onMessage(msg, session);
+            } else {
+                delegate.onMessage(msg);
+            }
             Throwable ex = new Throwable();
             successHandlers.forEach(handler -> {
                 try {

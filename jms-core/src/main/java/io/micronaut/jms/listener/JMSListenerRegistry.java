@@ -139,22 +139,24 @@ public class JMSListenerRegistry {
             @Nullable JMSTopicSubscription subscription) throws JMSException {
         connection.start();
         Session session = connection.createSession(transacted, acknowledgeMode);
-        JMSListener listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector, subscription);
-        if (CollectionUtils.isNotEmpty(globalSuccessHandlers)) {
-            listener.addSuccessHandlers(globalSuccessHandlers);
-        }
-        if (CollectionUtils.isNotEmpty(globalErrorHandlers)) {
-            listener.addErrorHandlers(globalErrorHandlers);
-        }
-        if (transacted) {
-            listener.addSuccessHandlers(new TransactionalJMSListenerSuccessHandler());
-            listener.addErrorHandlers(new TransactionalJMSListenerErrorHandler());
-        }
-        if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE) {
-            listener.addSuccessHandlers(new AcknowledgingJMSListenerSuccessHandler());
-        }
-        listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
+        JMSListener listener;
         try {
+            // the listener rejects some combinations, such as a subscription on a queue, which must close the session too
+            listener = new JMSListener(session, delegate, destinationType, destination, executor, messageSelector, subscription);
+            if (CollectionUtils.isNotEmpty(globalSuccessHandlers)) {
+                listener.addSuccessHandlers(globalSuccessHandlers);
+            }
+            if (CollectionUtils.isNotEmpty(globalErrorHandlers)) {
+                listener.addErrorHandlers(globalErrorHandlers);
+            }
+            if (transacted) {
+                listener.addSuccessHandlers(new TransactionalJMSListenerSuccessHandler());
+                listener.addErrorHandlers(new TransactionalJMSListenerErrorHandler());
+            }
+            if (acknowledgeMode == Session.CLIENT_ACKNOWLEDGE) {
+                listener.addSuccessHandlers(new AcknowledgingJMSListenerSuccessHandler());
+            }
+            listener.addErrorHandlers(new LoggingJMSListenerErrorHandler());
             this.register(listener, autoStart);
         } catch (JMSException | RuntimeException e) {
             try {

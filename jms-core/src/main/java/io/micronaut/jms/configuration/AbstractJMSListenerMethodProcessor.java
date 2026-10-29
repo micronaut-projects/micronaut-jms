@@ -20,6 +20,8 @@ import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
+import io.micronaut.core.bind.annotation.Bindable;
+import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
@@ -30,6 +32,7 @@ import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
 import io.micronaut.jms.listener.JMSTopicSubscription;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
+import io.micronaut.jms.listener.SessionAwareMessageListener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.util.Assert;
@@ -41,8 +44,12 @@ import org.slf4j.LoggerFactory;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
+import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -112,13 +119,64 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     private MessageListener generateAndBindListener(Object bean,
-                                                    Executable<?, ?> method) {
+                                                    Executable<?, ?> method,
+                                                    String listenerName) {
+        // a parameter typed as the JMS session, or a provider subtype, receives the session that consumed the message
+        Argument<?>[] sessionArguments = Arrays.stream(method.getArguments())
+            .filter(argument -> Session.class.isAssignableFrom(argument.getType())
+                && !argument.getAnnotationMetadata().hasStereotype(Bindable.class))
+            .toArray(Argument[]::new);
+        checkBinders(method, sessionArguments, listenerName);
+        if (sessionArguments.length == 0) {
+            return message -> {
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+                boundExecutable.invoke(bean);
+            };
+        }
+        return new SessionAwareMessageListener() {
+            @Override
+            public void onMessage(Message message, Session session) {
+                Map<Argument<?>, Object> preBound = HashMap.newHashMap(sessionArguments.length);
+                for (Argument<?> argument : sessionArguments) {
+                    preBound.put(argument, session);
+                }
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
+                BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
+                boundExecutable.invoke(bean);
+            }
 
-        return message -> {
-            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
-            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
-            boundExecutable.invoke(bean);
+            @Override
+            public void checkSession(Session session) {
+                for (Argument<?> argument : sessionArguments) {
+                    if (!argument.getType().isInstance(session)) {
+                        throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                            + " of the listener method " + listenerName + " cannot be bound to the session "
+                            + session.getClass().getName());
+                    }
+                }
+            }
         };
+    }
+
+    /**
+     * Checks at registration that every argument other than the session can be bound, since one that can't, such as a
+     * parameter of type {@code oracle.jms.AQjmsSession}, which is a {@code javax.jms.Session}, would fail every message.
+     */
+    private void checkBinders(Executable<?, ?> method, Argument<?>[] sessionArguments, String listenerName) {
+        List<Argument<?>> bound = Arrays.asList(sessionArguments);
+        for (Argument<?> argument : method.getArguments()) {
+            if (bound.contains(argument)) {
+                continue;
+            }
+            try {
+                jmsArgumentBinderRegistry.findArgumentBinder(argument);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                    + " of the @" + clazz.getSimpleName() + " listener method " + listenerName + " cannot be bound: annotate it with a binding annotation"
+                    + " such as @MessageBody or @MessageHeader, or type it as a jakarta.jms.Session", e);
+            }
+        }
     }
 
     private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
@@ -151,7 +209,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method);
+        // the bean type rather than the declaring type, which may be a superclass of several listeners
+        MessageListener listener = generateAndBindListener(bean, method,
+            beanDefinition.getBeanType().getSimpleName() + "#" + method.getMethodName());
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
