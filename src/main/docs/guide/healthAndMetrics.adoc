@@ -1,0 +1,30 @@
+=== Health
+
+With the `micronaut-management` module, the health endpoint has a `jms` indicator. For each JMS connection factory, it opens a new connection, not one from the pool, on the blocking executor. The indicator is `UP` when every connection factory connects, with the JMS provider name and version of each, and `DOWN` with the error otherwise. It only checks that a connection can be opened, which doesn't reach the broker with every provider: an ActiveMQ Classic `failover:` URL connects in the background, and the SQS connection factory makes no AWS call, so the indicator reports `UP` for them while the broker is unreachable.
+
+Add the dependency:
+
+dependency:micronaut-management[groupId="io.micronaut"]
+
+Disable the indicator with:
+
+[configuration]
+----
+endpoints:
+  health:
+    jms:
+      enabled: false
+----
+
+=== Metrics
+
+With a Micrometer `MeterRegistry`, for example from the https://micronaut-projects.github.io/micronaut-micrometer/latest/guide/[Micronaut Micrometer] module, the messages that listeners handle are counted as the `jms.listener.messages` counter. It is tagged with the `destination` and the `result`: `success`, or `failure` with the `exception` class name. Disable the metrics with:
+
+[configuration]
+----
+micronaut:
+  metrics:
+    binders:
+      jms:
+        enabled: false
+----

@@ -8,6 +8,7 @@ micronaut-test = "5.1.0"
 micronaut-logging = "2.1.0"
 micronaut-validation = "5.2.1"
 micronaut-aws = "5.1.1"
+micronaut-micrometer = "6.1.0"
 micronaut-gradle-plugin = "5.0.2"
 amazon-sqs-messaging = '2.1.4'
 awaitility = '4.3.0'
@@ -27,6 +28,7 @@ micronaut-core = { module = 'io.micronaut:micronaut-core-bom', version.ref = 'mi
 micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-bom", version.ref = "micronaut-validation" }
 micronaut-platform = { module = "io.micronaut.platform:micronaut-platform-bom", version.ref = "micronaut-platform" }
 micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
+micronaut-micrometer = { module = "io.micronaut.micrometer:micronaut-micrometer-bom", version.ref = "micronaut-micrometer" }
 
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'managed-activemq-jakarta' }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
