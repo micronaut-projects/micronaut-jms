@@ -6,12 +6,16 @@ io.micronaut.jms.annotations
 io.micronaut.jms.bind
 io.micronaut.jms.configuration
 io.micronaut.jms.configuration.properties
+io.micronaut.jms.health
 io.micronaut.jms.info
 io.micronaut.jms.listener
+io.micronaut.jms.metrics
 io.micronaut.jms.model
+io.micronaut.jms.observation
 io.micronaut.jms.pool
 io.micronaut.jms.serdes
 io.micronaut.jms.sqs.configuration
 io.micronaut.jms.sqs.configuration.properties
 io.micronaut.jms.templates
+io.micronaut.jms.tracing.opentelemetry
 io.micronaut.jms.util

@@ -46,7 +46,7 @@
         <div class="docs-content">
             <div class="project">
                 <h1>Configuration Reference</h1>
-                <p><strong>Version:</strong>5.1.0</p>
+                <p><strong>Version:</strong>5.2.0</p>
                 <p></p>
             </div>
 <div class="sect2">
@@ -184,12 +184,111 @@
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
+<a id="io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration" href="#io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration">&#128279;</a>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 4. Configuration Properties for <a href="../api/io/micronaut/jms/configuration/properties/JMSListenerRecoveryConfiguration.html">JMSListenerRecoveryConfiguration</a></caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.listener-recovery.enabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether listeners recreate a session that the JMS provider reports as failed. Defaults to {@code true}.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.listener-recovery.warn-attempts</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of failed attempts to recreate a session that are logged as warnings. Later attempts are
+ logged as errors, and continue until one succeeds or the listener shuts down. Defaults to 10.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.listener-recovery.initial-delay</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">java.time.Duration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How long a consumer waits after a failed attempt before the next one. The wait doubles after each
+ attempt, up to {@link #getMaxDelay()}. It must be positive. Defaults to 1 second.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PT1S</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.listener-recovery.max-delay</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">java.time.Duration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The longest wait between two attempts, which every attempt waits once the doubling reaches it. It must not
+ be shorter than {@link #getInitialDelay()}. Defaults to 1 minute.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">PT1M</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+<a id="io.micronaut.jms.configuration.properties.JMSProducerSessionConfiguration" href="#io.micronaut.jms.configuration.properties.JMSProducerSessionConfiguration">&#128279;</a>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 5. Configuration Properties for <a href="../api/io/micronaut/jms/configuration/properties/JMSProducerSessionConfiguration.html">JMSProducerSessionConfiguration</a></caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.producer-sessions.enabled</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether producer methods reuse sessions, on one connection of each connection factory. When disabled,
+ each send takes a connection from the pool and opens a session. Defaults to {@code true}.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.producer-sessions.max-idle</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of idle sessions kept for each connection factory and session mode. While sends wait
+ for a session, released sessions are kept for them up to {@link #getMaxActive()}; the idle sessions above this
+ number are closed once no send waits. Defaults to 8.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.producer-sessions.max-active</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of sessions of each connection factory that sends use at once, of all session
+ modes. When all of them are borrowed, a send waits up to {@link #getMaxWait()} for one to be released.
+ Defaults to 32.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>micronaut.jms.producer-sessions.max-wait</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">java.time.Duration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">How long a send waits for a session when {@link #getMaxActive()} sessions are borrowed, after which the
+ send fails. Defaults to 10 seconds.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10s</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
 </div>
 <div class="sect2">
 <h3 id="_micronaut_jms_sqs_config_properties">Micronaut Jms Sqs Config Properties</h3>
 <a id="io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties" href="#io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties">&#128279;</a>
 <table class="tableblock frame-all grid-all stretch">
-<caption class="title">Table 4. Configuration Properties for <a href="../api/io/micronaut/jms/sqs/configuration/properties/SqsConfigurationProperties.html">SqsConfigurationProperties</a></caption>
+<caption class="title">Table 6. Configuration Properties for <a href="../api/io/micronaut/jms/sqs/configuration/properties/SqsConfigurationProperties.html">SqsConfigurationProperties</a></caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
