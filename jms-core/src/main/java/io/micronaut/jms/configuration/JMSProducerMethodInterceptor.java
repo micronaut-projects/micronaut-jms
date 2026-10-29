@@ -19,6 +19,7 @@ import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.exceptions.ConfigurationException;
+import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSProducer;
@@ -30,6 +31,7 @@ import io.micronaut.jms.annotations.Topic;
 import io.micronaut.jms.model.JMSDeliveryMode;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.model.MessageHeader;
+import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.DefaultSerializerDeserializer;
 import io.micronaut.jms.serdes.Serializer;
@@ -42,9 +44,11 @@ import jakarta.jms.Message;
 import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
 import static io.micronaut.jms.model.JMSDestinationType.TOPIC;
@@ -62,9 +66,12 @@ import static jakarta.jms.Message.DEFAULT_TIME_TO_LIVE;
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {
 
     private final BeanContext beanContext;
+    private final Supplier<Collection<JMSMessageObserver>> observers;
 
     public JMSProducerMethodInterceptor(BeanContext beanContext) {
         this.beanContext = beanContext;
+        // looked up on the first send rather than injected, so the meter registry or tracer of an observer is not created with the interceptor
+        this.observers = SupplierUtil.memoized(() -> beanContext.getBeansOfType(JMSMessageObserver.class));
     }
 
     @Override
@@ -136,6 +143,7 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         boolean transacted = method.isTrue(annotationType, "transacted");
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
             transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+        producer.addObservers(observers.get());
         producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
 
         return null;

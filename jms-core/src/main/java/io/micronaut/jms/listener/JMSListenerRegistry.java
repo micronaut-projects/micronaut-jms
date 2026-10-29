@@ -17,9 +17,11 @@ package io.micronaut.jms.listener;
 
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.observation.JMSMessageObserver;
 import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.pool.PooledObject;
 import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,12 +59,34 @@ public class JMSListenerRegistry {
     private final Map<JMSListener, Connection> dedicatedConnections = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers;
     private final Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers;
+    private final Collection<JMSMessageObserver> observers;
 
+    /**
+     * @param globalSuccessHandlers The success handlers of every listener
+     * @param globalErrorHandlers   The error handlers of every listener
+     * @deprecated Use {@link #JMSListenerRegistry(Collection, Collection, Collection)} instead
+     */
+    @Deprecated(since = "5.2.0", forRemoval = true)
     public JMSListenerRegistry(
         Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers,
         Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers) {
+        this(globalSuccessHandlers, globalErrorHandlers, List.of());
+    }
+
+    /**
+     * @param globalSuccessHandlers The success handlers of every listener
+     * @param globalErrorHandlers   The error handlers of every listener
+     * @param observers             The observers of the messages of every listener
+     * @since 5.2.0
+     */
+    @Inject
+    public JMSListenerRegistry(
+        Collection<GlobalJMSListenerSuccessHandler> globalSuccessHandlers,
+        Collection<GlobalJMSListenerErrorHandler> globalErrorHandlers,
+        Collection<JMSMessageObserver> observers) {
         this.globalSuccessHandlers = globalSuccessHandlers;
         this.globalErrorHandlers = globalErrorHandlers;
+        this.observers = observers;
     }
 
     /**
@@ -150,6 +174,9 @@ public class JMSListenerRegistry {
             }
             if (CollectionUtils.isNotEmpty(globalErrorHandlers)) {
                 listener.addErrorHandlers(globalErrorHandlers);
+            }
+            if (CollectionUtils.isNotEmpty(observers)) {
+                listener.addObservers(observers);
             }
             if (transacted) {
                 listener.addSuccessHandlers(new TransactionalJMSListenerSuccessHandler());

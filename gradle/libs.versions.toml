@@ -9,6 +9,7 @@ micronaut-logging = "2.1.0"
 micronaut-validation = "5.2.1"
 micronaut-aws = "5.1.1"
 micronaut-micrometer = "6.1.0"
+micronaut-tracing = "8.3.0"
 micronaut-gradle-plugin = "5.0.2"
 amazon-sqs-messaging = '2.1.4'
 awaitility = '4.3.0'
@@ -29,11 +30,13 @@ micronaut-validation = { module = "io.micronaut.validation:micronaut-validation-
 micronaut-platform = { module = "io.micronaut.platform:micronaut-platform-bom", version.ref = "micronaut-platform" }
 micronaut-aws = { module = "io.micronaut.aws:micronaut-aws-bom", version.ref = "micronaut-aws" }
 micronaut-micrometer = { module = "io.micronaut.micrometer:micronaut-micrometer-bom", version.ref = "micronaut-micrometer" }
+micronaut-tracing = { module = "io.micronaut.tracing:micronaut-tracing-bom", version.ref = "micronaut-tracing" }
 
 activemq-broker = { module = 'org.apache.activemq:activemq-broker', version.ref = 'managed-activemq-jakarta' }
 amazon-sqs-messaging = { module = 'com.amazonaws:amazon-sqs-java-messaging-lib', version.ref = 'amazon-sqs-messaging' }
 awaitility = { module = 'org.awaitility:awaitility', version.ref = 'awaitility' }
 aws-sqs = { module = 'software.amazon.awssdk:sqs' }
+opentelemetry-sdk-testing = { module = 'io.opentelemetry:opentelemetry-sdk-testing' }
 commons-pool2 = { module = 'org.apache.commons:commons-pool2', version.ref = 'commons-pool2' }
 graal-svm = { module = "org.graalvm.nativeimage:svm", version.ref = "graal-svm" }
 jcl-slf4j = { module = 'org.slf4j:jcl-over-slf4j', version.ref = 'jcl-slf4j' }

@@ -16,7 +16,11 @@
 package io.micronaut.jms.listener;
 
 import io.micronaut.core.order.OrderUtil;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.jms.model.JMSDestinationType;
+import io.micronaut.jms.observation.JMSMessageObserver;
+import io.micronaut.jms.observation.JMSObservation;
+import io.micronaut.jms.observation.JMSObservations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +72,7 @@ public class JMSListener {
     private final ExecutorService executor;
     private final List<JMSListenerSuccessHandler> successHandlers = new ArrayList<>();
     private final List<JMSListenerErrorHandler> errorHandlers = new ArrayList<>();
+    private final JMSObservations observations = new JMSObservations();
     private final Optional<String> messageSelector;
     private final @Nullable JMSTopicSubscription subscription;
 
@@ -152,6 +157,15 @@ public class JMSListener {
     }
 
     /**
+     * @param observers - add the given observers of the messages that this listener processes. They are called in
+     *                  {@link JMSMessageObserver#getOrder()} order before the message is processed.
+     * @since 5.2.0
+     */
+    public void addObservers(Collection<? extends JMSMessageObserver> observers) {
+        this.observations.add(observers);
+    }
+
+    /**
      * Configures the listener to begin listening for messages and processing them.
      *
      * @throws JMSException - if any JMS related exception occurs while configuring the listener.
@@ -182,6 +196,29 @@ public class JMSListener {
     }
 
     private void handleMessage(Message msg) {
+        // an observer that fails with an error has completed the observations started before it
+        List<JMSObservation> started = observations.process(destinationType, destination, msg);
+        Throwable error = null;
+        try {
+            PropagatedContext current = PropagatedContext.getOrEmpty();
+            PropagatedContext context = JMSObservations.propagatedContext(started, current);
+            error = context == current ? process(msg) : context.propagate(() -> process(msg));
+        } catch (Throwable e) {
+            // an error is not given to the error handlers, but the observations still complete with it
+            error = e;
+            throw e;
+        } finally {
+            JMSObservations.complete(started, error);
+        }
+    }
+
+    /**
+     * Calls the listener and the success or error handlers.
+     *
+     * @param msg The message
+     * @return The exception to complete the observations with, or {@code null}
+     */
+    private @Nullable Throwable process(Message msg) {
         try {
             if (delegate instanceof SessionAwareMessageListener sessionAwareListener) {
                 sessionAwareListener.onMessage(msg, session);
@@ -199,9 +236,13 @@ public class JMSListener {
             });
             if (ex.getSuppressed().length > 0) {
                 errorHandlers.forEach(handler -> handler.handle(session, msg, ex));
+                // the handler's exception rather than the placeholder that collects them
+                return ex.getSuppressed()[0];
             }
+            return null;
         } catch (Exception e) {
             errorHandlers.forEach(handler -> handler.handle(session, msg, e));
+            return e;
         }
     }
 

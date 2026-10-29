@@ -18,7 +18,26 @@ endpoints:
 
 === Metrics
 
-With a Micrometer `MeterRegistry`, for example from the https://micronaut-projects.github.io/micronaut-micrometer/latest/guide/[Micronaut Micrometer] module, the messages that listeners handle are counted as the `jms.listener.messages` counter. It is tagged with the `destination` and the `result`: `success`, or `failure` with the `exception` class name. Disable the metrics with:
+With a Micrometer `MeterRegistry`, for example from the https://micronaut-projects.github.io/micronaut-micrometer/latest/guide/[Micronaut Micrometer] module, the following meters are recorded:
+
+[cols="1,3"]
+|===
+|Meter |Description
+
+|`jms.listener.messages`
+|Counter of the messages that listeners process
+
+|`jms.listener.duration`
+|Timer of the processing of a message, from the start of the listener method to the end of the success or error handlers
+
+|`jms.producer.messages`
+|Counter of the messages that producer methods and `JmsProducer` send
+
+|`jms.producer.duration`
+|Timer of the sending of a message, from taking the connection to the commit of a transacted send, so a send that fails to connect is counted as a failure too
+|===
+
+The meters are tagged with the `destination` and the `result`: `success`, or `failure` with the `exception` class name. Disable the metrics with:
 
 [configuration]
 ----
@@ -28,3 +47,30 @@ micronaut:
       jms:
         enabled: false
 ----
+
+=== Tracing
+
+To trace messages with OpenTelemetry, add the `micronaut-jms-tracing-opentelemetry` module, which uses the `OpenTelemetry` bean of https://micronaut-projects.github.io/micronaut-tracing/latest/guide/[Micronaut Tracing]:
+
+dependency:io.micronaut.jms:micronaut-jms-tracing-opentelemetry[]
+
+Messages are then traced:
+
+* Sending a message creates a `PRODUCER` span named `send <destination>`, a child of the current span. It starts before the connection is taken, so a send that fails to connect ends it with an error too. The trace context is propagated to the receiver in message properties by the configured propagators.
+* Processing a message creates a `CONSUMER` span named `process <destination>` that continues the trace of the sender. It is the current span while the listener method and the success and error handlers run, so spans created by the listener method are its children. It is also current in Micronaut's propagated context, so it follows the listener method to the threads that the context propagates to. A failure sets the span's status to `ERROR` and records the exception.
+
+The spans have the `messaging.system` (`jms`), `messaging.destination.name`, `messaging.operation.name`, `messaging.operation.type` and `messaging.message.id` attributes. JMS property names must be Java identifiers, so the dashes of propagation headers such as those of B3 are replaced with `+__dash__+` in property names, as the OpenTelemetry Java agent does. Disable tracing with:
+
+[configuration]
+----
+micronaut:
+  jms:
+    tracing:
+      enabled: false
+----
+
+NOTE: The https://opentelemetry.io/docs/zero-code/java/agent/[OpenTelemetry Java agent] has its own JMS instrumentation, which also creates spans for the messages that are sent and processed. Micronaut Tracing uses the agent's `OpenTelemetry` when the agent is attached, so an application that runs with the agent should not add `micronaut-jms-tracing-opentelemetry`, or each message would be traced twice.
+
+=== Custom observers
+
+The metrics and the tracing are beans of type api:jms.observation.JMSMessageObserver[]. Other beans of that type are also called before a listener processes a message and before a producer sends one, and the observation each returns is completed afterwards with the error, if any. A producer's observation starts before the connection is taken, and its `beforeSend` method is called with the message once the message is created, so properties set on it are sent. A listener's observation can give, from its `propagatedContext` method, the propagated context that the listener method and the handlers run in. Observers are called in order, and their observations are completed in the reverse order. A `JmsProducer` created by the application only calls the observers added with `addObservers`.
