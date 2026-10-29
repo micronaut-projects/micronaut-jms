@@ -1,5 +1,9 @@
 package io.micronaut.jms.listener;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.exceptions.ConfigurationException;
 import io.micronaut.jms.configuration.properties.JMSListenerRecoveryConfiguration;
@@ -15,6 +19,7 @@ import jakarta.jms.MessageListener;
 import jakarta.jms.Session;
 import jakarta.jms.TopicSubscriber;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Proxy;
 import java.time.Duration;
@@ -134,6 +139,38 @@ class ListenerRecoveryTest {
         await(() -> broker.sessions.size() == 2 && broker.sessions.get(1).consumers.size() == 1);
         assertEquals(7, broker.sessionAttempts.get(), "the registration, five failed attempts and the one that worked");
         registry.shutdown();
+    }
+
+    @Test
+    void theWarnAttemptsAreLoggedAsWarningsAndOnlyTheFirstErrorHasAStackTrace() throws JMSException {
+        Logger logger = (Logger) LoggerFactory.getLogger(JMSListenerRegistry.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        Level level = logger.getLevel();
+        // without debug logging, which logs every stack trace
+        logger.setLevel(Level.INFO);
+        try {
+            StubBroker broker = new StubBroker();
+            JMSListenerRegistry registry = registry(recovery(true, 2, Duration.ofMillis(1)));
+            registry.register(broker.connection, JMSDestinationType.QUEUE, "orders", false, Session.AUTO_ACKNOWLEDGE,
+                message -> { }, null, true, Optional.empty(), null);
+            broker.sessions.get(0).broken = true;
+            broker.failedSessions.set(4);
+
+            broker.reportError(SESSION_DIED);
+            await(() -> broker.sessions.size() == 2 && broker.sessions.get(1).consumers.size() == 1);
+            registry.shutdown();
+
+            List<String> attempts = appender.list.stream()
+                .filter(event -> event.getFormattedMessage().startsWith("Unable to recreate"))
+                .map(event -> event.getLevel() + (event.getThrowableProxy() == null ? "" : "+trace"))
+                .toList();
+            assertEquals(List.of("WARN", "WARN", "ERROR+trace", "ERROR"), attempts);
+        } finally {
+            logger.setLevel(level);
+            logger.detachAppender(appender);
+        }
     }
 
     @Test

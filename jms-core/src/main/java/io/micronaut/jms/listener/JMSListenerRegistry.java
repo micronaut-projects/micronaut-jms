@@ -352,20 +352,24 @@ public class JMSListenerRegistry {
             recovering.remove(listener);
         } catch (JMSException | RuntimeException e) {
             Duration delay = delay(attempt);
-            if (attempt < recoveryConfiguration.getWarnAttempts()) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("Unable to recreate the session of the listener of {} (attempt {}), retrying in {}: {}",
-                        listener, attempt, delay, describe(e));
-                }
-            } else if (attempt == recoveryConfiguration.getWarnAttempts() || LOGGER.isDebugEnabled()) {
-                // the stack trace once, since the attempts continue for as long as the provider fails
-                LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
-                    + "until the session is recreated, retrying in {}", listener, attempt, delay, e);
-            } else if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
-                    + "until the session is recreated, retrying in {}: {}", listener, attempt, delay, describe(e));
-            }
+            logFailedAttempt(listener, attempt, delay, e);
             schedule(() -> recover(listener, error, attempt + 1), delay, listener);
+        }
+    }
+
+    private void logFailedAttempt(JMSListener listener, int attempt, Duration delay, Exception failure) {
+        if (attempt <= recoveryConfiguration.getWarnAttempts()) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unable to recreate the session of the listener of {} (attempt {}), retrying in {}: {}",
+                    listener, attempt, delay, describe(failure));
+            }
+        } else if (attempt == recoveryConfiguration.getWarnAttempts() + 1 || LOGGER.isDebugEnabled()) {
+            // the stack trace once, since the attempts continue for as long as the provider fails
+            LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
+                + "until the session is recreated, retrying in {}", listener, attempt, delay, failure);
+        } else if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Unable to recreate the session of the listener of {} (attempt {}). It receives no messages "
+                + "until the session is recreated, retrying in {}: {}", listener, attempt, delay, describe(failure));
         }
     }
 
