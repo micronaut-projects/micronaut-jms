@@ -16,12 +16,16 @@
 package io.micronaut.jms.configuration;
 
 import io.micronaut.aop.MethodInterceptor;
+import io.micronaut.aop.InterceptedMethod;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.exceptions.ConfigurationException;
+import io.micronaut.core.async.publisher.Publishers;
+import io.micronaut.core.propagation.PropagatedContext;
 import io.micronaut.core.util.SupplierUtil;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
+import io.micronaut.scheduling.TaskExecutors;
 import io.micronaut.jms.annotations.JMSProducer;
 import io.micronaut.jms.annotations.MessageDeliveryMode;
 import io.micronaut.jms.annotations.MessagePriority;
@@ -48,6 +52,8 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
 
 import static io.micronaut.jms.model.JMSDestinationType.QUEUE;
@@ -66,12 +72,16 @@ import static jakarta.jms.Message.DEFAULT_TIME_TO_LIVE;
 public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, Object> {
 
     private final BeanContext beanContext;
+    // looked up on the first send rather than injected, so the meter registry or tracer of an observer is not created with the interceptor
     private final Supplier<Collection<JMSMessageObserver>> observers;
+    private final Supplier<JMSProducerSessionPools> sessionPools;
+    private final Supplier<ExecutorService> executor;
 
     public JMSProducerMethodInterceptor(BeanContext beanContext) {
         this.beanContext = beanContext;
-        // looked up on the first send rather than injected, so the meter registry or tracer of an observer is not created with the interceptor
         this.observers = SupplierUtil.memoized(() -> beanContext.getBeansOfType(JMSMessageObserver.class));
+        this.sessionPools = SupplierUtil.memoized(() -> beanContext.getBean(JMSProducerSessionPools.class));
+        this.executor = SupplierUtil.memoized(() -> beanContext.getBean(ExecutorService.class, Qualifiers.byName(TaskExecutors.BLOCKING)));
     }
 
     @Override
@@ -103,6 +113,33 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
             .orElseThrow(() -> new ConfigurationException(
                 "@" + annotationType.getSimpleName() + " must specify a destination."));
 
+        // created first, so that methods returning a future or a publisher signal invalid arguments through them
+        InterceptedMethod interceptedMethod = InterceptedMethod.of(context, beanContext.getConversionService());
+        // captured on the calling thread, since a publisher may be subscribed to on another one
+        PropagatedContext propagatedContext = PropagatedContext.getOrEmpty();
+        try {
+            Runnable send = send(context, method, annotationType, destinationType, connectionFactory, destinationName);
+            return switch (interceptedMethod.resultType()) {
+                // sent on the blocking executor, since JMS sends block
+                case COMPLETION_STAGE -> interceptedMethod.handleResult(sendAsync(send, propagatedContext));
+                case PUBLISHER -> interceptedMethod.handleResult(Publishers.fromCompletableFuture(() -> sendAsync(send, propagatedContext)));
+                case SYNCHRONOUS -> {
+                    send.run();
+                    yield null;
+                }
+                default -> interceptedMethod.unsupported();
+            };
+        } catch (Exception e) {
+            return interceptedMethod.handleException(e);
+        }
+    }
+
+    private Runnable send(MethodInvocationContext<Object, Object> context,
+                          ExecutableMethod<?, ?> method,
+                          Class<? extends Annotation> annotationType,
+                          JMSDestinationType destinationType,
+                          String connectionFactory,
+                          String destinationName) {
         Map<String, Object> parameterValueMap = context.getParameterValueMap();
 
         Object body = Arrays.stream(method.getArguments())
@@ -142,11 +179,15 @@ public class JMSProducerMethodInterceptor implements MethodInterceptor<Object, O
         // a transacted producer method sends on a transacted session, committed after the send
         boolean transacted = method.isTrue(annotationType, "transacted");
         JmsProducer producer = new JmsProducer(destinationType, pool, serializer, transacted,
-            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+            transacted ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE,
+            sessionPools.get().get(connectionFactory, pool));
         producer.addObservers(observers.get());
-        producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
+        return () -> producer.send(destinationName, body, deliveryMode, priority, timeToLive, headers);
+    }
 
-        return null;
+    private CompletableFuture<Void> sendAsync(Runnable send, PropagatedContext propagatedContext) {
+        // the propagated context of the caller, for example the current trace, follows the send to the executor
+        return CompletableFuture.runAsync(propagatedContext.wrap(send), executor.get());
     }
 
     private static JMSDeliveryMode deliveryMode(ExecutableMethod<?, ?> method,

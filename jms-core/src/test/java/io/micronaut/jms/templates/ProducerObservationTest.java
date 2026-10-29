@@ -97,10 +97,11 @@ class ProducerObservationTest {
         assertThrows(MessagingClientException.class, () -> template.send(unnamed, message("down", null, null), 0L));
 
         assertEquals(List.of(), broker.sent);
-        assertInstanceOf(MessagingSystemException.class, failure.getCause());
+        // a producer method borrows a pooled session, whose connection comes straight from the connection factory
+        assertInstanceOf(JMSException.class, failure.getCause());
         assertEquals(List.of(
             "recording send QUEUE orders",
-            "recording send QUEUE orders completed with MessagingSystemException",
+            "recording send QUEUE orders completed with JMSException",
             "recording send QUEUE prices",
             "recording send QUEUE prices completed with MessagingSystemException",
             "recording send QUEUE Queue stub",

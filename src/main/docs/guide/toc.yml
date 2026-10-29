@@ -14,6 +14,7 @@ errorHandlers: Error Handlers
 successHandlers: Success Handlers
 messageSelector: Message Selectors
 deliveryOptions: Delivery Mode and Priority
+producers: Asynchronous Producers and Producer Sessions
 listenerConcurrency: Listener Concurrency and Transacted Sends
 healthAndMetrics: Health, Metrics and Tracing
 topicSubscriptions: Durable and Shared Topic Subscriptions
