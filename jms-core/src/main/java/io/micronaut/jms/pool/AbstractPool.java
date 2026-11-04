@@ -51,13 +51,18 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
      *                               the configured size
      */
     public T request(Object... args) {
-        if (pool.isEmpty()) {
+        T object = poll();
+        // idle objects that became invalid are discarded rather than handed out
+        while (object != null && !isValid(object)) {
+            discard(object);
+            object = poll();
+        }
+        if (object == null) {
             if (active.size() >= maxSize) {
                 throw new IllegalStateException("Maximum pool size reached");
             }
-            pool.add(create(args));
+            object = create(args);
         }
-        T object = pool.remove(0);
         active.add(object);
         return object;
     }
@@ -69,8 +74,37 @@ public abstract class AbstractPool<T extends PooledObject<?>> {
      */
     public void release(T pooledObject) {
         active.remove(pooledObject);
+        if (!isValid(pooledObject)) {
+            discard(pooledObject);
+            return;
+        }
         reset(pooledObject);
         pool.add(pooledObject);
+    }
+
+    /**
+     * @param pooledObject a pooled object
+     * @return whether the object can still be used. Invalid objects are discarded instead of being handed out or
+     * returned to the pool.
+     * @since 5.2.0
+     */
+    protected boolean isValid(T pooledObject) {
+        return true;
+    }
+
+    /**
+     * Releases the resources of an invalid object, which leaves the pool.
+     *
+     * @param pooledObject the invalid object
+     * @since 5.2.0
+     */
+    protected void discard(T pooledObject) {
+    }
+
+    private T poll() {
+        synchronized (pool) {
+            return pool.isEmpty() ? null : pool.remove(0);
+        }
     }
 
     /**

@@ -18,30 +18,42 @@ package io.micronaut.jms.configuration;
 import io.micronaut.context.BeanContext;
 import io.micronaut.context.processor.ExecutableMethodProcessor;
 import io.micronaut.core.annotation.AnnotationValue;
+import io.micronaut.core.bind.ArgumentBinder;
+import io.micronaut.core.bind.ArgumentBinderRegistry;
 import io.micronaut.core.bind.BoundExecutable;
 import io.micronaut.core.bind.DefaultExecutableBinder;
+import io.micronaut.core.bind.annotation.Bindable;
+import io.micronaut.core.type.Argument;
 import io.micronaut.core.type.Executable;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.inject.ExecutableMethod;
 import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.jms.annotations.JMSListener;
+import io.micronaut.jms.bind.DefaultBodyArgumentBinder;
 import io.micronaut.jms.bind.JMSArgumentBinderRegistry;
 import io.micronaut.jms.listener.JMSListenerErrorHandler;
 import io.micronaut.jms.listener.JMSListenerRegistry;
+import io.micronaut.jms.listener.JMSTopicSubscription;
 import io.micronaut.jms.listener.JMSListenerSuccessHandler;
+import io.micronaut.jms.listener.SessionAwareMessageListener;
 import io.micronaut.jms.model.JMSDestinationType;
 import io.micronaut.jms.pool.JMSConnectionPool;
+import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.jms.Connection;
 import jakarta.jms.JMSException;
 import jakarta.jms.Message;
 import jakarta.jms.MessageListener;
+import jakarta.jms.Session;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -110,14 +122,95 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                     " or @Message"));
     }
 
-    private MessageListener generateAndBindListener(Object bean,
-                                                    Executable<?, ?> method) {
-
-        return message -> {
-            DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
-            BoundExecutable boundExecutable = binder.bind(method, jmsArgumentBinderRegistry, message);
-            boundExecutable.invoke(bean);
+    private ArgumentBinderRegistry<Message> binderRegistry(AnnotationValue<T> destinationAnnotation) {
+        Optional<String> deserializerName = destinationAnnotation.stringValue("deserializer").filter(name -> !name.isEmpty());
+        if (deserializerName.isEmpty()) {
+            return jmsArgumentBinderRegistry;
+        }
+        Deserializer deserializer = beanContext.getBean(Deserializer.class, Qualifiers.byName(deserializerName.get()));
+        ArgumentBinder<?, Message> bodyBinder = new DefaultBodyArgumentBinder(beanContext.getConversionService(), deserializer);
+        // only the body is bound with the deserializer of the destination, the other arguments as usual
+        return new ArgumentBinderRegistry<>() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <A> Optional<ArgumentBinder<A, Message>> findArgumentBinder(Argument<A> argument) {
+                if (argument.getAnnotationMetadata().hasAnnotation(MessageBody.class)) {
+                    return Optional.of((ArgumentBinder<A, Message>) bodyBinder);
+                }
+                return jmsArgumentBinderRegistry.findArgumentBinder(argument);
+            }
         };
+    }
+
+    private MessageListener generateAndBindListener(Object bean,
+                                                    Executable<?, ?> method,
+                                                    ArgumentBinderRegistry<Message> binderRegistry,
+                                                    String listenerName) {
+        // a parameter typed as the JMS session, or a provider subtype, receives the session that consumed the message
+        Argument<?>[] sessionArguments = Arrays.stream(method.getArguments())
+            .filter(argument -> Session.class.isAssignableFrom(argument.getType())
+                && !argument.getAnnotationMetadata().hasStereotype(Bindable.class))
+            .toArray(Argument[]::new);
+        checkBinders(method, sessionArguments, binderRegistry, listenerName);
+        if (sessionArguments.length == 0) {
+            return message -> {
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>();
+                BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
+                boundExecutable.invoke(bean);
+            };
+        }
+        return new SessionAwareMessageListener() {
+            @Override
+            public void onMessage(Message message, Session session) {
+                Map<Argument<?>, Object> preBound = HashMap.newHashMap(sessionArguments.length);
+                for (Argument<?> argument : sessionArguments) {
+                    preBound.put(argument, session);
+                }
+                DefaultExecutableBinder<Message> binder = new DefaultExecutableBinder<>(preBound);
+                BoundExecutable boundExecutable = binder.bind(method, binderRegistry, message);
+                boundExecutable.invoke(bean);
+            }
+
+            @Override
+            public void checkSession(Session session) {
+                for (Argument<?> argument : sessionArguments) {
+                    if (!argument.getType().isInstance(session)) {
+                        throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                            + " of the listener method " + listenerName + " cannot be bound to the session "
+                            + session.getClass().getName());
+                    }
+                }
+            }
+        };
+    }
+
+    /**
+     * Checks at registration that every argument other than the session can be bound, since one that can't, such as a
+     * parameter of type {@code oracle.jms.AQjmsSession}, which is a {@code javax.jms.Session}, would fail every message.
+     */
+    private void checkBinders(Executable<?, ?> method, Argument<?>[] sessionArguments,
+                              ArgumentBinderRegistry<Message> binderRegistry, String listenerName) {
+        List<Argument<?>> bound = Arrays.asList(sessionArguments);
+        for (Argument<?> argument : method.getArguments()) {
+            if (bound.contains(argument)) {
+                continue;
+            }
+            try {
+                binderRegistry.findArgumentBinder(argument);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("The argument '" + argument.getName() + "' of type " + argument.getTypeName()
+                    + " of the @" + clazz.getSimpleName() + " listener method " + listenerName + " cannot be bound: annotate it with a binding annotation"
+                    + " such as @MessageBody or @MessageHeader, or type it as a jakarta.jms.Session", e);
+            }
+        }
+    }
+
+    private static @Nullable JMSTopicSubscription topicSubscription(AnnotationValue<?> destinationAnnotation, String destination) {
+        return JMSTopicSubscription.of(destination,
+            destinationAnnotation.stringValue("subscription").orElse(null),
+            destinationAnnotation.isTrue("durable"),
+            destinationAnnotation.isTrue("shared"),
+            destinationAnnotation.stringValue("clientId").orElse(null));
     }
 
     private void registerListener(ExecutableMethod<?, ?> method,
@@ -132,6 +225,19 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final int acknowledgeMode = destinationAnnotation.getRequiredValue("acknowledgeMode", Integer.class);
         final boolean transacted = destinationAnnotation.getRequiredValue("transacted", Boolean.class);
         final Optional<String> messageSelector = destinationAnnotation.get("messageSelector", String.class);
+        final JMSTopicSubscription subscription = topicSubscription(destinationAnnotation, destination);
+        final int consumers = destinationAnnotation.intValue("consumers").orElse(1);
+        if (consumers < 1) {
+            throw new IllegalStateException("The listener of " + destination + " must have at least one consumer, but consumers = " + consumers);
+        }
+        if (consumers > 1 && type == JMSDestinationType.TOPIC && subscription == null) {
+            throw new IllegalStateException("The listener of topic " + destination + " has no subscription, so every consumer would receive"
+                + " every message: more than one consumer requires a shared subscription");
+        }
+        if (consumers > 1 && subscription != null && !subscription.shared()) {
+            throw new IllegalStateException("The subscription '" + subscription.name() + "' of topic " + destination
+                + " is an unshared durable subscription, which allows only one consumer: more than one consumer requires a shared subscription");
+        }
 
         final JMSListenerRegistry registry = beanContext
                 .findBean(JMSListenerRegistry.class)
@@ -141,7 +247,9 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
         final Object bean = beanContext.getBean(beanDefinition.getBeanType());
         final ExecutorService executor = getExecutorService(destinationAnnotation);
 
-        MessageListener listener = generateAndBindListener(bean, method);
+        // the bean type rather than the declaring type, which may be a superclass of several listeners
+        MessageListener listener = generateAndBindListener(bean, method, binderRegistry(destinationAnnotation),
+            beanDefinition.getBeanType().getSimpleName() + "#" + method.getMethodName());
 
         Set<JMSListenerErrorHandler> errorHandlers = Stream.concat(
                         Arrays.stream(destinationAnnotation.classValues("errorHandlers")),
@@ -164,11 +272,12 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
                 .collect(Collectors.toSet());
 
         try {
-            Connection connection = connectionPool.createConnection();
-            io.micronaut.jms.listener.JMSListener registeredListener = registry.register(
-                    connection, type, destination, transacted, acknowledgeMode, listener, executor, true, messageSelector);
-            registeredListener.addSuccessHandlers(successHandlers);
-            registeredListener.addErrorHandlers(errorHandlers);
+            // the consumers share one connection, each with its own session; either all of them are registered or none
+            for (io.micronaut.jms.listener.JMSListener registeredListener : registry.register(connectionPool, type, destination,
+                    transacted, acknowledgeMode, listener, executor, true, messageSelector, subscription, consumers)) {
+                registeredListener.addSuccessHandlers(successHandlers);
+                registeredListener.addErrorHandlers(errorHandlers);
+            }
         } catch (JMSException e) {
             logger.error("Failed to register listener for destination " + destination, e);
         }

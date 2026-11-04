@@ -5,6 +5,11 @@ plugins {
 
 dependencies {
     testImplementation libs.awaitility
+    testImplementation mn.micronaut.management
+    testImplementation mnMicrometer.micrometer.core
+    testImplementation projects.micronautJmsTracingOpentelemetry
+    testImplementation platform(mnTracing.boms.opentelemetry)
+    testImplementation libs.opentelemetry.sdk.testing
 }
 
 micronaut {
