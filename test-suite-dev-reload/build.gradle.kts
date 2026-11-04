@@ -8,7 +8,7 @@ tasks.withType<Test>().configureEach {
 }
 
 // -PdevReloadAwsVersion=<version> runs the suite against a micronaut-aws with development support, such as a
-// snapshot published to Maven local, with which the client micronaut-aws builds is retained across a restart.
+// snapshot, with which the client micronaut-aws builds is retained across a restart.
 // Remove once the build moves to a micronaut-aws release that carries it.
 val devReloadAwsVersion = providers.gradleProperty("devReloadAwsVersion")
 if (devReloadAwsVersion.isPresent) {
