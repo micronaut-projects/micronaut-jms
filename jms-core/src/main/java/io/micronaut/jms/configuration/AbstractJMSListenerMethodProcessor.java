@@ -41,6 +41,7 @@ import io.micronaut.jms.pool.JMSConnectionPool;
 import io.micronaut.jms.serdes.Deserializer;
 import io.micronaut.jms.util.Assert;
 import io.micronaut.messaging.annotation.MessageBody;
+import jakarta.annotation.PreDestroy;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,6 +80,7 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
 
     private final JMSArgumentBinderRegistry jmsArgumentBinderRegistry;
     private final Class<T> clazz;
+    private final List<ExecutorService> createdExecutors = new CopyOnWriteArrayList<>();
 
     protected AbstractJMSListenerMethodProcessor(BeanContext beanContext,
                                                  JMSArgumentBinderRegistry registry,
@@ -107,6 +110,34 @@ public abstract class AbstractJMSListenerMethodProcessor<T extends Annotation>
     }
 
     protected abstract ExecutorService getExecutorService(AnnotationValue<T> value);
+
+    /**
+     * Records an executor that this processor created for a listener, rather than one it found as a bean, so that it
+     * is shut down when the processor is destroyed with its context.
+     *
+     * @param executor The executor this processor created
+     * @return The executor
+     * @since 5.2.0
+     */
+    protected final ExecutorService created(ExecutorService executor) {
+        createdExecutors.add(executor);
+        return executor;
+    }
+
+    /**
+     * Shuts down the executors this processor {@link #created(ExecutorService) created}, which nothing else shuts
+     * down: their threads would otherwise outlive the context. The executors finish the messages they were given. An
+     * executor found as a bean is left to its context.
+     *
+     * @since 5.2.0
+     */
+    @PreDestroy
+    protected void shutdownCreatedExecutors() {
+        for (ExecutorService executor : createdExecutors) {
+            executor.shutdown();
+        }
+        createdExecutors.clear();
+    }
 
     protected abstract JMSDestinationType getDestinationType();
 

@@ -18,6 +18,7 @@ package io.micronaut.jms.sqs.configuration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import io.micronaut.context.annotation.EachBean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.core.annotation.Internal;
 import io.micronaut.jms.configuration.properties.JMSConfigurationProperties;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -26,23 +27,20 @@ import jakarta.inject.Singleton;
 @Factory
 @Internal
 class JmsConnectionPoolSQSConnectionFactory {
-    private final JMSConfigurationProperties properties;
-
-    /**
-     * @param properties JMS Configuration
-     */
-    JmsConnectionPoolSQSConnectionFactory(JMSConfigurationProperties properties) {
-        this.properties = properties;
-    }
 
     /**
      * Creates a {@link JMSConnectionPool} from each registered {@link SQSConnectionFactory} in the context.
+     * The configuration is received by the method rather than held by the factory, so that the factory and the pool
+     * keep only the pool sizes they copied, as development mode retains them across a restart until a change under
+     * {@value JMSConfigurationProperties#PREFIX} or {@value SqsConfiguration#AWS_PREFIX}.
      * @param connectionFactory Connection Factory
+     * @param properties JMS Configuration
      * @return JMS Connection Pool
      */
     @EachBean(SQSConnectionFactory.class)
     @Singleton
-    JMSConnectionPool createJmsConnectionPool(SQSConnectionFactory connectionFactory) {
+    @Retain(invalidatedBy = {JMSConfigurationProperties.PREFIX, SqsConfiguration.AWS_PREFIX})
+    JMSConnectionPool createJmsConnectionPool(SQSConnectionFactory connectionFactory, JMSConfigurationProperties properties) {
         return new JMSConnectionPool(connectionFactory, properties.getInitialPoolSize(), properties.getMaxPoolSize());
     }
 }
