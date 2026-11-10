@@ -55,8 +55,8 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  *
  * <ul>
  *     <li>an {@link SqsClient}, and so the connection factory and the pool that hold it, whose class, credentials,
- *     endpoint or auth scheme provider, or execution interceptors, metric publishers, retry strategy or scheduled
- *     executor of its override configuration, are classes of the application, which a
+ *     endpoint or auth scheme provider, auth schemes, or execution interceptors, metric publishers, retry strategy
+ *     or scheduled executor of its override configuration, are classes of the application, which a
  *     {@code BeanCreatedEventListener} of the application may give it: the retained client would keep running them,
  *     and the retired generation reachable, after the restart replaced them;</li>
  *     <li>the connection factory made from an {@link SqsClientBuilder}, which builds a client from it for each
@@ -218,6 +218,7 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
             held.add(client.serviceClientConfiguration().credentialsProvider());
             held.add(client.serviceClientConfiguration().endpointProvider().orElse(null));
             held.add(client.serviceClientConfiguration().authSchemeProvider());
+            held.addAll(client.serviceClientConfiguration().authSchemes().values());
             held.addAll(overrides(client.serviceClientConfiguration().overrideConfiguration()));
         } catch (RuntimeException e) {
             // a client of the application that does not expose its configuration
