@@ -79,13 +79,13 @@ public class JMSQueueListenerMethodProcessor extends AbstractJMSListenerMethodPr
             int numThreads = Integer.parseInt(matcher.group(1));
             int maxThreads = Integer.parseInt(matcher.group(2));
 
-            return new ThreadPoolExecutor(
+            return created(new ThreadPoolExecutor(
                 numThreads,
                 maxThreads,
                 DEFAULT_KEEP_ALIVE_TIME,
                 MILLISECONDS,
                 new LinkedBlockingQueue<>(numThreads),
-                Executors.defaultThreadFactory());
+                Executors.defaultThreadFactory()));
         }
 
        return null;
