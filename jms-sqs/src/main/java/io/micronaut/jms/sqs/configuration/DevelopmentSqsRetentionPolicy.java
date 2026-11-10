@@ -28,6 +28,7 @@ import io.micronaut.core.annotation.Internal;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.core.value.PropertyResolver;
 import io.micronaut.inject.BeanDefinition;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.jms.ConnectionFactory;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProperties.PREFIX;
 
@@ -59,9 +61,11 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
  *     and the retired generation reachable, after the restart replaced them;</li>
  *     <li>the connection factory made from an {@link SqsClientBuilder}, which builds a client from it for each
  *     connection: a builder does not tell what providers it was given;</li>
- *     <li>an {@link SqsClientBuilder} itself, and so the client built from it, unless the development support of
- *     micronaut-aws is present. Its own retention policy, with this one, then checks the {@link SqsClient} it builds
- *     from the builder, which holds what the builder was given;</li>
+ *     <li>an {@link SqsClientBuilder} or {@link SqsClient} made from a bean that a {@code BeanCreatedEventListener} or
+ *     {@code BeanInitializedEventListener} of the application applies to, such as the builder, whatever the listener
+ *     gave it: a builder does not tell what providers it was given, and the client tells only some of what it holds.
+ *     This is decided from the definitions of the context and its dependency graph, so it holds whether or not
+ *     micronaut-aws has development support of its own;</li>
  *     <li>the connection factory and the pool when a bean they hold, such as the credentials and region providers of
  *     micronaut-aws, received the environment or the context, which stop with the context. The context refuses them
  *     too, but warns on every restart; this is how they are made by default, so it is refused here and said at
@@ -80,24 +84,27 @@ import static io.micronaut.jms.sqs.configuration.properties.SqsConfigurationProp
 @Requires(property = PREFIX + ".enabled", value = StringUtils.TRUE)
 final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
 
-    /**
-     * The development-only retention policy of micronaut-aws, which refuses an AWS SDK client holding a class of the
-     * application, and whose chains copy the {@code aws} configuration instead of holding the environment.
-     */
-    static final String AWS_DEVELOPMENT_POLICY = "io.micronaut.aws.sdk.v2.dev.DevelopmentAwsRetentionPolicy";
-
     private static final Logger LOG = LoggerFactory.getLogger(DevelopmentSqsRetentionPolicy.class);
 
     private final BeanContext beanContext;
-    private final boolean awsDevelopmentSupport;
+    private final Predicate<Class<?>> isApplicationClass;
+    private ApplicationListeners listeners;
 
     /**
      * @param beanContext The context, whose dependency graph tells what a retained bean holds
      */
+    @Inject
     DevelopmentSqsRetentionPolicy(BeanContext beanContext) {
+        this(beanContext, DevelopmentSqsRetentionPolicy::isApplicationClass);
+    }
+
+    /**
+     * @param beanContext The context, whose dependency graph tells what a retained bean holds
+     * @param isApplicationClass Whether a class is of the application, which the restart replaces
+     */
+    DevelopmentSqsRetentionPolicy(BeanContext beanContext, Predicate<Class<?>> isApplicationClass) {
         this.beanContext = beanContext;
-        this.awsDevelopmentSupport = beanContext.getBeanDefinitions(BeanRetentionPolicy.class).stream()
-            .anyMatch(definition -> definition.getBeanType().getName().equals(AWS_DEVELOPMENT_POLICY));
+        this.isApplicationClass = isApplicationClass;
     }
 
     @Override
@@ -106,16 +113,18 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         String applicationClass = null;
         if (bean instanceof SqsClient client) {
             applicationClass = applicationClassOf(client);
-        } else if (bean instanceof SqsClientBuilder && !awsDevelopmentSupport) {
-            // a builder does not tell the credentials, endpoint or auth providers a listener of the application may
-            // have given it. With the development support of micronaut-aws, the client it builds from the builder
-            // holds them, and is checked here and by its policy
-            LOG.debug("The SQS client builder [{}] is not retained across the restart: what it was given cannot be read back", bean);
-            return Decision.REFUSE;
         }
         if (applicationClass != null) {
             LOG.debug("The SQS client [{}] is not retained across the restart: it holds the class [{}] of the application", bean, applicationClass);
             return Decision.REFUSE;
+        }
+        if (bean instanceof SqsClient || bean instanceof SqsClientBuilder) {
+            // what a listener of the application gave the builder is not injected, and a builder does not tell it
+            String customized = listeners().customizing(registration.getBeanDefinition());
+            if (customized != null) {
+                LOG.debug("The SQS client or builder [{}] is not retained across the restart: {}", bean, customized);
+                return Decision.REFUSE;
+            }
         }
         if (isMadeFromBuilder(registration.getBeanDefinition())) {
             // it builds a client from the builder for each connection, which no policy sees
@@ -131,6 +140,16 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
             }
         }
         return Decision.ABSTAIN;
+    }
+
+    private synchronized ApplicationListeners listeners() {
+        ApplicationListeners found = listeners;
+        if (found == null) {
+            // read as the context stops, which is when the policy is asked, so that a listener added meanwhile counts
+            found = new ApplicationListeners(beanContext, isApplicationClass);
+            listeners = found;
+        }
+        return found;
     }
 
     /**
@@ -192,7 +211,7 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         return null;
     }
 
-    private static String applicationClassOf(SqsClient client) {
+    private String applicationClassOf(SqsClient client) {
         List<Object> held = new ArrayList<>();
         held.add(client);
         try {
@@ -222,9 +241,9 @@ final class DevelopmentSqsRetentionPolicy implements BeanRetentionPolicy {
         return overrides;
     }
 
-    private static String applicationClassOf(List<Object> held) {
+    private String applicationClassOf(List<Object> held) {
         for (Object object : held) {
-            if (object != null && isApplicationClass(object.getClass())) {
+            if (object != null && isApplicationClass.test(object.getClass())) {
                 return object.getClass().getName();
             }
         }

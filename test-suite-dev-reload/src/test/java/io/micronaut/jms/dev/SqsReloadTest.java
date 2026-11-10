@@ -2,7 +2,9 @@ package io.micronaut.jms.dev;
 
 import com.amazon.sqs.javamessaging.ProviderConfiguration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
+import io.micronaut.aws.sdk.v2.service.sqs.SqsClientFactory;
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Retain;
 import io.micronaut.context.reload.ClassChange;
 import io.micronaut.context.reload.ClassChangeEvent;
 import io.micronaut.context.reload.ReloadStrategy;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.SqsClientBuilder;
 import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
 
 import java.nio.file.Path;
@@ -40,9 +43,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * the retired generation as its context stops, and the new generation consumes: with a client that holds nothing of
  * the context, the connection factory and the pool are retained. With the client micronaut-aws builds, they are
  * retained with it when micronaut-aws has development support, whose credentials and region chains copy the
- * {@code aws} configuration and whose retention policy checks the client built from the builder; without it, its
- * providers read the environment and the builder is refused, so they are made again. Nothing of the retired
- * generation stays reachable.
+ * {@code aws} configuration; without it, its providers read the environment, so they are made again. Nothing of the
+ * retired generation stays reachable.
  *
  * <p>The build resolves a micronaut-aws with development support with {@code -PdevReloadAwsVersion}.</p>
  */
@@ -207,13 +209,13 @@ class SqsReloadTest {
     }
 
     /**
-     * Whether micronaut-aws has development support, whose retention policy checks the client it builds.
+     * Whether micronaut-aws has development support: its SQS client factory then marks the client it builds
+     * {@link Retain retained}, and its credentials and region chains copy the {@code aws} configuration.
      */
     static boolean awsDevelopmentSupport() {
         try {
-            Class.forName("io.micronaut.aws.sdk.v2.dev.DevelopmentAwsRetentionPolicy", false, SqsReloadTest.class.getClassLoader());
-            return true;
-        } catch (ClassNotFoundException e) {
+            return SqsClientFactory.class.getMethod("syncClient", SqsClientBuilder.class).isAnnotationPresent(Retain.class);
+        } catch (NoSuchMethodException e) {
             return false;
         }
     }

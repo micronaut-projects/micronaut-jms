@@ -3,7 +3,6 @@ package io.micronaut.jms.sqs.configuration;
 import com.amazon.sqs.javamessaging.SQSConnectionFactory;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.BeanRegistration;
-import io.micronaut.context.reload.BeanRetentionPolicy;
 import io.micronaut.context.reload.BeanRetentionPolicy.Decision;
 import io.micronaut.inject.BeanDefinition;
 import io.micronaut.jms.pool.JMSConnectionPool;
@@ -53,13 +52,24 @@ class DevelopmentSqsRetentionPolicyTest {
     }
 
     @Test
-    void withoutTheDevelopmentSupportOfMicronautAwsABuilderIsRefusedSinceWhatItWasGivenCannotBeReadBack() {
+    void aBuilderNoListenerOfTheApplicationCustomizesIsLeftToTheContext() {
         try (ApplicationContext context = developmentContext(Map.of("aws.region", "us-east-1"))) {
-            assertFalse(context.getBeanDefinitions(BeanRetentionPolicy.class).stream()
-                .anyMatch(definition -> definition.getBeanType().getName().equals(DevelopmentSqsRetentionPolicy.AWS_DEVELOPMENT_POLICY)),
-                "this module builds against a micronaut-aws without development support");
             DevelopmentSqsRetentionPolicy policy = context.getBean(DevelopmentSqsRetentionPolicy.class);
-            assertEquals(Decision.REFUSE, policy.decide(registration(context, context.getBean(SqsClientBuilder.class))));
+            assertEquals(Decision.ABSTAIN, policy.decide(registration(context, context.getBean(SqsClientBuilder.class))));
+        }
+    }
+
+    @Test
+    void aBuilderThatAListenerOfTheApplicationCustomizesIsRefusedWithTheClientMadeFromIt() {
+        try (ApplicationContext context = developmentContext(Map.of("aws.region", "us-east-1", "test.sqs.builder-listener", true))) {
+            BeanRegistration<?> builder = registration(context, context.getBean(SqsClientBuilder.class));
+            BeanRegistration<?> client = registration(context, context.getBean(SqsClient.class));
+            // the listener of the test is of the runtime classpath
+            assertEquals(Decision.ABSTAIN, context.getBean(DevelopmentSqsRetentionPolicy.class).decide(builder));
+            // as a class of the application, which a restart replaces, it keeps the builder and the client from being retained
+            DevelopmentSqsRetentionPolicy policy = new DevelopmentSqsRetentionPolicy(context, type -> type == ApplicationBuilderListener.class);
+            assertEquals(Decision.REFUSE, policy.decide(builder));
+            assertEquals(Decision.REFUSE, policy.decide(client));
         }
     }
 
