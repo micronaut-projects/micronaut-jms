@@ -22,7 +22,7 @@ include 'docs-examples:example-java'
 include 'docs-examples:example-kotlin'
 include 'docs-examples:example-python'
 include 'tests:tasks-sqs'
-include 'tests:tasks-activemq-activemq-placeholder'
+include 'tests:tasks-activemq-artemis'
 include 'tests:tasks-activemq-classic'
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
