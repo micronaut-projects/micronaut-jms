@@ -4,3 +4,22 @@ Using an unsupported JMS broker is simple;  you simply need to instantiate a `Co
 in a https://docs.micronaut.io/latest/guide/#factories[Bean factory]. See the `Replacing the ConnectionFactory` section below for an example.
 
 With this in place you can configure consumers and producers that use the connection factory by referencing the bean name (`"myConnectionFactory"` in the example) in `@JMSProducer` and `@JMSListener` annotations on your producer interfaces and consumer classes.
+
+== Oracle AQ
+
+Oracle AQ exposes datasource-based `AQjmsFactory` factory overloads. Those methods expect `dataSource.getConnection()` to return an Oracle JDBC connection implementation directly.
+
+When Micronaut Data JDBC is on the classpath, the injected `DataSource` bean is a delegating proxy and `getConnection()` is routed through Micronaut Data's contextual connection proxy. Passing that bean directly to an AQ datasource overload can fail with a `ClassCastException` when Oracle AQ tries to cast the proxied connection to an Oracle JDBC connection type, such as `oracle.jdbc.OracleConnection` or `oracle.jdbc.internal.OracleConnection`.
+
+Before calling the AQ datasource overloads, unwrap the Micronaut Data proxy with `io.micronaut.data.connection.jdbc.advice.DelegatingDataSource.unwrapDataSource(dataSource)` and pass the resulting target datasource to Oracle AQ instead:
+
+[source,java]
+----
+DataSource oracleDataSource = io.micronaut.data.connection.jdbc.advice.DelegatingDataSource.unwrapDataSource(dataSource);
+----
+
+Then pass `oracleDataSource` to the `AQjmsFactory.*(DataSource)` overload for your Oracle AQ version.
+
+The `AQjmsFactory` overloads that accept the JDBC URL and connection properties remain a suitable alternative when you prefer not to pass a datasource bean to Oracle AQ directly.
+
+Regardless of how the `ConnectionFactory` is created, register it as a `@JMSConnectionFactory` bean and create a matching `JMSConnectionPool` bean as described above.
